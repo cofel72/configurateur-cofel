@@ -784,8 +784,16 @@
       }
     );
 
-    const logData = await logResp.json();
-    window.lastCreatedQuoteId = logData.quoteId;
+   const logData = await logResp.json();
+
+if (!logData || !logData.ok || !logData.quoteId) {
+  alert("Erreur : impossible d’enregistrer le devis en base.");
+  console.error("Réponse log-quote invalide :", logData);
+  return;
+}
+
+window.lastCreatedQuoteId = logData.quoteId;
+
 
     // ----- PDF → base64 -----
     const pdfBlob = doc.output("blob");
