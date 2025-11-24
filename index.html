@@ -756,17 +756,12 @@
     await sendEmail({ client, devis: d });
 
     // ----- ENREGISTREMENT BD -----
-    let profileEmail = "commercial@cofel72.fr";   // Email fallback obligatoire
-
-try {
-  const storedProfile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
-  if (storedProfile.email) {
-    profileEmail = storedProfile.email;
-  }
-} catch (err) {
-  console.warn("Impossible de lire cofel_client_profile :", err);
-}
-
+    let profileEmail = "";
+    try {
+      profileEmail = JSON.parse(
+        localStorage.getItem("cofel_client_profile") || "{}"
+      ).email;
+    } catch {}
 
     const logResp = await fetch(
       "https://cofel-auth.sonveven.workers.dev/log-quote",
@@ -789,16 +784,8 @@ try {
       }
     );
 
-   const logData = await logResp.json();
-
-if (!logData || !logData.ok || !logData.quoteId) {
-  alert("Erreur : impossible d’enregistrer le devis en base.");
-  console.error("Réponse log-quote invalide :", logData);
-  return;
-}
-
-window.lastCreatedQuoteId = logData.quoteId;
-
+    const logData = await logResp.json();
+    window.lastCreatedQuoteId = logData.quoteId;
 
     // ----- PDF → base64 -----
     const pdfBlob = doc.output("blob");
