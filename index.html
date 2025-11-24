@@ -756,12 +756,17 @@
     await sendEmail({ client, devis: d });
 
     // ----- ENREGISTREMENT BD -----
-    let profileEmail = "";
-    try {
-      profileEmail = JSON.parse(
-        localStorage.getItem("cofel_client_profile") || "{}"
-      ).email;
-    } catch {}
+    let profileEmail = "commercial@cofel72.fr";   // Email fallback obligatoire
+
+try {
+  const storedProfile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
+  if (storedProfile.email) {
+    profileEmail = storedProfile.email;
+  }
+} catch (err) {
+  console.warn("Impossible de lire cofel_client_profile :", err);
+}
+
 
     const logResp = await fetch(
       "https://cofel-auth.sonveven.workers.dev/log-quote",
