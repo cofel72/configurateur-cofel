@@ -763,11 +763,27 @@
       ).email;
     } catch {}
 
-    const logResp = await fetch(
-  const logResp = await fetch(
+   const logResp = await fetch(
   "https://cofel-auth.sonveven.workers.dev:443/log-quote",
-  { ... }
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      clientEmail: profileEmail,
+      clientCompany: client.societe,
+      clientName: client.contact,
+      productType: "devis-index",
+      totalHT: t.total_ht,
+      totalTTC: t.total_ttc,
+      extra: {
+        chantier: client.chantier,
+        date: new Date().toISOString(),
+        lignes: d.lignes || [],
+      },
+    }),
+  }
 );
+
 
   {
     method: "POST",
