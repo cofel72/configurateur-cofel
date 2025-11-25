@@ -755,14 +755,6 @@
     // ----- EMAIL SILENCIEUX -----
     await sendEmail({ client, devis: d });
 
-    // ----- ENREGISTREMENT BD -----
-    let profileEmail = "";
-    try {
-      profileEmail = JSON.parse(
-        localStorage.getItem("cofel_client_profile") || "{}"
-      ).email;
-    } catch {}
-
    // ----- ENREGISTREMENT BD -----
 let profileEmail = "";
 try {
@@ -771,7 +763,7 @@ try {
   ).email;
 } catch {}
 
-// ⭐ APPEL CORRECT AU WORKER
+// ⭐ Appel vers le Worker (URL CORRECTE AVEC LE :443)
 const logResp = await fetch(
   "https://cofel-auth.sonveven.workers.dev:443/log-quote",
   {
@@ -794,7 +786,7 @@ const logResp = await fetch(
 );
 
 const logData = await logResp.json();
-window.lastCreatedQuoteId = logData.quoteId || logData.id || null;
+window.lastCreatedQuoteId = logData.quoteId || null;
 
 // ----- PDF → base64 -----
 const pdfBlob = doc.output("blob");
