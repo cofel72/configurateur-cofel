@@ -763,7 +763,16 @@
       ).email;
     } catch {}
 
-   const logResp = await fetch(
+   // ----- ENREGISTREMENT BD -----
+let profileEmail = "";
+try {
+  profileEmail = JSON.parse(
+    localStorage.getItem("cofel_client_profile") || "{}"
+  ).email;
+} catch {}
+
+// ⭐ APPEL CORRECT AU WORKER
+const logResp = await fetch(
   "https://cofel-auth.sonveven.workers.dev:443/log-quote",
   {
     method: "POST",
@@ -784,54 +793,36 @@
   }
 );
 
+const logData = await logResp.json();
+window.lastCreatedQuoteId = logData.quoteId || logData.id || null;
 
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      clientEmail: profileEmail,
-      clientCompany: client.societe,
-      clientName: client.contact,
-      productType: "devis-index",
-      totalHT: t.total_ht,
-      totalTTC: t.total_ttc,
-      extra: {
-        chantier: client.chantier,
-        date: new Date().toISOString(),
-        lignes: d.lignes || [],
-      },
-    }),
-  }
-);
+// ----- PDF → base64 -----
+const pdfBlob = doc.output("blob");
+const pdfBase64 = await new Promise((resolve) => {
+  const fr = new FileReader();
+  fr.onloadend = () => resolve(fr.result.split(",")[1]);
+  fr.readAsDataURL(pdfBlob);
+});
 
-    const logData = await logResp.json();
-    window.lastCreatedQuoteId = logData.quoteId || logData.id || null;
-
-    // ----- PDF → base64 -----
-    const pdfBlob = doc.output("blob");
-    const pdfBase64 = await new Promise((resolve) => {
-      const fr = new FileReader();
-      fr.onloadend = () => resolve(fr.result.split(",")[1]);
-      fr.readAsDataURL(pdfBlob);
-    });
-
-    // ----- UPLOAD GITHUB -----
-    if (!window.lastCreatedQuoteId) {
+// ----- UPLOAD GITHUB -----
+if (!window.lastCreatedQuoteId) {
   console.error("❌ Aucun quoteId reçu depuis /log-quote :", logData);
   alert("Erreur interne : impossible de récupérer l'ID du devis.");
   return;
 }
-    await fetch("https://cofel-auth.sonveven.workers.dev:443/upload-pdf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        quoteId: window.lastCreatedQuoteId,
-        pdfBase64,
-        clientCompany: client.societe,
-        productType: "devis-index",
-        createdAt: new Date().toISOString(),
-      }),
-    });
+
+await fetch("https://cofel-auth.sonveven.workers.dev:443/upload-pdf", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    quoteId: window.lastCreatedQuoteId,
+    pdfBase64,
+    clientCompany: client.societe,
+    productType: "devis-index",
+    createdAt: new Date().toISOString(),
+  }),
+});
+
 
     // ----- DOWNLOAD LOCAL -----
     doc.save("Devis-Cofel.pdf");
