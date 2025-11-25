@@ -764,7 +764,9 @@
     } catch {}
 
     const logResp = await fetch(
-      "https://cofel-auth.sonveven.workers.dev/log-quote",
+      const logResp = await fetch(
+  "https://cofel-auth.sonveven.workers.dev/log-quote",
+
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -802,6 +804,7 @@
   return;
 }
     await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf", {
+
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
