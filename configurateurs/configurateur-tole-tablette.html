@@ -474,6 +474,21 @@ function compute(){
   const mat = (document.querySelector('input[name="matiere"]:checked')||{}).value || 'prelaque';
   const matM2 = MATERIAL_PRICE_M2[mat] ?? 0;
   const base_interne = matM2 * A;
+  // ======== MAJORATION PETITES SURFACES (invisible client) ========
+let coefSmall = 1;
+
+// A = surface développée déjà calculée (incluant plis)
+if (A < 0.10) {
+    coefSmall = 3.0;        // +200%
+} else if (A <= 0.20) {
+    coefSmall = 2.5;        // +150%
+} else if (A <= 0.75) {
+    coefSmall = 1.5;        // +50%
+}
+
+// Application du coefficient uniquement sur la matière
+const base_interne_majoré = base_interne * coefSmall;
+
 
   let ajourage_interne=0, pmma_interne=0, led_interne=0, pmmaSurf=0;
   if(elOptAjour.checked){
@@ -510,7 +525,7 @@ function compute(){
     fix_interne = CORNIERE_PRICE_ML * P;
   }
 
-  const unitHT_interne = base_interne + ajourage_interne + pmma_interne + led_interne + fix_interne;
+  const unitHT_interne = base_interne_majoré + ajourage_interne + pmma_interne + led_interne + fix_interne;
 
   const unitHT_public = unitHT_interne * UPLIFT_PUBLIC * remiseClient;
   const totalHT_public = unitHT_public * Q;
@@ -643,4 +658,5 @@ compute();
 
 </body>
 </html>
+
 
