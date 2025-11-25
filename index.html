@@ -765,7 +765,7 @@ try {
 
 // ⭐ Appel vers le Worker (URL CORRECTE AVEC LE :443)
 const logResp = await fetch(
-  "https://cofel-auth.sonveven.workers.dev:443/log-quote",
+  "https://cofel-auth.sonveven.workers.dev/log-quote",
   {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -803,7 +803,7 @@ if (!window.lastCreatedQuoteId) {
   return;
 }
 
-await fetch("https://cofel-auth.sonveven.workers.dev:443/upload-pdf", {
+await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
