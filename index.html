@@ -785,7 +785,7 @@
     );
 
     const logData = await logResp.json();
-    window.lastCreatedQuoteId = logData.quoteId;
+    window.lastCreatedQuoteId = logData.quoteId || logData.id || null;
 
     // ----- PDF → base64 -----
     const pdfBlob = doc.output("blob");
@@ -796,6 +796,11 @@
     });
 
     // ----- UPLOAD GITHUB -----
+    if (!window.lastCreatedQuoteId) {
+  console.error("❌ Aucun quoteId reçu depuis /log-quote :", logData);
+  alert("Erreur interne : impossible de récupérer l'ID du devis.");
+  return;
+}
     await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
