@@ -380,25 +380,57 @@
       elHelpFinition.textContent = 'Pour les drapeaux ronds, la finition est toujours laquée (ajourage possible si dispo).';
     } else { elFinPre.disabled = false; elHelpFinition.textContent = ''; }
   }
-  function compute(){
+function compute(){
   // === Remise automatique client ===
-  let remiseClient = 1;
+  let remiseClient = 1; // 1 = pas de remise
   try {
-      const p = JSON.parse(localStorage.getItem('cofel_client_profile'));
-      if (p && typeof p.discountRate === 'number') remiseClient = 1 - p.discountRate;
+    const p = JSON.parse(localStorage.getItem('cofel_client_profile'));
+    if (p && typeof p.discountRate === 'number') {
+      // discountRate est un nombre entre 0 et 1 (ex: 0.3 = 30 %)
+      remiseClient = 1 - p.discountRate;
+    }
   } catch(e){}
 
-    syncFinitionUI();
-    const row=findRow();
-    const Q=Math.max(1,Number(elQ.value||1));
-    if(!row){ elHT.textContent='0,00'; elTTC.textContent='0,00'; return; }
-    let unit_interne = numFR(row[MAP.PRIX]); if(!isFinite(unit_interne)) unit_interne = 0;
-    const unit_public = unit_interne * UPLIFT_PUBLIC * remiseClient;
-    const totalHT = unit_public * Q;
-    const totalTTC = totalHT * (1+TVA);
-    elHT.textContent  = euro(totalHT);
-    elTTC.textContent = euro(totalTTC);
+  // === Mode tarif : client final / prix remisé ===
+  const mode = localStorage.getItem('cofel_price_mode') || 'client';
+  // 'client' = prix public
+  // 'pro'    = prix remisé
+
+  syncFinitionUI();
+
+  const row = findRow();
+  const Q = Math.max(1, Number(elQ.value || 1));
+
+  if (!row) {
+    elHT.textContent = '0,00';
+    elTTC.textContent = '0,00';
+    return;
   }
+
+  // Prix de base (interne) lu dans le CSV
+  let unit_interne = numFR(row[MAP.PRIX]);
+  if (!isFinite(unit_interne)) unit_interne = 0;
+
+  // Prix public théorique (sans remise)
+  const unit_public_base = unit_interne * UPLIFT_PUBLIC;
+
+  // Prix affiché selon le mode
+  let unit_affiche;
+  if (mode === 'pro') {
+    // Mode Prix Remisé : on applique la remise client
+    unit_affiche = unit_public_base * remiseClient;
+  } else {
+    // Mode Client Final : pas de remise appliquée
+    unit_affiche = unit_public_base;
+  }
+
+  const totalHT  = unit_affiche * Q;
+  const totalTTC = totalHT * (1 + TVA);
+
+  elHT.textContent  = euro(totalHT);
+  elTTC.textContent = euro(totalTTC);
+}
+
   async function loadCSV(){
     try{ const r=await fetch(CSV_URL,{cache:'no-store'}); const txt=await r.text(); const {rawHeads,rows}=parseCSVAuto(txt); HEADS=rawHeads; ROWS=rows; MAP=buildMapping(HEADS); populateFormes(); populateDimensions(); compute(); }
     catch(e){ console.error(e); alert("Erreur lors du chargement des données. Réessayez plus tard."); }
@@ -464,3 +496,4 @@
 
 </body>
 </html>
+
