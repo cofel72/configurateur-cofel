@@ -131,6 +131,16 @@
 </head>
 <body>
 
+<script>
+// Vérifier que l'utilisateur connecté est l'administrateur
+const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
+
+if (profile.email !== "commercial@cofel72.com") {
+    alert("⛔ Accès réservé à l'administrateur.");
+    window.location.href = "../index.html";
+}
+</script>
+
 <header>
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <div style="font-size:26px;font-weight:600;display:flex;align-items:center;gap:12px;">
