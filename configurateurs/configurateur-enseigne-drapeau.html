@@ -390,8 +390,6 @@ function compute(){
       remiseClient = 1 - p.discountRate;
     }
   } catch(e){}
-// 🔥 Recalcul automatique quand le mode tarif change
-window.addEventListener("cofel-price-mode-changed", compute);
 
   // === Mode tarif : client final / prix remisé ===
   const mode = localStorage.getItem('cofel_price_mode') || 'client';
@@ -408,7 +406,8 @@ window.addEventListener("cofel-price-mode-changed", compute);
     elTTC.textContent = '0,00';
     return;
   }
-
+// 🔥 Recalcul automatique quand le mode tarif change
+window.addEventListener("cofel-price-mode-changed", compute);
   // Prix de base (interne) lu dans le CSV
   let unit_interne = numFR(row[MAP.PRIX]);
   if (!isFinite(unit_interne)) unit_interne = 0;
@@ -498,5 +497,6 @@ window.addEventListener("cofel-price-mode-changed", compute);
 
 </body>
 </html>
+
 
 
