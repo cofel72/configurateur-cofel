@@ -879,9 +879,8 @@ if (profile.email === "commercial@cofel72.fr") {
     document.getElementById("admin-links").style.display = "block";
 }
 </script>
-  <!-- Curseur global de mode tarif -->
+<!-- Curseur global de mode tarif -->
 <div id="price-mode-switch" style="
-    display:none;
     position:fixed;
     bottom:15px;
     right:15px;
@@ -901,14 +900,6 @@ if (profile.email === "commercial@cofel72.fr") {
 </div>
 
 <script>
-// Profil client connecté
-const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
-
-// Montrer le curseur seulement si un client est connecté
-if (profile.email) {
-    document.getElementById("price-mode-switch").style.display = "block";
-}
-
 // Charger le mode actuel
 let priceMode = localStorage.getItem("cofel_price_mode") || "client";
 const pmLabel = document.getElementById("priceModeLabel");
