@@ -855,5 +855,29 @@ await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf", {
 
   })();
   </script>
+  <!-- Lien Admin (invisible par défaut) -->
+<div id="admin-links" style="
+    display:none;
+    position:fixed;
+    top:12px;
+    right:12px;
+    z-index:9999;
+    background:#5a2d82;
+    color:white;
+    padding:8px 15px;
+    border-radius:12px;
+    font-size:14px;
+">
+    <a href="./auth/admin-clients.html" style="color:white; text-decoration:none; margin-right:10px;">👤 Admin Clients</a>
+    <a href="./auth/admin-quotes.html" style="color:white; text-decoration:none;">📄 Admin Devis</a>
+</div>
+
+<script>
+// Afficher le lien Admin seulement pour l'administrateur
+const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
+if (profile.email === "commercial@cofel72.com") {
+    document.getElementById("admin-links").style.display = "block";
+}
+</script>
 </body>
 </html>
