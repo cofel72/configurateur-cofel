@@ -875,7 +875,7 @@ await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf", {
 <script>
 // Afficher le lien Admin seulement pour l'administrateur
 const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
-if (profile.email === "commercial@cofel72.com") {
+if (profile.email === "commercial@cofel72.fr") {
     document.getElementById("admin-links").style.display = "block";
 }
 </script>
