@@ -390,6 +390,8 @@ function compute(){
       remiseClient = 1 - p.discountRate;
     }
   } catch(e){}
+// 🔥 Recalcul automatique quand le mode tarif change
+window.addEventListener("cofel-price-mode-changed", compute);
 
   // === Mode tarif : client final / prix remisé ===
   const mode = localStorage.getItem('cofel_price_mode') || 'client';
@@ -496,4 +498,5 @@ function compute(){
 
 </body>
 </html>
+
 
