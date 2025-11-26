@@ -117,21 +117,9 @@ function formatEuros(n) {
 
 // ======================= ACTION : VOIR (ouvre le PDF GitHub) =======================
 function viewQuote(id) {
-  const q = allQuotes.find((x) => x.id === id);
-
-  if (!q) {
-    alert("Devis introuvable.");
-    return;
-  }
-
-  // On utilise l'URL stockée dans D1 (colonne pdf_url)
-  if (!q.pdf_url) {
-    alert("⚠️ Le PDF n'est pas encore disponible sur le serveur.");
-    return;
-  }
-
-  window.open(q.pdf_url, "_blank");
+  window.open(`https://cofel-auth.sonveven.workers.dev/get-pdf?id=${id}`, "_blank");
 }
+
 
 // ======================= FILTRES =======================
 [fEmail, fCompany, fProduct, fDate].forEach((el) => {
