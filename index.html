@@ -921,7 +921,11 @@ pmToggle.addEventListener("change", () => {
     priceMode = pmToggle.checked ? "pro" : "client";
     localStorage.setItem("cofel_price_mode", priceMode);
     updatePriceModeDisplay();
+
+    // 🔥 NOTIFIER TOUS LES CONFIGURATEURS
+    window.dispatchEvent(new Event("cofel-price-mode-changed"));
 });
+
 
 // Initialisation
 updatePriceModeDisplay();
