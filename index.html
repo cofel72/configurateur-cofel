@@ -879,5 +879,62 @@ if (profile.email === "commercial@cofel72.fr") {
     document.getElementById("admin-links").style.display = "block";
 }
 </script>
+  <!-- Curseur global de mode tarif -->
+<div id="price-mode-switch" style="
+    display:none;
+    position:fixed;
+    bottom:15px;
+    right:15px;
+    background:rgba(90,45,130,0.85);
+    padding:10px 14px;
+    color:#fff;
+    border-radius:12px;
+    font-size:14px;
+    z-index:9999;
+    backdrop-filter:blur(6px);
+    cursor:pointer;
+">
+    <label style="display:flex;align-items:center;gap:10px;">
+        <span id="priceModeLabel">Mode Client Final</span>
+        <input id="priceModeToggle" type="checkbox" style="transform:scale(1.3); cursor:pointer;">
+    </label>
+</div>
+
+<script>
+// Profil client connecté
+const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
+
+// Montrer le curseur seulement si un client est connecté
+if (profile.email) {
+    document.getElementById("price-mode-switch").style.display = "block";
+}
+
+// Charger le mode actuel
+let priceMode = localStorage.getItem("cofel_price_mode") || "client";
+const pmLabel = document.getElementById("priceModeLabel");
+const pmToggle = document.getElementById("priceModeToggle");
+
+// Met à jour l'affichage du switch
+function updatePriceModeDisplay() {
+    if (priceMode === "pro") {
+        pmLabel.textContent = "Mode Prix Remisé";
+        pmToggle.checked = true;
+    } else {
+        pmLabel.textContent = "Mode Client Final";
+        pmToggle.checked = false;
+    }
+}
+
+// Quand on change le switch
+pmToggle.addEventListener("change", () => {
+    priceMode = pmToggle.checked ? "pro" : "client";
+    localStorage.setItem("cofel_price_mode", priceMode);
+    updatePriceModeDisplay();
+});
+
+// Initialisation
+updatePriceModeDisplay();
+</script>
+
 </body>
 </html>
