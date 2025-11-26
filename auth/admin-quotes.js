@@ -1,93 +1,68 @@
 // ============================================================================
-// Admin - Liste des devis Cofel
-// Charge les devis depuis le Worker + filtres + ouverture PDF
+// ADMIN — LISTE DES DEVIS COFEL
 // ============================================================================
-
-const API_URL = "https://cofel-auth.sonveven.workers.dev";
-
-const tbody = document.querySelector("#tableQuotes tbody");
-const fEmail = document.getElementById("searchEmail");
-const fCompany = document.getElementById("searchCompany");
-const fProduct = document.getElementById("searchProduct");
-const fDate = document.getElementById("searchDate");
 
 let allQuotes = [];
 
-// ======================= CHARGEMENT DES DEVIS =======================
+// ---------------------------------------------------------------------------
+// Chargement des devis depuis le Worker
+// ---------------------------------------------------------------------------
 async function loadQuotes() {
-  tbody.innerHTML = `<tr><td colspan="7" style="padding:20px;color:var(--txt-dim);text-align:center;">Chargement...</td></tr>`;
-
   try {
-    const res = await fetch(API_URL + "/list-quotes");
-    const data = await res.json();
+    const resp = await fetch("https://cofel-auth.sonveven.workers.dev/list-quotes");
+    const data = await resp.json();
 
-    if (!data.ok) throw new Error("Erreur API");
+    if (!data.ok) {
+      alert("Impossible de charger les devis.");
+      return;
+    }
 
     allQuotes = data.quotes || [];
     renderQuotes();
 
   } catch (err) {
-    console.error(err);
-    tbody.innerHTML = `<tr><td colspan="7" style="padding:20px;color:red;text-align:center;">Erreur de chargement</td></tr>`;
+    console.error("Erreur loadQuotes :", err);
+    alert("Erreur de chargement des devis.");
   }
 }
 
-// ======================= AFFICHAGE DES LIGNES =======================
+// ---------------------------------------------------------------------------
+// Affichage du tableau dans le HTML
+// ---------------------------------------------------------------------------
 function renderQuotes() {
-  const emailVal = fEmail.value.toLowerCase().trim();
-  const compVal = fCompany.value.toLowerCase().trim();
-  const prodVal = fProduct.value;
-  const dateVal = fDate.value;
+  const tbody = document.querySelector("#quotes-table tbody");
+  tbody.innerHTML = "";
 
-  const filtered = allQuotes.filter(q => {
-    if (emailVal && !q.client_email.toLowerCase().includes(emailVal)) return false;
-    if (compVal && !(q.client_company || "").toLowerCase().includes(compVal)) return false;
-    if (prodVal && q.product_type !== prodVal) return false;
-    if (dateVal && !q.created_at.startsWith(dateVal)) return false;
-    return true;
-  });
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--txt-dim);">Aucun devis trouvé</td></tr>`;
+  if (allQuotes.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:15px;">Aucun devis pour le moment.</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = filtered
-    .map(q => `
-      <tr>
-        <td>${formatDate(q.created_at)}</td>
-        <td>${q.client_email}</td>
-        <td>${q.client_company || "-"}</td>
-        <td>${q.client_name || "-"}</td>
-        <td>${q.product_type}</td>
-        <td>${formatEuros(q.total_ht)}</td>
-        <td>
-          <button class="btn-view" onclick="viewQuote(${q.id})">Voir</button>
-        </td>
-      </tr>
-    `)
-    .join("");
-}
+  for (const q of allQuotes) {
+    const tr = document.createElement("tr");
 
-// ======================= FORMATAGE =======================
-function formatDate(iso) {
-  try {
-    const d = new Date(iso);
-    return (
-      d.toLocaleDateString("fr-FR") +
-      " " +
-      d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
-    );
-  } catch {
-    return iso;
+    tr.innerHTML = `
+      <td>${q.id}</td>
+      <td>${formatDate(q.created_at)}</td>
+      <td>${q.client_email || "-"}</td>
+      <td>${q.client_company || "-"}</td>
+      <td>${q.client_name || "-"}</td>
+      <td>${q.product_type}</td>
+      <td>${formatPrice(q.total_ht)}</td>
+      <td>
+        <button class="view-btn" onclick="viewQuote(${q.id})">
+          📄 Voir
+        </button>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
   }
 }
 
-function formatEuros(n) {
-  return Number(n).toFixed(2).replace(".", ",") + " €";
-}
-
-// ======================= ACTION : VOIR (Ouvrir PDF GitHub) =======================
+// ---------------------------------------------------------------------------
+// Ouvrir un PDF
+// ---------------------------------------------------------------------------
 function viewQuote(id) {
   const q = allQuotes.find(x => x.id === id);
 
@@ -96,27 +71,37 @@ function viewQuote(id) {
     return;
   }
 
-  // 🔥 URL automatique PDF sur GitHub
-  const pdfUrl = `https://raw.githubusercontent.com/cofel72/pdf-devis/main/${id}.pdf`;
+  // Vérification : le Worker DOIT avoir rempli pdf_url dans D1
+  if (!q.pdf_url) {
+    alert("⚠️ Le PDF n'est pas encore disponible sur le serveur.");
+    return;
+  }
 
-  // Vérification rapide (fichier peut exister ou pas)
-  fetch(pdfUrl, { method: "HEAD" })
-    .then(r => {
-      if (!r.ok) {
-        alert("⚠️ Le PDF n'est pas encore disponible sur le serveur.");
-        return;
-      }
-      window.open(pdfUrl, "_blank");
-    })
-    .catch(() => {
-      alert("⚠️ Impossible d'accéder au PDF.");
-    });
+  // Ouverture directe du PDF GitHub
+  window.open(q.pdf_url, "_blank");
 }
 
-// ======================= FILTRES =======================
-[fEmail, fCompany, fProduct, fDate].forEach(el => {
-  el.addEventListener("input", renderQuotes);
-});
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+function formatDate(iso) {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return d.toLocaleString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
 
-// ======================= INITIALISATION =======================
-loadQuotes();
+function formatPrice(n) {
+  if (n == null) return "-";
+  return Number(n).toLocaleString("fr-FR", { minimumFractionDigits: 2 }) + " €";
+}
+
+// ---------------------------------------------------------------------------
+// Lancement auto
+// ---------------------------------------------------------------------------
+window.addEventListener("DOMContentLoaded", loadQuotes);
