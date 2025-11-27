@@ -230,6 +230,23 @@
               <th class="center">Actions</th>
             </tr>
           </thead>
+          <!-- === AJOUT MANUEL DE LIGNE === -->
+<tr>
+  <td>
+    <input type="text" id="manuDesignation" placeholder="Désignation manuelle…" style="width:100%; padding:6px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:white;">
+  </td>
+  <td>
+    <input type="number" id="manuQte" value="1" min="1" style="width:100%; padding:6px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:white; text-align:center;">
+  </td>
+  <td>
+    <input type="number" id="manuPU" value="0" min="0" step="0.01" style="width:100%; padding:6px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:white; text-align:right;">
+  </td>
+  <td class="right">—</td>
+  <td class="center">
+    <button id="btnAddManu" class="btn btn-ghost" style="padding:6px 10px;">➕ Ajouter</button>
+  </td>
+</tr>
+
           <tbody id="bodyDevis">
             <tr><td colspan="5" style="padding:12px;color:var(--txt-dim)">Aucune ligne dans le devis.</td></tr>
           </tbody>
@@ -429,6 +446,38 @@
     
 
     // Actions lignes
+    // === AJOUT MANUEL DE LIGNE ===
+document.getElementById("btnAddManu").addEventListener("click", () => {
+  const designation = (document.getElementById("manuDesignation").value || "").trim();
+  const qte = Number(document.getElementById("manuQte").value || 1);
+  const pu = Number(document.getElementById("manuPU").value || 0);
+
+  if (!designation) {
+    alert("Veuillez saisir une désignation.");
+    return;
+  }
+
+  if (qte <= 0 || pu < 0) {
+    alert("Valeurs invalides.");
+    return;
+  }
+
+  // Ajout dans le moteur de devis
+  Devis.addLine({
+    type: "manuel",
+    designation,
+    quantite: qte,
+    pu_net_ht: pu
+  });
+
+  // Reset des champs
+  document.getElementById("manuDesignation").value = "";
+  document.getElementById("manuQte").value = 1;
+  document.getElementById("manuPU").value = 0;
+
+  render();
+});
+
     body.addEventListener('click',(e)=>{
       const tr = e.target.closest('tr[data-id]');
       if(!tr) return;
