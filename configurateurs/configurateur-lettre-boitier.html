@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Configurateur — Lettres Boîtiers | Cofel</title>
 
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 <style>
   :root{
@@ -45,6 +45,7 @@
   .brand h1{font-size:clamp(18px,2.6vw,22px);margin:0}
   .tagline{max-width:1200px;margin:18px auto 0;padding:0 20px;color:var(--txt-dim)}
 
+  /* PANELS */
   .wrap{max-width:1200px;margin:26px auto;padding:0 20px 40px;}
   .panel{
     background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));
@@ -70,27 +71,25 @@
     background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
     box-shadow:var(--shadow);
     transition:border-color .18s, box-shadow .18s;
-    backdrop-filter:blur(var(--blur));
   }
 
+  /* Option LISSE */
   .option-item{
     display:flex;align-items:center;gap:10px;cursor:pointer;
     border-radius:14px;padding:10px;
     border:1px solid rgba(255,255,255,.24);
-    background: rgba(255,255,255,.14);
+    background:rgba(255,255,255,.12);
     margin-bottom:8px;color:var(--txt);
   }
-  .option-item input{
+  .option-item input[type="checkbox"]{
     appearance:none;width:20px;height:20px;border-radius:6px;
     border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.15);
   }
-  .option-item input:checked{background:var(--violet-2);border-color:#fff;}
-  .option-item input:checked::after{
-    content:"";position:absolute;inset:3px 5px 5px 3px;
-    border-right:3px solid #fff;border-bottom:3px solid #fff;transform:rotate(45deg);
+  .option-item input[type="checkbox"]:checked{
+    background:var(--violet-2);
+    border-color:#fff;
   }
 
-  /* NEW: Champ pose sur lisse */
   #blockLisse{
     margin-top:10px;
     padding:12px;
@@ -100,6 +99,16 @@
     display:none;
   }
 
+  /* RESULT */
+  .result{
+    text-align:center;padding:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
+    border:1px solid var(--glass-hr); border-radius:16px;
+    box-shadow:0 8px 22px rgba(0,0,0,.28);
+    font-size:18px;
+  }
+  .result b{font-size:20px}
+
   footer{
     color:#f3ecff;font-size:12px;text-align:center;padding:24px 10px;opacity:.9;
   }
@@ -107,28 +116,30 @@
 </head>
 <body>
 
-<!-- ========== HERO ========== -->
+<!-- ========= HERO ========= -->
 <div class="hero">
   <div class="hero-inner">
     <div class="brand">
       <img src="../assets/logo cofel.jpg" alt="Cofel" />
       <h1>Configurateur — Lettres Boîtiers</h1>
     </div>
-    <a class="brand" href="../index.html" style="text-decoration:none;color:inherit">⬅ Retour accueil</a>
+    <a class="brand" href="../index.html" style="text-decoration:none;color:inherit">⬅ Retour accueil (devis)</a>
   </div>
   <div class="tagline">Choisissez la famille, la hauteur et l’éclairage. Les montants s’actualisent automatiquement.</div>
 </div>
 
-<!-- ========== CONTENU ========== -->
+<!-- ========= CONTENU ========= -->
 <main class="wrap">
 <section class="panel">
   <h2>⚙️ Paramètres</h2>
 
+  <!-- Famille / Quantité -->
   <div class="card grid">
     <div>
       <label for="famille">Type de lettre boîtier</label>
-
-      <select id="famille" class="native-select"><option value="">— sélectionnez —</option></select>
+      <select id="famille" class="native-select">
+        <option value="">— sélectionnez —</option>
+      </select>
 
       <div class="cselect" data-bind="famille" aria-haspopup="listbox" aria-expanded="false">
         <button type="button" class="cselect-toggle">
@@ -141,10 +152,11 @@
 
     <div>
       <label for="quantite">Quantité</label>
-      <input type="number" id="quantite" value="1" min="1"/>
+      <input type="number" id="quantite" min="1" value="1"/>
     </div>
   </div>
 
+  <!-- Hauteur / Variant -->
   <div class="card grid">
     <div>
       <label for="hauteur">Hauteur (mm)</label>
@@ -155,7 +167,9 @@
     <div>
       <label for="variant">Éclairage (si présent)</label>
 
-      <select id="variant" class="native-select"><option value="">— (aucun filtre) —</option></select>
+      <select id="variant" class="native-select">
+        <option value="">— (aucun filtre) —</option>
+      </select>
 
       <div class="cselect" data-bind="variant" aria-haspopup="listbox" aria-expanded="false">
         <button type="button" class="cselect-toggle">
@@ -165,29 +179,31 @@
         <div class="cselect-menu" role="listbox"></div>
       </div>
 
-      <div class="help" id="variantHelp"></div>
-      <div id="dibondRule" class="help" style="display:none">Pour les faces Dibond : rétroéclairage obligatoire si éclairage</div>
+      <div id="variantHelp" class="help"></div>
+      <div id="dibondRule" class="help" style="display:none">
+        Pour les faces Dibond : rétroéclairage obligatoire si éclairage
+      </div>
     </div>
   </div>
 
-  <!-- ========== AJOUT L’OPTION LISSE ========== -->
+  <!-- ========= OPTION LISSE ========= -->
   <div class="card">
     <label class="option-item">
-      <input type="checkbox" id="optLisse" />
+      <input type="checkbox" id="optLisse">
       <span>Pose sur lisse</span>
     </label>
 
     <div id="blockLisse">
       <label for="lisseLongueur">Longueur de la lisse (mm)</label>
-      <input type="number" id="lisseLongueur" placeholder="Ex : 3000" min="0"/>
-      <div class="help">Tarif : 25 €/ml interne → 50 €/ml public avant remise</div>
+      <input type="number" id="lisseLongueur" placeholder="Ex : 3000" min="0">
+      <div class="help">Tarif lisse : 25 €/ml interne → 50 €/ml public (avant remise)</div>
     </div>
   </div>
 
 </section>
-<!-- ======================== RÉCAPITULATIF ======================== -->
 <section class="panel">
   <h2>🧾 Récapitulatif</h2>
+
   <div class="result">
     <p>Prix HT : <b><span id="prixHT">0,00</span> €</b></p>
     <p>Prix TTC : <b><span id="prixTTC">0,00</span> €</b></p>
@@ -207,284 +223,321 @@
 
 <!-- ======================== JS ======================== -->
 <script>
-/* CONFIG */
+/* ===== CONFIG ===== */
 const TVA = 0.20;
 const UPLIFT_PUBLIC = 2.0;
 
-/* OPTION LISSE – Tarif interne */
-const TARIF_LISSE_INTERNE_ML = 25;  
-/* Après uplift → 50 €/ml public (avant remise) */
+/* Tarif lisse interne → 25 €/ml */
+const TARIF_LISSE_INTERNE_ML = 25;
 
-/* FAMILLES CSV */
+/* CSV familles */
 const FAMILLES = [
   { name: "Boîtier Bâton – face PMMA blanc diffusant",
     url: "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/lettres/lettre%20boitier%20baton%20chants%20alu%20laqu%C3%A9%20et%20face%20PMMA%20blanc%20diffusant.csv" },
+
   { name: "Boîtier Bâton – face Dibond",
     url: "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/lettres/Lettre%20boitier%20laqu%C3%A9e%20B%C3%A2ton%20chants%20aluminium%20et%20face%20avant%20type%20Dibond.csv" },
+
   { name: "Boîtier Fantaisie – face Dibond",
     url: "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/lettres/Lettre%20boitier%20laqu%C3%A9e%20Fantaisie%20chants%20aluminium%20et%20face%20avant%20type%20Dibond.csv" },
+
   { name: "Boîtier Fantaisie – face PMMA blanc diffusant",
     url: "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/lettres/Lettre%20boitier%20Fantaisie%20chants%20laqu%C3%A9s%20et%20faces%20PMMA%20blanc%20diffusant.csv" }
 ];
 
-/* STATE */
-let CURRENT=null, HEADS=[], ROWS=[], MAP=null;
+/* ===== STATE ===== */
+let CURRENT = null, HEADS = [], ROWS = [], MAP = null;
 
 const $ = id => document.getElementById(id);
 
-const elFam       = $("famille");
-const elQ         = $("quantite");
-const elH         = $("hauteur");
-const elVar       = $("variant");
-const elVarHelp   = $("variantHelp");
-const elRanges    = $("rangesHelp");
-const elHT        = $("prixHT");
-const elTTC       = $("prixTTC");
-const elDibondRule= $("dibondRule");
+const elFam = $("famille");
+const elQ = $("quantite");
+const elH = $("hauteur");
+const elVar = $("variant");
+const elVarHelp = $("variantHelp");
+const elRanges = $("rangesHelp");
+const elHT = $("prixHT");
+const elTTC = $("prixTTC");
+const elDibondRule = $("dibondRule");
 
-const elOptLisse  = $("optLisse");
+/* Lisse */
+const elOptLisse = $("optLisse");
 const elLongLisse = $("lisseLongueur");
-const blockLisse  = $("blockLisse");
+const blockLisse = $("blockLisse");
 
-/* UTILS */
-function normKey(k){return String(k||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'').trim();}
+/* ===== UTILS ===== */
+function normKey(k){
+  return String(k||'').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'').trim();
+}
 function numFR(v){
   if(v==null) return NaN;
-  let s = String(v).trim().replace(/€/g,'').replace(/[\u00A0\u202F]/g,'').replace(/\s+/g,'');
-  if (s.includes(',') && s.includes('.')) s = s.replace(/\./g,'');
-  s = s.replace(',','.');
+  let s=String(v).trim().replace(/€/g,'')
+    .replace(/[\u00A0\u202F]/g,'')
+    .replace(/\s+/g,'');
+  if(s.includes(',') && s.includes('.')) s=s.replace(/\./g,'');
+  s=s.replace(',','.');
   const m=s.match(/-?\d+(\.\d+)?/);
   return m ? parseFloat(m[0]) : NaN;
 }
-function euro(n){return (isFinite(n)?n:0).toFixed(2).replace('.',',');}
+function euro(n){ return (isFinite(n)?n:0).toFixed(2).replace('.',','); }
 
-/* ------- Custom SELECT ------- */
-const customSelects=new Map();
-/* (code complet du select custom identique à d’habitude) */
+/* ===== CUSTOM SELECT ===== */
+const customSelects = new Map();
+
 function buildCustomFromNative(native){
-  const wrap=document.querySelector('.cselect[data-bind="'+native.id+'"]');
+  const wrap = document.querySelector('.cselect[data-bind="'+native.id+'"]');
   if(!wrap) return;
-  const toggle=wrap.querySelector('.cselect-toggle");
-  const label=wrap.querySelector('.cselect-label");
-  const menu=wrap.querySelector('.cselect-menu");
-  menu.innerHTML='';
+
+  const toggle = wrap.querySelector('.cselect-toggle');
+  const label  = wrap.querySelector('.cselect-label');
+  const menu   = wrap.querySelector('.cselect-menu');
+
+  menu.innerHTML = "";
 
   Array.from(native.options).forEach(opt=>{
-    const d=document.createElement('div');
-    d.className='cselect-option';
-    d.setAttribute('role','option');
-    d.tabIndex=-1;
-    d.dataset.value=opt.value;
-    d.textContent=opt.textContent;
-    if(opt.selected) d.setAttribute('aria-selected','true');
-    d.onclick=()=>{ setNativeValue(native,opt.value); closeMenu(native.id); };
+    const d=document.createElement("div");
+    d.className="cselect-option";
+    d.setAttribute("role","option");
+    d.tabIndex = -1;
+    d.dataset.value = opt.value;
+    d.textContent = opt.textContent;
+    if(opt.selected) d.setAttribute("aria-selected","true");
+
+    d.onclick = ()=>{ setNativeValue(native,opt.value); closeMenu(native.id); };
     menu.appendChild(d);
   });
 
-  label.textContent = native.selectedOptions[0]?.textContent || '';
+  label.textContent = native.selectedOptions[0]?.textContent || "";
 
-  toggle.onclick=()=>{ 
-    wrap.getAttribute('aria-expanded')==='true' ? closeMenu(native.id) : openMenu(native.id);
+  toggle.onclick = ()=>{
+    wrap.getAttribute("aria-expanded")==="true"
+      ? closeMenu(native.id)
+      : openMenu(native.id);
   };
 
-  customSelects.set(native.id,{wrap,toggle,labelSpan:label,menu,native});
+  customSelects.set(native.id, {wrap,toggle,label,menu,native});
 }
+
 function setNativeValue(native,val){
-  if(native.value!==val){
-    native.value=val;
+  if(native.value !== val){
+    native.value = val;
     native.dispatchEvent(new Event("change",{bubbles:true}));
   }
-  const api=customSelects.get(native.id);
-  if(api) api.labelSpan.textContent = native.selectedOptions[0]?.textContent || '';
+  const api = customSelects.get(native.id);
+  if(api){
+    api.label.textContent = native.selectedOptions[0]?.textContent || "";
+  }
 }
+
 function openMenu(id){
-  const api=customSelects.get(id);
+  const api = customSelects.get(id);
   if(!api) return;
-  const {wrap,toggle,menu}=api;
+
+  const {wrap,toggle,menu} = api;
 
   wrap.setAttribute("aria-expanded","true");
-  const r=toggle.getBoundingClientRect();
-  menu.style.left=r.left+"px";
-  menu.style.top=(r.bottom+6)+"px";
-  menu.style.width=r.width+"px";
 
-  if(menu.parentElement!==document.body) document.body.appendChild(menu);
+  const r = toggle.getBoundingClientRect();
+  menu.style.left = r.left+"px";
+  menu.style.top  = (r.bottom+6)+"px";
+  menu.style.width = r.width+"px";
 
-  menu.style.display='block';
+  if(menu.parentElement !== document.body){
+    document.body.appendChild(menu);
+  }
+  menu.style.display = "block";
 
-  const closeAll=e=>{
-    if(!wrap.contains(e.target) && !menu.contains(e.target)) closeMenu(id);
+  const closeAll = e=>{
+    if(!wrap.contains(e.target) && !menu.contains(e.target)){
+      closeMenu(id);
+    }
   };
-  setTimeout(()=>document.addEventListener('click',closeAll),50);
-
-  api.__closeAll=closeAll;
+  setTimeout(()=>document.addEventListener("click",closeAll),50);
+  api.__closeAll = closeAll;
 }
+
 function closeMenu(id){
-  const api=customSelects.get(id);
+  const api = customSelects.get(id);
   if(!api) return;
-  const {wrap,menu, __closeAll}=api;
+  const {wrap,menu,__closeAll} = api;
+
   wrap.setAttribute("aria-expanded","false");
-  menu.style.display='none';
-  if(menu.parentElement!==wrap) wrap.appendChild(menu);
-  if(__closeAll) document.removeEventListener('click',__closeAll);
+  menu.style.display="none";
+
+  if(menu.parentElement !== wrap){
+    wrap.appendChild(menu);
+  }
+  if(__closeAll){
+    document.removeEventListener("click",__closeAll);
+  }
 }
 
-/* ------- CSV PARSER ------- */
+/* ===== CSV ===== */
 function parseCSVLine(line,sep=','){
-  const out=[]; let cur='', inQ=false;
+  const out=[]; let cur=""; let inQ=false;
   for(let i=0;i<line.length;i++){
     const ch=line[i], nx=line[i+1];
     if(ch==='"'){
       if(inQ && nx==='"'){ cur+='"'; i++; }
       else inQ=!inQ;
     }else if(ch===sep && !inQ){
-      out.push(cur); cur='';
-    }
-    else cur+=ch;
+      out.push(cur); cur="";
+    }else cur+=ch;
   }
   out.push(cur);
   return out;
 }
+
 function parseCSVAuto(text){
-  const lines=text.split(/\r?\n/).filter(l=>l.trim()!=='');
+  const lines=text.split(/\r?\n/).filter(l=>l.trim()!=="");
   if(!lines.length) return {rawHeads:[],rows:[]};
+
   const first=lines[0];
   const sep=((first.match(/;/g)||[]).length>(first.match(/,/g)||[]).length)?';':',';
 
-  const rawHeads=parseCSVLine(lines[0],sep).map(s=>s.replace(/^"+|"+$/g,'').trim());
+  const rawHeads=parseCSVLine(lines[0],sep).map(s=>s.replace(/^"+|"+$/g,"").trim());
+
   const rows=lines.slice(1).map(line=>{
-    const cells=parseCSVLine(line,sep).map(s=>s.replace(/^"+|"+$/g,'').trim());
-    const o={}; rawHeads.forEach((h,i)=>o[h]=cells[i]??'');
+    const cells=parseCSVLine(line,sep).map(s=>s.replace(/^"+|"+$/g,"").trim());
+    const o={};
+    rawHeads.forEach((h,i)=>o[h]=cells[i]??"");
     return o;
   });
   return {rawHeads,rows};
 }
+
 function buildMapping(rawHeads){
   const NK=rawHeads.map(normKey);
-  const find=(k)=>{const i=NK.indexOf(k); return i>=0?rawHeads[i]:null;};
+  const find = key => {const i=NK.indexOf(key); return i>=0?rawHeads[i]:null;};
   const loose=(...r)=>{for(let i=0;i<NK.length;i++){if(r.every(rx=>rx.test(NK[i]))) return rawHeads[i];}return null;};
 
   return {
-    hminKey: find('hauteurminmm') || loose(/hauteur/,/min/),
-    hmaxKey: find('hauteurmaxmm') || loose(/hauteur/,/max/),
-    baseKey: find('prixunitaireeur') || loose(/prix|ht|unitaire/),
-    variantKey: find('eclairage') || loose(/eclair|led/)
+    hminKey: find("hauteurminmm") || loose(/hauteur/,/min/),
+    hmaxKey: find("hauteurmaxmm") || loose(/hauteur/,/max/),
+    baseKey: find("prixunitaireeur") || loose(/prix|ht|unitaire/),
+    variantKey: find("eclairage") || loose(/eclair|led/)
   };
 }
 
-/* ---------- Filtrage ---------- */
+/* ===== FILTRES ===== */
 function filterRowsByVariant(rows){
   if(!MAP?.variantKey) return rows;
-  const v=elVar.value;
+  const v = elVar.value;
   if(!v) return rows;
-  return rows.filter(r=>String(r[MAP.variantKey]||'').trim()===v);
+  return rows.filter(r=>String(r[MAP.variantKey]||"").trim()===v);
 }
 
 function findRowForHeight(H){
   const rows=filterRowsByVariant(ROWS);
   if(!rows.length) return null;
 
-  const kmin=MAP.hminKey, kmax=MAP.hmaxKey;
+  const aKey=MAP.hminKey, bKey=MAP.hmaxKey;
 
-  const converted=rows.map(r=>{
-    const a=numFR(r[kmin]||0);
-    const b=numFR(r[kmax]||0);
-    return {...r,__a:a,__b:b};
-  }).filter(r=>Number.isFinite(r.__b))
-    .sort((a,b)=> a.__a - b.__a);
+  let converted = rows.map(r=>({
+    ...r,
+    __a: numFR(r[aKey]||0),
+    __b: numFR(r[bKey]||0)
+  })).filter(r=>Number.isFinite(r.__b))
+    .sort((a,b)=>a.__a - b.__a);
 
-  let exact=converted.find(r=>H>=r.__a && H<=r.__b);
+  let exact = converted.find(r=>H>=r.__a && H<=r.__b);
   if(exact) return exact;
 
   return converted[converted.length-1];
 }
 
-/* ---------- Compute ---------- */
+/* ===== COMPUTE ===== */
 function compute(){
-  /* Remise automatique */
   let remiseClient = 1;
   try{
     const p = JSON.parse(localStorage.getItem("cofel_client_profile"));
-    if(p && typeof p.discountRate==="number") remiseClient = 1 - p.discountRate;
+    if(p && typeof p.discountRate==="number"){
+      remiseClient = 1 - p.discountRate;
+    }
   }catch(e){}
 
   const Q = Math.max(1,Number(elQ.value||1));
   const H = Number(elH.value||0);
 
-  /* Si éclairage filtrant */
+  /* Éclairage obligatoire si filtre */
   if(MAP?.variantKey && !elVar.value){
-    elHT.textContent='0,00';
-    elTTC.textContent='0,00';
+    elHT.textContent="0,00";
+    elTTC.textContent="0,00";
     return;
   }
 
-  if(!(H>0) || !ROWS.length || !MAP?.baseKey){
-    elHT.textContent='0,00';
-    elTTC.textContent='0,00';
+  if(!(H>0) || !ROWS.length){
+    elHT.textContent="0,00";
+    elTTC.textContent="0,00";
     return;
   }
 
-  const row=findRowForHeight(H);
+  const row = findRowForHeight(H);
   const base_interne = row ? numFR(row[MAP.baseKey]) : 0;
 
-  let prix_unitaire_public = base_interne * UPLIFT_PUBLIC;
+  let pu_public = base_interne * UPLIFT_PUBLIC;
 
-  /* ------------ AJOUT SUPPLÉMENT LISSE ------------ */
+  /* ========= AJOUT POSE SUR LISSE ========= */
   if(elOptLisse.checked){
-    const Lmm = Number(elLongLisse.value||0);
-    if(Lmm>0){
-      const Lml = Lmm/1000;
-      const prix_lisse_interne = TARIF_LISSE_INTERNE_ML * Lml;
-      const prix_lisse_public = prix_lisse_interne * UPLIFT_PUBLIC;
-      prix_unitaire_public += prix_lisse_public;
+    const mm = Number(elLongLisse.value||0);
+    if(mm>0){
+      const ml = mm/1000;
+      const prix_lisse_interne = TARIF_LISSE_INTERNE_ML * ml;
+      const prix_lisse_public  = prix_lisse_interne * UPLIFT_PUBLIC;
+      pu_public += prix_lisse_public;
     }
   }
 
-  /* Après remise */
-  prix_unitaire_public *= remiseClient;
+  /* Remise */
+  pu_public *= remiseClient;
 
-  const totalHT  = prix_unitaire_public * Q;
+  const totalHT  = pu_public * Q;
   const totalTTC = totalHT * (1+TVA);
 
   elHT.textContent  = euro(totalHT);
   elTTC.textContent = euro(totalTTC);
 }
 
-/* ---------- Load family ---------- */
+/* ===== LOADING ===== */
 async function fetchText(url){
-  const r=await fetch(url,{cache:'no-store'});
+  const r = await fetch(url,{cache:"no-store"});
   if(!r.ok) throw new Error("HTTP "+r.status);
   return await r.text();
 }
 async function loadFamily(f){
-  const txt=await fetchText(f.url);
-  const parsed=parseCSVAuto(txt);
-  HEADS=parsed.rawHeads;
-  ROWS =parsed.rows;
-  MAP  =buildMapping(HEADS);
+  const txt = await fetchText(f.url);
+  const parsed = parseCSVAuto(txt);
+
+  HEADS = parsed.rawHeads;
+  ROWS  = parsed.rows;
+  MAP   = buildMapping(HEADS);
 
   buildVariantUI();
   buildRangesHelp();
   compute();
 }
 
-/* ---------- Variant UI ---------- */
 function buildVariantUI(){
-  elVar.innerHTML='<option value="">— (aucun filtre) —</option>';
-  elVarHelp.textContent='';
+  elVar.innerHTML = '<option value="">— (aucun filtre) —</option>';
+  elVarHelp.textContent = "";
 
   if(!MAP?.variantKey){
     buildCustomFromNative(elVar);
     return;
   }
 
-  const values=[...new Set(ROWS.map(r=>String(r[MAP.variantKey]||'').trim()))]
-        .filter(Boolean).sort();
+  const key = MAP.variantKey;
+  const values = [...new Set(
+    ROWS.map(r=>String(r[key]||"").trim())
+  )].filter(Boolean).sort();
 
   if(values.length){
-    elVar.innerHTML='<option value="">— sélectionnez —</option>' +
+    elVar.innerHTML =
+      '<option value="">— sélectionnez —</option>' +
       values.map(v=>`<option value="${v}">${v}</option>`).join('');
-    elVarHelp.textContent = `Filtre sur : ${MAP.variantKey}`;
+    elVarHelp.textContent = `Filtre sur : ${key}`;
   }
 
   buildCustomFromNative(elVar);
@@ -492,17 +545,18 @@ function buildVariantUI(){
 
 function buildRangesHelp(){
   if(!MAP?.hmaxKey){
-    elRanges.textContent='';
+    elRanges.textContent="";
     return;
   }
-  const maxVals=ROWS.map(r=>numFR(r[MAP.hmaxKey])).filter(Number.isFinite);
-  if(!maxVals.length) return;
-  elRanges.textContent = `Hauteur maximale : ${Math.max(...maxVals)} mm`;
+  const vals = ROWS.map(r=>numFR(r[MAP.hmaxKey])).filter(Number.isFinite);
+  if(!vals.length) return;
+  elRanges.textContent = `Hauteur maximale : ${Math.max(...vals)} mm`;
 }
 
-/* ---------- UI INIT ---------- */
+/* ===== INIT ===== */
 function fillFamilles(){
-  elFam.innerHTML='<option value="">— sélectionnez —</option>' +
+  elFam.innerHTML =
+    '<option value="">— sélectionnez —</option>' +
     FAMILLES.map((f,i)=>`<option value="${i}">${f.name}</option>`).join('');
   buildCustomFromNative(elFam);
 }
@@ -510,40 +564,44 @@ function fillFamilles(){
 function init(){
   fillFamilles();
 
-  elFam.onchange=async ()=>{
-    const i=parseInt(elFam.value,10);
-    if(isNaN(i)){ CURRENT=null; ROWS=[]; MAP=null; compute(); return; }
-    CURRENT=FAMILLES[i];
+  elFam.onchange = async ()=>{
+    const i = parseInt(elFam.value,10);
+    if(isNaN(i)){
+      CURRENT=null; ROWS=[]; MAP=null;
+      compute();
+      return;
+    }
+    CURRENT = FAMILLES[i];
     try{ await loadFamily(CURRENT); }
-    catch(e){ console.error(e); alert("Erreur de chargement"); }
+    catch(e){ alert("Erreur de chargement CSV"); }
   };
 
-  elQ.oninput=compute;
-  elH.oninput=compute;
-  elVar.onchange=compute;
+  elQ.oninput = compute;
+  elH.oninput = compute;
+  elVar.onchange = compute;
 
-  /* ------------ Option Lisse ------------ */
-  elOptLisse.onchange=()=>{
-    blockLisse.style.display = elOptLisse.checked ? 'block' : 'none';
+  /* ----- Lisse ----- */
+  elOptLisse.onchange = ()=>{
+    blockLisse.style.display = elOptLisse.checked ? "block" : "none";
     compute();
   };
-  elLongLisse.oninput=compute;
+  elLongLisse.oninput = compute;
 
-  $("btnReset").onclick=()=>{
-    elFam.value="";
+  $("btnReset").onclick = ()=>{
+    elFam.value = "";
     buildCustomFromNative(elFam);
-    CURRENT=null; ROWS=[]; MAP=null;
 
-    elVar.innerHTML='<option value="">— (aucun filtre) —</option>';
+    elVar.innerHTML = '<option value="">— (aucun filtre) —</option>';
     buildCustomFromNative(elVar);
 
-    elQ.value=1;
-    elH.value="";
+    elQ.value = 1;
+    elH.value = "";
     elOptLisse.checked=false;
     elLongLisse.value="";
-    blockLisse.style.display='none';
+    blockLisse.style.display="none";
 
-    elRanges.textContent='';
+    CURRENT=null; ROWS=[]; MAP=null;
+    elRanges.textContent="";
     compute();
   };
 }
@@ -553,44 +611,44 @@ init();
 <!-- ========== DEVIS ========== -->
 <script src="../js/devis-core.js"></script>
 <script>
-$("btnAddDevis").onclick=()=>{
+$("btnAddDevis").onclick = ()=>{
   try{
-    if(!window.Devis) throw new Error("Moteur de devis introuvable.");
+    if(!window.Devis) throw new Error("Moteur de devis introuvable");
 
-    const famIdx=parseInt(elFam.value,10);
+    const famIdx = parseInt(elFam.value,10);
     if(isNaN(famIdx)){ alert("Choisis une famille."); return; }
 
-    const famName=FAMILLES[famIdx].name;
-    const qte=Math.max(1,Number(elQ.value||1));
+    const famName = FAMILLES[famIdx].name;
+    const qte = Math.max(1, Number(elQ.value||1));
     const H = Number(elH.value||0);
-    if(!(H>0)){ alert("Hauteur incorrecte."); return; }
 
-    const variant=elVar.value;
-    const total_ht=parseFloat(elHT.innerText.replace(',','.'))||0;
-    if(total_ht<=0){ alert("Prix incorrect."); return; }
+    if(!(H>0)){ alert("Saisis une hauteur valide."); return; }
 
-    const pu_public_ht = total_ht/qte;
+    const variant = elVar.value;
+    const total_ht = parseFloat(elHT.innerText.replace(',','.')) || 0;
 
-    let des = `${famName} — H ${H} mm`;
-    if(variant) des += ` — Éclairage : ${variant}`;
+    if(total_ht <= 0){ alert("Prix invalidé."); return; }
 
-    /* Ajout Lisse dans la désignation */
+    const pu_public_ht = total_ht / qte;
+
+    let designation = `${famName} — H ${H} mm`;
+    if(variant) designation += ` — Éclairage : ${variant}`;
+
     if(elOptLisse.checked){
       const Lmm = Number(elLongLisse.value||0);
-      des += ` — Pose sur lisse (${Lmm} mm)`;
+      designation += ` — Pose sur lisse (${Lmm} mm)`;
     }
 
     Devis.addLine({
       type:"Lettres Boîtiers",
-      designation:des,
+      designation,
       quantite:qte,
       pu_public_ht:Number(pu_public_ht.toFixed(2))
     });
 
-    alert(`Ajouté au devis :\n${des}`);
+    alert(`Ligne ajoutée au devis :\n${designation}`);
   }
   catch(err){
-    console.error(err);
     alert("Erreur : "+err.message);
   }
 };
@@ -598,4 +656,3 @@ $("btnAddDevis").onclick=()=>{
 
 </body>
 </html>
-
