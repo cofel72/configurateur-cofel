@@ -603,6 +603,12 @@ compute();
     const txt = document.getElementById('prixHT').innerText.trim();
     return Number(txt.replace(/\s/g,'').replace(',', '.')) || 0;
   }
+// Traduction matière pour désignation
+const MAT_LABELS = {
+  brut: "Tôle aluminium 20/10 brut",
+  prelaque: "Tôle aluminium 20/10 prélaquée",
+  laque: "Tôle aluminium 20/10 laquée"
+};
 
   btn.addEventListener('click', () => {
     try{
@@ -639,7 +645,8 @@ compute();
         `Tôle Tablette`,
         `L ${Lmm} × H ${Hmm} mm`,
         `Plis : ${Pmm} mm`,
-        `Matière: ${mat}`
+        MAT_LABELS[mat] || "Tôle aluminium 20/10"
+
       ];
 
       if (ajour){
@@ -681,3 +688,4 @@ compute();
 
 </body>
 </html>
+
