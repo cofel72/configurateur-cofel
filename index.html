@@ -424,48 +424,29 @@
       elTVA.textContent = fmt(t.tva);
       elTTC.textContent = fmt(t.total_ttc);
     }
-// =========================================================
-// 🔥 Recalcul du devis quand le mode tarif change (switch)
-// =========================================================
 window.addEventListener("cofel-price-mode-changed", () => {
+    let remise = 0;
 
-    const state = readStore();
-    if (!state.lignes) return;
-
-    // Lire la remise client enregistrée dans le profil
-    let remiseClient = 0;
+    // Lire le profil client
     try {
         const p = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
         if (typeof p.discountRate === "number") {
-            remiseClient = p.discountRate; // exemple : 0.4 = 40%
+            remise = p.discountRate * 100; // converti en %
         }
-    } catch(e){}
+    } catch {}
 
-    // Lire le mode tarif
+    // Mode tarif
     const mode = localStorage.getItem("cofel_price_mode") || "client";
 
-    // Recalcul des lignes du devis
-    state.lignes = state.lignes.map(l => {
-        const isTransport = (l.type || "").toLowerCase() === "transport";
-        if (isTransport) return l; // Jamais remisé
+    // Mode PRO → appliquer remise
+    if (mode === "pro") {
+        Devis.setRemise(remise);
+    } 
+    // Mode CLIENT FINAL → remise = 0
+    else {
+        Devis.setRemise(0);
+    }
 
-        const pu_public = Number(l.pu_public_ht || l.pu_net_ht || 0);
-        let pu_net = pu_public;
-
-        if (mode === "pro") {
-            pu_net = pu_public * (1 - remiseClient);
-        }
-
-        const total = pu_net * Number(l.quantite || 1);
-
-        return {
-            ...l,
-            pu_net_ht: +pu_net.toFixed(2),
-            total_ligne_ht: +total.toFixed(2)
-        };
-    });
-
-    writeStore(state);
     render();
 });
 
