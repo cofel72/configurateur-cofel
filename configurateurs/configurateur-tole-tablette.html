@@ -653,6 +653,10 @@ const MAT_LABELS = {
       const led = document.getElementById('optLED').checked;
 
       const fixVal = (document.querySelector('input[name="fixation"]:checked')||{}).value || 'aucune';
+      // Pose sur lisse
+const lisseMM = Number(document.getElementById("lisseLongueur")?.value || 0);
+const lisseML = lisseMM / 1000;
+
       const boiteMat = (document.querySelector('input[name="boiteMat"]:checked')||{}).value || '';
       const gusU = document.getElementById('goussetPrixU')?.value || '';
 
@@ -682,8 +686,12 @@ const MAT_LABELS = {
         parts.push(`Fixation: châssis tube 30×30${gusU? ' · gousset '+gusU+' €/u':''}`);
       }else if(fixVal==='corniere'){
         parts.push(`Fixation: cornière`);
+        } else if(fixVal === 'lisse') {
+    parts.push(`Fixation: pose sur lisse — ${lisseMM} mm (${lisseML.toFixed(2)} ml)`);
+
       }else{
         parts.push(`Fixation: aucune`);
+        
       }
 
       const designation = parts.join(' — ');
@@ -707,6 +715,7 @@ const MAT_LABELS = {
 
 </body>
 </html>
+
 
 
 
