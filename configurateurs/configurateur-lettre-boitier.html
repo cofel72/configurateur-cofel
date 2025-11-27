@@ -131,6 +131,34 @@
   .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.14);color:var(--txt);font-size:12px;border:1px solid var(--glass-hr);margin:6px 6px 0 0}
   .note{ margin-top:10px;background:#fff7e6;border:1px solid #ffd38a;border-radius:10px;padding:10px;font-size:13px;color:#5a430e;display:none }
 
+  /* ====== OPTION LISSE ====== */
+  .option-item{
+    display:flex;align-items:center;gap:10px;cursor:pointer;
+    border-radius:14px;padding:10px 14px;
+    border:1px solid rgba(255,255,255,.24);
+    background: linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.08));
+    box-shadow:var(--shadow);
+    margin-top:10px;
+    color:var(--txt);
+  }
+  .option-item input{
+    appearance:none;-webkit-appearance:none;
+    width:20px;height:20px;border-radius:6px;
+    border:1px solid rgba(255,255,255,.7);
+    background:rgba(255,255,255,.15);
+    position:relative;
+  }
+  .option-item input:checked{
+    background:var(--violet-2);
+    border-color:#fff;
+  }
+  .option-item input:checked::after{
+    content:"";position:absolute;inset:3px 5px 5px 3px;
+    border-right:3px solid #fff;
+    border-bottom:3px solid #fff;
+    transform:rotate(45deg);
+  }
+
   /* ===================== RESULT + BUTTONS ===================== */
   .result{
     text-align:center;padding:16px;
@@ -217,6 +245,19 @@
         <div id="dibondRule" class="note">Pour les <b>faces Dibond</b> : si un éclairage est choisi, alors <b>rétroéclairage</b> </div>
       </div>
     </div>
+
+    <!-- ====== OPTION POSE SUR LISSE ====== -->
+    <div class="card">
+      <label class="option-item">
+        <input type="checkbox" id="optLisse" />
+        <span>Pose sur lisse</span>
+      </label>
+      <div style="margin-top:10px;">
+        <label for="lisseLongueur">Longueur de la lisse (mm)</label>
+        <input type="number" id="lisseLongueur" placeholder="Ex : 3000" min="0" />
+        <div class="muted">Tarif interne : 25 €/ml · ajouté au prix des lettres</div>
+      </div>
+    </div>
   </section>
 
   <section class="panel">
@@ -243,6 +284,9 @@
 const TVA = 0.20;
 const UPLIFT_PUBLIC = 2.0; // multiplicateur interne (non montré)
 
+/* Supplément lisse (interne) */
+const TARIF_LISSE_INTERNE_ML = 25; // €/ml interne
+
 const FAMILLES = [
   { name: "Boîtier Bâton – face PMMA blanc diffusant",
     url: "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/lettres/lettre%20boitier%20baton%20chants%20alu%20laqu%C3%A9%20et%20face%20PMMA%20blanc%20diffusant.csv" },
@@ -261,6 +305,10 @@ const elFam=$("famille"), elQ=$("quantite"), elH=$("hauteur");
 const elVar=$("variant"), elVarHelp=$("variantHelp");
 const elRanges=$("rangesHelp"), elHT=$("prixHT"), elTTC=$("prixTTC");
 const elDibondRule=$("dibondRule");
+
+/* Lisse */
+const elOptLisse = $("optLisse");
+const elLongLisse = $("lisseLongueur");
 
 /* ======================= UTILS ======================= */
 function normKey(k){return String(k||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'').trim();}
@@ -467,9 +515,22 @@ function compute(){
   if(!(H>0)||!ROWS.length||!MAP?.hmaxKey||!MAP?.baseKey){
     elHT.textContent='0,00'; elTTC.textContent='0,00'; updateDibondRule(); return;
   }
+
   const row=findRowForHeight(H);
   const base_interne=row? numFR(row[MAP.baseKey]) : 0;
-  const unit_public=(base_interne||0)*UPLIFT_PUBLIC*remiseClient;
+
+  // ===== Supplément lisse (option A : ajout au prix des lettres) =====
+  let base_interne_total = base_interne;
+  if(elOptLisse && elOptLisse.checked){
+    const Lmm = Number(elLongLisse.value||0);
+    if(Lmm>0){
+      const Lml = Lmm / 1000; // conversion mm → ml
+      const prix_lisse_interne = TARIF_LISSE_INTERNE_ML * Lml;
+      base_interne_total += prix_lisse_interne;
+    }
+  }
+
+  const unit_public=(base_interne_total||0)*UPLIFT_PUBLIC*remiseClient;
   const totalHT=unit_public*Q, totalTTC=totalHT*(1+TVA);
   elHT.textContent=euro(totalHT); elTTC.textContent=euro(totalTTC);
   updateDibondRule();
@@ -495,12 +556,25 @@ function bind(){
   elQ.addEventListener('input', compute);
   elH.addEventListener('input', ()=>{ buildRangesHelp(); compute(); });
   elVar.addEventListener('change', ()=>{ buildRangesHelp(); updateDibondRule(); compute(); });
+
+  // Lisse
+  if(elOptLisse){
+    elOptLisse.addEventListener('change', compute);
+  }
+  if(elLongLisse){
+    elLongLisse.addEventListener('input', compute);
+  }
+
   $("btnReset").addEventListener('click', ()=>{
     elFam.value=""; buildCustomFromNative(elFam);
     CURRENT=null; ROWS=[]; MAP=null;
     elVar.innerHTML='<option value="">— (aucun filtre) —</option>'; buildCustomFromNative(elVar);
     elQ.value=1; elH.value='';
     elRanges.innerHTML = '';
+
+    if(elOptLisse){ elOptLisse.checked = false; }
+    if(elLongLisse){ elLongLisse.value = ''; }
+
     compute();
   });
 }
@@ -525,7 +599,18 @@ document.getElementById("btnAddDevis").addEventListener("click", ()=>{
     if(total_ht<=0){ alert("Le prix est à 0, vérifie la famille/hauteur/éclairage."); return; }
     const pu_public_ht = qte>0 ? (total_ht/qte) : 0;
 
-    const designation = `${familleName} — H ${H} mm` + (variant?` — Éclairage: ${variant}`:'');
+    let designation = `${familleName} — H ${H} mm` + (variant?` — Éclairage: ${variant}`:'');
+
+    // Ajout lisse dans la désignation
+    const optLisse = document.getElementById("optLisse");
+    const lisseLongueur = document.getElementById("lisseLongueur");
+    if(optLisse && optLisse.checked){
+      const Lmm = Number(lisseLongueur?.value || 0);
+      designation += Lmm > 0
+        ? ` — Pose sur lisse (${Lmm} mm)`
+        : ` — Pose sur lisse`;
+    }
+
     Devis.addLine({ type:'Lettres Boîtiers', designation, quantite:qte, pu_public_ht:Number(pu_public_ht.toFixed(2)) });
 
     alert(`✅ Ligne ajoutée au devis !\n${designation}\nQté : ${qte}\nPU HT : ${pu_public_ht.toFixed(2)} €`);
