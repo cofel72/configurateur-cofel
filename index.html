@@ -5,928 +5,721 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Configurateurs Cofel</title>
 
-  <!-- 🔒 Protection par mot de passe -->
   <script src="./auth/lock.js" type="module"></script>
-
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <style>
     :root{
       --cofel:#5a2d82; --cofel-2:#7838a7;
-      --glass: rgba(255,255,255,.08); --glass-hr: rgba(255,255,255,.14);
+      --glass:rgba(255,255,255,.08); --glass-hr:rgba(255,255,255,.14);
       --txt:#f5f7ff; --txt-dim:#e6e6ff; --accent:#c9b7ff;
-      --radius:18px; --blur:18px; --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:18px; --blur:18px; --shadow:0 10px 30px rgba(0,0,0,.35);
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
+    *{box-sizing:border-box;margin:0;padding:0}
     body{
-      margin:0; color:var(--txt);
-      font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Arial, sans-serif;
+      color:var(--txt); font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
       background:
         radial-gradient(800px 500px at 20% -10%, rgba(255,255,255,.10), transparent 60%),
         radial-gradient(800px 500px at 110% 10%, rgba(255,255,255,.08), transparent 60%),
         linear-gradient(135deg, var(--cofel), var(--cofel-2));
-      position:relative; overflow-x:hidden;
+      overflow-x:hidden;
     }
 
-    /* ===================== HEADER / HERO (nouvelle version) ===================== */
-    .hero{
-      position:relative; z-index:1;
-      padding:24px 20px 16px;
-    }
-    .hero-inner{
-      max-width:1200px; margin:0 auto;
-      display:flex; align-items:center; justify-content:space-between; gap:16px;
-    }
-    .brand-lite{
-      display:flex; align-items:center; gap:12px;
-    }
-    .brand-lite img{
-      height:42px; width:auto; object-fit:contain; border-radius:8px;
-    }
-    .brand-lite h1{
-      font-size: clamp(18px, 2.4vw, 22px); margin:0; letter-spacing:.2px; font-weight:700;
-    }
-    .hero-tagline{
-      max-width:1200px; margin:10px auto 0; padding:0 20px; color:var(--txt-dim);
-    }
-    .hero::after{
-      content:""; display:block; height:1px; margin-top:14px;
-      background: linear-gradient(90deg, rgba(255,255,255,.15), rgba(255,255,255,.04));
-    }
+    /* ---------- HEADER ---------- */
+    .hero{padding:24px 20px 16px;}
+    .hero-inner{max-width:1200px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+    .brand-lite{display:flex;align-items:center;gap:12px;}
+    .brand-lite img{height:42px;border-radius:8px;}
+    .brand-lite h1{font-size:clamp(18px,2.4vw,22px);font-weight:700;}
+    .hero-tagline{max-width:1200px;margin:10px auto 0;padding:0 20px;color:var(--txt-dim);}
+    .hero::after{content:"";display:block;height:1px;margin-top:14px;
+      background:linear-gradient(90deg,rgba(255,255,255,.15),rgba(255,255,255,.04));}
 
     .logout-btn{
-      appearance:none; border:none; cursor:pointer; font-weight:700; color:var(--txt);
-      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
-      border:1px solid rgba(255,255,255,.18); border-radius:12px; padding:8px 12px;
-      box-shadow: var(--shadow); backdrop-filter: blur(var(--blur));
-      opacity:.95; transition: opacity .15s, transform .15s, box-shadow .15s;
+      border:none;cursor:pointer;font-weight:700;color:var(--txt);
+      background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.18);padding:8px 12px;border-radius:12px;
+      box-shadow:var(--shadow);backdrop-filter:blur(var(--blur));
+      transition:.15s;opacity:.95;
     }
-    .logout-btn:hover{ opacity:1; transform: translateY(-1px); box-shadow: 0 14px 34px rgba(0,0,0,.42); }
+    .logout-btn:hover{opacity:1;transform:translateY(-1px);box-shadow:0 14px 34px rgba(0,0,0,.42);}
 
-    /* ===================== APPS GRID ===================== */
-    .wrap{max-width:1200px; margin:26px auto; padding:0 20px 40px; position:relative; z-index:1;}
-    .apps{ display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    /* ---------- GRILLE APPS ---------- */
+    .wrap{max-width:1200px;margin:26px auto;padding:0 20px 40px;}
+    .apps{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
     .app{
-      position:relative; text-decoration:none; color:var(--txt);
-      background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
-      border:1px solid rgba(255,255,255,.2); border-radius:20px; padding:18px 16px;
-      box-shadow: var(--shadow); backdrop-filter: blur(var(--blur));
-      transform: translateY(0); transition: transform .18s, box-shadow .18s, background .18s, border-color .18s;
+      text-decoration:none;color:var(--txt);padding:18px 16px;border-radius:20px;
+      background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.08));
+      border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(var(--blur));box-shadow:var(--shadow);
+      transition:.18s;
     }
-    .app:hover{ transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0,0,0,.45); }
-    .app .title{ font-weight:800; margin:0 0 6px; letter-spacing:.2px; }
-    .app .hint{ color:var(--txt-dim); margin:0; font-size:13px; }
-
-    /* ===================== PANEL (devis + client) ===================== */
-    .panel{
-      margin-top:28px;
-      background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
-      border:1px solid rgba(255,255,255,.2);
-      border-radius:20px; padding:18px;
-      box-shadow: var(--shadow); backdrop-filter: blur(var(--blur));
-    }
-    .panel h2{ margin:0 0 12px; font-size: clamp(18px, 2.4vw, 22px); letter-spacing:.2px; }
-
-    .client-card{
-      margin:12px 0 16px;
-      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
-      border:1px solid rgba(255,255,255,.18);
-      border-radius:16px;
-      padding:14px;
-      display:grid; gap:12px;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-    label{font-weight:700; font-size:12px; color:var(--accent);}
-    input[type="text"], input[type="number"]{
-      width:100%; margin-top:6px; padding:10px 12px;
-      background: rgba(255,255,255,.08); color:var(--txt);
-      border:1px solid rgba(255,255,255,.18); border-radius:12px; outline:none;
-      transition: border-color .18s ease, background .18s ease;
-    }
-    input[type="text"]::placeholder, input[type="number"]::placeholder{ color: #f0edff; opacity:.75; }
-    input[type="text"]:focus, input[type="number"]:focus{ border-color: rgba(255,255,255,.34); background: rgba(255,255,255,.12); }
-
-    .table-wrap{overflow:auto; border-radius:14px; border:1px solid rgba(255,255,255,.16);}
-    table{width:100%; border-collapse:collapse; min-width:720px;}
-    thead tr{ background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04)); }
-    th, td{ padding:10px 12px; text-align:left; }
-    th{ font-size:12px; color:var(--accent); letter-spacing:.3px; }
-    tbody tr + tr td{ border-top:1px solid rgba(255,255,255,.12); }
-    td.right{ text-align:right; } td.center{ text-align:center; }
-
-    .totaux{ margin-top:16px; display:flex; justify-content:space-between; gap:16px; align-items:flex-start; flex-wrap:wrap; }
-    .totaux-box{
-      min-width:320px; border-radius:16px; padding:12px 14px;
-      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
-      border:1px solid rgba(255,255,255,.18);
-    }
-    .row{ display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px dashed rgba(255,255,255,.16); }
-    .row:last-child{ border-bottom:none; padding-bottom:0; }
-    .grand{ font-weight:800; font-size:18px; }
-    .subnote{ color:var(--txt-dim); font-size:12px; margin-top:6px; }
-
-    .btn{
-      appearance:none; border:none; cursor:pointer; font-weight:700;
-      color:#0b0b0b; background:#fff; border-radius:12px; padding:10px 14px;
-      box-shadow: 0 10px 24px rgba(0,0,0,.25);
-      transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease;
-    }
-    .btn:active{ transform: translateY(1px); box-shadow: 0 6px 16px rgba(0,0,0,.28); }
-    .btn-ghost{ background: transparent; color:var(--txt); border:1px solid rgba(255,255,255,.24); }
-    .btn-danger{ background: transparent; color:#ffe3e3; border:1px solid rgba(255, 107, 107, .45); }
-    .btn[disabled]{ opacity:.45; cursor:not-allowed; box-shadow:none; pointer-events:none; }
-
-    .app-inline{
-      display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:14px; text-decoration:none; color:var(--txt);
-      background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
-      border:1px solid rgba(255,255,255,.2); box-shadow: var(--shadow); backdrop-filter: blur(var(--blur));
-      transition: transform .18s ease, box-shadow .18s ease;
-    }
-    .app-inline:hover{ transform: translateY(-2px); box-shadow: 0 14px 30px rgba(0,0,0,.42); }
-    .app-inline .title{ margin:0; font-weight:800; }
-    .app-inline .hint{ margin:0; color:var(--txt-dim); font-size:12px; }
-
-    footer{ color:#f3ecff; font-size:12px; text-align:center; padding:24px 10px; opacity:.9; }
-    @media (max-width:720px){ .brand h1{display:none;} }
-
-    .toast{ position:fixed; right:16px; bottom:16px; background:#fff; color:#222; padding:10px 12px; border-radius:10px; box-shadow:0 10px 24px rgba(0,0,0,.35); display:none; z-index:99; }
-    .toast.show{ display:block; }
+    .app:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(0,0,0,.45);}
+    .title{font-weight:800;margin-bottom:6px;}
+    .hint{color:var(--txt-dim);font-size:13px;}
   </style>
 </head>
+
 <body>
 
-  <!-- ===================== HEADER / HERO ===================== -->
-  <header class="hero">
-    <div class="hero-inner">
-      <div class="brand-lite">
-        <img src="./assets/logo cofel.jpg" alt="Cofel" />
-        <h1>Configurateurs Cofel</h1>
-      </div>
-      <button id="logoutBtn" class="logout-btn" title="Se déconnecter">🚪 Se déconnecter</button>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="brand-lite">
+      <img src="./assets/logo cofel.jpg" alt="Cofel" />
+      <h1>Configurateurs Cofel</h1>
     </div>
-    <p class="hero-tagline">
-      Choisissez un configurateur puis composez votre devis en quelques clics.
-      L’aperçu et l’export PDF sont mis à jour automatiquement.
-    </p>
-  </header>
+    <button id="logoutBtn" class="logout-btn">🚪 Se déconnecter</button>
+  </div>
+  <p class="hero-tagline">
+    Choisissez un configurateur puis composez votre devis en quelques clics.
+    L’aperçu et l’export PDF sont mis à jour automatiquement.
+  </p>
+</header>
 
-  <!-- ===================== APPS GRID ===================== -->
-  <main class="wrap">
-    <section class="apps" aria-label="Liste des configurateurs">
-      <a class="app" href="./configurateurs/configurateur-tole-tablette.html">
-        <p class="title">Tôle Tablette</p><p class="hint">Ajourage, PMMA, châssis…</p>
-      </a>
-      <a class="app" href="./configurateurs/configurateur-rampe-lumineuse.html">
-        <p class="title">Rampe Lumineuse (PLL)</p><p class="hint">LED + laquage inclus</p>
-      </a>
-      <a class="app" href="./configurateurs/configurateur-enseigne-drapeau.html">
-        <p class="title">Enseigne Drapeau</p><p class="hint">Rond / Carré, potence</p>
-      </a>
-      <a class="app" href="./configurateurs/configurateur-totems.html">
-        <p class="title">Totems</p><p class="hint">Hauteurs, options d’installation</p>
-      </a>
-      <a class="app" href="./configurateurs/configurateur-lettres PVC.html">
-        <p class="title">Lettres PVC</p><p class="hint">Hauteur, chant, finitions</p>
-      </a>
-      <a class="app" href="./configurateurs/configurateur-lettre-alu-alupvc.html">
-        <p class="title">Lettres Alu / Alu-PVC</p><p class="hint">Finitions et options</p>
-      </a>
-      <a class="app" href="./configurateurs/configurateur-lettre-boitier.html">
-        <p class="title">Lettres Boîtiers</p><p class="hint">Face PMMA ou Dibond</p>
-      </a>
-      <a class="app" href="./configurateurs/configurateur-tolerie-dibond.html">
-        <p class="title">Tôlerie Alu / Dibond</p><p class="hint">Au m², laqué / prélaqué</p>
-      </a>
-    </section>
+<main class="wrap">
+  <section class="apps">
+    <a class="app" href="./configurateurs/configurateur-tole-tablette.html">
+      <p class="title">Tôle Tablette</p>
+      <p class="hint">Ajourage, PMMA, châssis…</p>
+    </a>
+    <a class="app" href="./configurateurs/configurateur-rampe-lumineuse.html">
+      <p class="title">Rampe Lumineuse (PLL)</p>
+      <p class="hint">LED + laquage inclus</p>
+    </a>
+    <a class="app" href="./configurateurs/configurateur-enseigne-drapeau.html">
+      <p class="title">Enseigne Drapeau</p>
+      <p class="hint">Rond / Carré, potence</p>
+    </a>
+    <a class="app" href="./configurateurs/configurateur-totems.html">
+      <p class="title">Totems</p>
+      <p class="hint">Hauteurs, options d’installation</p>
+    </a>
+    <a class="app" href="./configurateurs/configurateur-lettres PVC.html">
+      <p class="title">Lettres PVC</p>
+      <p class="hint">Hauteur, chant, finitions</p>
+    </a>
+    <a class="app" href="./configurateurs/configurateur-lettre-alu-alupvc.html">
+      <p class="title">Lettres Alu / Alu-PVC</p>
+      <p class="hint">Finitions et options</p>
+    </a>
+    <a class="app" href="./configurateurs/configurateur-lettre-boitier.html">
+      <p class="title">Lettres Boîtiers</p>
+      <p class="hint">Face PMMA ou Dibond</p>
+    </a>
+    <a class="app" href="./configurateurs/configurateur-tolerie-dibond.html">
+      <p class="title">Tôlerie Alu / Dibond</p>
+      <p class="hint">Au m², laqué / prélaqué</p>
+    </a>
+  </section>
+  <!-- ===================== PANEL (DEMANDE + DEVIS) ===================== -->
+  <style>
+    /* ----- PANEL ----- */
+    .panel{
+      margin-top:28px;padding:18px;
+      border-radius:20px;box-shadow:var(--shadow);
+      background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.2);
+      backdrop-filter:blur(var(--blur));
+    }
+    .panel h2{font-size:clamp(18px,2.4vw,22px);margin-bottom:12px;}
 
-    <!-- ===================== RÉCAP + CLIENT ===================== -->
-    <section class="panel" aria-label="Récapitulatif du devis">
-      <h2>🧾 Récapitulatif du devis</h2>
+    /* ----- CARD CLIENT ----- */
+    .client-card{
+      margin:12px 0 16px;padding:14px;border-radius:16px;
+      display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.18);
+    }
+    label{font-weight:700;font-size:12px;color:var(--accent);}
+    input[type="text"],input[type="number"]{
+      width:100%;margin-top:6px;padding:10px 12px;border-radius:12px;
+      color:var(--txt);background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.18);
+    }
+    input:focus{border-color:rgba(255,255,255,.34);background:rgba(255,255,255,.12);}
+    input::placeholder{color:#f0edff;opacity:.75;}
 
-      <div class="client-card">
+    /* ----- TABLE ----- */
+    .table-wrap{overflow:auto;border-radius:14px;border:1px solid rgba(255,255,255,.16);}
+    table{width:100%;border-collapse:collapse;min-width:720px;}
+    thead tr{background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04));}
+    th,td{padding:10px 12px;text-align:left;}
+    th{font-size:12px;color:var(--accent);}
+    tbody tr+tr td{border-top:1px solid rgba(255,255,255,.12);}
+    .right{text-align:right;} .center{text-align:center;}
+
+    /* ----- TOTAUX ----- */
+    .totaux{
+      margin-top:16px;display:flex;gap:16px;flex-wrap:wrap;
+      justify-content:space-between;align-items:flex-start;
+    }
+    .totaux-box{
+      min-width:320px;padding:12px 14px;border-radius:16px;
+      background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.18);
+    }
+    .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,.16);}
+    .row:last-child{border-bottom:none;}
+    .grand{font-size:18px;font-weight:800;}
+    .subnote{color:var(--txt-dim);font-size:12px;margin-top:6px;}
+
+    /* ----- BOUTONS ----- */
+    .btn{
+      border:none;cursor:pointer;font-weight:700;padding:10px 14px;
+      border-radius:12px;color:#0b0b0b;background:#fff;
+      box-shadow:0 10px 24px rgba(0,0,0,.25);transition:.16s;
+    }
+    .btn:active{transform:translateY(1px);}
+    .btn-ghost{
+      background:transparent;color:var(--txt);
+      border:1px solid rgba(255,255,255,.24);
+    }
+    .btn-danger{
+      background:transparent;color:#ffe3e3;
+      border:1px solid rgba(255,107,107,.45);
+    }
+    .btn[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none;}
+
+    /* ----- TUYAU TRANSPORT ----- */
+    .app-inline{
+      display:flex;align-items:center;gap:10px;padding:12px 14px;
+      border-radius:14px;color:var(--txt);text-decoration:none;
+      background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.08));
+      border:1px solid rgba(255,255,255,.2);box-shadow:var(--shadow);
+      backdrop-filter:blur(var(--blur));transition:.18s;
+    }
+    .app-inline:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(0,0,0,.42);}
+    .app-inline .hint{font-size:12px;color:var(--txt-dim);}
+
+    .toast{
+      position:fixed;right:16px;bottom:16px;padding:10px 12px;border-radius:10px;
+      background:#fff;color:#222;display:none;box-shadow:0 10px 24px rgba(0,0,0,.35);
+      z-index:99;
+    }
+    .toast.show{display:block;}
+  </style>
+
+  <section class="panel">
+    <h2>🧾 Récapitulatif du devis</h2>
+
+    <!-- 🔹 Formulaire client -->
+    <div class="client-card">
+      <div>
+        <label>Entreprise</label>
+        <input type="text" id="societe" placeholder="Nom de l’entreprise">
+      </div>
+      <div>
+        <label>Nom & prénom</label>
+        <input type="text" id="contact" placeholder="Nom Prénom">
+      </div>
+      <div>
+        <label>Nom du chantier</label>
+        <input type="text" id="chantier" placeholder="Nom du chantier">
+      </div>
+      <div style="display:none;">
+        <label for="remise-client">Remise client (%)</label>
+        <input type="number" id="remise-client" value="0">
+      </div>
+    </div>
+
+    <!-- 🔹 Tableau devis -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Désignation</th>
+            <th>Qté</th>
+            <th class="right">PU HT (net)</th>
+            <th class="right">Total HT</th>
+            <th class="center">Actions</th>
+          </tr>
+        </thead>
+
+        <!-- Ajout manuel -->
+        <tr>
+          <td><input type="text" id="manuDesignation" placeholder="Désignation manuelle…" class="input-small"></td>
+          <td><input type="number" id="manuQte" value="1" min="1" class="input-small center"></td>
+          <td><input type="number" id="manuPU" value="0" min="0" step="0.01" class="input-small right"></td>
+          <td class="right">—</td>
+          <td class="center"><button id="btnAddManu" class="btn btn-ghost" style="padding:6px 10px;">➕ Ajouter</button></td>
+        </tr>
+
+        <tbody id="bodyDevis">
+          <tr><td colspan="5" style="padding:12px;color:var(--txt-dim);">Aucune ligne dans le devis.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 🔹 Totaux -->
+    <div class="totaux">
+      <div class="totaux-box">
+        <div class="row"><div>Total HT</div><div id="totHT">0,00 €</div></div>
+        <div class="row"><div>TVA 20 %</div><div id="totTVA">0,00 €</div></div>
+        <div class="row grand"><div>Total TTC</div><div id="totTTC">0,00 €</div></div>
+        <div class="subnote">La remise ne s’applique pas au transport.</div>
+      </div>
+
+      <a class="app-inline" href="./transport.html">
+        <div style="font-size:22px">🚚</div>
         <div>
-          <label for="societe">Entreprise</label>
-          <input type="text" id="societe" placeholder="Nom de l’entreprise">
+          <p class="title">Coût de transport</p>
+          <p class="hint">Messagerie / Affrètement • Ajouter au devis</p>
         </div>
-        <div>
-          <label for="contact">Nom & prénom</label>
-          <input type="text" id="contact" placeholder="Nom Prénom">
-        </div>
-        <div>
-          <label for="chantier">Nom du chantier</label>
-          <input type="text" id="chantier" placeholder="Nom du chantier">
-        </div>
-        <div style="display:none;"><label for="remise-client">Remise client (%)</label><input type="number" id="remise-client" value="0"></div>
-      </div>
+      </a>
+    </div>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Désignation</th>
-              <th>Qté</th>
-              <th class="right">PU HT (net)</th>
-              <th class="right">Total HT</th>
-              <th class="center">Actions</th>
-            </tr>
-          </thead>
-          <!-- === AJOUT MANUEL DE LIGNE === -->
-<tr>
-  <td>
-    <input type="text" id="manuDesignation" placeholder="Désignation manuelle…" style="width:100%; padding:6px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:white;">
-  </td>
-  <td>
-    <input type="number" id="manuQte" value="1" min="1" style="width:100%; padding:6px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:white; text-align:center;">
-  </td>
-  <td>
-    <input type="number" id="manuPU" value="0" min="0" step="0.01" style="width:100%; padding:6px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:white; text-align:right;">
-  </td>
-  <td class="right">—</td>
-  <td class="center">
-    <button id="btnAddManu" class="btn btn-ghost" style="padding:6px 10px;">➕ Ajouter</button>
-  </td>
-</tr>
+    <!-- 🔹 Boutons -->
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+      <button id="btnPdf" class="btn" disabled>📄 Exporter le devis en PDF</button>
+      <button id="btnClear" class="btn btn-danger">🗑 Vider le devis</button>
+      <div id="noteInfo" class="note-info">💡 Veuillez renseigner l’entreprise, le nom du contact et le chantier pour activer l’export PDF.</div>
+    </div>
 
-          <tbody id="bodyDevis">
-            <tr><td colspan="5" style="padding:12px;color:var(--txt-dim)">Aucune ligne dans le devis.</td></tr>
-          </tbody>
-        </table>
-      </div>
+  </section>
+</main>
+<footer style="color:#f3ecff;font-size:12px;text-align:center;padding:24px 10px;opacity:.9;">
+  © Cofel — ZA du Perquoi, 72560 Changé — SIRET 927 659 458 00024 — TVA FR80927659458
+</footer>
 
-      <div class="totaux">
-        <div class="totaux-box">
-          <div class="row"><div>Total HT</div><div id="totHT">0,00 €</div></div>
-          <div class="row"><div>TVA 20 %</div><div id="totTVA">0,00 €</div></div>
-          <div class="row grand"><div>Total TTC</div><div id="totTTC">0,00 €</div></div>
-          <div class="subnote">La remise ne s’applique pas au transport.</div>
-        </div>
+<div id="toast" class="toast"></div>
 
-        <!-- Tuile transport (page dédiée) -->
-        <a class="app-inline" href="./transport.html" title="Calculer le coût de transport">
-          <div style="font-size:22px">🚚</div>
-          <div>
-            <p class="title">Coût de transport</p>
-            <p class="hint">Messagerie / Affrètement • Ajouter au devis</p>
-          </div>
-        </a>
-      </div>
+<!-- Core devis -->
+<script src="./js/devis-core.js"></script>
 
-      <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-        <button id="btnPdf" class="btn" disabled
-          title="Renseignez Entreprise, Nom & prénom et Nom du chantier pour activer l’export PDF">📄 Exporter le devis en PDF</button>
-        <button id="btnClear" class="btn btn-danger">🗑 Vider le devis</button>
-        <div id="noteInfo" class="note-info">💡 Veuillez renseigner l’entreprise, le nom du contact et le chantier pour activer l’export PDF.</div>
-      </div>
-    </section>
-  </main>
+<!-- jsPDF + AutoTable -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.3/jspdf.plugin.autotable.min.js"></script>
 
-  <footer>
-    © Cofel — ZA du Perquoi, 72560 Changé — SIRET 927 659 458 00024 — TVA FR80927659458
-  </footer>
+<script>
+(function(){
 
-  <!-- zone toast -->
-  <div id="toast" class="toast"></div>
+  if(!window.Devis){ console.error("Devis-core non chargé."); return; }
 
-  <!-- Core devis -->
-  <script src="./js/devis-core.js"></script>
+  /* -------------------- HELPERS -------------------- */
+  const MAIL_WEBHOOK = "https://script.google.com/macros/s/AKfycbwKL-QFzzfTY-Root-3g56rDwb9uwmkwNCv25d5YE6CQBfoJnJ1x8Fz7HTBdNtANRsmpg/exec";
+  const fmt = n => (Number(n)||0).toFixed(2).replace('.', ',') + " €";
+  const STORAGE_KEY = "devisCourant_v1";
+  const TVA_RATE = 0.20;
+  const toast = document.getElementById('toast');
 
-  <!-- jsPDF + AutoTable -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.3/jspdf.plugin.autotable.min.js"></script>
+  const showToast = (msg, ok=true)=>{
+    if(!toast) return alert(msg);
+    toast.textContent = msg;
+    toast.style.background = ok ? "#d7ffd7" : "#ffe3e3";
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'), 3000);
+  };
 
-  <!-- Script principal -->
-  <script>
+  const readStore  = ()=>{ try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");}catch{return{}} };
+  const writeStore = o => localStorage.setItem(STORAGE_KEY, JSON.stringify(o));
+  const updateClientField =(k,v)=>{const s=readStore();if(!s.client)s.client={};s.client[k]=v;writeStore(s);};
+  const getClient =()=> readStore().client || {};
+
+  /* Remise excluant TRANSPORT */
+  function totalsExcludingTransportDiscount(d){
+    let sumT=0, sumN=0;
+    for(const l of (d.lignes||[])){
+      const tot = (Number(l.quantite)||0)*(Number(l.pu_net_ht)||0);
+      ( (l.type||"").toLowerCase()==="transport" ? sumT : sumN ) += tot;
+    }
+    const total_ht = +(sumT + sumN).toFixed(2);
+    const tva = +(total_ht*TVA_RATE).toFixed(2);
+    return { total_ht, tva, total_ttc:+(total_ht+tva).toFixed(2) };
+  }
+
+  /* -------------------- DOM -------------------- */
+  const elSociete  = document.getElementById('societe');
+  const elContact  = document.getElementById('contact');
+  const elChantier = document.getElementById('chantier');
+  const elRemise   = document.getElementById('remise-client');
+
+  const elHT   = document.getElementById('totHT');
+  const elTVA  = document.getElementById('totTVA');
+  const elTTC  = document.getElementById('totTTC');
+
+  const body   = document.getElementById('bodyDevis');
+  const btnPdf = document.getElementById('btnPdf');
+  const btnClr = document.getElementById('btnClear');
+  const note   = document.getElementById('noteInfo');
+
+  /* -------------------- Validation export PDF -------------------- */
+  const validateExportEnabled = ()=>{
+    const filled = v => (v||"").trim() !== "";
+    const ok = filled(elSociete.value) && filled(elContact.value) && filled(elChantier.value);
+    btnPdf.disabled = !ok;
+    if(note) note.classList.toggle('hidden', ok);
+  };
+
+  /* -------------------- Hydratation client -------------------- */
   (function(){
-    if(!window.Devis){
-      console.error("Devis-core non chargé. Vérifiez ./js/devis-core.js");
+    try{
+      const profile = JSON.parse(localStorage.getItem('cofel_client_profile')||"{}");
+      if(profile.company && !elSociete.value) elSociete.value = profile.company;
+      if(profile.contactName && !elContact.value) elContact.value = profile.contactName;
+      if(typeof profile.discountRate === "number"){
+        const pct = Math.max(0,Math.min(90,Math.round(profile.discountRate*100)));
+        if(elRemise) elRemise.value = pct;
+        Devis.setRemise(0);
+      }
+    }catch{}
+
+    const c=getClient();
+    if(c.societe)  elSociete.value=c.societe;
+    if(c.contact)  elContact.value=c.contact;
+    if(c.chantier) elChantier.value=c.chantier;
+
+    validateExportEnabled();
+  })();
+
+  /* Save-as-you-type */
+  [
+    ['societe',elSociete],
+    ['contact',elContact],
+    ['chantier',elChantier]
+  ].forEach(([k,el])=>el?.addEventListener('input',()=>{
+    updateClientField(k,el.value);
+    validateExportEnabled();
+  }));
+
+  /* -------------------- Rendu -------------------- */
+  function render(){
+    const d=Devis.computeTotals();
+    const t=totalsExcludingTransportDiscount(d);
+
+    elHT.textContent=fmt(t.total_ht);
+    elTVA.textContent=fmt(t.tva);
+    elTTC.textContent=fmt(t.total_ttc);
+
+    if(!d.lignes.length){
+      body.innerHTML='<tr><td colspan="5" style="padding:12px;color:#f0edff">Aucune ligne dans le devis.</td></tr>';
       return;
     }
 
-    // === Webhook e-mail (GAS) — SANS pièce jointe (robuste) ===
-    const MAIL_WEBHOOK = "https://script.google.com/macros/s/AKfycbwKL-QFzzfTY-Root-3g56rDwb9uwmkwNCv25d5YE6CQBfoJnJ1x8Fz7HTBdNtANRsmpg/exec";
-
-    const toast = document.getElementById('toast');
-    function showToast(msg, ok=true){
-      if(!toast) return alert(msg);
-      toast.textContent = msg;
-      toast.style.background = ok ? "#d7ffd7" : "#ffe3e3";
-      toast.style.color = "#222";
-      toast.classList.add('show');
-      setTimeout(()=> toast.classList.remove('show'), 3000);
-    }
-
-    // Helpers
-    const fmt = n => (Number(n)||0).toFixed(2).replace('.', ',') + " €";
-    const STORAGE_KEY = "devisCourant_v1";
-    const TVA_RATE = 0.20;
-
-    function readStore(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }catch{ return {}; } }
-    function writeStore(obj){ localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); }
-    function updateClientField(key, value){
-      const state = readStore(); if(!state.client) state.client = {};
-      state.client[key] = value; writeStore(state);
-    }
-    function getClient(){ const st = readStore(); return st.client || {}; }
-
-    // 👉 Totaux avec remise EXCLUANT les lignes de type "transport"
-    function totalsExcludingTransportDiscount(d){
-      const lignes = d?.lignes || [];
-      const remise = 0;
-      let sumTransport = 0, sumNon = 0;
-      for (const l of lignes){
-        const q  = Number(l.quantite)||0;
-        const pu = Number(l.pu_net_ht)||0;
-        const total = q * pu;
-        if ((l.type || "").toLowerCase() === "transport") sumTransport += total;
-        else sumNon += total;
-      }
-      const nonAfterRemise = sumNon * (1 - remise/100);
-      const total_ht  = +(nonAfterRemise + sumTransport).toFixed(2);
-      const tva       = +(total_ht * TVA_RATE).toFixed(2);
-      const total_ttc = +(total_ht + tva).toFixed(2);
-      return { total_ht, tva, total_ttc };
-    }
-
-    // DOM refs
-    const elRemise   = document.getElementById('remise-client');
-    const body       = document.getElementById('bodyDevis');
-    const elHT       = document.getElementById('totHT');
-    const elTVA      = document.getElementById('totTVA');
-    const elTTC      = document.getElementById('totTTC');
-    const elSociete  = document.getElementById('societe');
-    const elContact  = document.getElementById('contact');
-    const elChantier = document.getElementById('chantier');
-    const btnPdf     = document.getElementById('btnPdf');
-    const btnClear   = document.getElementById('btnClear');
-    const noteInfo   = document.getElementById('noteInfo');
-
-    // Validation activation export PDF
-    function validateExportEnabled(){
-      const filled = v => (v || '').trim().length > 0;
-      const ok = filled(elSociete.value) && filled(elContact.value) && filled(elChantier.value);
-      btnPdf.disabled = !ok;
-      btnPdf.title = ok ? "" : "Renseignez Entreprise, Nom & prénom et Nom du chantier pour activer l’export PDF";
-      if(noteInfo){ noteInfo.classList.toggle('hidden', ok); }
-    }
-
-    // ✅ Prefill depuis le profil client + sauvegarde devis
-    (function hydrateClient(){
-      // 1) Profil client venant de client-login.html
-      try{
-        const rawProfile = localStorage.getItem('cofel_client_profile');
-        if (rawProfile) {
-          const profile = JSON.parse(rawProfile);
-
-          // Entreprise
-          if (profile.company && !elSociete.value) {
-            elSociete.value = profile.company;
-          }
-          // Nom & prénom
-          if (profile.contactName && !elContact.value) {
-            elContact.value = profile.contactName;
-          }
-
-          // Remise : discountRate est un taux (0.5 = 50 %)
-          if (typeof profile.discountRate === 'number' && !isNaN(profile.discountRate)) {
-            const pct = Math.max(0, Math.min(90, Math.round(profile.discountRate * 100)));
-            if (elRemise) {
-              elRemise.value = pct;
-            }
-            Devis.setRemise(0);
-          }
-        }
-      } catch(e){
-        console.error('Erreur lecture profil client :', e);
-      }
-
-      // 2) Éventuelle sauvegarde d'un devis précédent
-      const c = getClient();
-      if(c.societe)  elSociete.value  = c.societe;
-      if(c.contact)  elContact.value  = c.contact;
-      if(c.chantier) elChantier.value = c.chantier;
-
-      validateExportEnabled();
-    })();
-
-    // Save-as-you-type + revalidate
-    [ ['societe', elSociete], ['contact', elContact], ['chantier', elChantier] ]
-      .forEach(([k,el]) => el?.addEventListener('input', () => { updateClientField(k, el.value); validateExportEnabled(); } ));
-
-    // Rendu du tableau + totaux
-    function render(){
-      const d = Devis.computeTotals();
-      const storedRemise = Number(d.remise_pct||0);
-      if(Number(elRemise?.value||0) !== storedRemise && elRemise) elRemise.value = storedRemise;
-
-      if(!d.lignes.length){
-        body.innerHTML = '<tr><td colspan="5" style="padding:12px;color:#f0edff">Aucune ligne dans le devis.</td></tr>';
-      } else {
-        body.innerHTML = d.lignes.map(l => `
-          <tr data-id="${l.id}">
-            <td>${l.designation || "-"}</td>
-            <td class="center">${l.quantite}</td>
-            <td class="right">${fmt(l.pu_net_ht)}</td>
-            <td class="right">${fmt(l.total_ligne_ht)}</td>
-            <td class="center">
-              <button class="btn btn-ghost btn-qty" style="margin-right:6px;">📝 Qté</button>
-              <button class="btn btn-danger btn-del">Suppr.</button>
-            </td>
-          </tr>
-        `).join("");
-      }
-
-      // 👉 Totaux corrigés (remise hors transport)
-      const t = totalsExcludingTransportDiscount(d);
-      elHT.textContent  = fmt(t.total_ht);
-      elTVA.textContent = fmt(t.tva);
-      elTTC.textContent = fmt(t.total_ttc);
-    }
-
-    // Remise (si l'utilisateur la modifie à la main)
-    
-
-    // Actions lignes
-    // === AJOUT MANUEL DE LIGNE ===
-document.getElementById("btnAddManu").addEventListener("click", () => {
-  const designation = (document.getElementById("manuDesignation").value || "").trim();
-  const qte = Number(document.getElementById("manuQte").value || 1);
-  const pu = Number(document.getElementById("manuPU").value || 0);
-
-  if (!designation) {
-    alert("Veuillez saisir une désignation.");
-    return;
+    body.innerHTML = d.lignes.map(l=>`
+      <tr data-id="${l.id}">
+        <td>${l.designation||"-"}</td>
+        <td class="center">${l.quantite}</td>
+        <td class="right">${fmt(l.pu_net_ht)}</td>
+        <td class="right">${fmt(l.total_ligne_ht)}</td>
+        <td class="center">
+          <button class="btn btn-ghost btn-qty" style="margin-right:6px;">📝 Qté</button>
+          <button class="btn btn-danger btn-del">Suppr.</button>
+        </td>
+      </tr>
+    `).join("");
   }
 
-  if (qte <= 0 || pu < 0) {
-    alert("Valeurs invalides.");
-    return;
-  }
-
-  // Ajout dans le moteur de devis
-  Devis.addLine({
-    type: "manuel",
-    designation,
-    quantite: qte,
-    pu_net_ht: pu
+  /* -------------------- Ajout manuel -------------------- */
+  document.getElementById("btnAddManu").addEventListener("click",()=>{
+    const d=(id)=>document.getElementById(id).value;
+    const designation = d("manuDesignation").trim();
+    const q = Number(d("manuQte")||1);
+    const p = Number(d("manuPU")||0);
+    if(!designation) return alert("Veuillez saisir une désignation.");
+    if(q<=0||p<0) return alert("Valeurs invalides.");
+    Devis.addLine({type:"manuel",designation,quantite:q,pu_net_ht:p});
+    document.getElementById("manuDesignation").value="";
+    document.getElementById("manuQte").value=1;
+    document.getElementById("manuPU").value=0;
+    render();
   });
 
-  // Reset des champs
-  document.getElementById("manuDesignation").value = "";
-  document.getElementById("manuQte").value = 1;
-  document.getElementById("manuPU").value = 0;
+  /* -------------------- Actions lignes -------------------- */
+  body.addEventListener('click',e=>{
+    const tr=e.target.closest('tr[data-id]');
+    if(!tr)return;
+    const id=tr.dataset.id;
 
-  render();
-});
-
-    body.addEventListener('click',(e)=>{
-      const tr = e.target.closest('tr[data-id]');
-      if(!tr) return;
-      const id = tr.getAttribute('data-id');
-
-      if(e.target.classList.contains('btn-del')){
-        if(confirm("Supprimer cette ligne du devis ?")){
-          Devis.removeLine(id); render();
-        }
+    if(e.target.classList.contains('btn-del')){
+      if(confirm("Supprimer cette ligne du devis ?")){
+        Devis.removeLine(id); render();
       }
-      if(e.target.classList.contains('btn-qty')){
-        const currentQty = Number(tr.children[1].textContent||1);
-        const q = prompt("Nouvelle quantité :", currentQty);
-        if(q !== null){ Devis.updateQty(id, q); render(); }
-      }
+    }
+    if(e.target.classList.contains('btn-qty')){
+      const q=prompt("Nouvelle quantité :", tr.children[1].textContent);
+      if(q!==null){Devis.updateQty(id,q);render();}
+    }
+  });
+
+  /* -------------------- Vider devis -------------------- */
+  btnClr.addEventListener('click',()=>{
+    if(confirm("Vider entièrement le devis ?")){
+      Devis.clearAll(true);
+      render();
+      validateExportEnabled();
+    }
+  });
+
+  /* -------------------- Transport depuis transport.html -------------------- */
+  function addTransportLine(p){
+    const st=readStore();if(!st.lignes)st.lignes=[];
+    if(!st.lignes.some(l=>l.id===p.id)){
+      const q=Number(p.quantite||1), pu=Number(p.pu_net_ht||0);
+      st.lignes.push({
+        id:p.id,designation:p.designation||"Transport",
+        quantite:q,pu_net_ht:pu,total_ligne_ht:+(q*pu).toFixed(2),
+        type:p.type||"transport"
+      });
+      writeStore(st);
+      try{Devis.reload&&Devis.reload();}catch{}
+      render();
+    }
+  }
+  function checkTransportInbox(){
+    try{
+      const p=JSON.parse(localStorage.getItem('cofel_transport_add'));
+      if(p?.id) addTransportLine(p);
+    }catch{}
+    localStorage.removeItem('cofel_transport_add');
+  }
+  checkTransportInbox();
+  window.addEventListener('storage',ev=>{
+    if(ev.key==='cofel_transport_add'&&ev.newValue) checkTransportInbox();
+  });
+
+  /* -------------------- LOAD IMAGE (PDF) -------------------- */
+  async function loadImageDataURL(src){
+    const b=await (await fetch(src,{cache:"no-cache"})).blob();
+    return await new Promise(res=>{
+      const fr=new FileReader();
+      fr.onload=()=>res(fr.result);
+      fr.readAsDataURL(b);
     });
+  }
 
-    // Vider le devis
-    btnClear.addEventListener('click', ()=>{
-      if(confirm("Vider entièrement le devis ?")){
-        Devis.clearAll(true);
-        render();
-        validateExportEnabled();
-      }
-    });
-
-    // ===== Intégration TRANSPORT : réception depuis transport.html =====
-    function addTransportLine(payload){
-      const st = readStore();
-      if(!st.lignes) st.lignes = [];
-      const exists = st.lignes.some(l => l.id === payload.id);
-      if(!exists){
-        const q = Number(payload.quantite||1);
-        const pu = Number(payload.pu_net_ht||0);
-        st.lignes.push({
-          id: payload.id,
-          designation: payload.designation || "Transport",
-          quantite: q,
-          pu_net_ht: pu,
-          total_ligne_ht: +(q*pu).toFixed(2),
-          type: payload.type || "transport"
-        });
-        writeStore(st);
-        try{ Devis.reload && Devis.reload(); }catch{}
-        render();
-      }
-    }
-    function checkTransportInbox(){
-      const raw = localStorage.getItem('cofel_transport_add');
-      if(!raw) return;
-      try{
-        const payload = JSON.parse(raw);
-        if(payload && payload.id){ addTransportLine(payload); }
-      }catch(e){ console.warn("Transport payload invalide", e); }
-      localStorage.removeItem('cofel_transport_add');
-    }
-    checkTransportInbox();
-    window.addEventListener('storage', (ev)=>{ if(ev.key === 'cofel_transport_add' && ev.newValue){ checkTransportInbox(); } });
-
-    // ====== CHARGEMENT LOGO SANS RÉDUCTION (PLEINE RÉSOLUTION) ======
-    async function loadImageDataURL(src){
-      // Lit l'image telle quelle et la convertit en DataURL sans rééchantillonnage
-      const resp = await fetch(src, { cache: "no-cache" });
-      if(!resp.ok) throw new Error("Logo introuvable: " + src);
-      const blob = await resp.blob();
-      return await new Promise((resolve, reject) => {
-        const fr = new FileReader();
-        fr.onload = () => resolve(fr.result);
-        fr.onerror = reject;
-        fr.readAsDataURL(blob);
-      });
-    }
-
-    // === Envoi e-mail (silencieux côté client) =========================
-    async function sendEmail({client, devis}){
-      try{
-        const t = totalsExcludingTransportDiscount(devis);
-        const subject = `Devis Cofel — ${client?.societe||"Sans société"} — ${client?.chantier||"Sans chantier"} — ${((Number(t.total_ttc)||0).toFixed(2)).replace('.',',')} € — ${new Date().toLocaleDateString("fr-FR")}`;
-        const body = {
-          subject,
-          client,
-          devis: {
-            remise_pct: devis.remise_pct,
-            total_ht: t.total_ht,
-            tva: t.tva,
-            total_ttc: t.total_ttc,
-            lignes: (devis.lignes||[]).map(l=>({
-              designation: l.designation, quantite: l.quantite, pu_net_ht: l.pu_net_ht, total_ligne_ht: l.total_ligne_ht, type: l.type||""
-            }))
-          },
-          meta: { page: location.href, userAgent: navigator.userAgent, date: new Date().toISOString() },
-          pdf: null
-        };
-
-        const resp = await fetch(MAIL_WEBHOOK, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" }, // évite le préflight CORS
-          body: JSON.stringify(body)
-        });
-        const text = await resp.text().catch(()=>"(no text)");
-        console.log("[MAIL] status", resp.status, "body:", text);
-      }catch(err){
-        console.warn("Envoi email échoué:", err);
-      }
-    }
-
-    // ===================== EXPORT PDF =====================
-    document.getElementById("btnPdf").addEventListener("click", async () => {
-  try {
-    const { jsPDF } = window.jspdf;
-
-    // Palette couleurs Cofel
-    const COLOR_PRIMARY = [90, 45, 130];   // Violet Cofel
-    const COLOR_TEXT    = [20, 20, 20];
-    const COLOR_MUTED   = [110, 110, 110];
-    const BG_SOFT       = [245, 242, 252];
-
-    // Données devis
-    const d = Devis.computeTotals();
-    const t = totalsExcludingTransportDiscount(d);
-    const client = {
-      societe: (elSociete?.value || "").trim(),
-      contact: (elContact?.value || "").trim(),
-      chantier: (elChantier?.value || "").trim(),
-    };
-
-    // jsPDF
-    const doc = new jsPDF({ unit: "pt", format: "a4", compress: true });
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 40;
-
-    // ----- Chargement Logo haute résolution -----
-    async function loadImageDataURL(src) {
-      const resp = await fetch(src, { cache: "no-cache" });
-      const blob = await resp.blob();
-      return await new Promise((resolve) => {
-        const fr = new FileReader();
-        fr.onload = () => resolve(fr.result);
-        fr.readAsDataURL(blob);
-      });
-    }
-
-    let logoData = null;
-    try {
-      logoData = await loadImageDataURL("./assets/logo cofel.jpg");
-    } catch (e) {
-      console.warn("Logo non chargé :", e);
-    }
-
-    // ----- HEADER -----
-    const drawHeader = () => {
-      const yTop = margin;
-
-      if (logoData) {
-        const W = 180;
-        const H = Math.round(W * 0.28);
-        doc.addImage(logoData, "JPEG", margin, yTop, W, H);
-      }
-
-      doc.setFont("Helvetica", "bold");
-      doc.setFontSize(18);
-      doc.setTextColor(...COLOR_PRIMARY);
-      doc.text("DEVIS", pageWidth - margin, yTop + 6, { align: "right" });
-
-      doc.setFont("Helvetica", "normal");
-      doc.setFontSize(10);
-      doc.setTextColor(...COLOR_TEXT);
-
-      const lines = [
-        "COFEL72 — ZA du Perquoi, 72560 Changé",
-        "SIRET 927 659 458 00024 — TVA FR80927659458",
-        "Date : " + new Date().toLocaleDateString("fr-FR"),
-      ];
-
-      lines.forEach((t, i) => {
-        doc.text(t, pageWidth - margin, yTop + 26 + i * 14, { align: "right" });
-      });
-
-      // ligne violette
-      doc.setDrawColor(...COLOR_PRIMARY);
-      doc.setLineWidth(1);
-      doc.line(margin, yTop + 54, pageWidth - margin, yTop + 54);
-    };
-
-    // ----- FOOTER -----
-    const drawFooter = (pageNum, pageCount) => {
-      const y = pageHeight - margin + 12;
-      doc.setFont("Helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(...COLOR_MUTED);
-
-      doc.text(
-        "Offre valable 30 jours — Sous réserve de faisabilité et validation technique",
-        margin,
-        y
-      );
-      doc.text(`Page ${pageNum} / ${pageCount}`, pageWidth - margin, y, {
-        align: "right",
-      });
-    };
-
-    // ----- CARTOUCHE "Sous réserve" -----
-    function drawTechNotice(yStart) {
-      const boxW = pageWidth - margin * 2;
-      const boxH = 56;
-      const y = Math.min(
-        pageHeight - margin - boxH - 10,
-        yStart
-      );
-
-      doc.setFillColor(255, 247, 220);
-      doc.setDrawColor(220, 160, 0);
-      doc.roundedRect(margin, y, boxW, boxH, 8, 8, "FD");
-
-      doc.setTextColor(120, 70, 0);
-      doc.setFont("Helvetica", "bold");
-      doc.setFontSize(12.5);
-      doc.text(
-        "DEVIS SOUS RÉSERVE D'APPROBATION DE NOTRE ÉQUIPE TECHNIQUE",
-        margin + boxW / 2,
-        y + boxH / 2 + 4,
-        { align: "center", baseline: "middle" }
-      );
-
-      return y + boxH;
-    }
-
-    // ----- CARTE CLIENT -----
-    const drawClientCard = (yStart) => {
-      const CARD_H = 90;
-      const cardW = pageWidth - margin * 2;
-
-      doc.setFillColor(...BG_SOFT);
-      doc.setDrawColor(230, 230, 240);
-      doc.roundedRect(margin, yStart, cardW, CARD_H, 8, 8, "FD");
-
-      let y = yStart + 24;
-      doc.setFont("Helvetica", "bold");
-      doc.setFontSize(12);
-      doc.setTextColor(...COLOR_PRIMARY);
-      doc.text("Client", margin + 14, y);
-
-      doc.setFont("Helvetica", "normal");
-      doc.setFontSize(11);
-
-      const rows = [
-        ["Entreprise :", client.societe],
-        ["Contact :", client.contact],
-        ["Chantier :", client.chantier],
-      ];
-
-      rows.forEach((r, i) => {
-        doc.setTextColor(...COLOR_MUTED);
-        doc.text(r[0], margin + 14, y + 20 + i * 16);
-        doc.setTextColor(...COLOR_TEXT);
-        doc.text(r[1] || "-", margin + 95, y + 20 + i * 16);
-      });
-
-      return yStart + CARD_H + 18;
-    };
-
-    // ----- TOTaUX -----
-    const drawTotalsBox = (yStart) => {
-      const boxW = 220;
-      const boxH = 100;
-      const x = pageWidth - margin - boxW;
-
-      doc.setFillColor(255, 255, 255);
-      doc.setDrawColor(...COLOR_PRIMARY);
-      doc.roundedRect(x, yStart, boxW, boxH, 8, 8);
-
-      const row = (label, value, yy, bold = false) => {
-        doc.setFont("Helvetica", bold ? "bold" : "normal");
-        doc.setFontSize(11);
-        doc.setTextColor(...COLOR_TEXT);
-        doc.text(label, x + 12, yy);
-        doc.text(value, x + boxW - 12, yy, { align: "right" });
+  /* -------------------- Envoi Email (silencieux) -------------------- */
+  async function sendEmail({client,devis}){
+    try{
+      const t=totalsExcludingTransportDiscount(devis);
+      const body={
+        subject:`Devis Cofel — ${client.societe||"Sans société"} — ${client.chantier||"Sans chantier"} — ${(t.total_ttc).toFixed(2).replace('.',',')} € — ${new Date().toLocaleDateString("fr-FR")}`,
+        client,
+        devis:{
+          remise_pct:devis.remise_pct,
+          total_ht:t.total_ht,
+          tva:t.tva,
+          total_ttc:t.total_ttc,
+          lignes:(devis.lignes||[]).map(l=>({
+            designation:l.designation,
+            quantite:l.quantite,
+            pu_net_ht:l.pu_net_ht,
+            total_ligne_ht:l.total_ligne_ht,
+            type:l.type||""
+          }))
+        },
+        meta:{page:location.href,userAgent:navigator.userAgent,date:new Date().toISOString()},
+        pdf:null
       };
 
-      row("Total HT", t.total_ht.toFixed(2) + " €", yStart + 28);
-      row("TVA 20 %", t.tva.toFixed(2) + " €", yStart + 46);
-      row("Total TTC", t.total_ttc.toFixed(2) + " €", yStart + 68, true);
-
-      return yStart + boxH;
-    };
-
-    // ----- TABLEAU -----
-    const rows = (d.lignes || []).map((l) => [
-      l.designation || "-",
-      String(l.quantite),
-      (Number(l.pu_net_ht) || 0).toFixed(2),
-      (Number(l.total_ligne_ht) || 0).toFixed(2),
-    ]);
-
-    drawHeader();
-    let cursorY = drawClientCard(margin + 90);
-
-    doc.autoTable({
-      startY: cursorY,
-      head: [["Désignation", "Qté", "PU HT", "Total HT"]],
-      body: rows,
-      styles: { font: "helvetica", fontSize: 10, cellPadding: 6 },
-      headStyles: { fillColor: COLOR_PRIMARY, textColor: [255, 255, 255] },
-      alternateRowStyles: { fillColor: [250, 248, 255] },
-      margin: { left: margin, right: margin },
-      theme: "grid",
-      didDrawPage: () => drawHeader(),
-    });
-
-    const afterTableY = doc.lastAutoTable.finalY + 16;
-    const afterTotalsY = drawTotalsBox(afterTableY);
-
-    doc.setPage(doc.internal.getNumberOfPages());
-    drawTechNotice(afterTotalsY + 20);
-
-    // FOOTER all pages
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      drawFooter(i, pageCount);
-    }
-
-    // ----- EMAIL SILENCIEUX -----
-    await sendEmail({ client, devis: d });
-
-   // ----- ENREGISTREMENT BD -----
-let profileEmail = "";
-try {
-  profileEmail = JSON.parse(
-    localStorage.getItem("cofel_client_profile") || "{}"
-  ).email;
-} catch {}
-
-// ⭐ Appel vers le Worker (URL CORRECTE AVEC LE :443)
-const logResp = await fetch(
-  "https://cofel-auth.sonveven.workers.dev/log-quote",
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      clientEmail: profileEmail,
-      clientCompany: client.societe,
-      clientName: client.contact,
-      productType: "devis-index",
-      totalHT: t.total_ht,
-      totalTTC: t.total_ttc,
-      extra: {
-        chantier: client.chantier,
-        date: new Date().toISOString(),
-        lignes: d.lignes || [],
-      },
-    }),
-  }
-);
-
-const logData = await logResp.json();
-window.lastCreatedQuoteId = logData.quoteId || null;
-
-// ----- PDF → base64 -----
-const pdfBlob = doc.output("blob");
-const pdfBase64 = await new Promise((resolve) => {
-  const fr = new FileReader();
-  fr.onloadend = () => resolve(fr.result.split(",")[1]);
-  fr.readAsDataURL(pdfBlob);
-});
-
-// ----- UPLOAD GITHUB -----
-if (!window.lastCreatedQuoteId) {
-  console.error("❌ Aucun quoteId reçu depuis /log-quote :", logData);
-  alert("Erreur interne : impossible de récupérer l'ID du devis.");
-  return;
-}
-
-await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    quoteId: window.lastCreatedQuoteId,
-    pdfBase64,
-    clientCompany: client.societe,
-    productType: "devis-index",
-    createdAt: new Date().toISOString(),
-  }),
-});
-
-
-    // ----- DOWNLOAD LOCAL -----
-    doc.save("Devis-Cofel.pdf");
-  } catch (err) {
-    alert("Erreur PDF : " + err.message);
-    console.error(err);
-  }
-});
-
-    // Initial render
-    render();
-
-    // 🚪 Déconnexion (client + admin)
-    (function setupLogout(){
-      const btn = document.getElementById("logoutBtn");
-      if (!btn) return;
-
-      btn.addEventListener("click", () => {
-        try {
-          // Profil client
-          localStorage.removeItem('cofel_client_profile');
-          // Tokens admin éventuels
-          Object.keys(localStorage).forEach(key => {
-            if (key.startsWith('auth_token_')) {
-              localStorage.removeItem(key);
-            }
-          });
-        } catch (e) {
-          console.error("Erreur nettoyage stockage lors de la déconnexion", e);
-        }
-
-        const parts = location.pathname.split("/").filter(Boolean);
-        const project = parts.length ? parts[0] : "";
-        const loginUrl = `/${project}/auth/client-login.html`;
-        location.href = loginUrl;
+      await fetch(MAIL_WEBHOOK,{
+        method:"POST",
+        headers:{ "Content-Type":"text/plain;charset=utf-8" },
+        body:JSON.stringify(body)
       });
-    })();
+    }catch(err){console.warn("Email échoué:",err);}
+  }
 
+  /* -------------------- EXPORT PDF -------------------- */
+  btnPdf.addEventListener("click", async()=>{
+    try{
+      const {jsPDF}=window.jspdf;
+      const doc=new jsPDF({unit:"pt",format:"a4",compress:true});
+      const pw=doc.internal.pageSize.getWidth();
+      const ph=doc.internal.pageSize.getHeight();
+      const m=40;
+
+      const COLOR_PRIMARY=[90,45,130], COLOR_TEXT=[20,20,20], COLOR_MUTED=[110,110,110], BG_SOFT=[245,242,252];
+
+      const d=Devis.computeTotals();
+      const t=totalsExcludingTransportDiscount(d);
+      const client={
+        societe:(elSociete.value||"").trim(),
+        contact:(elContact.value||"").trim(),
+        chantier:(elChantier.value||"").trim(),
+      };
+
+      let logo=null;
+      try{logo=await loadImageDataURL("./assets/logo cofel.jpg");}catch{}
+
+      /* ----- HEADER ----- */
+      const drawHeader=()=>{
+        if(logo) doc.addImage(logo,"JPEG",m,m,180,50);
+        doc.setFont("Helvetica","bold").setFontSize(18).setTextColor(...COLOR_PRIMARY);
+        doc.text("DEVIS",pw-m,m+6,{align:"right"});
+
+        doc.setFont("Helvetica","normal").setFontSize(10).setTextColor(...COLOR_TEXT);
+        ["COFEL72 — ZA du Perquoi 72560 Changé",
+         "SIRET 927 659 458 00024 — TVA FR80927659458",
+         "Date : "+new Date().toLocaleDateString("fr-FR")
+        ].forEach((t,i)=>doc.text(t,pw-m,m+26+i*14,{align:"right"}));
+
+        doc.setDrawColor(...COLOR_PRIMARY).setLineWidth(1);
+        doc.line(m,m+54,pw-m,m+54);
+      };
+
+      /* ----- FOOTER ----- */
+      const drawFooter=(p,n)=>{
+        const y=ph-m+12;
+        doc.setFont("Helvetica","normal").setFontSize(9).setTextColor(...COLOR_MUTED);
+        doc.text("Offre valable 30 jours — Sous réserve de faisabilité",m,y);
+        doc.text(`Page ${p}/${n}`,pw-m,y,{align:"right"});
+      };
+
+      /* ----- CLIENT ----- */
+      const drawClientCard=y=>{
+        const h=90, w=pw-m*2;
+        doc.setFillColor(...BG_SOFT).setDrawColor(230,230,240);
+        doc.roundedRect(m,y,w,h,8,8,"FD");
+
+        doc.setFont("Helvetica","bold").setFontSize(12).setTextColor(...COLOR_PRIMARY);
+        doc.text("Client",m+14,y+24);
+
+        doc.setFont("Helvetica","normal").setFontSize(11);
+        [["Entreprise :",client.societe],["Contact :",client.contact],["Chantier :",client.chantier]]
+          .forEach((r,i)=>{
+            doc.setTextColor(...COLOR_MUTED).text(r[0],m+14,y+44+i*16);
+            doc.setTextColor(...COLOR_TEXT).text(r[1]||"-",m+95,y+44+i*16);
+        });
+
+        return y+h+18;
+      };
+
+      /* ----- TOTAUX ----- */
+      const drawTotals=y=>{
+        const w=220,h=100,x=pw-m-w;
+        doc.setFillColor(255,255,255).setDrawColor(...COLOR_PRIMARY);
+        doc.roundedRect(x,y,w,h,8,8);
+
+        const row=(a,b,y,bold=false)=>{
+          doc.setFont("Helvetica",bold?"bold":"normal").setFontSize(11).setTextColor(...COLOR_TEXT);
+          doc.text(a,x+12,y);
+          doc.text(b,x+w-12,y,{align:"right"});
+        };
+        row("Total HT",t.total_ht.toFixed(2)+" €",y+28);
+        row("TVA 20 %",t.tva.toFixed(2)+" €",y+46);
+        row("Total TTC",t.total_ttc.toFixed(2)+" €",y+68,true);
+        return y+h;
+      };
+
+      drawHeader();
+      let y=drawClientCard(m+90);
+
+      /* Tableau jsPDF AutoTable */
+      const rows=(d.lignes||[]).map(l=>[
+        l.designation||"-",
+        l.quantite+"",
+        (l.pu_net_ht||0).toFixed(2),
+        (l.total_ligne_ht||0).toFixed(2)
+      ]);
+
+      doc.autoTable({
+        startY:y,
+        head:[["Désignation","Qté","PU HT","Total HT"]],
+        body:rows,
+        styles:{font:"helvetica",fontSize:10,cellPadding:6},
+        headStyles:{fillColor:COLOR_PRIMARY,textColor:[255,255,255]},
+        alternateRowStyles:{fillColor:[250,248,255]},
+        margin:{left:m,right:m},
+        theme:"grid",
+        didDrawPage:()=>drawHeader()
+      });
+
+      const afterTableY=doc.lastAutoTable.finalY+16;
+      const afterTotals=drawTotals(afterTableY);
+
+      const pageCount=doc.internal.getNumberOfPages();
+      for(let i=1;i<=pageCount;i++){
+        doc.setPage(i); drawFooter(i,pageCount);
+      }
+
+      /* ----- Email silencieux ----- */
+      await sendEmail({client,devis:d});
+      
+      /* ----- Worker : log devis ----- */
+      let profileEmail="";
+      try{profileEmail=JSON.parse(localStorage.getItem("cofel_client_profile")||"{}").email;}catch{}
+      const logResp=await fetch("https://cofel-auth.sonveven.workers.dev/log-quote",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          clientEmail:profileEmail,
+          clientCompany:client.societe,
+          clientName:client.contact,
+          productType:"devis-index",
+          totalHT:t.total_ht,
+          totalTTC:t.total_ttc,
+          extra:{chantier:client.chantier,date:new Date().toISOString(),lignes:d.lignes||[]}
+        })
+      });
+      const logData=await logResp.json();
+      window.lastCreatedQuoteId=logData.quoteId||null;
+
+      if(!window.lastCreatedQuoteId){
+        alert("Erreur interne : impossible de récupérer l'ID du devis.");
+        return;
+      }
+
+      /* ----- Upload PDF GitHub ----- */
+      const pdfBlob=doc.output("blob");
+      const pdfBase64=await new Promise(res=>{
+        const fr=new FileReader();
+        fr.onloadend=()=>res(fr.result.split(",")[1]);
+        fr.readAsDataURL(pdfBlob);
+      });
+
+      await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          quoteId:window.lastCreatedQuoteId,
+          pdfBase64,
+          clientCompany:client.societe,
+          productType:"devis-index",
+          createdAt:new Date().toISOString()
+        })
+      });
+
+      doc.save("Devis-Cofel.pdf");
+
+    }catch(err){
+      alert("Erreur PDF : "+err.message);
+      console.error(err);
+    }
+  });
+
+  /* -------------------- Initial Render -------------------- */
+  render();
+
+  /* -------------------- Logout -------------------- */
+  (()=>{
+    const btn=document.getElementById("logoutBtn");
+    btn.addEventListener("click",()=>{
+      try{
+        localStorage.removeItem('cofel_client_profile');
+        Object.keys(localStorage).forEach(k=>k.startsWith('auth_token_')&&localStorage.removeItem(k));
+      }catch{}
+      const p=location.pathname.split("/").filter(Boolean)[0];
+      location.href=`/${p}/auth/client-login.html`;
+    });
   })();
-  </script>
-  <!-- Lien Admin (invisible par défaut) -->
+
+})();
+</script>
+
+<!-- ----- LIENS ADMIN ----- -->
 <div id="admin-links" style="
-    display:none;
-    position:fixed;
-    top:12px;
-    right:12px;
-    z-index:9999;
-    background:#5a2d82;
-    color:white;
-    padding:8px 15px;
-    border-radius:12px;
-    font-size:14px;
-">
-    <a href="./auth/admin-clients.html" style="color:white; text-decoration:none; margin-right:10px;">👤 Admin Clients</a>
-    <a href="./auth/admin-quotes.html" style="color:white; text-decoration:none;">📄 Admin Devis</a>
+  display:none;position:fixed;top:12px;right:12px;z-index:9999;
+  background:#5a2d82;color:white;padding:8px 15px;border-radius:12px;font-size:14px;">
+  <a href="./auth/admin-clients.html" style="color:white;margin-right:10px;text-decoration:none;">👤 Admin Clients</a>
+  <a href="./auth/admin-quotes.html" style="color:white;text-decoration:none;">📄 Admin Devis</a>
 </div>
 
 <script>
-// Afficher le lien Admin seulement pour l'administrateur
-const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
-if (profile.email === "commercial@cofel72.fr") {
-    document.getElementById("admin-links").style.display = "block";
-}
+  const profile = JSON.parse(localStorage.getItem("cofel_client_profile")||"{}");
+  if(profile.email === "commercial@cofel72.fr"){
+    document.getElementById("admin-links").style.display="block";
+  }
 </script>
+
 </body>
 </html>
+
