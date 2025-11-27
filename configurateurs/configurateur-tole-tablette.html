@@ -589,14 +589,16 @@ elFixLisse.classList.toggle('hidden', fixVal!=='lisse');
 
 /*** EVENTS ***/
 ['input','change'].forEach(evt=>{
-  [
+ [
     quantite, largeur, hauteur, plis,
     ajourLargeur, ajourHauteur,
+    document.getElementById('lisseLongueur'), // ✅ AJOUT ESSENTIEL
     ...document.querySelectorAll('input[name="matiere"]'),
     optAjour, pmmaSel,
     optLED, ...fixRadios, goussetPrixU,
     ...document.querySelectorAll('input[name="boiteMat"]')
-  ].forEach(el=>{
+]
+.forEach(el=>{
     if(!el || !el.addEventListener) return;
     el.addEventListener(evt, ()=>{
       toggleBlocks();
@@ -718,6 +720,7 @@ const lisseML = lisseMM / 1000;
 
 </body>
 </html>
+
 
 
 
