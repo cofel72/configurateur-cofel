@@ -319,6 +319,7 @@ const BOX_PRICE_M2 = {
 };
 const AJOURAGE_PRICE_M2 = 99.0;
 const UPLIFT_PUBLIC = 2.0;
+const LISSE_PRICE_ML = 25;  // prix interne en €/mètre linéaire
 
 /*** STATE / DOM ***/
 const $ = id => document.getElementById(id);
@@ -551,7 +552,15 @@ function compute(){
 
   }else if(fixVal==='corniere'){
     fix_interne = CORNIERE_PRICE_ML * P;
-  }
+  } else if (fixVal === 'lisse') {
+    const lisseMM = Number(document.getElementById("lisseLongueur")?.value || 0);
+    const lisseML = lisseMM / 1000;   // conversion mm → mètres
+
+    if (lisseML > 0) {
+        fix_interne = LISSE_PRICE_ML * lisseML;  // prix interne
+    }
+}
+
 
   const unitHT_interne = base_interne_majoré + ajourage_interne + pmma_interne + led_interne + fix_interne;
 
@@ -698,5 +707,6 @@ const MAT_LABELS = {
 
 </body>
 </html>
+
 
 
