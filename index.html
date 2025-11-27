@@ -424,7 +424,57 @@
       elTVA.textContent = fmt(t.tva);
       elTTC.textContent = fmt(t.total_ttc);
     }
+// =========================================================
+// 🔥 Mode tarif : recalcul propre à partir du PU public
+// =========================================================
 window.addEventListener("cofel-price-mode-changed", () => {
+
+    const state = readStore();
+    if (!state.lignes || !Array.isArray(state.lignes)) return;
+
+    // 1️⃣ Lire la remise du profil client
+    let remisePct = 0;
+    try {
+        const p = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
+        if (typeof p.discountRate === "number") {
+            remisePct = p.discountRate * 100;  // ex: 0.4 → 40
+        }
+    } catch {}
+
+    // 2️⃣ Lire le mode tarif
+    const mode = localStorage.getItem("cofel_price_mode") || "client";
+
+    // 3️⃣ Recalcul de toutes les lignes
+    state.lignes = state.lignes.map(l => {
+
+        const isTransport = (l.type || "").toLowerCase() === "transport";
+        const pu_public = Number(l.pu_public_ht || l.pu_net_ht || 0);
+
+        // Base PU = prix public
+        let pu_net = pu_public;
+
+        if (!isTransport) {
+            // Mode PRO → prix remisé
+            if (mode === "pro") {
+                pu_net = pu_public * (1 - remisePct / 100);
+            }
+            // Mode CLIENT FINAL → 0% remise
+        }
+
+        const total = Number(l.quantite || 1) * pu_net;
+
+        return {
+            ...l,
+            pu_net_ht: +pu_net.toFixed(2),
+            total_ligne_ht: +total.toFixed(2),
+            pu_public_ht: pu_public   // sécurité : garder le prix public stocké
+        };
+    });
+
+    writeStore(state);
+    render();
+});
+
     let remise = 0;
 
     // Lire le profil client
