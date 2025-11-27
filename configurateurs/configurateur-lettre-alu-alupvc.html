@@ -173,6 +173,8 @@
   }
   .btn:active{transform:translateY(1px);box-shadow:0 6px 16px rgba(0,0,0,.28);}
   .btn-ghost{background:transparent;color:var(--txt);border:1px solid rgba(255,255,255,.24);} 
+
+  .hidden{display:none;}
 </style>
 </head>
 <body>
@@ -243,6 +245,14 @@
             <input type="checkbox" id="optFixation" />
             <span>Fixations</span>
           </label>
+          <label class="option-item">
+            <input type="checkbox" id="optLisse" />
+            <span>Pose sur lisse</span>
+          </label>
+          <div id="lisseBlock" class="hidden" style="margin-top:8px;">
+            <label for="lisseLongueur">Longueur de la lisse (mm)</label>
+            <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 3000" />
+          </div>
         </fieldset>
       </div>
     </div>
@@ -273,6 +283,7 @@ const TVA = 0.20;
 const UPLIFT_PUBLIC = 2.0;
 const CSV_URL = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/lettres/Lettre%20alu%2020_10%20%C3%A8me%20ou%20Type%20Dibond%203%20mm.csv";
 const H_MAX = 1500;
+const LISSE_PRICE_ML = 25; // €/ml interne
 
 let HEADS=[], ROWS=[], MAP=null;
 const $ = id => document.getElementById(id);
@@ -284,6 +295,8 @@ const elFLaque = $("finitionLaque");
 const elPrixHT = $("prixHT");
 const elPrixTTC = $("prixTTC");
 const elHelp = $("helpRanges");
+const elLisse = $("optLisse");
+const elLisseLongueur = $("lisseLongueur");
 
 function normKey(k){
   return String(k||'').toLowerCase()
@@ -383,7 +396,8 @@ function parseCSVAuto(text){
     for(let i=0;i<line.length;i++){
       const ch=line[i], nx=line[i+1];
       if(ch === '"'){
-        if(inQ && nx === '"'){ cur+='"'; i++; } else inQ = !inQ;
+        if(inQ && nx === '"'){ cur+='"'; i++; }
+        else inQ = !inQ;
       } else if(ch === sep && !inQ){ out.push(cur); cur=''; }
       else cur += ch;
     }
@@ -422,6 +436,12 @@ function pickRowForHeight(H){
   return chosen.row;
 }
 
+function updateLisseUI(){
+  const block = $("lisseBlock");
+  if(!block) return;
+  block.classList.toggle("hidden", !elLisse.checked);
+}
+
 function compute(){
   // === Remise automatique client ===
   let remiseClient = 1;
@@ -431,16 +451,15 @@ function compute(){
   } catch(e){}
 
   const Hraw = Number(elH.value || 0);
-let H = Math.min(H_MAX, Math.max(0, Hraw || 0));
+  let H = Math.min(H_MAX, Math.max(0, Hraw || 0));
 
-const Q = Math.max(1, Number(elQ.value || 1));  // quantité
+  const Q = Math.max(1, Number(elQ.value || 1));  // quantité
 
-if (H <= 0) {
-  elPrixHT.textContent = '0,00';
-  elPrixTTC.textContent = '0,00';
-  return;
-}
-
+  if (H <= 0) {
+    elPrixHT.textContent = '0,00';
+    elPrixTTC.textContent = '0,00';
+    return;
+  }
 
   const row = pickRowForHeight(H);
   if(!row){ elPrixHT.textContent='0,00'; elPrixTTC.textContent='0,00'; return; }
@@ -453,9 +472,19 @@ if (H <= 0) {
   else if(isFinite(brut)) unit_interne = brut;
   else if(isFinite(laqe)) { unit_interne = laqe; elFLaque.checked=true; elFBrut.checked=false; }
 
+  // Supplément : fixations
   if(elFix.checked && MAP.fixKey){
     const fx = numFR(row[MAP.fixKey]);
     if(isFinite(fx)) unit_interne += fx;
+  }
+
+  // Supplément : pose sur lisse (25 €/ml interne)
+  if (elLisse && elLisse.checked) {
+    const lmm = Number(elLisseLongueur?.value || 0);
+    const lml = lmm / 1000;
+    if (lml > 0) {
+      unit_interne += LISSE_PRICE_ML * lml;
+    }
   }
 
   const unit_public = unit_interne * UPLIFT_PUBLIC * remiseClient;
@@ -473,6 +502,7 @@ async function loadCSV(){
     const {rawHeads, rows} = parseCSVAuto(txt);
     HEADS=rawHeads; ROWS=rows; MAP=buildMapping(HEADS);
     if (elHelp) elHelp.textContent = "Hauteur max 1500 mm";
+    updateLisseUI();
     compute();
   }catch(e){
     console.error(e);
@@ -481,10 +511,19 @@ async function loadCSV(){
 }
 
 ["input","change"].forEach(evt=>{
-  [elH, elQ, elFix, elFBrut, elFLaque].forEach(el=>{ el.addEventListener(evt, compute); });
+  [elH, elQ, elFix, elFBrut, elFLaque, elLisse, elLisseLongueur].forEach(el=>{
+    if(!el) return;
+    el.addEventListener(evt, ()=>{
+      updateLisseUI();
+      compute();
+    });
+  });
 });
 $("btnReset").addEventListener("click", ()=>{
   elH.value=''; elQ.value=1; elFix.checked=false; elFBrut.checked=true; elFLaque.checked=false;
+  if (elLisse) elLisse.checked = false;
+  if (elLisseLongueur) elLisseLongueur.value = '';
+  updateLisseUI();
   if (elHelp) elHelp.textContent = "Hauteur max 1500 mm";
   compute();
 });
@@ -504,14 +543,29 @@ $("btnAddDevis").addEventListener("click", ()=>{
     let hauteur = Number($("hauteur").value || 0);
     if (!isFinite(hauteur) || hauteur < 1) hauteur = 1;
     if (hauteur > 1500) { hauteur = 1500; $("hauteur").value = 1500; }
+
     const fin = $("finitionLaque").checked ? 'laqué' : 'brut';
     const fix = $("optFixation").checked ? ' + fixations' : '';
+
+    const optLisse = $("optLisse");
+    const lisseMM = Number($("lisseLongueur")?.value || 0);
+    const lisseML = lisseMM / 1000;
+    const supLisseText = (optLisse && optLisse.checked && lisseMM > 0)
+      ? ` + pose sur lisse — ${lisseMM} mm (${lisseML.toFixed(2)} ml)`
+      : '';
+
     const catVal = $("categorie").value;
     const catTxt = (catVal==='alu20') ? 'Lettre aluminium 20/10' : 'Lettre alu/PVC 3 mm (type Dibond)';
     const total_ht = parseFloat($("prixHT").innerText.replace(',','.')) || 0;
     const pu_public_ht = qte>0 ? (total_ht / qte) : 0;
-    const designation = `${catTxt} — H ${hauteur || 'n.c.'} mm — ${fin}${fix}`;
-    Devis.addLine({ type: 'Lettres', designation, quantite: qte, pu_public_ht: Number(pu_public_ht.toFixed(2)) });
+    const designation = `${catTxt} — H ${hauteur || 'n.c.'} mm — ${fin}${fix}${supLisseText}`;
+
+    Devis.addLine({
+      type: 'Lettres',
+      designation,
+      quantite: qte,
+      pu_public_ht: Number(pu_public_ht.toFixed(2))
+    });
     alert(`✅ Ligne ajoutée au devis !\n${designation}\nQté : ${qte}\nPU HT : ${pu_public_ht.toFixed(2)} €`);
   }catch(err){ console.error(err); alert('Erreur lors de l’ajout au devis : ' + err.message); }
 });
@@ -519,5 +573,3 @@ $("btnAddDevis").addEventListener("click", ()=>{
 
 </body>
 </html>
-
-
