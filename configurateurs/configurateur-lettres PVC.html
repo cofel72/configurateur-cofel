@@ -85,14 +85,6 @@
   }
   .radio-row input[type="checkbox"]{accent-color:#cbb3ff;width:18px;height:18px}
 
-  .result{
-    background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));
-    border:1px solid rgba(255,255,255,.24);
-    border-radius:20px; padding:16px; margin-top:18px; text-align:center; font-size:18px;
-    box-shadow:var(--shadow); backdrop-filter:blur(var(--blur));
-  }
-  .result span{font-weight:800;}
-
   .notice-glass{
     margin-top:10px;
     padding:10px 12px;
@@ -107,6 +99,14 @@
   .notice-glass b{ color: var(--accent); }
   .hidden{ display:none; }
 
+  .result{
+    background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));
+    border:1px solid rgba(255,255,255,.24);
+    border-radius:20px; padding:16px; margin-top:18px; text-align:center; font-size:18px;
+    box-shadow:var(--shadow); backdrop-filter:blur(var(--blur));
+  }
+  .result span{font-weight:800;}
+
   #btnAddDevis{
     padding:12px 20px; border:none; border-radius:14px; background:#fff; color:#0b0b0b;
     font-weight:800; cursor:pointer; box-shadow:0 10px 24px rgba(0,0,0,.25);
@@ -118,6 +118,7 @@
   }
 </style>
 </head>
+
 <body>
 
 <header class="cofel-header">
@@ -133,13 +134,16 @@
 <div class="cofel-container">
   <h1>Lettres PVC</h1>
 
+  <!-- === PARAMÈTRES === -->
   <fieldset>
     <legend>Paramètres</legend>
+
     <div class="grid">
       <div>
         <label for="hauteur">Hauteur (mm)</label>
         <input type="number" id="hauteur" placeholder="Ex : 250" min="0">
       </div>
+
       <div>
         <label for="epaisseur">Épaisseur (mm)</label>
         <select id="epaisseur">
@@ -149,6 +153,7 @@
           <option value="30">30 mm</option>
         </select>
       </div>
+
       <div>
         <label for="quantite">Quantité</label>
         <input type="number" id="quantite" min="1" value="1">
@@ -156,21 +161,32 @@
     </div>
   </fieldset>
 
+  <!-- === OPTIONS === -->
   <fieldset>
     <legend>Options</legend>
+
     <div class="radio-row">
       <label><input type="checkbox" id="optLaquage"> Laquage</label>
       <label><input type="checkbox" id="optFixation"> Fixation</label>
       <label><input type="checkbox" id="optRetro"> Rétroéclairage</label>
+      <label><input type="checkbox" id="optLisse"> Pose sur lisse</label>
     </div>
+
     <div id="retroNotice" class="notice-glass hidden">
       <b>Indisponible sur 10&nbsp;mm :</b> le rétroéclairage nécessite une épaisseur minimale de <b>19&nbsp;mm</b>.
     </div>
+
     <div class="hint" style="color:var(--txt-dim);margin-top:6px;font-size:13px;">
       Le rétroéclairage est disponible uniquement pour les chants 19 mm et 30 mm.
     </div>
   </fieldset>
 
+  <!-- === LONGUEUR LISSE === -->
+  <div id="blockLisse" class="notice-glass hidden" style="margin-top:10px;">
+      <label for="lisseLongueur">Longueur de la lisse (mm)</label>
+      <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 3000">
+  </div>
+  <!-- === RÉSULTATS === -->
   <div class="result">
     <p>Prix unitaire HT : <span id="prixUHT">0,00</span> €</p>
     <p>Total HT : <span id="prixHT">0,00</span> €</p>
@@ -189,162 +205,292 @@
 <script src="../js/devis-core.js"></script>
 
 <script>
+/* ================================
+   CONFIG GÉNÉRALE
+================================ */
 const TVA = 0.20;
 const UPLIFT_PUBLIC = 2.0;
-const CSV_URL = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/configurateurs/Lettre%20PVC.csv";
+
+const CSV_URL =
+  "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/configurateurs/Lettre%20PVC.csv";
 
 let DATA = [];
 let BY_THICK = {};
-const $ = (id)=>document.getElementById(id);
+const $ = (id) => document.getElementById(id);
 
-function parseEuroFR(s){
-  if(s==null) return NaN;
-  let t = String(s).replace(/€/g,'').replace(/\s|[\u00A0\u202F]/g,'').trim().replace(',', '.');
+/* ================================
+   UTILS
+================================ */
+function parseEuroFR(s) {
+  if (s == null) return NaN;
+  let t = String(s)
+    .replace(/€/g, "")
+    .replace(/\s|[\u00A0\u202F]/g, "")
+    .trim()
+    .replace(",", ".");
   const m = t.match(/-?\d+(\.\d+)?/);
   return m ? parseFloat(m[0]) : NaN;
 }
-function parseIntFR(s){
-  if(s==null) return NaN;
-  let t = String(s).replace(/\s|[\u00A0\u202F]/g,'').trim();
-  const m = t.match(/\d+/);
-  return m ? parseInt(m[0],10) : NaN;
-}
-function euro(n){ return (isFinite(n)?n:0).toFixed(2).replace('.', ','); }
 
-async function loadCSV(){
-  const r = await fetch(CSV_URL, {cache:'no-store'});
-  if(!r.ok) throw new Error("CSV introuvable");
+function parseIntFR(s) {
+  if (s == null) return NaN;
+  let t = String(s).replace(/\s|[\u00A0\u202F]/g, "").trim();
+  const m = t.match(/\d+/);
+  return m ? parseInt(m[0], 10) : NaN;
+}
+
+function euro(n) {
+  return (isFinite(n) ? n : 0).toFixed(2).replace(".", ",");
+}
+
+/* ================================
+   CHARGEMENT CSV
+================================ */
+async function loadCSV() {
+  const r = await fetch(CSV_URL, { cache: "no-store" });
+  if (!r.ok) throw new Error("CSV introuvable");
   const txt = await r.text();
 
-  const first = (txt.split(/\r?\n/)[0]||'');
-  const sep = (first.match(/;/g)||[]).length >= (first.match(/,/g)||[]).length ? ';' : ',';
+  const first = txt.split(/\r?\n/)[0] || "";
+  const sep =
+    (first.match(/;/g) || []).length >= (first.match(/,/g) || []).length
+      ? ";"
+      : ",";
 
-  const lines = txt.split(/\r?\n/).filter(l=>l.trim()!=='');
+  const lines = txt.split(/\r?\n/).filter((l) => l.trim() !== "");
   const maybeHeader = isNaN(parseIntFR(lines[0].split(sep)[1]));
   const start = maybeHeader ? 1 : 0;
 
-  DATA = lines.slice(start).map(l=>{
-    const p=l.split(sep).map(x=>x.trim());
-    return {
-      type:p[0]||"Lettre PVC",
-      hauteur:parseIntFR(p[1]),
-      epaisseur:parseIntFR(p[2]),
-      base:parseEuroFR(p[3]),
-      laquage:parseEuroFR(p[4]),
-      fixation:parseEuroFR(p[5]),
-      retro:parseEuroFR(p[6])
-    };
-  }).filter(r=>isFinite(r.hauteur)&&isFinite(r.epaisseur));
+  DATA = lines
+    .slice(start)
+    .map((l) => {
+      const p = l.split(sep).map((x) => x.trim());
+      return {
+        type: p[0] || "Lettre PVC",
+        hauteur: parseIntFR(p[1]),
+        epaisseur: parseIntFR(p[2]),
+        base: parseEuroFR(p[3]),
+        laquage: parseEuroFR(p[4]),
+        fixation: parseEuroFR(p[5]),
+        retro: parseEuroFR(p[6]),
+      };
+    })
+    .filter((r) => isFinite(r.hauteur) && isFinite(r.epaisseur));
 
-  BY_THICK={};
-  DATA.forEach(r=>{
-    if(!BY_THICK[r.epaisseur]) BY_THICK[r.epaisseur]=new Set();
+  BY_THICK = {};
+  DATA.forEach((r) => {
+    if (!BY_THICK[r.epaisseur]) BY_THICK[r.epaisseur] = new Set();
     BY_THICK[r.epaisseur].add(r.hauteur);
   });
-  for(const k in BY_THICK){
-    BY_THICK[k]=Array.from(BY_THICK[k]).sort((a,b)=>a-b);
+
+  for (const k in BY_THICK) {
+    BY_THICK[k] = Array.from(BY_THICK[k]).sort((a, b) => a - b);
   }
 }
 
-function findRowFor(h,e){
-  const pal=BY_THICK[e];
-  if(!pal) return null;
-  let chosen=pal[pal.length-1];
-  for(const v of pal){ if(v>=h){ chosen=v; break; } }
-  return DATA.find(r=>r.epaisseur===e && r.hauteur===chosen)||null;
+/* ================================
+   FONCTIONS CALCUL
+================================ */
+function findRowFor(h, e) {
+  const pal = BY_THICK[e];
+  if (!pal) return null;
+
+  let chosen = pal[pal.length - 1];
+  for (const v of pal) {
+    if (v >= h) {
+      chosen = v;
+      break;
+    }
+  }
+
+  return DATA.find(
+    (r) => r.epaisseur === e && r.hauteur === chosen
+  );
 }
 
-function updateRetroUI(){
-  const e=parseFloat($("epaisseur").value)||0;
-  const retro=$("optRetro");
-  const msg=$("retroNotice");
-  if(e===10){ retro.checked=false; retro.disabled=true; msg.classList.remove("hidden"); }
-  else{ retro.disabled=false; msg.classList.add("hidden"); }
+/* ——— RÈGLE RÉTRO ——— */
+function updateRetroUI() {
+  const e = parseFloat($("epaisseur").value) || 0;
+  const retro = $("optRetro");
+  const msg = $("retroNotice");
+
+  if (e === 10) {
+    retro.checked = false;
+    retro.disabled = true;
+    msg.classList.remove("hidden");
+  } else {
+    retro.disabled = false;
+    msg.classList.add("hidden");
+  }
 }
 
-function compute(){
-  // === Remise automatique client ===
+/* ——— RÈGLE LISSE ——— */
+function updateLisseUI() {
+  const box = document.getElementById("blockLisse");
+  const chk = document.getElementById("optLisse");
+  if (!box || !chk) return;
+  box.classList.toggle("hidden", !chk.checked);
+}
+
+/* ================================
+   COMPUTE()
+================================ */
+function compute() {
+  /* remise client */
   let remiseClient = 1;
   try {
-      const p = JSON.parse(localStorage.getItem('cofel_client_profile'));
-      if (p && typeof p.discountRate === 'number') remiseClient = 1 - p.discountRate;
-  } catch(e){}
+    const p = JSON.parse(localStorage.getItem("cofel_client_profile"));
+    if (p && typeof p.discountRate === "number")
+      remiseClient = 1 - p.discountRate;
+  } catch (e) {}
 
-  const h=parseFloat($("hauteur").value)||0;
-  const e=parseFloat($("epaisseur").value)||0;
-  const q=Math.max(1,parseInt($("quantite").value)||1);
-  const laq=$("optLaquage").checked;
-  const fix=$("optFixation").checked;
-  const retro=$("optRetro").checked;
+  const h = parseFloat($("hauteur").value) || 0;
+  const e = parseFloat($("epaisseur").value) || 0;
+  const q = Math.max(1, parseInt($("quantite").value) || 1);
 
-  const row=findRowFor(h,e);
-  if(!row){["prixUHT","prixHT","prixTTC"].forEach(id=>$(id).textContent="0,00");return;}
+  const laq = $("optLaquage").checked;
+  const fix = $("optFixation").checked;
+  const retro = $("optRetro").checked;
+  const useLisse = $("optLisse").checked;
 
-  let base=row.base||0;
-  if(laq) base+=row.laquage||0;
-  if(fix) base+=row.fixation||0;
-  if(retro && e>=19) base+=row.retro||0;
+  const row = findRowFor(h, e);
+  if (!row) {
+    ["prixUHT", "prixHT", "prixTTC"].forEach(
+      (id) => ($(id).textContent = "0,00")
+    );
+    return;
+  }
 
-  const unit=base*UPLIFT_PUBLIC*remiseClient;
-  const tot=unit*q;
-  const ttc=tot*(1+TVA);
+  let base = row.base || 0;
+  if (laq) base += row.laquage || 0;
+  if (fix) base += row.fixation || 0;
+  if (retro && e >= 19) base += row.retro || 0;
 
-  $("prixUHT").textContent=euro(unit);
-  $("prixHT").textContent=euro(tot);
-  $("prixTTC").textContent=euro(ttc);
+  /* ——— POSE SUR LISSE ——— */
+  let lisse_interne = 0;
+  if (useLisse) {
+    const mm = Number(document.getElementById("lisseLongueur").value || 0);
+    const ml = mm / 1000;
+    if (ml > 0) lisse_interne = 25 * ml;
+  }
+
+  base += lisse_interne;
+
+  const unit = base * UPLIFT_PUBLIC * remiseClient;
+  const tot = unit * q;
+  const ttc = tot * (1 + TVA);
+
+  $("prixUHT").textContent = euro(unit);
+  $("prixHT").textContent = euro(tot);
+  $("prixTTC").textContent = euro(ttc);
 }
 
-["input","change"].forEach(evt=>{
-  ["hauteur","epaisseur","quantite","optLaquage","optFixation","optRetro"].forEach(id=>{
-    $(id).addEventListener(evt,()=>{updateRetroUI();compute();});
+/* ================================
+   EVENTS
+================================ */
+["input", "change"].forEach((evt) => {
+  [
+    "hauteur",
+    "epaisseur",
+    "quantite",
+    "optLaquage",
+    "optFixation",
+    "optRetro",
+    "optLisse",
+    "lisseLongueur",
+  ].forEach((id) => {
+    const el = $(id);
+    if (!el) return;
+    el.addEventListener(evt, () => {
+      updateRetroUI();
+      updateLisseUI();
+      compute();
+    });
   });
 });
+/* ================================
+   INIT
+================================ */
+loadCSV().then(() => {
+  updateRetroUI();
+  updateLisseUI();
+  compute();
+});
 
-loadCSV().then(()=>{updateRetroUI();compute();});
+/* ================================
+   BOUTON "AJOUTER AU DEVIS"
+================================ */
+document.getElementById("btnAddDevis").addEventListener("click", () => {
+  try {
+    if (!window.Devis) throw new Error("Module devis introuvable.");
 
-document.getElementById("btnAddDevis").addEventListener("click",()=>{
-  try{
-    if(!window.Devis) throw new Error("Module devis introuvable.");
-    const h=parseFloat(hauteur.value)||0;
-    const e=parseFloat(epaisseur.value)||0;
-    const q=Math.max(1,parseInt(quantite.value)||1);
-    const laq=optLaquage.checked;
-    const fix=optFixation.checked;
-    const retro=optRetro.checked;
+    const h = parseFloat(hauteur.value) || 0;
+    const e = parseFloat(epaisseur.value) || 0;
+    const q = Math.max(1, parseInt(quantite.value) || 1);
+    const laq = optLaquage.checked;
+    const fix = optFixation.checked;
+    const retro = optRetro.checked;
+    const useLisse = optLisse.checked;
 
-    const row=findRowFor(h,e);
-    if(!row){alert("Aucune donnée trouvée pour cette configuration.");return;}
+    const row = findRowFor(h, e);
+    if (!row) {
+      alert("Aucune donnée trouvée pour cette configuration.");
+      return;
+    }
 
-    let base=row.base||0;
-    if(laq) base+=row.laquage||0;
-    if(fix) base+=row.fixation||0;
-    if(retro && e>=19) base+=row.retro||0;
-let remiseClient = 1;
-try {
-    const p = JSON.parse(localStorage.getItem('cofel_client_profile'));
-    if (p && typeof p.discountRate === 'number') 
+    /* remise client */
+    let remiseClient = 1;
+    try {
+      const p = JSON.parse(localStorage.getItem("cofel_client_profile"));
+      if (p && typeof p.discountRate === "number")
         remiseClient = 1 - p.discountRate;
-} catch(e){}
+    } catch (e) {}
 
-    const pu=base*UPLIFT_PUBLIC*remiseClient;
+    /* prix unitaire */
+    let base = row.base || 0;
+    if (laq) base += row.laquage || 0;
+    if (fix) base += row.fixation || 0;
+    if (retro && e >= 19) base += row.retro || 0;
 
-    const designation=`Lettre PVC ${h} mm (ép. ${e} mm)`
-      +(laq?" · Laquage":"")
-      +(fix?" · Fixation":"")
-      +((retro && e>=19)?" · Rétroéclairage":"");
+    /* —— POSE SUR LISSE ——— */
+    let lisseTxt = "";
+    if (useLisse) {
+      const mm = Number(lisseLongueur.value || 0);
+      const ml = mm / 1000;
+      if (ml > 0) {
+        base += 25 * ml; // prix interne
+        lisseTxt = ` — Pose sur lisse — ${mm} mm (${ml.toFixed(2)} ml)`;
+      }
+    }
 
+    const pu = base * UPLIFT_PUBLIC * remiseClient;
+
+    /* désignation */
+    let designation = `Lettre PVC ${h} mm (ép. ${e} mm)`;
+    if (laq) designation += " — Laquage";
+    if (fix) designation += " — Fixation";
+    if (retro && e >= 19) designation += " — Rétroéclairage";
+    if (lisseTxt) designation += lisseTxt;
+
+    /* ajout ligne */
     Devis.addLine({
-      type:"Lettre PVC",
+      type: "Lettre PVC",
       designation,
-      quantite:q,
-      pu_public_ht:Number(pu.toFixed(2))
+      quantite: q,
+      pu_public_ht: Number(pu.toFixed(2)),
     });
 
-    alert(`✅ Ligne ajoutée au devis !\n${designation}\nQté : ${q}\nPU HT : ${pu.toFixed(2)} €`);
-  }catch(err){alert("Erreur : "+err.message);}
+    alert(
+      `✅ Ligne ajoutée au devis !\n${designation}\nQté : ${q}\nPU HT : ${pu.toFixed(
+        2
+      )} €`
+    );
+  } catch (err) {
+    alert("Erreur : " + err.message);
+  }
 });
 </script>
+
 </body>
 </html>
-
 
