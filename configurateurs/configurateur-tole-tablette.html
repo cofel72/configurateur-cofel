@@ -173,23 +173,23 @@
         <input type="number" id="hauteur" placeholder="Ex : 500" min="1" />
       </div>
 
-      <!-- ✅ AJOUT PLIS -->
+      <!-- ✅ PLIS -->
       <div>
         <label for="plis">Plis (retours de tôle) en mm</label>
         <input type="number" id="plis" placeholder="Ex : 50" min="0" />
         <div class="hint">1 pli en haut + bas + droite + gauche = 4 × plis</div>
       </div>
-      <!-- 🔚 FIN AJOUT -->
 
       <div>
         <label>Surface tôle (auto)</label>
         <input id="surfaceCalc" disabled value="0.000 m²" />
-        <div class="hint">Surface = (L × H) / 1 000 000</div>
+        <div class="hint">Surface = (L × H) / 1 000 000 (avec plis)</div>
       </div>
 
     </div>
 
   </fieldset>
+
   <!-- Matière tôle tablette -->
   <fieldset>
     <legend>Matière</legend>
@@ -217,12 +217,18 @@
     <div id="blockAjour" class="hidden" style="margin-top:8px">
       <div class="grid">
         <div>
-          <label for="pmmaSurface">Surface ajourée en m²</label>
-          <div class="radio-row" style="gap:8px">
-            <input type="number" id="pmmaSurface" min="0" step="0.001" placeholder="Ex : 0.75" style="flex:1" />
-          </div>
-          <div class="hint">Ajourage : /m² × surface ajourée. Les LED utilisent aussi cette surface.</div>
+          <label for="ajourLargeur">Ajourage – largeur (mm)</label>
+          <input type="number" id="ajourLargeur" min="0" placeholder="Ex : 800" />
+
+          <label for="ajourHauteur" style="margin-top:10px">Ajourage – hauteur (mm)</label>
+          <input type="number" id="ajourHauteur" min="0" placeholder="Ex : 300" />
+
+          <label for="pmmaSurface" style="margin-top:10px">Surface ajourée (auto)</label>
+          <input id="pmmaSurface" disabled value="0.000 m²" />
+
+          <div class="hint">Surface ajourée = (largeur × hauteur) / 1 000 000</div>
         </div>
+
         <div>
           <label for="pmmaSel">Type de PMMA</label>
           <select id="pmmaSel"><option value="">(aucun)</option></select>
@@ -315,6 +321,9 @@ const elOptAjour=$('optAjour'), elBlockAjour=$('blockAjour');
 const elPMMA=$('pmmaSel'), elPMMASurface=$('pmmaSurface');
 const elLED=$('optLED');
 
+const elAjourL = $('ajourLargeur');
+const elAjourH = $('ajourHauteur');
+
 const fixRadios=[...document.querySelectorAll('input[name="fixation"]')];
 const elFixBoite=$('fixBoite'), elFixChassis=$('fixChassis'), elFixCorniere=$('fixCorniere');
 const elGoussetPrixU=$('goussetPrixU');
@@ -337,7 +346,7 @@ function areaM2(Lmm,Hmm){return (Math.max(0,Number(Lmm||0))*Math.max(0,Number(Hm
 function perimeterMeters(Lmm,Hmm){return 2*((Lmm/1000)+(Hmm/1000));}
 
 
-/*** SURFACE AVEC PLIS (modifiée) ***/
+/*** SURFACE AVEC PLIS (tôle complète) ***/
 function currentSurface(){
   const L = Number(elL.value || 0);
   const H = Number(elH.value || 0);
@@ -354,11 +363,11 @@ function currentSurface(){
 }
 
 
-/*** PERIMETRE (inchangé) ***/
+/*** PERIMETRE ***/
 function currentPerimeter(){ return perimeterMeters(elL.value, elH.value); }
 
 
-/*** CSV PARSER + MAPPING (inchangés) ***/
+/*** CSV PARSER + MAPPING ***/
 function parseCSVAuto(text){
   const raw = String(text||'').replace(/^\uFEFF/,'');
   const lines = raw.split(/\r\n|\n|\r/).filter(l=>l.trim()!=='');
@@ -458,7 +467,7 @@ function autoFindPrice(keywordRe, type='m2'){
 }
 
 
-/*** CALCUL COMPLET (modifié uniquement sur la surface !) ***/
+/*** CALCUL COMPLET ***/
 function compute(){
 
   let remiseClient = 1;
@@ -474,25 +483,30 @@ function compute(){
   const mat = (document.querySelector('input[name="matiere"]:checked')||{}).value || 'prelaque';
   const matM2 = MATERIAL_PRICE_M2[mat] ?? 0;
   const base_interne = matM2 * A;
+
   // ======== MAJORATION PETITES SURFACES (invisible client) ========
-let coefSmall = 1;
-
-// A = surface développée déjà calculée (incluant plis)
-if (A < 0.10) {
-    coefSmall = 3.0;        // +200%
-} else if (A <= 0.20) {
-    coefSmall = 2.5;        // +150%
-} else if (A <= 0.75) {
-    coefSmall = 1.5;        // +50%
-}
-
-// Application du coefficient uniquement sur la matière
-const base_interne_majoré = base_interne * coefSmall;
-
+  let coefSmall = 1;
+  if (A < 0.10) {
+      coefSmall = 3.0;        // +200%
+  } else if (A <= 0.20) {
+      coefSmall = 2.5;        // +150%
+  } else if (A <= 0.75) {
+      coefSmall = 1.5;        // +50%
+  }
+  const base_interne_majoré = base_interne * coefSmall;
 
   let ajourage_interne=0, pmma_interne=0, led_interne=0, pmmaSurf=0;
+
   if(elOptAjour.checked){
-    pmmaSurf = Number(elPMMASurface.value||0);
+    const ajL = Math.max(0, Number(elAjourL.value || 0));
+    const ajH = Math.max(0, Number(elAjourH.value || 0));
+
+    pmmaSurf = areaM2(ajL, ajH); // m² ajourés
+
+    if (elPMMASurface){
+      elPMMASurface.value = pmmaSurf.toFixed(3) + ' m²';
+    }
+
     ajourage_interne = AJOURAGE_PRICE_M2 * Math.max(0, pmmaSurf);
 
     const selectedPMMA = elPMMA.options[elPMMA.selectedIndex];
@@ -502,6 +516,10 @@ const base_interne_majoré = base_interne * coefSmall;
     if(elLED.checked){
       let ledM2 = autoFindPrice(/(led|eclairage|éclairage)/,'m2');
       if(isFinite(ledM2)) led_interne = ledM2 * pmmaSurf;
+    }
+  } else {
+    if (elPMMASurface){
+      elPMMASurface.value = "0.000 m²";
     }
   }
 
@@ -551,8 +569,9 @@ function toggleBlocks(){
 ['input','change'].forEach(evt=>{
   [
     quantite, largeur, hauteur, plis,
+    ajourLargeur, ajourHauteur,
     ...document.querySelectorAll('input[name="matiere"]'),
-    optAjour, pmmaSel, pmmaSurface,
+    optAjour, pmmaSel,
     optLED, ...fixRadios, goussetPrixU,
     ...document.querySelectorAll('input[name="boiteMat"]')
   ].forEach(el=>{
@@ -601,7 +620,11 @@ compute();
       const ajour = document.getElementById('optAjour').checked;
       const pmmaSel = document.getElementById('pmmaSel');
       const pmmaLabel = pmmaSel && pmmaSel.value ? pmmaSel.value : '';
-      const pmmaSurf = Number(document.getElementById('pmmaSurface').value || 0);
+
+      const ajLmm = Math.max(0, Number(document.getElementById('ajourLargeur').value || 0));
+      const ajHmm = Math.max(0, Number(document.getElementById('ajourHauteur').value || 0));
+      const pmmaSurf = (ajLmm>0 && ajHmm>0) ? (ajLmm*ajHmm/1e6) : 0;
+
       const led = document.getElementById('optLED').checked;
 
       const fixVal = (document.querySelector('input[name="fixation"]:checked')||{}).value || 'aucune';
@@ -658,5 +681,3 @@ compute();
 
 </body>
 </html>
-
-
