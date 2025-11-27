@@ -249,11 +249,12 @@
   <fieldset>
     <legend>Fixation de la tôle tablette (choix exclusif)</legend>
     <div class="radio-row">
-      <label><input type="radio" name="fixation" value="aucune" checked> Aucune</label>
-      <label><input type="radio" name="fixation" value="boite"> Boîte à chaussure</label>
-      <label><input type="radio" name="fixation" value="chassis"> Châssis tube 30×30</label>
-      <label><input type="radio" name="fixation" value="corniere"> Cornière</label>
-    </div>
+  <label><input type="radio" name="fixation" value="aucune" checked> Aucune</label>
+  <label><input type="radio" name="fixation" value="boite"> Boîte à chaussure</label>
+  <label><input type="radio" name="fixation" value="chassis"> Châssis tube 30×30</label>
+  <label><input type="radio" name="fixation" value="corniere"> Cornière</label>
+  <label><input type="radio" name="fixation" value="lisse"> Pose sur lisse</label>
+</div>
 
     <div id="fixBoite" class="hidden">
       <div class="radio-row" style="margin-top:8px">
@@ -277,6 +278,15 @@
     <div id="fixCorniere" class="hidden">
       <div class="hint">Longueur = périmètre (2×(L+H)).</div>
     </div>
+    <div id="fixLisse" class="hidden" style="margin-top:8px">
+  <label for="lisseLongueur">Longueur de la lisse (mm)</label>
+  <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 3000" />
+
+  <div class="hint">
+    Prix : 25 €/ml interne → 50 €/ml public avant remise.
+  </div>
+</div>
+
   </fieldset>
 
   <!-- Résultats -->
@@ -688,4 +698,5 @@ const MAT_LABELS = {
 
 </body>
 </html>
+
 
