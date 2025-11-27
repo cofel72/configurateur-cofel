@@ -433,11 +433,14 @@ function compute(){
   const Hraw = Number(elH.value || 0);
 let H = Math.min(H_MAX, Math.max(0, Hraw || 0));
 
+const Q = Math.max(1, Number(elQ.value || 1));  // quantité
+
 if (H <= 0) {
   elPrixHT.textContent = '0,00';
   elPrixTTC.textContent = '0,00';
   return;
 }
+
 
   const row = pickRowForHeight(H);
   if(!row){ elPrixHT.textContent='0,00'; elPrixTTC.textContent='0,00'; return; }
@@ -516,4 +519,5 @@ $("btnAddDevis").addEventListener("click", ()=>{
 
 </body>
 </html>
+
 
