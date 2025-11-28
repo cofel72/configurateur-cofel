@@ -11,217 +11,225 @@
 
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <style>
-    :root{
-      --cofel:#5a2d82; --cofel-2:#7838a7;
-      --glass: rgba(255,255,255,.12);
-      --glass-soft: rgba(255,255,255,.06);
-      --txt:#f5f7ff; --txt-dim:#dcd6ff; --accent:#c9b7ff;
-      --radius:18px; --blur:18px; --shadow:0 10px 30px rgba(0,0,0,.35);
+ <style>
+  :root{
+    --cofel:#5a2d82; --cofel-2:#7838a7;
+    --glass: rgba(255,255,255,.12);
+    --glass-soft: rgba(255,255,255,.06);
+    --txt:#f5f7ff; --txt-dim:#dcd6ff; --accent:#c9b7ff;
+    --radius:18px; --blur:18px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%; margin:0; padding:0;}
+
+  body{
+    color:var(--txt);
+    font-family:-apple-system,"SF Pro Text",BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(800px 500px at 20% -10%, rgba(255,255,255,.10), transparent 60%),
+      radial-gradient(800px 500px at 110% 10%, rgba(255,255,255,.08), transparent 60%),
+      linear-gradient(135deg, var(--cofel), var(--cofel-2));
+    padding:20px;
+  }
+
+  .shell{
+    max-width:1200px;
+    margin:0 auto;
+    width:100%;
+  }
+
+  /* HEADER */
+  header{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:18px;
+  }
+  .brand{
+    display:flex; align-items:center; gap:12px;
+    flex:1;
+  }
+  .brand img{height:40px;}
+  h1{margin:0; font-size:20px;}
+
+  .actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .btn{
+    background:#fff; color:#1a102b;
+    padding:10px 18px;
+    border:none; border-radius:999px;
+    font-size:14px;
+    font-weight:700;
+    box-shadow:0 10px 24px rgba(0,0,0,.25);
+  }
+
+  /* TABS */
+  .tabs{
+    display:flex;
+    gap:10px;
+    margin-bottom:18px;
+    overflow-x:auto;
+  }
+
+  .tab-btn{
+    padding:10px 20px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.35);
+    background:rgba(0,0,0,.25);
+    color:#fff;
+    font-size:14px;
+    font-weight:600;
+    white-space:nowrap;
+  }
+  .tab-btn.active{
+    background:#fff;
+    color:#1a102b;
+  }
+
+  .card{
+    background:rgba(6,4,18,.85);
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px;
+  }
+
+  /*******************************
+     AFFICHAGE NORMAL (DESKTOP)
+  *******************************/
+  table{
+    width:100%;
+    border-collapse:collapse;
+  }
+  th, td{
+    padding:10px;
+    font-size:14px;
+  }
+  th{
+    background:rgba(0,0,0,.25);
+    color:var(--accent);
+    font-size:11px;
+    text-transform:uppercase;
+  }
+
+  .btn-row{
+    padding:6px 10px;
+    font-size:12px;
+    border-radius:8px;
+    border:none;
+  }
+  .btn-approve{background:#4caf50;color:#fff;font-weight:700;}
+  .btn-row-secondary{background:#555;color:#fff;}
+  .btn-row-reset{background:#ffca28;color:#000;font-weight:700;}
+  .btn-row-delete{background:#c62828;color:#fff;}
+
+  /*******************************
+       MODE PORTRAIT iPHONE
+       → Table transformée en cartes
+  *******************************/
+  @media(max-width:700px){
+
+    /* cacher les en-têtes */
+    thead{
+      display:none;
     }
 
-    *{box-sizing:border-box;}
-    html,body{height:100%; margin:0; padding:0;}
+    /* chaque ligne devient une carte */
+    table tr{
+      display:block;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.12);
+      margin-bottom:12px;
+      padding:12px;
+      border-radius:14px;
+    }
+
+    /* chaque cellule = une ligne */
+    table td{
+      display:flex;
+      justify-content:space-between;
+      padding:8px 4px;
+      font-size:15px;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+    }
+    table td:last-child{
+      border-bottom:none;
+    }
+
+    /* ajouter les labels automatiquement */
+    table td:nth-child(1)::before{content:"Email : "; color:#c9b7ff;}
+    table td:nth-child(2)::before{content:"Société : "; color:#c9b7ff;}
+    table td:nth-child(3)::before{content:"Contact : "; color:#c9b7ff;}
+    table td:nth-child(4)::before{content:"Remise : "; color:#c9b7ff;}
+    table td:nth-child(5)::before{content:"Configs : "; color:#c9b7ff;}
+    table td:nth-child(6)::before{content:"Statut : "; color:#c9b7ff;}
+    table td:nth-child(7)::before{content:"Actions : "; color:#c9b7ff;}
+
+    /* boutons plus espacés */
+    .btn-row{
+      padding:10px 14px;
+      font-size:14px;
+      margin:4px 2px;
+    }
+
+    h1{
+      font-size:18px;
+    }
 
     body{
-      color:var(--txt);
-      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
-      background:
-        radial-gradient(800px 500px at 20% -10%, rgba(255,255,255,.10), transparent 60%),
-        radial-gradient(800px 500px at 110% 10%, rgba(255,255,255,.08), transparent 60%),
-        linear-gradient(135deg, var(--cofel), var(--cofel-2));
-      padding:20px;
+      padding:12px;
     }
+  }
 
-    .shell{
-      max-width:1200px;
-      margin:0 auto;
-      width:100%;
-    }
+  /*******************************
+       MODALES (pas modifiées)
+  *******************************/
+  #modalApprove,#modalCreate{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:20;
+    padding:20px;
+  }
+  .modal-card{
+    background:rgba(25,15,45,.95);
+    padding:18px;
+    border-radius:14px;
+    width:100%;
+    max-width:420px;
+  }
+  .modal-field{
+    margin-bottom:12px;
+  }
+  .modal-field input,.modal-field select{
+    width:100%;
+    padding:12px;
+    font-size:15px;
+    background:rgba(255,255,255,.08);
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,.25);
+    color:#fff;
+  }
+  .btn-modal{
+    padding:10px 18px;
+    border-radius:999px;
+    border:none;
+    font-weight:700;
+  }
+  .btn-ok{background:#fff;color:#1a102b;}
+  .btn-cancel{background:rgba(255,255,255,.15);color:#fff;}
+</style>
 
-    /* HEADER */
-    header{
-      display:flex;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:18px;
-    }
-
-    .brand{
-      display:flex; align-items:center; gap:12px;
-      flex:1 1 auto;
-    }
-    .brand img{height:40px; border-radius:10px;}
-    h1{margin:0; font-size:20px;}
-
-    .actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .btn{
-      appearance:none; border:none; cursor:pointer;
-      background:#fff; color:#1a102b;
-      padding:10px 18px; border-radius:999px;
-      font-weight:700; font-size:14px;
-      box-shadow:0 10px 24px rgba(0,0,0,.25);
-    }
-
-    /* TABS */
-    .tabs{
-      display:flex;
-      gap:10px;
-      margin-bottom:18px;
-      overflow-x:auto;
-      -webkit-overflow-scrolling:touch;
-    }
-
-    .tab-btn{
-      padding:10px 20px; cursor:pointer;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.35);
-      background:rgba(0,0,0,.25); color:#fff;
-      font-size:14px; font-weight:600;
-      white-space:nowrap;
-      flex-shrink:0;
-    }
-    .tab-btn.active{ background:#fff; color:#1a102b; }
-
-    /* PANELS */
-    .tab-panel{ display:none; }
-    .tab-panel.active{ display:block; }
-
-    .card{
-      background:rgba(6,4,18,.85);
-      border-radius:var(--radius);
-      border:1px solid rgba(255,255,255,.22);
-      box-shadow:var(--shadow);
-      padding:16px;
-      backdrop-filter:blur(var(--blur));
-      width:100%;
-      overflow:hidden;
-    }
-
-    /* TABLEAU RESPONSIVE */
-    .table-container{
-      width:100%;
-      overflow-x:auto;
-      -webkit-overflow-scrolling:touch;
-    }
-
-    table{
-      width:100%;
-      min-width:750px;
-      border-collapse:collapse;
-    }
-
-    th, td{
-      padding:10px 12px;
-      font-size:14px;
-    }
-
-    th{
-      background:rgba(0,0,0,.25);
-      border-bottom:1px solid rgba(255,255,255,.22);
-      text-transform:uppercase;
-      color:var(--accent);
-      font-size:11px;
-    }
-
-    .btn-row{
-      padding:6px 10px; cursor:pointer; border-radius:8px;
-      font-size:12px; margin:2px; border:none;
-    }
-    .btn-approve{ background:#4caf50; color:#fff; font-weight:700; }
-    .btn-row-secondary{ background:#555; color:#fff; }
-    .btn-row-reset{ background:#ffca28; color:#000; font-weight:700; }
-    .btn-row-delete{ background:#c62828; color:#fff; }
-
-    .empty{ text-align:center; padding:12px; color:var(--txt-dim); }
-
-    /* MODALES */
-    #modalApprove, #modalCreate{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.6);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:20;
-      padding:20px;
-    }
-
-    .modal-card{
-      width:100%;
-      max-width:420px;
-      background:rgba(25,15,45,.95);
-      border-radius:16px;
-      padding:20px;
-      border:1px solid rgba(255,255,255,.22);
-      box-shadow:0 12px 40px rgba(0,0,0,.45);
-    }
-
-    .modal-card h3{ margin-top:0; font-size:17px; }
-
-    .modal-field{ margin-bottom:12px; }
-    .modal-field label{ font-size:12px; color:var(--txt-dim); }
-    .modal-field input,
-    .modal-field select{
-      width:100%; padding:12px; font-size:15px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.25);
-      border-radius:8px; color:#fff;
-    }
-
-    .modal-actions{ text-align:right; margin-top:16px; }
-
-    .btn-modal{
-      padding:10px 16px; border:none; cursor:pointer;
-      border-radius:999px; font-size:14px; font-weight:700;
-    }
-    .btn-cancel{ background:rgba(255,255,255,.08); color:#fff; }
-    .btn-ok{ background:#fff; color:#1a102b; }
-
-    /* 📱 MOBILE – OPTIMISATION iPhone */
-    @media(max-width:700px){
-
-      body{
-        padding:10px;
-      }
-
-      h1{ font-size:18px; }
-
-      .brand img{height:32px;}
-
-      .btn{
-        padding:12px 20px;
-        font-size:15px;
-      }
-
-      .btn-row{
-        padding:8px 12px;
-        font-size:13px;
-      }
-
-      table{
-        min-width:650px;
-      }
-
-      .modal-card{
-        width:90%;
-        padding:20px;
-      }
-
-      .table-container{
-        margin-bottom:14px;
-        border-radius:12px;
-        border:1px solid rgba(255,255,255,.12);
-      }
-    }
-  </style>
 
 </head>
 
