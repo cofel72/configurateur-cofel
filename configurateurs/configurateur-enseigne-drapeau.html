@@ -36,6 +36,7 @@
   .brand{ display:flex; align-items:center; gap:14px; backdrop-filter: blur(var(--blur)); background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06)); border:1px solid rgba(255,255,255,.18); padding:10px 14px; border-radius:14px; box-shadow: var(--shadow); }
   .brand img{height:42px; width:auto; border-radius:10px}
   .brand h1{font-size: clamp(18px, 2.6vw, 22px); margin:0;}
+
   .tagline{max-width:1200px;margin:18px auto 0;padding:0 20px;color:var(--txt-dim)}
   .wrap{max-width:1200px; margin:26px auto; padding:0 20px 40px;}
 
@@ -54,25 +55,29 @@
   }
   select option{ background:#3c1f61; color:#fff; }
 
-  /* custom select... (identique version précédente) */
+  /* ===== Custom Select ===== */
   .native-select{ position:absolute !important; opacity:0 !important; pointer-events:none !important; width:0; height:0; }
   .cselect{ position:relative; margin-top:6px; }
   .cselect-toggle{ width:100%; display:flex; align-items:center; justify-content:space-between; padding:12px; border-radius:14px; background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.24); cursor:pointer; }
   .cselect-label{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-  .cselect-caret{width:10px;height:10px;background-image:linear-gradient(45deg,transparent 50%,var(--txt) 50%),linear-gradient(135deg,var(--txt) 50%,transparent 50%);background-size:6px 6px;background-repeat:no-repeat;}
 
-  .cselect-menu{ position:fixed; left:0; top:0; width:280px; z-index:99999; max-height:320px; overflow:auto; padding:6px; border-radius:14px; border:1px solid rgba(255,255,255,.22); background:#3c1f61; display:none; }
-  .cselect-option{ border-radius:10px; margin:4px 0; padding:10px 12px; cursor:pointer; color:#fff; background: rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18); }
+  .cselect-menu{
+    position:fixed; left:0; top:0; width:280px; z-index:99999;
+    max-height:320px; overflow:auto; padding:6px;
+    border-radius:14px; border:1px solid rgba(255,255,255,.22);
+    background:#3c1f61; display:none;
+  }
+  .cselect-option{
+    border-radius:10px; margin:4px 0; padding:10px 12px;
+    cursor:pointer; color:#fff;
+    background: rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18);
+  }
 
   .option-item{
     display:flex; align-items:center; gap:10px; cursor:pointer;
     padding:10px 14px; border-radius:14px;
     background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
     border:1px solid rgba(255,255,255,.24);
-  }
-  .option-item input{
-    appearance:none; width:20px; height:20px; border-radius:6px;
-    background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.6);
   }
 
   .result{
@@ -83,15 +88,16 @@
 
   .btn{ background:#fff; color:#000; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:700; }
   .btn-ghost{ background:transparent; color:var(--txt); border:1px solid rgba(255,255,255,.24); }
-
 </style>
 </head>
+
 <body>
 
+<!-- ===== HERO ===== -->
 <div class="hero">
   <div class="hero-inner">
     <div class="brand">
-      <img src="../assets/logo cofel.jpg" />
+      <img src="../assets/logo cofel.jpg" alt="Cofel" />
       <h1>Configurateur — Enseignes Drapeaux</h1>
     </div>
     <a class="brand" href="../index.html" style="text-decoration:none;color:inherit">⬅ Retour devis</a>
@@ -99,19 +105,90 @@
   <div class="tagline">Choisissez la forme, la dimension et les options. Les montants s’actualisent automatiquement.</div>
 </div>
 
+<!-- ===================== CONTENU ===================== -->
 <main class="wrap">
-<!-- ===================== LOGIQUE CONFIGURATEUR DRAPEAUX ===================== -->
+
+  <!-- ==== Paramètres ==== -->
+  <section class="panel">
+    <h2>⚙️ Paramètres</h2>
+    <div class="card grid">
+
+      <div>
+        <label for="forme">Forme</label>
+        <select id="forme" class="native-select"><option value="">(choisir)</option></select>
+        <div class="cselect" data-bind="forme">
+          <button type="button" class="cselect-toggle">
+            <span class="cselect-label">(choisir)</span>
+          </button>
+          <div class="cselect-menu"></div>
+        </div>
+      </div>
+
+      <div>
+        <label for="dimension">Dimension</label>
+        <select id="dimension" class="native-select"><option value="">(choisir la dimension)</option></select>
+        <div class="cselect" data-bind="dimension">
+          <button type="button" class="cselect-toggle">
+            <span class="cselect-label">(choisir la dimension)</span>
+          </button>
+          <div class="cselect-menu"></div>
+        </div>
+        <div id="helpDim" class="muted"></div>
+      </div>
+
+      <div>
+        <label for="quantite">Quantité</label>
+        <input type="number" id="quantite" min="1" value="1" />
+      </div>
+
+      <div>
+        <label for="potence">Longueur de potence (mm)</label>
+        <input type="number" id="potence" min="0" placeholder="ex : 600" />
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==== Options ==== -->
+  <section class="panel">
+    <h2>🎛️ Options</h2>
+
+    <fieldset class="card" style="border:none; padding:12px;">
+      <div class="grid">
+        <label class="option-item"><input type="radio" name="finition" id="finPre" value="prelaque" checked> Prélaqué</label>
+        <label class="option-item"><input type="radio" name="finition" id="finLq" value="laque"> Laqué</label>
+        <label class="option-item"><input type="radio" name="finition" id="finAj" value="ajour"> Ajouré + lumineux (laqué)</label>
+      </div>
+    </fieldset>
+  </section>
+
+  <!-- ==== Récap ==== -->
+  <section class="panel">
+    <h2>🧾 Récapitulatif</h2>
+    <div class="result">
+      <p>Prix HT : <b><span id="prixHT">0,00</span> €</b></p>
+      <p>Prix TTC : <b><span id="prixTTC">0,00</span> €</b></p>
+    </div>
+    <div style="margin-top:16px; display:flex; gap:10px;">
+      <button id="btnAddDevis" class="btn">➕ Ajouter au devis</button>
+      <button id="btnReset"    class="btn btn-ghost">🔄 Réinitialiser</button>
+    </div>
+  </section>
+
+</main>
+
+
+
+
+<!-- ===================== LOGIQUE CONFIGURATEUR ===================== -->
 <script>
 /* ========= CONSTANTES ========= */
 const TVA = 0.20;
 const UPLIFT_PUBLIC = 2.0;
-const CSV_URL =
-  "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/Enseigne%20drapeaux.csv";
+const CSV_URL = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/Enseigne%20drapeaux.csv";
 
-let HEADS = [], ROWS = [], MAP = null;
-
-/* ========= Raccourci DOM ========= */
-const $ = (id) => document.getElementById(id);
+/* ========= DOM ========= */
+const $ = id => document.getElementById(id);
 
 const elForme = $("forme");
 const elDim = $("dimension");
@@ -124,10 +201,11 @@ const elFinAj = $("finAj");
 
 const elHT = $("prixHT");
 const elTTC = $("prixTTC");
-
 const elHelpDim = $("helpDim");
-const elNoteForme = $("noteForme");
-const elHelpFinit = $("helpFinition");
+
+/* ========= VARIABLES ========= */
+let HEADS = [], ROWS = [], MAP = null;
+
 
 /* ========= OUTILS ========= */
 function normKey(k) {
@@ -156,16 +234,15 @@ function euro(n) {
   return (isFinite(n) ? n : 0).toFixed(2).replace(".", ",");
 }
 
-function distinct(arr) {
-  return [...new Set(arr)];
+function distinct(a) {
+  return [...new Set(a)];
 }
 
-/* ========= CSV PARSER ========= */
+
+/* ========= CSV ========= */
 function parseCSVAuto(text) {
   const raw = String(text || "").replace(/^\uFEFF/, "");
-  const lines = raw
-    .split(/\r\n|\n|\r/)
-    .filter((l) => l.trim() !== "");
+  const lines = raw.split(/\r\n|\n|\r/).filter(l => l.trim() !== "");
 
   if (!lines.length) return { rawHeads: [], rows: [] };
 
@@ -176,34 +253,33 @@ function parseCSVAuto(text) {
       ? ";"
       : ",";
 
-  function parseCSVLine(line) {
-    let out = [],
-      cur = "",
-      inQ = false;
-
+  function parseLine(line) {
+    const out = [];
+    let cur = "";
+    let open = false;
     for (let i = 0; i < line.length; i++) {
-      const ch = line[i],
+      const c = line[i],
         nx = line[i + 1];
-      if (ch === '"') {
-        if (inQ && nx === '"') {
+      if (c === '"') {
+        if (open && nx === '"') {
           cur += '"';
           i++;
-        } else inQ = !inQ;
-      } else if (ch === sep && !inQ) {
+        } else open = !open;
+      } else if (c === sep && !open) {
         out.push(cur);
         cur = "";
-      } else cur += ch;
+      } else cur += c;
     }
     out.push(cur);
     return out;
   }
 
-  const rawHeads = parseCSVLine(first).map((s) =>
+  const rawHeads = parseLine(first).map(s =>
     s.replace(/^"+|"+$/g, "").trim()
   );
 
-  const rows = lines.slice(1).map((line) => {
-    const cells = parseCSVLine(line).map((s) =>
+  const rows = lines.slice(1).map(line => {
+    const cells = parseLine(line).map(s =>
       s.replace(/^"+|"+$/g, "").trim()
     );
     const o = {};
@@ -214,16 +290,17 @@ function parseCSVAuto(text) {
   return { rawHeads, rows };
 }
 
-/* ========= MAPPING CSV → CHAMPS ========= */
 function buildMapping(rawHeads) {
-  const nk = rawHeads.map(normKey);
-  const find = (k) => {
-    const i = nk.indexOf(k);
+  const NK = rawHeads.map(normKey);
+
+  const find = k => {
+    const i = NK.indexOf(k);
     return i >= 0 ? rawHeads[i] : null;
   };
-  const like = (...arr) => {
-    for (let i = 0; i < nk.length; i++) {
-      if (arr.every((re) => re.test(nk[i]))) return rawHeads[i];
+
+  const like = (...tests) => {
+    for (let i = 0; i < NK.length; i++) {
+      if (tests.every(re => re.test(NK[i]))) return rawHeads[i];
     }
     return null;
   };
@@ -237,13 +314,12 @@ function buildMapping(rawHeads) {
   };
 }
 
-/* ========= CUSTOM SELECTS ========= */
+
+/* ========= CUSTOM SELECT ========= */
 const customSelects = new Map();
 
 function buildCustomFromNative(native) {
-  const wrap = document.querySelector(
-    '.cselect[data-bind="' + native.id + '"]'
-  );
+  const wrap = document.querySelector('.cselect[data-bind="' + native.id + '"]');
   if (!wrap) return;
 
   const toggle = wrap.querySelector(".cselect-toggle");
@@ -251,7 +327,7 @@ function buildCustomFromNative(native) {
   const menu = wrap.querySelector(".cselect-menu");
 
   menu.innerHTML = "";
-  Array.from(native.options).forEach((opt) => {
+  Array.from(native.options).forEach(opt => {
     const d = document.createElement("div");
     d.className = "cselect-option";
     d.dataset.value = opt.value;
@@ -267,8 +343,7 @@ function buildCustomFromNative(native) {
     menu.appendChild(d);
   });
 
-  labelSpan.textContent =
-    native.selectedOptions[0]?.textContent || "";
+  labelSpan.textContent = native.selectedOptions[0]?.textContent || "";
 
   toggle.onclick = () => {
     const exp = wrap.getAttribute("aria-expanded") === "true";
@@ -287,20 +362,14 @@ function buildCustomFromNative(native) {
 function setNativeValue(native, val) {
   if (native.value !== val) {
     native.value = val;
-    native.dispatchEvent(
-      new Event("change", { bubbles: true })
-    );
+    native.dispatchEvent(new Event("change", { bubbles: true }));
   }
   const api = customSelects.get(native.id);
   if (!api) return;
-  api.labelSpan.textContent =
-    native.selectedOptions[0]?.textContent || "";
-  Array.from(api.menu.children).forEach((el) => {
-    el.setAttribute(
-      "aria-selected",
-      el.dataset.value === val ? "true" : "false"
-    );
-  });
+  api.labelSpan.textContent = native.selectedOptions[0]?.textContent || "";
+  Array.from(api.menu.children).forEach(el =>
+    el.setAttribute("aria-selected", el.dataset.value === val ? "true" : "false")
+  );
 }
 
 function openMenu(id) {
@@ -315,19 +384,19 @@ function openMenu(id) {
   menu.style.width = r.width + "px";
   menu.style.display = "block";
 
-  const onClick = (e) => {
-    if (!wrap.contains(e.target) && !menu.contains(e.target))
-      closeMenu(id);
+  const onClick = e => {
+    if (!wrap.contains(e.target) && !menu.contains(e.target)) closeMenu(id);
   };
 
   document.addEventListener("click", onClick);
-  api._off = () =>
-    document.removeEventListener("click", onClick);
+
+  api._off = () => document.removeEventListener("click", onClick);
 }
 
 function closeMenu(id) {
   const api = customSelects.get(id);
   if (!api) return;
+
   const { wrap, menu, _off } = api;
 
   wrap.setAttribute("aria-expanded", "false");
@@ -335,7 +404,8 @@ function closeMenu(id) {
   if (typeof _off === "function") _off();
 }
 
-/* ========= FILTRES DRAPEAUX ========= */
+
+/* ========= LOGIQUE DRAPEAUX ========= */
 function getFinition() {
   if (elFinAj.checked) return "ajour";
   if (elFinLq.checked) return "laque";
@@ -347,17 +417,14 @@ function filteredPool() {
 
   if (elForme.value)
     pool = pool.filter(
-      (r) =>
-        String(r[MAP.FORME]).toLowerCase() ===
-        elForme.value.toLowerCase()
+      r => String(r[MAP.FORME]).toLowerCase() === elForme.value.toLowerCase()
     );
 
   const finSel = getFinition();
 
-  return pool.filter((r) => {
+  return pool.filter(r => {
     const fin = String(r[MAP.FIN]).trim().toLowerCase();
-    const ajl =
-      String(r[MAP.OPT_AJL]).trim().toLowerCase() === "vrai";
+    const ajl = String(r[MAP.OPT_AJL]).trim().toLowerCase() === "vrai";
 
     if (finSel === "ajour") return ajl;
     if (finSel === "laque") return fin === "laqué" && !ajl;
@@ -367,34 +434,26 @@ function filteredPool() {
 
 function populateFormes() {
   const formes = distinct(
-    ROWS.map((r) => String(r[MAP.FORME] || "").toLowerCase())
+    ROWS.map(r => String(r[MAP.FORME] || "").toLowerCase())
   ).filter(Boolean);
 
   elForme.innerHTML =
     '<option value="">(choisir)</option>' +
-    formes
-      .map((f) => `<option value="${f}">${f}</option>`)
-      .join("");
+    formes.map(f => `<option value="${f}">${f}</option>`).join("");
 
   buildCustomFromNative(elForme);
 }
 
 function populateDimensions() {
   const pool = filteredPool();
-  const dims = distinct(
-    pool
-      .map((r) => String(r[MAP.DIM] || "").trim())
-      .filter(Boolean)
-  ).sort();
+  const dims = distinct(pool.map(r => String(r[MAP.DIM]).trim()).filter(Boolean));
 
   elDim.innerHTML =
     '<option value="">(choisir la dimension)</option>' +
-    dims.map((d) => `<option value="${d}">${d}</option>`).join("");
+    dims.map(d => `<option value="${d}">${d}</option>`).join("");
 
   elHelpDim.textContent =
-    dims.length > 0
-      ? "Dimensions disponibles : " + dims.join(" • ")
-      : "";
+    dims.length ? "Dimensions disponibles : " + dims.join(" • ") : "";
 
   buildCustomFromNative(elDim);
 }
@@ -403,29 +462,21 @@ function findRow() {
   const pool = filteredPool();
   if (!pool.length) return null;
   if (elDim.value)
-    return (
-      pool.find(
-        (r) => String(r[MAP.DIM]).trim() === elDim.value
-      ) || null
-    );
+    return pool.find(r => String(r[MAP.DIM]).trim() === elDim.value) || null;
   return pool[0];
 }
 
+
 /* ========= CALCUL PRINCIPAL ========= */
 function compute() {
-  /* === Remise automatique client === */
   let remiseClient = 1;
   try {
-    const p = JSON.parse(
-      localStorage.getItem("cofel_client_profile")
-    );
+    const p = JSON.parse(localStorage.getItem("cofel_client_profile"));
     if (p && typeof p.discountRate === "number")
       remiseClient = 1 - p.discountRate;
   } catch {}
 
-  /* === Mode tarif index-test === */
-  const mode =
-    localStorage.getItem("cofel_price_mode") || "client";
+  const mode = localStorage.getItem("cofel_price_mode") || "client";
   // client = prix public
   // pro = prix remisé
 
@@ -443,8 +494,7 @@ function compute() {
   const unit_public = unit_interne * UPLIFT_PUBLIC;
   const unit_remise = unit_public * remiseClient;
 
-  const unit_affiche =
-    mode === "pro" ? unit_remise : unit_public;
+  const unit_affiche = mode === "pro" ? unit_remise : unit_public;
 
   const total_public = unit_public * Q;
   const total_remise = unit_remise * Q;
@@ -454,7 +504,7 @@ function compute() {
   elHT.textContent = euro(totalHT);
   elTTC.textContent = euro(totalHT * (1 + TVA));
 
-  /* ==== STOCKAGE POUR ADDLINE ==== */
+  /* ==== Stockage pour AddLine ==== */
   window._DRAPEAU_LAST = {
     pu_public_ht: Number(unit_public.toFixed(2)),
     pu_remise_ht: Number(unit_remise.toFixed(2)),
@@ -463,13 +513,14 @@ function compute() {
   };
 }
 
+
 /* ========= LOAD CSV ========= */
 async function loadCSV() {
   try {
     const r = await fetch(CSV_URL, { cache: "no-store" });
     const txt = await r.text();
-    const parsed = parseCSVAuto(txt);
 
+    const parsed = parseCSVAuto(txt);
     HEADS = parsed.rawHeads;
     ROWS = parsed.rows;
     MAP = buildMapping(HEADS);
@@ -477,68 +528,78 @@ async function loadCSV() {
     populateFormes();
     populateDimensions();
     compute();
-  } catch (e) {
-    alert("Erreur de chargement CSV.");
+  } catch {
+    alert("Erreur lors du chargement du fichier CSV.");
   }
 }
 
-/* ========= ÉVÉNEMENTS ========= */
-["change", "input"].forEach((ev) => {
-  elForme.addEventListener(ev, () => {
-    populateDimensions();
-    compute();
-  });
+
+/* ========= EVENTS ========= */
+["change", "input"].forEach(ev => {
+  elForme.addEventListener(ev, () => { populateDimensions(); compute(); });
   elDim.addEventListener(ev, compute);
   elQ.addEventListener(ev, compute);
-  elFinPre.addEventListener(ev, () => {
-    populateDimensions();
-    compute();
-  });
-  elFinLq.addEventListener(ev, () => {
-    populateDimensions();
-    compute();
-  });
-  elFinAj.addEventListener(ev, () => {
-    populateDimensions();
-    compute();
-  });
+  elFinPre.addEventListener(ev, () => { populateDimensions(); compute(); });
+  elFinLq.addEventListener(ev, () => { populateDimensions(); compute(); });
+  elFinAj.addEventListener(ev, () => { populateDimensions(); compute(); });
 });
 
 window.addEventListener("cofel-price-mode-changed", compute);
+
+$("btnReset").addEventListener("click", () => {
+  elForme.value = "";
+  elDim.value = "";
+  elQ.value = 1;
+  elPot.value = "";
+  elFinPre.checked = true;
+
+  populateFormes();
+  populateDimensions();
+  compute();
+});
+
 
 /* ========= INIT ========= */
 buildCustomFromNative(elForme);
 buildCustomFromNative(elDim);
 loadCSV();
+
 </script>
+
+
+
+
 <!-- ===================== MOTEUR DE DEVIS ===================== -->
 <script src="../js/devis-core.js"></script>
 
+
+
 <!-- ===================== ADD LINE ===================== -->
 <script>
-document.getElementById("btnAddDevis").addEventListener("click", () => {
+$("btnAddDevis").addEventListener("click", () => {
 
   try {
     if (!window.Devis) {
-      alert("Erreur interne : moteur de devis introuvable.");
+      alert("Erreur interne (moteur de devis manquant).");
       return;
     }
 
-    const qte = Math.max(1, Number(document.getElementById("quantite").value || 1));
-
+    const qte = Math.max(1, Number(elQ.value || 1));
     const p = window._DRAPEAU_LAST;
+
     if (!p) {
-      alert("Erreur : aucun calcul disponible.");
+      alert("Calcul indisponible.");
       return;
     }
 
-    const forme = document.getElementById("forme").value || "";
-    const dim   = document.getElementById("dimension").value || "";
-    const pot   = (document.getElementById("potence")?.value || "").trim();
+    const forme = elForme.value || "";
+    const dim   = elDim.value   || "";
+    const pot   = elPot.value.trim();
 
     const finSel =
-      document.getElementById("finAj").checked ? "ajour" :
-      document.getElementById("finLq").checked ? "laque" : "prelaque";
+      elFinAj.checked ? "ajour" :
+      elFinLq.checked ? "laque" :
+      "prelaque";
 
     const parts = [];
     if (forme) parts.push(forme);
@@ -549,29 +610,30 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
     else if (finSel === "laque") parts.push("laqué");
     else parts.push("prélaqué");
 
-    const designation = "Enseigne Drapeau" + (parts.length ? " — " + parts.join(" / ") : "");
+    const designation =
+      "Enseigne Drapeau" +
+      (parts.length ? " — " + parts.join(" / ") : "");
 
-    /* === Envoi complet au devis === */
     Devis.addLine({
       type: "Enseigne Drapeau",
       designation,
       quantite: qte,
 
-      pu_public_ht: p.pu_public_ht,     // prix public unitaire
-      pu_remise_ht: p.pu_remise_ht,     // prix net unitaire
+      pu_public_ht: p.pu_public_ht,
+      pu_remise_ht: p.pu_remise_ht,
+
       total_public_ht: p.total_public_ht,
       total_remise_ht: p.total_remise_ht
     });
 
-    /* === Popup simple comme demandé === */
     alert("✅ Ligne ajoutée au devis !");
   }
   catch(err) {
-    console.error(err);
-    alert("Erreur lors de l’ajout au devis : " + err.message);
+    alert("Erreur : " + err.message);
   }
 });
 </script>
+
 
 </body>
 </html>
