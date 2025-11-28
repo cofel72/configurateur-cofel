@@ -499,8 +499,18 @@
           <tr data-id="${l.id}">
             <td>${l.designation || "-"}</td>
             <td class="center">${l.quantite}</td>
-            <td class="right">${fmt(l.pu_net_ht)}</td>
-            <td class="right">${fmt(l.total_ligne_ht)}</td>
+            <td class="right">${
+  getModePrix() === "client"
+    ? fmt(l.pu_public_ht)
+    : fmt(l.pu_remise_ht)
+}</td>
+
+<td class="right">${
+  getModePrix() === "client"
+    ? fmt(l.total_public_ht)
+    : fmt(l.total_remise_ht)
+}</td>
+
             <td class="center">
               <button class="btn btn-ghost btn-qty" style="margin-right:6px;">📝 Qté</button>
               <button class="btn btn-danger btn-del">Suppr.</button>
@@ -509,11 +519,24 @@
         `).join("");
       }
 
-      // 👉 Totaux corrigés (remise hors transport)
-      const t = totalsExcludingTransportDiscount(d);
-      elHT.textContent  = fmt(t.total_ht);
-      elTVA.textContent = fmt(t.tva);
-      elTTC.textContent = fmt(t.total_ttc);
+      // ==== Totaux selon mode prix ====
+let total_ht = 0;
+
+d.lignes.forEach(l => {
+  if (getModePrix() === "client") {
+    total_ht += Number(l.total_public_ht || 0);
+  } else {
+    total_ht += Number(l.total_remise_ht || 0);
+  }
+});
+
+const total_tva = +(total_ht * 0.20).toFixed(2);
+const total_ttc = +(total_ht + total_tva).toFixed(2);
+
+elHT.textContent  = fmt(total_ht);
+elTVA.textContent = fmt(total_tva);
+elTTC.textContent = fmt(total_ttc);
+
     }
 
     // Remise (si l'utilisateur la modifie à la main)
