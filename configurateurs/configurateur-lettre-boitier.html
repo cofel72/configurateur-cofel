@@ -530,11 +530,33 @@ function compute(){
     }
   }
 
-  const unit_public=(base_interne_total||0)*UPLIFT_PUBLIC*remiseClient;
-  const totalHT=unit_public*Q, totalTTC=totalHT*(1+TVA);
-  elHT.textContent=euro(totalHT); elTTC.textContent=euro(totalTTC);
-  updateDibondRule();
-}
+  // 1. Prix interne unitaire
+const pu_interne = base_interne_total;
+
+// 2. Prix PUBLIC (multiplicateur interne)
+const pu_public = pu_interne * UPLIFT_PUBLIC;
+
+// 3. Prix REMISÉ (en fonction du profil client)
+const pu_remise = pu_public * remiseClient;
+
+// 4. Totaux
+const total_public = pu_public * Q;
+const total_remise = pu_remise * Q;
+
+// 5. Affichage dans le configurateur : TOUJOURS remisé
+elHT.textContent = euro(total_remise);
+elTTC.textContent = euro(total_remise * (1 + TVA));
+
+// 6. Sauvegarde temporaire pour addLine()
+window._LETTER_BOITIER_LAST = {
+  pu_public_ht : Number(pu_public.toFixed(2)),
+  pu_remise_ht : Number(pu_remise.toFixed(2)),
+  total_public_ht : Number(total_public.toFixed(2)),
+  total_remise_ht : Number(total_remise.toFixed(2))
+};
+
+updateDibondRule();
+
 
 /* ======================= LOADERS ======================= */
 async function fetchText(u){ const r=await fetch(u,{cache:'no-store'}); if(!r.ok) throw new Error('HTTP '+r.status); return await r.text(); }
@@ -611,7 +633,31 @@ document.getElementById("btnAddDevis").addEventListener("click", ()=>{
         : ` — Pose sur lisse`;
     }
 
-    Devis.addLine({ type:'Lettres Boîtiers', designation, quantite:qte, pu_public_ht:Number(pu_public_ht.toFixed(2)) });
+    const p = window._LETTER_BOITIER_LAST;
+if(!p){
+    alert("Erreur interne : pas de calcul disponible.");
+    return;
+}
+
+Devis.addLine({
+  type: 'Lettres Boîtiers',
+  designation,
+  quantite: qte,
+
+  pu_public_ht: p.pu_public_ht,
+  pu_remise_ht: p.pu_remise_ht,
+  total_public_ht: p.total_public_ht,
+  total_remise_ht: p.total_remise_ht
+});
+
+alert(
+  "✅ Ligne ajoutée au devis !\n" +
+  designation + "\n" +
+  "Qté : " + qte + "\n" +
+  "PU public : " + p.pu_public_ht.toFixed(2) + " €\n" +
+  "PU remisé : " + p.pu_remise_ht.toFixed(2) + " €"
+);
+
 
     alert(`✅ Ligne ajoutée au devis !\n${designation}\nQté : ${qte}\nPU HT : ${pu_public_ht.toFixed(2)} €`);
   }catch(err){ console.error(err); alert('Erreur lors de l’ajout au devis : '+err.message); }
@@ -620,3 +666,4 @@ document.getElementById("btnAddDevis").addEventListener("click", ()=>{
 
 </body>
 </html>
+
