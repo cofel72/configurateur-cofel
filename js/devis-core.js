@@ -32,9 +32,43 @@
   }
 
   function reload() {
-    const st = ensureState();
-    writeStore(st);
+  const st = ensureState();
+
+  // Migration automatique des anciennes lignes
+  if (Array.isArray(st.lignes)) {
+    st.lignes = st.lignes.map(l => {
+      const q = Number(l.quantite || 1);
+
+      // Si nouvelle version déjà appliquée : on garde
+      if (l.pu_public_ht !== undefined && l.pu_remise_ht !== undefined) {
+        return l;
+      }
+
+      // Ancienne version : on migre
+      const pu_old = Number(l.pu_net_ht || 0);
+
+      return {
+        id: l.id,
+        type: l.type || "",
+        designation: l.designation || "Ligne",
+        quantite: q,
+
+        pu_public_ht: pu_old,               // fallback : on considère que ton ancien PU était déjà le remisé
+        pu_remise_ht: pu_old,
+
+        total_public_ht: +(q * pu_old).toFixed(2),
+        total_remise_ht: +(q * pu_old).toFixed(2),
+
+        // Champs historiques pour compat
+        pu_net_ht: pu_old,
+        total_ligne_ht: +(q * pu_old).toFixed(2)
+      };
+    });
   }
+
+  writeStore(st);
+}
+
 
   function clearAll(hard) {
     const st = ensureState();
@@ -60,14 +94,27 @@
 
     const total = +(q * pu).toFixed(2);
 
-    st.lignes.push({
-      id,
-      designation: line.designation || "Ligne",
-      quantite: q,
-      pu_net_ht: pu,          // champ historique utilisé partout dans l'UI
-      total_ligne_ht: total,  // total HT déjà remisé
-      type: line.type || ""   // ex: "transport" ou ""
-    });
+    // Nouveau format : on stocke les deux prix
+const pu_public = Number(line.pu_public_ht !== undefined ? line.pu_public_ht : pu);
+const pu_remise = Number(line.pu_remise_ht !== undefined ? line.pu_remise_ht : pu);
+
+st.lignes.push({
+  id,
+  type: line.type || "",
+  designation: line.designation || "Ligne",
+  quantite: q,
+
+  // anciens champs "compat"
+  pu_net_ht: pu_remise,
+  total_ligne_ht: +(q * pu_remise).toFixed(2),
+
+  // nouveaux champs
+  pu_public_ht: pu_public,
+  pu_remise_ht: pu_remise,
+  total_public_ht: +(q * pu_public).toFixed(2),
+  total_remise_ht: +(q * pu_remise).toFixed(2)
+});
+
 
     writeStore(st);
     return id;
