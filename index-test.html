@@ -151,6 +151,42 @@
 
     .toast{ position:fixed; right:16px; bottom:16px; background:#fff; color:#222; padding:10px 12px; border-radius:10px; box-shadow:0 10px 24px rgba(0,0,0,.35); display:none; z-index:99; }
     .toast.show{ display:block; }
+        /* ==== Switch Prix Client / Prix Remisé ==== */
+    .mode-toggle{
+      display:flex;
+      gap:6px;
+      margin-bottom:10px;
+      align-items:center;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+    }
+    .mode-toggle-label{
+      font-size:12px;
+      color:var(--txt-dim);
+      margin-right:4px;
+    }
+    .mode-btn{
+      appearance:none;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.24);
+      padding:6px 10px;
+      font-size:12px;
+      cursor:pointer;
+      background:rgba(255,255,255,.06);
+      color:var(--txt-dim);
+      box-shadow:0 6px 16px rgba(0,0,0,.25);
+      transition:background .15s, color .15s, box-shadow .15s, transform .15s;
+    }
+    .mode-btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 10px 22px rgba(0,0,0,.32);
+    }
+    .mode-btn.mode-active{
+      background:#fff;
+      color:#0b0b0b;
+      box-shadow:0 10px 24px rgba(0,0,0,.35);
+    }
+
   </style>
 </head>
 <body>
@@ -202,6 +238,11 @@
     <!-- ===================== RÉCAP + CLIENT ===================== -->
     <section class="panel" aria-label="Récapitulatif du devis">
       <h2>🧾 Récapitulatif du devis</h2>
+      <div class="mode-toggle">
+        <span class="mode-toggle-label">Affichage :</span>
+        <button type="button" class="mode-btn mode-active" data-mode-prix="remise">Prix remisé</button>
+        <button type="button" class="mode-btn" data-mode-prix="client">Prix client</button>
+      </div>
 
       <div class="client-card">
         <div>
@@ -318,6 +359,32 @@
     const fmt = n => (Number(n)||0).toFixed(2).replace('.', ',') + " €";
     const STORAGE_KEY = "devisCourant_v1";
     const TVA_RATE = 0.20;
+    // === Mode d'affichage des prix (remisé / client) ===
+    const MODE_KEY = "cofel_mode_prix";
+
+    function getModePrix(){
+      const m = localStorage.getItem(MODE_KEY);
+      return (m === "client" || m === "remise") ? m : "remise";
+    }
+
+    function setModePrix(mode){
+      const m = (mode === "client") ? "client" : "remise";
+      localStorage.setItem(MODE_KEY, m);
+      updateModeToggleUI();
+      // Pour l'instant, le mode n'a pas encore d'impact sur les prix.
+      // Quand on aura branché les 2 PU (public/remisé) dans Devis,
+      // le render() utilisera ce mode pour choisir quoi afficher.
+      render();
+    }
+
+    function updateModeToggleUI(){
+      const mode = getModePrix();
+      const btns = document.querySelectorAll("[data-mode-prix]");
+      btns.forEach(btn => {
+        const m = btn.getAttribute("data-mode-prix");
+        btn.classList.toggle("mode-active", m === mode);
+      });
+    }
 
     function readStore(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }catch{ return {}; } }
     function writeStore(obj){ localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); }
@@ -358,6 +425,14 @@
     const btnPdf     = document.getElementById('btnPdf');
     const btnClear   = document.getElementById('btnClear');
     const noteInfo   = document.getElementById('noteInfo');
+    // Boutons du switch Prix remisé / Prix client
+    const modeButtons = document.querySelectorAll("[data-mode-prix]");
+    modeButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const mode = btn.getAttribute("data-mode-prix");
+        setModePrix(mode);
+      });
+    });
 
     // Validation activation export PDF
     function validateExportEnabled(){
@@ -872,8 +947,10 @@ await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf", {
   }
 });
 
-    // Initial render
+        // Initialisation UI du mode prix + rendu du devis
+    updateModeToggleUI();
     render();
+
 
     // 🚪 Déconnexion (client + admin)
     (function setupLogout(){
