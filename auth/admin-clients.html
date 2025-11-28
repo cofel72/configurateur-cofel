@@ -267,6 +267,23 @@ if (profile.email !== "commercial@cofel72.fr") {
 
   <!-- PANEL : CLIENTS -->
   <div id="clients" class="tab-panel active">
+
+    <!-- 🔎 RECHERCHE CLIENTS -->
+  <input 
+    id="searchClient" 
+    type="text" 
+    placeholder="Rechercher (email, société, contact…)" 
+    style="
+      width:100%; 
+      padding:12px; 
+      border-radius:8px; 
+      border:1px solid rgba(255,255,255,.25); 
+      margin-bottom:14px; 
+      font-size:15px;
+      background:rgba(255,255,255,.08);
+      color:white;
+    "
+  />
     <div class="card">
       <div class="table-container">
         <table>
@@ -367,6 +384,21 @@ if (profile.email !== "commercial@cofel72.fr") {
   </div>
 
 </div>
+/* ===================== RECHERCHE CLIENTS ===================== */
+
+document.getElementById("searchClient").addEventListener("input", function(){
+  const term = this.value.toLowerCase().trim();
+  const rows = document.querySelectorAll("#tbodyClients tr");
+
+  rows.forEach(row => {
+    const txt = row.innerText.toLowerCase();
+    if (txt.includes(term)) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+  });
+});
 
 <script>
 /* ===================== LOGIQUE DE LA PAGE ===================== */
