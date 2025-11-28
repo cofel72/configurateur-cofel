@@ -3,13 +3,14 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
   <title>Administration clients — Cofel</title>
 
   <!-- 🔒 Protection identique au portail interne -->
   <script src="./lock.js" type="module"></script>
 
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <style>
     :root{
       --cofel:#5a2d82; --cofel-2:#7838a7;
@@ -18,10 +19,12 @@
       --txt:#f5f7ff; --txt-dim:#dcd6ff; --accent:#c9b7ff;
       --radius:18px; --blur:18px; --shadow:0 10px 30px rgba(0,0,0,.35);
     }
+
     *{box-sizing:border-box;}
-    html,body{height:100%;}
+    html,body{height:100%; margin:0; padding:0;}
+
     body{
-      margin:0; color:var(--txt);
+      color:var(--txt);
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
       background:
         radial-gradient(800px 500px at 20% -10%, rgba(255,255,255,.10), transparent 60%),
@@ -30,36 +33,64 @@
       padding:20px;
     }
 
-    .shell{ max-width:1200px; margin:0 auto; }
+    .shell{
+      max-width:1200px;
+      margin:0 auto;
+      width:100%;
+    }
+
+    /* HEADER */
     header{
       display:flex;
+      flex-wrap:wrap;
       align-items:center;
       justify-content:space-between;
+      gap:12px;
       margin-bottom:18px;
-      flex-wrap:wrap;
-      gap:10px;
     }
-    .brand{display:flex; align-items:center; gap:12px;}
+
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      flex:1 1 auto;
+    }
     .brand img{height:40px; border-radius:10px;}
-    h1{margin:0; font-size:22px;}
+    h1{margin:0; font-size:20px;}
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
     .btn{
       appearance:none; border:none; cursor:pointer;
       background:#fff; color:#1a102b;
-      padding:8px 14px; border-radius:999px;
-      font-weight:700; font-size:13px;
+      padding:10px 18px; border-radius:999px;
+      font-weight:700; font-size:14px;
       box-shadow:0 10px 24px rgba(0,0,0,.25);
-      margin-left:6px;
     }
 
-    .tabs{ display:flex; gap:10px; margin-bottom:18px; }
+    /* TABS */
+    .tabs{
+      display:flex;
+      gap:10px;
+      margin-bottom:18px;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+
     .tab-btn{
-      padding:8px 16px; cursor:pointer;
+      padding:10px 20px; cursor:pointer;
       border-radius:999px;
       border:1px solid rgba(255,255,255,.35);
       background:rgba(0,0,0,.25); color:#fff;
-      font-size:13px; font-weight:600;
+      font-size:14px; font-weight:600;
+      white-space:nowrap;
+      flex-shrink:0;
     }
     .tab-btn.active{ background:#fff; color:#1a102b; }
+
+    /* PANELS */
     .tab-panel{ display:none; }
     .tab-panel.active{ display:block; }
 
@@ -70,31 +101,49 @@
       box-shadow:var(--shadow);
       padding:16px;
       backdrop-filter:blur(var(--blur));
+      width:100%;
+      overflow:hidden;
     }
 
-    table{ width:100%; border-collapse:collapse; }
-    th, td{ padding:8px 10px; font-size:13px; }
-    thead{ background:rgba(0,0,0,.25); }
-    th{
-      text-transform:uppercase; font-size:11px;
-      color:var(--accent);
-      border-bottom:1px solid rgba(255,255,255,.22);
+    /* TABLEAU RESPONSIVE */
+    .table-container{
+      width:100%;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
     }
+
+    table{
+      width:100%;
+      min-width:750px;
+      border-collapse:collapse;
+    }
+
+    th, td{
+      padding:10px 12px;
+      font-size:14px;
+    }
+
+    th{
+      background:rgba(0,0,0,.25);
+      border-bottom:1px solid rgba(255,255,255,.22);
+      text-transform:uppercase;
+      color:var(--accent);
+      font-size:11px;
+    }
+
     .btn-row{
-      padding:4px 8px; cursor:pointer; border-radius:8px;
-      font-size:11px; margin:2px;
-      border:none;
+      padding:6px 10px; cursor:pointer; border-radius:8px;
+      font-size:12px; margin:2px; border:none;
     }
     .btn-approve{ background:#4caf50; color:#fff; font-weight:700; }
     .btn-row-secondary{ background:#555; color:#fff; }
-    .btn-row-reset{ background:#ffca28; color:#000; font-weight:600; }
-    .btn-row-delete{ background:#c62828; color:white; }
+    .btn-row-reset{ background:#ffca28; color:#000; font-weight:700; }
+    .btn-row-delete{ background:#c62828; color:#fff; }
 
     .empty{ text-align:center; padding:12px; color:var(--txt-dim); }
 
     /* MODALES */
-    #modalApprove,
-    #modalCreate{
+    #modalApprove, #modalCreate{
       position:fixed;
       inset:0;
       background:rgba(0,0,0,.6);
@@ -102,38 +151,82 @@
       align-items:center;
       justify-content:center;
       z-index:20;
+      padding:20px;
     }
-    #modalCreate{ z-index:30; }
 
     .modal-card{
-      width:100%; max-width:420px;
+      width:100%;
+      max-width:420px;
       background:rgba(25,15,45,.95);
-      border-radius:16px; padding:18px;
+      border-radius:16px;
+      padding:20px;
       border:1px solid rgba(255,255,255,.22);
       box-shadow:0 12px 40px rgba(0,0,0,.45);
     }
+
     .modal-card h3{ margin-top:0; font-size:17px; }
+
     .modal-field{ margin-bottom:12px; }
     .modal-field label{ font-size:12px; color:var(--txt-dim); }
     .modal-field input,
     .modal-field select{
-      width:100%; padding:8px; font-size:14px;
+      width:100%; padding:12px; font-size:15px;
       background:rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.25);
       border-radius:8px; color:#fff;
     }
 
     .modal-actions{ text-align:right; margin-top:16px; }
+
     .btn-modal{
-      padding:8px 14px; border:none; cursor:pointer;
-      border-radius:999px; font-size:13px; font-weight:700;
+      padding:10px 16px; border:none; cursor:pointer;
+      border-radius:999px; font-size:14px; font-weight:700;
     }
     .btn-cancel{ background:rgba(255,255,255,.08); color:#fff; }
     .btn-ok{ background:#fff; color:#1a102b; }
+
+    /* 📱 MOBILE – OPTIMISATION iPhone */
+    @media(max-width:700px){
+
+      body{
+        padding:10px;
+      }
+
+      h1{ font-size:18px; }
+
+      .brand img{height:32px;}
+
+      .btn{
+        padding:12px 20px;
+        font-size:15px;
+      }
+
+      .btn-row{
+        padding:8px 12px;
+        font-size:13px;
+      }
+
+      table{
+        min-width:650px;
+      }
+
+      .modal-card{
+        width:90%;
+        padding:20px;
+      }
+
+      .table-container{
+        margin-bottom:14px;
+        border-radius:12px;
+        border:1px solid rgba(255,255,255,.12);
+      }
+    }
   </style>
+
 </head>
 
 <body>
+
 <script>
 // Vérifier que l'utilisateur connecté est l'administrateur
 const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
@@ -161,50 +254,54 @@ if (profile.email !== "commercial@cofel72.fr") {
   <!-- TABS -->
   <div class="tabs">
     <button class="tab-btn active" data-tab="clients">Clients</button>
-    <button class="tab-btn" data-tab="requests">Demandes d’accès</button>
+    <button class="tab-btn" data-tab="requests">Demandes</button>
   </div>
 
-  <!-- PANNEAU : CLIENTS -->
+  <!-- PANEL : CLIENTS -->
   <div id="clients" class="tab-panel active">
     <div class="card">
-      <table>
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Société</th>
-            <th>Contact</th>
-            <th>Remise</th>
-            <th>Configs</th>
-            <th>Statut</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyClients">
-          <tr><td colspan="7" class="empty">Chargement…</td></tr>
-        </tbody>
-      </table>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Société</th>
+              <th>Contact</th>
+              <th>Remise</th>
+              <th>Configs</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyClients">
+            <tr><td colspan="7" class="empty">Chargement…</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <!-- PANNEAU : DEMANDES -->
+  <!-- PANEL : DEMANDES -->
   <div id="requests" class="tab-panel">
     <div class="card">
-      <table>
-        <thead>
-          <tr>
-            <th>Société</th>
-            <th>Nom</th>
-            <th>Email</th>
-            <th>Téléphone</th>
-            <th>Message</th>
-            <th>Créé</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="reqTbody">
-          <tr><td colspan="7" class="empty">Chargement…</td></tr>
-        </tbody>
-      </table>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Société</th>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Téléphone</th>
+              <th>Message</th>
+              <th>Créé</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reqTbody">
+            <tr><td colspan="7" class="empty">Chargement…</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -218,19 +315,6 @@ if (profile.email !== "commercial@cofel72.fr") {
         <input id="approveDiscount" type="number" min="0" max="90" value="0">
       </div>
 
-      <div class="modal-field" style="display:none;">
-        <label>Configurateurs autorisés</label>
-        <select id="approveConfigs" multiple size="8">
-          <option value="enseigne-drapeau">Enseigne drapeau</option>
-          <option value="lettre-alu-alupvc">Lettre alu / alu-PVC</option>
-          <option value="lettre-boitier">Lettre boîtier</option>
-          <option value="lettres-pvc">Lettres PVC</option>
-          <option value="rampe-lumineuse">Rampe lumineuse (PLL)</option>
-          <option value="tole-tablette">Tôle tablette</option>
-          <option value="tolerie-dibond">Tôlerie / Dibond</option>
-          <option value="totems">Totems</option>
-        </select>
-      </div>
       <div class="modal-actions">
         <button class="btn-modal btn-cancel" id="approveCancel">Annuler</button>
         <button class="btn-modal btn-ok" id="approveSave">Approuver</button>
@@ -274,12 +358,14 @@ if (profile.email !== "commercial@cofel72.fr") {
     </div>
   </div>
 
-</div> <!-- /.shell -->
+</div>
 
 <script>
+/* ===================== LOGIQUE DE LA PAGE ===================== */
+
 const WORKER_BASE = "https://cofel-auth.sonveven.workers.dev";
 
-/* =====================  NAVIGATION TABS ===================== */
+/* TABS */
 const tabButtons = document.querySelectorAll(".tab-btn");
 const tabPanels  = document.querySelectorAll(".tab-panel");
 
@@ -297,7 +383,8 @@ tabButtons.forEach(btn => {
   });
 });
 
-/* =====================  TABLEAU CLIENTS ===================== */
+/* ===================== TABLEAU CLIENTS ===================== */
+
 const tbodyClients = document.getElementById("tbodyClients");
 
 function formatRate(rate){
@@ -348,13 +435,13 @@ async function loadClients(){
   }
 }
 
-/* =====================  ACTIONS CLIENTS ===================== */
+/* ===================== ACTIONS CLIENTS ===================== */
 
 tbodyClients.addEventListener("click", async e => {
   const email = e.target.dataset.email;
   if (!email) return;
 
-  /* --- Reset mot de passe --- */
+  /* Reset mot de passe */
   if (e.target.classList.contains("btn-reset")){
     if (!confirm("Réinitialiser le mot de passe ?")) return;
 
@@ -369,7 +456,7 @@ tbodyClients.addEventListener("click", async e => {
     return;
   }
 
-  /* --- Supprimer client --- */
+  /* Supprimer */
   if (e.target.classList.contains("btn-delete")){
     if (!confirm("Supprimer ce client ?")) return;
 
@@ -384,7 +471,7 @@ tbodyClients.addEventListener("click", async e => {
     return;
   }
 
-  /* --- Modifier (ouvre popup séparée) --- */
+  /* Modifier */
   if (e.target.classList.contains("btn-edit")){
     window.open(
       `./edit-client.html?email=${encodeURIComponent(email)}`,
@@ -395,7 +482,8 @@ tbodyClients.addEventListener("click", async e => {
   }
 });
 
-/* =====================  TABLEAU DES DEMANDES ===================== */
+/* ===================== TABLEAU DEMANDES ===================== */
+
 const reqTbody = document.getElementById("reqTbody");
 let approvalTargetId = null;
 
@@ -420,8 +508,8 @@ async function loadRequests(){
         <td>${r.message || "—"}</td>
         <td>${formatDate(r.created_at)}</td>
         <td>
-          <button class="btn-row btn-approve" data-id="${r.id}">✔ Approuver</button>
-          <button class="btn-row btn-row-secondary btn-reject" data-id="${r.id}">❌ Refuser</button>
+          <button class="btn-row btn-approve" data-id="${r.id}">✔</button>
+          <button class="btn-row btn-row-secondary btn-reject" data-id="${r.id}">❌</button>
         </td>
       </tr>
     `).join("");
@@ -431,14 +519,13 @@ async function loadRequests(){
   }
 }
 
-/* =====================  ACTIONS DEMANDES ===================== */
+/* ACTIONS DEMANDES */
 
 reqTbody.addEventListener("click", async e => {
-
   const id = e.target.dataset.id;
   if (!id) return;
 
-  /* --- Refuser --- */
+  /* Refuser */
   if (e.target.classList.contains("btn-reject")){
     if (!confirm("Refuser cette demande ?")) return;
 
@@ -453,46 +540,32 @@ reqTbody.addEventListener("click", async e => {
     return;
   }
 
-  /* --- Approuver (ouvre modale) --- */
+  /* Approuver */
   if (e.target.classList.contains("btn-approve")){
     approvalTargetId = id;
     document.getElementById("modalApprove").style.display = "flex";
   }
 });
 
-/* =====================  BOUTON RETOUR ===================== */
+/* BOUTON RETOUR */
 document.getElementById("btnBack").onclick = () => {
   location.href = "../index.html";
 };
 
-/* =====================  CHARGEMENT INITIAL ===================== */
+/* CHARGEMENT */
 loadClients();
 loadRequests();
 
-/* =====================  APPROBATION — MODALE (simplifiée) ===================== */
-
+/* APPROBATION */
 const modalApprove = document.getElementById("modalApprove");
 const approveDiscount = document.getElementById("approveDiscount");
 const approveMsg = document.getElementById("approveMsg");
-
-// Accès toujours global : tous les configurateurs
-const ALL_CONFIGS = [
-  "enseigne-drapeau",
-  "lettre-alu-alupvc",
-  "lettre-boitier",
-  "lettres-pvc",
-  "rampe-lumineuse",
-  "tole-tablette",
-  "tolerie-dibond",
-  "totems"
-];
 
 document.getElementById("approveCancel").onclick = () => {
   modalApprove.style.display = "none";
   approveMsg.textContent = "";
 };
 
-/* --- VALIDATION APPROBATION --- */
 document.getElementById("approveSave").onclick = async () => {
 
   if (!approvalTargetId){
@@ -504,12 +577,11 @@ document.getElementById("approveSave").onclick = async () => {
   approveMsg.style.color = "#ffb3b3";
 
   const discount = Number(approveDiscount.value || 0);
-  if (isNaN(discount) || discount < 0 || discount > 90){
-    approveMsg.textContent = "Remise invalide (0 à 90 %).";
+  if (discount < 0 || discount > 90){
+    approveMsg.textContent = "Remise invalide.";
     return;
   }
 
-  let out;
   try{
     const res = await fetch(`${WORKER_BASE}/admin-approve`, {
       method: "POST",
@@ -517,56 +589,37 @@ document.getElementById("approveSave").onclick = async () => {
       body: JSON.stringify({
         requestId: approvalTargetId,
         discount: discount,
-        configs: ALL_CONFIGS
+        configs: [
+          "enseigne-drapeau",
+          "lettre-alu-alupvc",
+          "lettre-boitier",
+          "lettres-pvc",
+          "rampe-lumineuse",
+          "tole-tablette",
+          "tolerie-dibond",
+          "totems"
+        ]
       })
     });
 
-    const text = await res.text();
-    try {
-      out = JSON.parse(text);
-    } catch {
-      throw new Error("Réponse non valide du Worker : " + text);
-    }
-
-    if (!out.ok){
-      throw new Error("Le Worker a renvoyé ok=false.");
-    }
+    const out = await res.json();
+    if (!out.ok) throw new Error();
 
   } catch(err){
-    console.error("Erreur Worker /admin-approve :", err);
-    approveMsg.textContent = "Erreur avec le serveur (approbation).";
+    approveMsg.textContent = "Erreur serveur.";
     return;
-  }
-
-  // Envoi du mot de passe via Apps Script (non bloquant)
-  try{
-    await fetch(
-      "https://script.google.com/macros/s/AKfycbznSW_kZOxToXS8HdJtpj7bG-e74V9jqmZ6YOMGfG2m2LESI7JSHZVEG1QB-uJadlzq1g/exec",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "password_notification",
-          email: out.email,
-          password: out.password
-        })
-      }
-    );
-  } catch(errMail){
-    console.error("Erreur lors de l'envoi de l'email (Apps Script) :", errMail);
   }
 
   approveMsg.style.color = "#b7ffcf";
   approveMsg.textContent = "Accès approuvé.";
-  alert("Accès approuvé. Le mot de passe a été envoyé (ou sera envoyé).");
+  alert("Accès approuvé.");
 
   modalApprove.style.display = "none";
   loadRequests();
   loadClients();
 };
 
-/* =====================  CREATION CLIENT MANUELLE ===================== */
-
+/* CREATION */
 const modalCreate   = document.getElementById("modalCreate");
 const btnCreate     = document.getElementById("btnCreateClient");
 const createEmail   = document.getElementById("createEmail");
@@ -593,14 +646,14 @@ document.getElementById("createSave").onclick = async () => {
   createMsg.style.color = "#ffb3b3";
 
   const email = (createEmail.value || "").trim();
-  if (!email || !email.includes("@")){
+  if (!email.includes("@")){
     createMsg.textContent = "Email invalide.";
     return;
   }
 
   const discount = Number(createDiscount.value || 0);
-  if (isNaN(discount) || discount < 0 || discount > 90){
-    createMsg.textContent = "Remise incorrecte (0–90%).";
+  if (discount < 0 || discount > 90){
+    createMsg.textContent = "Remise incorrecte.";
     return;
   }
 
@@ -613,19 +666,28 @@ document.getElementById("createSave").onclick = async () => {
         company: (createCompany.value || "").trim(),
         name: (createName.value || "").trim(),
         discount,
-        configs: ALL_CONFIGS
+        configs: [
+          "enseigne-drapeau",
+          "lettre-alu-alupvc",
+          "lettre-boitier",
+          "lettres-pvc",
+          "rampe-lumineuse",
+          "tole-tablette",
+          "tolerie-dibond",
+          "totems"
+        ]
       })
     });
 
     const out = await r.json();
 
     if(!out.ok){
-      createMsg.textContent = out.error || "Erreur lors de la création.";
+      createMsg.textContent = "Erreur.";
       return;
     }
 
     createMsg.style.color = "#b7ffcf";
-    createMsg.textContent = "Client créé avec succès.";
+    createMsg.textContent = "Client créé.";
 
     alert("Client créé ! Mot de passe : " + out.password);
 
@@ -633,10 +695,10 @@ document.getElementById("createSave").onclick = async () => {
     loadClients();
 
   }catch(err){
-    console.error(err);
     createMsg.textContent = "Erreur serveur.";
   }
 };
 </script>
+
 </body>
 </html>
