@@ -650,21 +650,14 @@ Devis.addLine({
   total_remise_ht: p.total_remise_ht
 });
 
-alert(
-  "✅ Ligne ajoutée au devis !\n" +
-  designation + "\n" +
-  "Qté : " + qte + "\n" +
-  "PU public : " + p.pu_public_ht.toFixed(2) + " €\n" +
-  "PU remisé : " + p.pu_remise_ht.toFixed(2) + " €"
-);
+alert("✅ Ligne ajoutée au devis !");
 
-
-    alert(`✅ Ligne ajoutée au devis !\n${designation}\nQté : ${qte}\nPU HT : ${pu_public_ht.toFixed(2)} €`);
   }catch(err){ console.error(err); alert('Erreur lors de l’ajout au devis : '+err.message); }
 });
 </script>
 
 </body>
 </html>
+
 
 
