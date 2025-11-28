@@ -500,6 +500,12 @@ function findRowForHeight(H){
 
 function compute(){
   // === Remise automatique client ===
+    // === Mode tarif (cliquer dans index-test) ===
+  const mode = localStorage.getItem("cofel_price_mode") || "client";
+
+  // Recalcul quand le switch change
+  window.addEventListener("cofel-price-mode-changed", compute);
+
   let remiseClient = 1;
   try {
       const p = JSON.parse(localStorage.getItem('cofel_client_profile'));
@@ -543,9 +549,12 @@ const pu_remise = pu_public * remiseClient;
 const total_public = pu_public * Q;
 const total_remise = pu_remise * Q;
 
-// 5. Affichage dans le configurateur : TOUJOURS remisé
-elHT.textContent = euro(total_remise);
-elTTC.textContent = euro(total_remise * (1 + TVA));
+// 5. Affichage conditionné selon mode tarif
+let total_affiche = (mode === "pro") ? total_remise : total_public;
+
+elHT.textContent = euro(total_affiche);
+elTTC.textContent = euro(total_affiche * (1 + TVA));
+
 
 // 6. Sauvegarde temporaire pour addLine()
 window._LETTER_BOITIER_LAST = {
@@ -658,6 +667,7 @@ alert("✅ Ligne ajoutée au devis !");
 
 </body>
 </html>
+
 
 
 
