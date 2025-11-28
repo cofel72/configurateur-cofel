@@ -384,21 +384,6 @@ if (profile.email !== "commercial@cofel72.fr") {
   </div>
 
 </div>
-/* ===================== RECHERCHE CLIENTS ===================== */
-
-document.getElementById("searchClient").addEventListener("input", function(){
-  const term = this.value.toLowerCase().trim();
-  const rows = document.querySelectorAll("#tbodyClients tr");
-
-  rows.forEach(row => {
-    const txt = row.innerText.toLowerCase();
-    if (txt.includes(term)) {
-      row.style.display = "";
-    } else {
-      row.style.display = "none";
-    }
-  });
-});
 
 <script>
 /* ===================== LOGIQUE DE LA PAGE ===================== */
@@ -426,6 +411,17 @@ tabButtons.forEach(btn => {
 /* ===================== TABLEAU CLIENTS ===================== */
 
 const tbodyClients = document.getElementById("tbodyClients");
+/* ===================== RECHERCHE CLIENTS ===================== */
+
+document.getElementById("searchClient").addEventListener("input", function () {
+  const term = this.value.toLowerCase().trim();
+  const rows = document.querySelectorAll("#tbodyClients tr");
+
+  rows.forEach(row => {
+    const text = row.innerText.toLowerCase();
+    row.style.display = text.includes(term) ? "" : "none";
+  });
+});
 
 function formatRate(rate){
   return ((rate || 0) * 100).toFixed(1) + " %";
