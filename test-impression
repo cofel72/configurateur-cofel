@@ -253,8 +253,25 @@ function updatePreview(){
     meta.textContent="";
     return;
   }
-  box.textContent = supportChoisi + "\n" + (decoupeChoisie || '') + "\n" + (laminationChoisie || '');
-  meta.innerHTML=lignes.join('<br>');
+  // Contenu principal dans la boîte
+  box.innerHTML =
+    supportChoisi + '<br>' +
+    (decoupeChoisie || '') + '<br>' +
+    (laminationChoisie || '');
+
+  // Détails texte en dessous
+  const L=document.getElementById('larg').value;
+  const H=document.getElementById('haut').value;
+  const q=document.getElementById('qte').value;
+  const infos=[];
+  infos.push('Type : '+(typeMatiere==='souple'?'Matière souple':'Matière rigide'));
+  infos.push('Impression : '+(typeImpression==='avec'?'Avec impression':'Sans impression'));
+  if(blancChoisi) infos.push('Blanc de soutien : '+blancChoisi);
+  if(decoupeChoisie) infos.push('Découpe : '+decoupeChoisie);
+  if(laminationChoisie) infos.push('Lamination : '+laminationChoisie);
+  if(L&&H) infos.push('Dimensions : '+L+' × '+H+' mm');
+  if(q) infos.push('Quantité : '+q);
+  meta.innerHTML = infos.join('<br>');
 }
 
 function remplirSupports(){
@@ -275,7 +292,7 @@ function remplirSupports(){
           const o=document.createElement('option');o.value=opt;o.textContent=opt;sel.appendChild(o);
         });
         blancChoisi=sel.value;
-        goTo('4b'); // step4b index = 4b mais num chronologique
+        goTo('4b'); // aller à l'étape blanc de soutien
       }else{
         remplirDecoupe();
         goTo(4);
@@ -328,52 +345,54 @@ function genererResume(){
 // Initialisation des listeners
 
 document.addEventListener('DOMContentLoaded',()=>{
-  // step1
+  // Étape 1
   document.querySelectorAll('#step1 .card').forEach(card=>{
     card.addEventListener('click',()=>{
       typeMatiere=card.dataset.type;typeImpression=null;supportChoisi=null;
       goTo(2);updatePreview();
     });
   });
-  // step2
+  // Étape 2
   document.querySelectorAll('#step2 .card').forEach(card=>{
     card.addEventListener('click',()=>{
       typeImpression=card.dataset.print;supportChoisi=null;
       remplirSupports();goTo(3);updatePreview();
     });
   });
-  // back buttons generic
+  // Boutons retour génériques
   document.querySelectorAll('button[data-back]').forEach(btn=>{
     btn.addEventListener('click',()=>goTo(btn.getAttribute('data-back')));
   });
-  // blanc next
+  // Blanc de soutien → découpe
   document.getElementById('btnBlancNext').addEventListener('click',()=>{
     blancChoisi=document.getElementById('blanc').value;remplirDecoupe();goTo(4);updatePreview();
   });
-  // découpe back
+  // Retour découpe
   document.getElementById('btnDecoupeBack').addEventListener('click',()=>{
-    if(supportAOptionBlanc) goTo(4); else goTo(3);
+    if(supportAOptionBlanc) goTo('4b'); else goTo(3);
   });
-  // découpe next
+  // Découpe → lamination
   document.getElementById('btnDecoupeNext').addEventListener('click',()=>{
     decoupeChoisie=document.getElementById('decoupe').value;remplirLamination();goTo(5);updatePreview();
   });
-  // lamination next
+  // Lamination → dimensions
   document.getElementById('btnLaminNext').addEventListener('click',()=>{
     laminationChoisie=document.getElementById('lamination').value;goTo(6);updatePreview();
   });
-  // resume button
+  // Bouton récap
   document.getElementById('btnShowResume').addEventListener('click',()=>{genererResume();goTo(7);});
-  // inputs live preview
+  // Saisie live
   ['larg','haut','qte'].forEach(id=>{
     document.getElementById(id).addEventListener('input',updatePreview);
   });
-  // add button
+  // Ajouter au devis (aperçu seulement)
   document.getElementById('btnAdd').addEventListener('click',()=>{
     alert('En production : cette ligne serait ajoutée au devis de la page index.');
   });
+
   updatePreview();
 });
 </script>
 </body>
 </html>
+
