@@ -136,6 +136,48 @@ st.lignes.push({
     l.total_ligne_ht = +(q * Number(l.pu_net_ht || 0)).toFixed(2);
     writeStore(st);
   }
+  // === RÉCUPÉRER UNE LIGNE PAR ID ===
+  function getLine(id) {
+    const st = ensureState();
+    return (st.lignes || []).find(l => l.id === id) || null;
+  }
+
+  // === METTRE À JOUR DÉSIGNATION / PRIX D’UNE LIGNE ===
+  function updateLine(id, patch) {
+    const st = ensureState();
+    const lignes = st.lignes || [];
+    const idx = lignes.findIndex(l => l.id === id);
+    if (idx === -1) return;
+
+    const old = lignes[idx];
+
+    // Fusion de l’ancienne ligne avec les nouvelles valeurs
+    const updated = { ...old, ...patch };
+
+    // Quantité cohérente
+    const q = Number(updated.quantite || 1);
+
+    // Détermination PU cohérent
+    const pu = Number(
+      updated.pu_public_ht !== undefined ? updated.pu_public_ht :
+      updated.pu_remise_ht !== undefined ? updated.pu_remise_ht :
+      updated.pu_net_ht !== undefined ? updated.pu_net_ht : 0
+    );
+
+    // Mise à jour synchronisée de tous les champs prix
+    updated.pu_public_ht = pu;
+    updated.pu_remise_ht = pu;
+    updated.pu_net_ht    = pu;
+
+    updated.total_public_ht = +(q * pu).toFixed(2);
+    updated.total_remise_ht = +(q * pu).toFixed(2);
+    updated.total_ligne_ht  = +(q * pu).toFixed(2);
+
+    // Écriture en place
+    lignes[idx] = updated;
+    st.lignes = lignes;
+    writeStore(st);
+  }
 
   function computeTotals() {
     const st = ensureState();
@@ -179,15 +221,18 @@ st.lignes.push({
     writeStore(st);
   }
 
-  const api = {
+    const api = {
     reload,
     clearAll,
     addLine,
     removeLine,
     updateQty,
     computeTotals,
-    setRemise
+    setRemise,
+    getLine,
+    updateLine
   };
+
 
   // export global comme avant (window.Devis)
   global.Devis = api;
