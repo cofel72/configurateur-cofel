@@ -296,6 +296,17 @@
   <!-- Script principal -->
   <script>
   (function(){
+    // Détection admin
+let isAdmin = false;
+try {
+  const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
+  if (profile.email === "commercial@cofel72.fr") {
+    isAdmin = true;
+  }
+} catch(e){
+  console.warn("Profil admin illisible", e);
+}
+
     if(!window.Devis){
       console.error("Devis-core non chargé. Vérifiez ./js/devis-core.js");
       return;
@@ -427,9 +438,13 @@
             <td class="right">${fmt(l.pu_net_ht)}</td>
             <td class="right">${fmt(l.total_ligne_ht)}</td>
             <td class="center">
-              <button class="btn btn-ghost btn-qty" style="margin-right:6px;">📝 Qté</button>
-              <button class="btn btn-danger btn-del">Suppr.</button>
-            </td>
+  <button class="btn btn-ghost btn-qty" style="margin-right:6px;">📝 Qté</button>
+  ${isAdmin ? `
+    <button class="btn btn-ghost btn-edit" style="margin-right:6px;">✏️ Modifier</button>
+  ` : ""}
+  <button class="btn btn-danger btn-del">Suppr.</button>
+</td>
+
           </tr>
         `).join("");
       }
@@ -481,6 +496,33 @@ document.getElementById("btnAddManu").addEventListener("click", () => {
       const tr = e.target.closest('tr[data-id]');
       if(!tr) return;
       const id = tr.getAttribute('data-id');
+// === MODIFIER DESIGNATION + PU (admin) ===
+if (e.target.classList.contains('btn-edit')) {
+
+  if (!isAdmin) {
+    alert("Seul l'administrateur peut modifier une ligne.");
+    return;
+  }
+
+  const tr = e.target.closest("tr[data-id]");
+  const id = tr.getAttribute("data-id");
+  const l = Devis.getLine(id);
+  if (!l) return;
+
+  const newDesignation = prompt("Nouvelle désignation :", l.designation || "");
+  if (newDesignation === null) return;
+
+  const newPU = prompt("Nouveau PU HT :", l.pu_net_ht);
+  if (newPU === null) return;
+
+  Devis.updateLine(id, {
+    designation: newDesignation.trim(),
+    pu_net_ht: Number(newPU)
+  });
+
+  render();
+  return;
+}
 
       if(e.target.classList.contains('btn-del')){
         if(confirm("Supprimer cette ligne du devis ?")){
