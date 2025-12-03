@@ -177,7 +177,7 @@
   <!-- Laquage des pieds -->
   <label style="display:flex;align-items:center;gap:6px;margin:0">
     <input type="checkbox" id="optPieds" disabled />
-    <span>Laquage pieds du totem (+35 €)</span>
+    <span>Laquage pieds du totem</span>
   </label>
 
 </div>
@@ -630,6 +630,18 @@ async function loadAll(){
     elL.addEventListener('change',   function(){ updateRALState(); compute(); });
     elQte.addEventListener('input', compute);
     elOptRAL.addEventListener('change', compute);
+    document.getElementById('optPieds').addEventListener('change', compute);
+
+// --- Synchronisation Pré-laquage <-> RAL ---
+elOptRAL.addEventListener('change', function(){
+    const pre = document.getElementById('optPreLaque');
+    if (elOptRAL.checked) {
+        pre.checked = false;   // si RAL → on retire pré-laquage
+    } else {
+        pre.checked = true;    // si RAL décoché → pré-laquage revient
+    }
+    compute();
+});
 
     elMsg.textContent = 'Données chargées.\nEn-têtes TARIFS : ' + RAW_HEADERS_T.join(' | ') + '\nEn-têtes OPTIONS : ' + RAW_HEADERS_O.join(' | ');
 
@@ -699,4 +711,5 @@ loadAll();
 </script>
 </body>
 </html>
+
 
