@@ -159,14 +159,29 @@
         <div class="opt-row"><em>Aucune option disponible tant que la hauteur n’est pas choisie.</em></div>
       </div>
 
-      <!-- ✅ Option fixe : Laquage au RAL (prix PUBLIC déjà x2) -->
-      <div class="opt-row" id="ralRow">
-        <label style="display:flex;align-items:center;gap:10px;margin:0">
-          <input type="checkbox" id="optRAL" disabled />
-          <span>Laquage au RAL</span>
-          <span class="note" id="ralNote" style="display:none"></span>
-        </label>
-      </div>
+      <!-- ====== OPTIONS FIXES ====== -->
+<div class="opt-row" id="fixedOptions" style="display:flex;gap:20px;flex-wrap:wrap">
+
+  <!-- Pré-laquage (toujours inclus, donc décoché mais grisé) -->
+  <label style="display:flex;align-items:center;gap:6px;margin:0;opacity:.7">
+    <input type="checkbox" id="optPreLaque" checked disabled />
+    <span>Pré-laquage (inclus)</span>
+  </label>
+
+  <!-- Laquage RAL -->
+  <label style="display:flex;align-items:center;gap:6px;margin:0">
+    <input type="checkbox" id="optRAL" disabled />
+    <span>Laquage RAL</span>
+  </label>
+
+  <!-- Laquage des pieds -->
+  <label style="display:flex;align-items:center;gap:6px;margin:0">
+    <input type="checkbox" id="optPieds" disabled />
+    <span>Laquage pieds du totem (+35 €)</span>
+  </label>
+
+</div>
+
 
       <label for="quantite">Quantité</label>
       <input type="number" id="quantite" value="1" min="1"/>
@@ -490,15 +505,17 @@ function area2FacesM2(){
 }
 function updateRALState(){
   const enabled = !!(num(elH.value) && num(elL.value));
+
+  // --- Laquage RAL ---
   elOptRAL.disabled = !enabled;
-  if(!enabled){
-    elOptRAL.checked = false;
-    elRalNote.textContent = '';
-    return;
-  }
-  // (masqué à l’utilisateur)
-  elRalNote.textContent = '';
+  if(!enabled) elOptRAL.checked = false;
+
+  // --- Laquage pieds ---
+  const elPieds = document.getElementById('optPieds');
+  elPieds.disabled = !enabled;
+  if(!enabled) elPieds.checked = false;
 }
+
 
 /* ------- CALCUL ------- */
 function priceBase(){
@@ -538,8 +555,10 @@ function compute(){
 
   // ✅ Surcharge PUBLIC Laquage RAL (déjà x2) – calcul par unité
   const ral_public_unit = elOptRAL.checked ? (area2FacesM2() * RAL_PRICE_PUBLIC_M2) : 0;
+// Laquage pieds du totem (prix PUBLIC fixe)
+const pieds_public_unit = document.getElementById('optPieds').checked ? 35 : 0;
 
-  const unit_public_total = (unit_public_base + ral_public_unit) * remiseClient;
+  const unit_public_total = (unit_public_base + ral_public_unit + pieds_public_unit) * remiseClient;
 
   const totalHT_pub  = unit_public_total * qte;
   const totalTTC_pub = totalHT_pub * (1+TVA);
@@ -680,3 +699,4 @@ loadAll();
 </script>
 </body>
 </html>
+
