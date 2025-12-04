@@ -151,32 +151,55 @@ st.lignes.push({
 
     const old = lignes[idx];
 
-    // Fusion de l’ancienne ligne avec les nouvelles valeurs
-    const updated = { ...old, ...patch };
+   // Fusion de l’ancienne ligne avec les nouvelles valeurs
+const updated = { ...old, ...patch };
 
-    // Quantité cohérente
-    const q = Number(updated.quantite || 1);
+// Quantité
+const q = Number(updated.quantite || 1);
 
-    // Détermination PU cohérent
-    const pu = Number(
-      updated.pu_public_ht !== undefined ? updated.pu_public_ht :
-      updated.pu_remise_ht !== undefined ? updated.pu_remise_ht :
-      updated.pu_net_ht !== undefined ? updated.pu_net_ht : 0
-    );
+// Détection : est-ce que l’admin modifie le prix ?
+const adminDidNotEditPrice =
+  patch.pu_public_ht === undefined &&
+  patch.pu_remise_ht === undefined &&
+  patch.pu_net_ht === undefined;
 
-    // Mise à jour synchronisée de tous les champs prix
-    updated.pu_public_ht = pu;
-    updated.pu_remise_ht = pu;
-    updated.pu_net_ht    = pu;
+// 👉 CAS 1 : l’admin NE TOUCHE PAS AU PRIX → on NE recalcul PAS le PU
+if (adminDidNotEditPrice) {
+  const pu = Number(old.pu_net_ht || 0);
 
-    updated.total_public_ht = +(q * pu).toFixed(2);
-    updated.total_remise_ht = +(q * pu).toFixed(2);
-    updated.total_ligne_ht  = +(q * pu).toFixed(2);
+  updated.pu_public_ht   = pu;
+  updated.pu_remise_ht   = pu;
+  updated.pu_net_ht      = pu;
 
-    // Écriture en place
-    lignes[idx] = updated;
-    st.lignes = lignes;
-    writeStore(st);
+  updated.total_public_ht = +(q * pu).toFixed(2);
+  updated.total_remise_ht = +(q * pu).toFixed(2);
+  updated.total_ligne_ht  = +(q * pu).toFixed(2);
+
+  lignes[idx] = updated;
+  st.lignes = lignes;
+  writeStore(st);
+  return;
+}
+
+// 👉 CAS 2 : l’admin MODIFIE le PU → recalcul normal
+const pu = Number(
+  updated.pu_public_ht !== undefined ? updated.pu_public_ht :
+  updated.pu_remise_ht !== undefined ? updated.pu_remise_ht :
+  updated.pu_net_ht !== undefined ? updated.pu_net_ht : 0
+);
+
+updated.pu_public_ht   = pu;
+updated.pu_remise_ht   = pu;
+updated.pu_net_ht      = pu;
+
+updated.total_public_ht = +(q * pu).toFixed(2);
+updated.total_remise_ht = +(q * pu).toFixed(2);
+updated.total_ligne_ht  = +(q * pu).toFixed(2);
+
+lignes[idx] = updated;
+st.lignes = lignes;
+writeStore(st);
+
   }
 
   function computeTotals() {
