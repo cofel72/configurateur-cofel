@@ -522,8 +522,11 @@ if (e.target.classList.contains('btn-edit')) {
 
   if (!isNaN(Number(newPU))) {
     Devis.updateLine(id, {
-      pu_net_ht: Number(newPU)
-    });
+  pu_public_ht: Number(newPU),
+  pu_remise_ht: Number(newPU),
+  pu_net_ht: Number(newPU)
+});
+
   }
 
   render();
