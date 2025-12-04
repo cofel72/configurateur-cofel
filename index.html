@@ -500,7 +500,7 @@ document.getElementById("btnAddManu").addEventListener("click", () => {
 if (e.target.classList.contains('btn-edit')) {
 
   if (!isAdmin) {
-    alert("Seul l'administrateur peut modifier une ligne.");
+    alert("Seul l’administrateur peut modifier une ligne.");
     return;
   }
 
@@ -515,14 +515,21 @@ if (e.target.classList.contains('btn-edit')) {
   const newPU = prompt("Nouveau PU HT :", l.pu_net_ht);
   if (newPU === null) return;
 
+  // 🔥 Mise à jour SANS écraser l'objet
   Devis.updateLine(id, {
-    designation: newDesignation.trim(),
-    pu_net_ht: Number(newPU)
+    designation: newDesignation.trim()
   });
+
+  if (!isNaN(Number(newPU))) {
+    Devis.updateLine(id, {
+      pu_net_ht: Number(newPU)
+    });
+  }
 
   render();
   return;
 }
+
 
       if(e.target.classList.contains('btn-del')){
         if(confirm("Supprimer cette ligne du devis ?")){
