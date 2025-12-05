@@ -229,19 +229,24 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 8 : ŒILLETS -->
-  <section class="step-section" id="step8">
-    <fieldset>
-      <legend>Œillets</legend>
-      <p class="hint">Disponible uniquement pour Akilux 3,5 mm</p>
-      <label>Nombre d'œillets</label>
-      <input type="number" id="oeilletsCount" min="0" value="0">
-    </fieldset>
-    <div class="nav-buttons">
-      <button class="btn-nav" id="prev8">⬅ Précédent</button>
-      <button class="btn-nav" id="next8">Étape suivante ➜</button>
-    </div>
-  </section>
+ <!-- ÉTAPE 8 : ŒILLETS -->
+<section class="step-section" id="step8">
+  <fieldset>
+    <legend>Œillets</legend>
+
+    <!-- Zone dynamique insérée par le JS -->
+    <div id="oeilletsContainer"></div>
+
+    <!-- Message d'information si non compatible -->
+    <p id="oeilletsInfo" class="hint"></p>
+  </fieldset>
+
+  <div class="nav-buttons">
+    <button class="btn-nav" id="prev8">⬅ Précédent</button>
+    <button class="btn-nav" id="next8">Étape suivante ➜</button>
+  </div>
+</section>
+
 
   <!-- ÉTAPE 9 : FORMAT -->
   <section class="step-section" id="step9">
