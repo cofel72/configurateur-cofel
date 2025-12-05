@@ -2,7 +2,8 @@
  * CONFIGURATEUR COFEL — Supports SOUPLES / RIGIDES / ADHÉSIFS
  * Version dynamique pilotée par MATERIAL_RULES
  * Étapes : Support → Impression → Matière → Variante →
- * Découpe → Lamination → Blanc → Œillets → Format → Récap
+ * Découpe → Lamination → Blanc → (Œillets si applicable) →
+ * Format → Récap
  ******************************************************/
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -34,9 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const id = x => document.getElementById(x);
 
-  const sections = [...document.querySelectorAll(".step-section")];
-  const navItems = [...document.querySelectorAll(".step-item")];
-
   function getRule() {
     return MATERIAL_RULES[state.support + "_" + state.impression][state.materialKey];
   }
@@ -56,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
      3 — REMPLISSAGE DES ÉTAPES
   ============================================================ */
 
-  /********** MATIÈRES **********/
+  /********** ÉTAPE 3 — MATIÈRES **********/
   function populateMaterials() {
     const cont = id("listeMatieres");
     cont.innerHTML = "";
@@ -64,15 +62,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const list = MATERIAL_RULES[state.support + "_" + state.impression];
     for (let key in list) {
       const m = list[key];
-      cont.innerHTML += `
-        <label>
-          <input type="radio" name="material" value="${key}">
-          ${m.label}
-        </label>`;
+      const lbl = document.createElement("label");
+      lbl.innerHTML = `
+        <input type="radio" name="material" value="${key}">
+        ${m.label}
+      `;
+      cont.appendChild(lbl);
     }
   }
 
-  /********** VARIANTES **********/
+  /********** ÉTAPE 4 — VARIANTES **********/
   function populateVariants() {
     const cont = id("listeVariantes");
     cont.innerHTML = "";
@@ -82,31 +81,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     for (let key in variants) {
       const v = variants[key];
-      cont.innerHTML += `
-        <label>
-          <input type="radio" name="variant" value="${key}">
-          ${v.label}
-        </label>`;
+      const lbl = document.createElement("label");
+      lbl.innerHTML = `
+        <input type="radio" name="variant" value="${key}">
+        ${v.label}
+      `;
+      cont.appendChild(lbl);
     }
   }
 
-  /********** DÉCOUPE **********/
+  /********** ÉTAPE 5 — DÉCOUPE **********/
   function populateDecoupe() {
     const cont = id("decoupeContainer");
     cont.innerHTML = "";
 
     const rule = getVariantRule() || getRule();
+    const list = rule.decoupe;
 
-    rule.decoupe.forEach(opt => {
-      cont.innerHTML += `
-        <label>
-          <input type="radio" name="decoupe" value="${opt}">
-          Découpe ${opt}
-        </label>`;
+    list.forEach(opt => {
+      const lbl = document.createElement("label");
+      lbl.innerHTML = `
+        <input type="radio" name="decoupe" value="${opt}">
+        Découpe ${opt}
+      `;
+      cont.appendChild(lbl);
     });
   }
 
-  /********** LAMINATION **********/
+  /********** ÉTAPE 6 — LAMINATION **********/
   function populateLamination() {
     const cont = id("laminationContainer");
     const info = id("laminationInfo");
@@ -115,22 +117,24 @@ document.addEventListener("DOMContentLoaded", () => {
     info.textContent = "";
 
     const rule = getVariantRule() || getRule();
+    const list = rule.lamination;
 
-    if (!rule.lamination || rule.lamination.length === 0) {
+    if (!list || list.length === 0) {
       info.textContent = "Pas de lamination possible pour cette matière.";
       return;
     }
 
-    rule.lamination.forEach(opt => {
-      cont.innerHTML += `
-        <label>
-          <input type="radio" name="lamination" value="${opt}">
-          Lamination ${opt}
-        </label>`;
+    list.forEach(opt => {
+      const lbl = document.createElement("label");
+      lbl.innerHTML = `
+        <input type="radio" name="lamination" value="${opt}">
+        Lamination ${opt}
+      `;
+      cont.appendChild(lbl);
     });
   }
 
-  /********** BLANC **********/
+  /********** ÉTAPE 7 — BLANC **********/
   function populateBlanc() {
     const cont = id("blancContainer");
     const info = id("blancInfo");
@@ -139,22 +143,24 @@ document.addEventListener("DOMContentLoaded", () => {
     info.textContent = "";
 
     const rule = getVariantRule() || getRule();
+    const list = rule.blanc;
 
-    if (!rule.blanc || rule.blanc.length === 0) {
+    if (!list || list.length === 0) {
       info.textContent = "Blanc de soutien non disponible pour cette matière.";
       return;
     }
 
-    rule.blanc.forEach(opt => {
-      cont.innerHTML += `
-        <label>
-          <input type="radio" name="blanc" value="${opt}">
-          ${opt}
-        </label>`;
+    list.forEach(opt => {
+      const lbl = document.createElement("label");
+      lbl.innerHTML = `
+        <input type="radio" name="blanc" value="${opt}">
+        ${opt}
+      `;
+      cont.appendChild(lbl);
     });
   }
 
-  /********** ŒILLETS **********/
+  /********** ÉTAPE 8 — ŒILLETS **********/
   function populateOeillets() {
     const cont = id("oeilletsContainer");
     const info = id("oeilletsInfo");
@@ -176,26 +182,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ============================================================
-     4 — CONTRÔLE D’AFFICHAGE DES ONGLETS
+     4 — NAVIGATION ENTRE ÉTAPES
   ============================================================ */
 
-  function updateStepVisibility() {
-    const rule = getVariantRule() || getRule();
-
-    /** Étape 8 — ŒILLETS : affichée uniquement sur Akilux 3,5 mm */
-    const step8 = navItems[7]; // index 7 = étape 8
-
-    if (rule && rule.oeillets) {
-      step8.style.display = "inline-flex";
-    } else {
-      step8.style.display = "none";
-    }
-  }
-
-  /* ============================================================
-     5 — NAVIGATION
-  ============================================================ */
-
+  const sections = [...document.querySelectorAll(".step-section")];
+  const navItems = [...document.querySelectorAll(".step-item")];
   let currentStep = 1;
 
   function goTo(step) {
@@ -209,12 +200,12 @@ document.addEventListener("DOMContentLoaded", () => {
       nav.classList.toggle("active", i + 1 === step);
       nav.classList.toggle("locked", i + 1 > step);
     });
-
-    updateStepVisibility();
   }
 
-  /* CLIC DIRECT SUR LES ONGLETS */
-  navItems.forEach(item => {
+  /* -----------------------------------------------------------
+     ACTIVER LE CLIC DIRECT SUR LES ONGLETS
+  ----------------------------------------------------------- */
+  document.querySelectorAll(".step-item").forEach(item => {
     item.addEventListener("click", () => {
       const step = Number(item.dataset.step);
       if (item.classList.contains("locked")) return;
@@ -223,10 +214,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* ============================================================
-     6 — BOUTONS NEXT / PREVIOUS
+     5 — GESTION DES ÉTAPES (BOUTONS)
   ============================================================ */
 
-  /***** STEP 1 → 2 *****/
+  /***** ÉTAPE 1 → 2 *****/
   id("next1").onclick = () => {
     const sel = document.querySelector("input[name='support']:checked");
     if (!sel) return alert("Choisir un support.");
@@ -234,23 +225,21 @@ document.addEventListener("DOMContentLoaded", () => {
     goTo(2);
   };
 
-  /***** STEP 2 → 3 *****/
+  /***** ÉTAPE 2 → 3 *****/
   id("prev2").onclick = () => goTo(1);
   id("next2").onclick = () => {
     const sel = document.querySelector("input[name='impression']:checked");
     if (!sel) return alert("Choisir impression / sans.");
     state.impression = sel.value;
-
     populateMaterials();
     goTo(3);
   };
 
-  /***** STEP 3 → 4/5 *****/
+  /***** ÉTAPE 3 → 4 OU 5 *****/
   id("prev3").onclick = () => goTo(2);
   id("next3").onclick = () => {
     const sel = document.querySelector("input[name='material']:checked");
     if (!sel) return alert("Choisir une matière.");
-
     state.materialKey = sel.value;
     state.materialLabel = getRule().label;
 
@@ -263,7 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  /***** STEP 4 → 5 *****/
+  /***** ÉTAPE 4 → 5 *****/
   id("prev4").onclick = () => goTo(3);
   id("next4").onclick = () => {
     const sel = document.querySelector("input[name='variant']:checked");
@@ -276,7 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
     goTo(5);
   };
 
-  /***** STEP 5 → 6 *****/
+  /***** ÉTAPE 5 → 6 *****/
   id("prev5").onclick = () => {
     if (isVariantStepRequired()) goTo(4);
     else goTo(3);
@@ -291,11 +280,10 @@ document.addEventListener("DOMContentLoaded", () => {
     goTo(6);
   };
 
-  /***** STEP 6 → 7 *****/
+  /***** ÉTAPE 6 → 7 *****/
   id("prev6").onclick = () => goTo(5);
   id("next6").onclick = () => {
     const rule = getVariantRule() || getRule();
-
     if (rule.lamination.length > 0) {
       const sel = document.querySelector("input[name='lamination']:checked");
       if (!sel) return alert("Choisir une lamination.");
@@ -308,7 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
     goTo(7);
   };
 
-  /***** STEP 7 → 8 *****/
+  /***** ÉTAPE 7 → 8 (OU DIRECTEMENT 9) *****/
   id("prev7").onclick = () => goTo(6);
   id("next7").onclick = () => {
     const rule = getVariantRule() || getRule();
@@ -321,26 +309,36 @@ document.addEventListener("DOMContentLoaded", () => {
       state.blanc = "Non disponible";
     }
 
+    // 👉 SI PAS D'ŒILLETS : on saute totalement l'étape 8
+    if (!rule.oeillets) {
+      state.oeillets = 0;
+      goTo(9);
+      return;
+    }
+
     populateOeillets();
     goTo(8);
   };
 
-  /***** STEP 8 → 9 *****/
+  /***** ÉTAPE 8 → 9 *****/
   id("prev8").onclick = () => goTo(7);
   id("next8").onclick = () => {
     const rule = getVariantRule() || getRule();
-
     if (rule.oeillets) {
       state.oeillets = Number(id("oeilletsCount").value);
     } else {
       state.oeillets = 0;
     }
-
     goTo(9);
   };
 
-  /***** STEP 9 → 10 *****/
-  id("prev9").onclick = () => goTo(8);
+  /***** ÉTAPE 9 → 10 *****/
+  id("prev9").onclick = () => {
+    const rule = getVariantRule() || getRule();
+    if (rule.oeillets) goTo(8);
+    else goTo(7);
+  };
+
   id("next9").onclick = () => {
     state.largeur = id("largeur").value;
     state.hauteur = id("hauteur").value;
@@ -354,11 +352,11 @@ document.addEventListener("DOMContentLoaded", () => {
     goTo(10);
   };
 
-  /***** STEP 10 → retour *****/
+  /***** ÉTAPE 10 → retour *****/
   id("prev10").onclick = () => goTo(9);
 
   /* ============================================================
-     7 — RÉCAP
+     6 — RÉCAP
   ============================================================ */
   function renderRecap() {
     id("recap").innerHTML = `
@@ -368,7 +366,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ${state.variantLabel ? `<p><b>Variante :</b> ${state.variantLabel}</p>` : ""}
       <p><b>Découpe :</b> ${state.decoupe}</p>
       <p><b>Lamination :</b> ${state.lamination}</p>
-      <p><b>Blanc :</b> ${state.blanc}</p>
+      <p><b>Blanc de soutien :</b> ${state.blanc}</p>
       <p><b>Œillets :</b> ${state.oeillets}</p>
       <p><b>Format :</b> ${state.largeur} × ${state.hauteur} mm</p>
       <p><b>Quantité :</b> ${state.quantite}</p>
