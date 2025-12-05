@@ -10,7 +10,6 @@
 <link rel="stylesheet" href="../styles/cofel-config.css" />
 
 <style>
-  /* --- Thème Cofel (violet + verre) --- */
   :root{
     --violet:#5a2d82;
     --violet-2:#7838a7;
@@ -37,7 +36,9 @@
     border-bottom:1px solid rgba(255,255,255,.2);
     backdrop-filter: blur(var(--blur));
   }
-  .cofel-header .row{ display:flex; align-items:center; gap:12px; max-width:1200px; margin:auto; }
+  .cofel-header .row{
+    display:flex; align-items:center; gap:12px; max-width:1200px; margin:auto;
+  }
   .cofel-back{
     color:white; text-decoration:none;
     padding:8px 14px; border-radius:12px;
@@ -45,14 +46,12 @@
   }
   .cofel-brand img{height:36px; border-radius:8px;}
 
-  /* CONTAINER */
   .wrapper{ max-width:1100px; margin:0 auto; padding:20px; }
-
   h1{text-align:center; margin-bottom:10px;}
 
-  /* BREADCRUMB / ÉTAPES */
+  /* STEPS NAV */
   .steps-nav{
-    display:flex; justify-content:center; gap:14px;
+    display:flex; justify-content:center; gap:10px;
     flex-wrap:wrap; padding:10px 0; margin-bottom:20px;
   }
   .step-item{
@@ -60,18 +59,19 @@
     border:1px solid rgba(255,255,255,.25);
     background:rgba(255,255,255,.08);
     font-size:14px; cursor:pointer;
-    opacity:.6; transition:.15s;
+    opacity:.45; transition:.15s;
   }
   .step-item.active{
     opacity:1; border-color:white; font-weight:700; text-decoration:underline;
   }
-  .step-item.locked{ cursor:not-allowed; opacity:.3; display:block; }
+  .step-item.locked{
+    cursor:not-allowed; opacity:.2;
+  }
 
   /* SECTIONS */
   .step-section{ display:none; }
   .step-section.active{ display:block; }
 
-  /* Fieldset style Cofel */
   fieldset{
     border:1px solid rgba(255,255,255,.2);
     border-radius:20px; padding:16px; margin:18px 0;
@@ -79,9 +79,7 @@
     backdrop-filter: blur(var(--blur));
     box-shadow:var(--shadow);
   }
-  legend{
-    padding:0 10px; font-weight:800;
-  }
+  legend{ padding:0 10px; font-weight:800; }
 
   .radio-row{
     display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;
@@ -94,7 +92,8 @@
     cursor:pointer; font-weight:700;
   }
 
-  /* Boutons navigation */
+  .hint{ font-size:13px; opacity:.85; margin-top:8px; }
+
   .nav-buttons{
     margin-top:20px; text-align:center;
     display:flex; justify-content:center; gap:20px;
@@ -104,10 +103,6 @@
     border:none; cursor:pointer;
     background:white; color:#222;
     box-shadow:0 6px 18px rgba(0,0,0,.25);
-  }
-
-  .hint{
-    font-size:13px; opacity:.85; margin-top:8px;
   }
 </style>
 </head>
@@ -131,10 +126,10 @@
     <div class="step-item active" data-step="1">1. Support</div>
     <div class="step-item locked" data-step="2">2. Impression</div>
     <div class="step-item locked" data-step="3">3. Matière</div>
-    <div class="step-item locked" data-step="4" id="step4nav">4. Variante — Polymère</div>
+    <div class="step-item locked" data-step="4">4. Variantes</div>
     <div class="step-item locked" data-step="5">5. Découpe</div>
     <div class="step-item locked" data-step="6">6. Lamination</div>
-    <div class="step-item locked" data-step="7">7. Blanc de soutien</div>
+    <div class="step-item locked" data-step="7">7. Blanc</div>
     <div class="step-item locked" data-step="8">8. Œillets</div>
     <div class="step-item locked" data-step="9">9. Format</div>
     <div class="step-item locked" data-step="10">10. Récapitulatif</div>
@@ -182,7 +177,7 @@
   <!-- ÉTAPE 4 -->
   <section class="step-section" id="step4">
     <fieldset>
-      <legend>Variante — Adhésif polymère</legend>
+      <legend>Variantes de la matière</legend>
       <div id="listeVariantes" class="radio-row"></div>
     </fieldset>
     <div class="nav-buttons">
@@ -191,7 +186,7 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 5 : DÉCOUPE -->
+  <!-- ÉTAPE 5 -->
   <section class="step-section" id="step5">
     <fieldset>
       <legend>Type de découpe</legend>
@@ -203,7 +198,7 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 6 : LAMINATION -->
+  <!-- ÉTAPE 6 -->
   <section class="step-section" id="step6">
     <fieldset>
       <legend>Lamination</legend>
@@ -216,7 +211,7 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 7 : BLANC -->
+  <!-- ÉTAPE 7 -->
   <section class="step-section" id="step7">
     <fieldset>
       <legend>Blanc de soutien</legend>
@@ -229,26 +224,20 @@
     </div>
   </section>
 
- <!-- ÉTAPE 8 : ŒILLETS -->
-<section class="step-section" id="step8">
-  <fieldset>
-    <legend>Œillets</legend>
+  <!-- ÉTAPE 8 -->
+  <section class="step-section" id="step8">
+    <fieldset>
+      <legend>Œillets (Akilux uniquement)</legend>
+      <div id="oeilletsContainer"></div>
+      <p id="oeilletsInfo" class="hint"></p>
+    </fieldset>
+    <div class="nav-buttons">
+      <button class="btn-nav" id="prev8">⬅ Précédent</button>
+      <button class="btn-nav" id="next8">Étape suivante ➜</button>
+    </div>
+  </section>
 
-    <!-- Zone dynamique insérée par le JS -->
-    <div id="oeilletsContainer"></div>
-
-    <!-- Message d'information si non compatible -->
-    <p id="oeilletsInfo" class="hint"></p>
-  </fieldset>
-
-  <div class="nav-buttons">
-    <button class="btn-nav" id="prev8">⬅ Précédent</button>
-    <button class="btn-nav" id="next8">Étape suivante ➜</button>
-  </div>
-</section>
-
-
-  <!-- ÉTAPE 9 : FORMAT -->
+  <!-- ÉTAPE 9 -->
   <section class="step-section" id="step9">
     <fieldset>
       <legend>Format & Quantité</legend>
@@ -269,7 +258,7 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 10 : RÉCAP -->
+  <!-- ÉTAPE 10 -->
   <section class="step-section" id="step10">
     <fieldset>
       <legend>Récapitulatif</legend>
@@ -290,10 +279,8 @@
 <!-- Ruleset du configurateur -->
 <script src="../js/souples-rigides-adhesifs-rules.js"></script>
 
-<!-- Script principal du configurateur -->
+<!-- Script principal -->
 <script src="../js/souples-rigides-adhesifs.js"></script>
-
-
 
 </body>
 </html>
