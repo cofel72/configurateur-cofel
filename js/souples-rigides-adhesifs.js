@@ -64,9 +64,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const m = list[key];
       const lbl = document.createElement("label");
       lbl.innerHTML = `
-        <input type="radio" name="material" value="${key}">
-        ${m.label}
-      `;
+  <input type="radio" name="decoupe" value="${opt}">
+  Découpe ${opt === "Format" ? "Au format" : opt}
+`;
       cont.appendChild(lbl);
     }
   }
