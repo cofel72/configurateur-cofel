@@ -64,9 +64,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const m = list[key];
       const lbl = document.createElement("label");
       lbl.innerHTML = `
-  <input type="radio" name="decoupe" value="${opt}">
-  Découpe ${opt === "Format" ? "Au format" : opt}
-`;
+        <input type="radio" name="material" value="${key}">
+        ${m.label}
+      `;
       cont.appendChild(lbl);
     }
   }
@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const lbl = document.createElement("label");
       lbl.innerHTML = `
         <input type="radio" name="decoupe" value="${opt}">
-        Découpe ${opt}
+        Découpe ${opt === "Format" ? "Au format" : opt}
       `;
       cont.appendChild(lbl);
     });
@@ -198,12 +198,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     navItems.forEach((nav, i) => {
       nav.classList.toggle("active", i + 1 === step);
-      nav.classList.toggle("locked", i + 1 > step);
+
+      // verrouiller les étapes futures
+      if (i + 1 > step) nav.classList.add("locked");
+      else nav.classList.remove("locked");
+
+      // masquer l’étape 8 si non applicable
+      if (nav.dataset.step === "8") {
+        const rule = getVariantRule() || getRule();
+        nav.style.display = rule?.oeillets ? "inline-flex" : "none";
+      }
     });
   }
 
   /* -----------------------------------------------------------
-     ACTIVER LE CLIC DIRECT SUR LES ONGLETS
+     CLIC DIRECT SUR LES ONGLETS
   ----------------------------------------------------------- */
   document.querySelectorAll(".step-item").forEach(item => {
     item.addEventListener("click", () => {
@@ -309,7 +318,6 @@ document.addEventListener("DOMContentLoaded", () => {
       state.blanc = "Non disponible";
     }
 
-    // 👉 SI PAS D'ŒILLETS : on saute totalement l'étape 8
     if (!rule.oeillets) {
       state.oeillets = 0;
       goTo(9);
