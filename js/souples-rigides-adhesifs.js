@@ -1,14 +1,18 @@
 /******************************************************
  * CONFIGURATEUR COFEL — Supports SOUPLES / RIGIDES / ADHÉSIFS
- * Version dynamique pilotée par MATERIAL_RULES
+ * Version dynamique pilotée par MATERIAL_RULES + calcul de prix
  * Étapes : Support → Impression → Matière → Variante →
  * Découpe → Lamination → Blanc → (Œillets si applicable) →
  * Format → Récap
+ *
+ * ⚠ Nécessite :
+ *   - souples-rigides-adhesifs-rules.js
+ *   - methode-prix-matieres-souples-rigides-impression.js
  ******************************************************/
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  console.log("JS configurateur chargé ✔");
+  console.log("JS configurateur SR chargé ✔");
   
   /* ============================================================
      1 — ÉTAT GLOBAL
@@ -192,21 +196,30 @@ document.addEventListener("DOMContentLoaded", () => {
   function goTo(step) {
     currentStep = step;
 
+    // Déterminer si la matière actuelle gère des œillets (Aquilux 3,5 mm avec la variante correspondante)
+    let hasOeillets = false;
+    try {
+      const rule = getVariantRule() || getRule();
+      hasOeillets = !!(rule && rule.oeillets);
+    } catch (e) {
+      hasOeillets = false;
+    }
+
     sections.forEach((sec, i) => {
       sec.classList.toggle("active", i + 1 === step);
     });
 
     navItems.forEach((nav, i) => {
-      nav.classList.toggle("active", i + 1 === step);
+      const stepIndex = i + 1;
+      nav.classList.toggle("active", stepIndex === step);
 
       // verrouiller les étapes futures
-      if (i + 1 > step) nav.classList.add("locked");
+      if (stepIndex > step) nav.classList.add("locked");
       else nav.classList.remove("locked");
 
-      // masquer l’étape 8 si non applicable
+      // masquer ou afficher l’onglet Œillets
       if (nav.dataset.step === "8") {
-        const rule = getVariantRule() || getRule();
-        nav.style.display = rule?.oeillets ? "inline-flex" : "none";
+        nav.style.display = hasOeillets ? "inline-flex" : "none";
       }
     });
   }
@@ -318,6 +331,7 @@ document.addEventListener("DOMContentLoaded", () => {
       state.blanc = "Non disponible";
     }
 
+    // Si pas d'œillets pour cette matière : on saute l'étape 8
     if (!rule.oeillets) {
       state.oeillets = 0;
       goTo(9);
@@ -333,7 +347,7 @@ document.addEventListener("DOMContentLoaded", () => {
   id("next8").onclick = () => {
     const rule = getVariantRule() || getRule();
     if (rule.oeillets) {
-      state.oeillets = Number(id("oeilletsCount").value);
+      state.oeillets = Number(id("oeilletsCount").value || 0);
     } else {
       state.oeillets = 0;
     }
@@ -347,7 +361,7 @@ document.addEventListener("DOMContentLoaded", () => {
     else goTo(7);
   };
 
-  id("next9").onclick = () => {
+  id("next9").onclick = async () => {
     state.largeur = id("largeur").value;
     state.hauteur = id("hauteur").value;
     state.quantite = id("quantite").value;
@@ -356,7 +370,16 @@ document.addEventListener("DOMContentLoaded", () => {
       return alert("Renseigner largeur / hauteur.");
     }
 
-    renderRecap();
+    // Calcul du prix (appel à la méthode globale)
+    let pricing = null;
+    try {
+      pricing = await computePrixSouplesRigidesImpression(state);
+    } catch (e) {
+      console.error("Erreur calcul prix SR :", e);
+      alert("Erreur lors du calcul du prix.");
+    }
+
+    renderRecap(pricing);
     goTo(10);
   };
 
@@ -366,7 +389,22 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ============================================================
      6 — RÉCAP
   ============================================================ */
-  function renderRecap() {
+  function renderRecap(pricing) {
+    let prixHtml = "";
+    if (pricing && typeof pricing.prix_final_ht === "number") {
+      const pub  = pricing.prix_public_ht || 0;
+      const fin  = pricing.prix_final_ht || 0;
+      const rem  = (pricing.detail && pricing.detail.remise_sr) || 0;
+      const pct  = (rem * 100).toFixed(1).replace(".0", "");
+
+      prixHtml = `
+        <hr style="border-color:rgba(255,255,255,.35);margin:12px 0;">
+        <p><b>Prix public HT :</b> ${pub.toFixed(2)} €</p>
+        <p><b>Remise client (config SR) :</b> ${pct} %</p>
+        <p><b>Prix client HT :</b> ${fin.toFixed(2)} €</p>
+      `;
+    }
+
     id("recap").innerHTML = `
       <p><b>Support :</b> ${state.support}</p>
       <p><b>Impression :</b> ${state.impression}</p>
@@ -378,6 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <p><b>Œillets :</b> ${state.oeillets}</p>
       <p><b>Format :</b> ${state.largeur} × ${state.hauteur} mm</p>
       <p><b>Quantité :</b> ${state.quantite}</p>
+      ${prixHtml}
     `;
   }
 
