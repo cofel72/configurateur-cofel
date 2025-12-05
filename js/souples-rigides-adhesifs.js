@@ -5,6 +5,7 @@
  * Variante → Découpe → Lamination → Blanc → Œillets → Format → Récap
  ******************************************************/
 
+
 document.addEventListener("DOMContentLoaded", () => {
 
   console.log("JS configurateur chargé ✔");
