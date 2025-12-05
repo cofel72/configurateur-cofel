@@ -234,45 +234,8 @@
   © Cofel — Supports Souples, Rigides & Adhésifs
 </footer>
 
-<!-- JS navigation (simple) -->
-<script>
-document.addEventListener("DOMContentLoaded", () => {
+<script src="../js/souples-rigides-adhesifs.js"></script>
 
-  const steps = [...document.querySelectorAll(".step-section")];
-  const navItems = [...document.querySelectorAll(".step-item")];
-  let current = 1;
-
-  function goTo(step){
-    current = step;
-    steps.forEach((s,i)=> s.classList.toggle("active", i+1 === step));
-    navItems.forEach((n,i)=>{
-      n.classList.toggle("active", i+1 === step);
-      n.classList.toggle("locked", i+1 > current);
-    });
-  }
-
-  /* Navigation boutons */
-  document.getElementById("next1").onclick = () => goTo(2);
-  document.getElementById("prev2").onclick = () => goTo(1);
-  document.getElementById("next2").onclick = () => goTo(3);
-  document.getElementById("prev3").onclick = () => goTo(2);
-  document.getElementById("next3").onclick = () => goTo(4);
-  document.getElementById("prev4").onclick = () => goTo(3);
-  document.getElementById("next4").onclick = () => goTo(5);
-  document.getElementById("prev5").onclick = () => goTo(4);
-  document.getElementById("next5").onclick = () => goTo(6);
-  document.getElementById("prev6").onclick = () => goTo(5);
-
-  /* Navigation via barre d’étapes (uniquement pour revenir en arrière) */
-  navItems.forEach(item => {
-    item.onclick = () => {
-      const target = Number(item.dataset.step);
-      if(target <= current) goTo(target);
-    };
-  });
-
-});
-</script>
 
 </body>
 </html>
