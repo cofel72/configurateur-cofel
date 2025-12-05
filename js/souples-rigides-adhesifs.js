@@ -1,11 +1,13 @@
 /******************************************************
- * CONFIGURATEUR COFEL — SUPPORTS SOUPLES / RIGIDES / ADHÉSIFS
- * VERSION 10 ÉTAPES — conforme à l'arbre Whimsical
+ * CONFIGURATEUR COFEL — Supports SOUPLES / RIGIDES / ADHÉSIFS
+ * Version dynamique pilotée par MATERIAL_RULES
+ * Compatible avec 10 étapes : Support → Impression → Matière →
+ * Variante → Découpe → Lamination → Blanc → Œillets → Format → Récap
  ******************************************************/
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  console.log("CONFIGURATEUR — JS chargé ✔");
+  console.log("JS configurateur chargé ✔");
 
   /* ============================================================
      1 — ÉTAT GLOBAL
@@ -27,191 +29,128 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   /* ============================================================
-     2 — CONFIGURATION OFFICIELLE DES MATIÈRES
+     2 — OUTILS
   ============================================================ */
 
-  const MATERIALS = {
-
-    /* ===== SOUPLE — AVEC IMPRESSION ===== */
-    souple_avec: [
-      { key: "depoli", label: "Adhésif dépoli" },
-      { key: "conformable", label: "Adhésif conformable" },
-
-      {
-        key: "polymer",
-        label: "Adhésif polymère",
-        variants: [
-          { key: "polymer_renforce", label: "Polymère — colle renforcée" },
-          { key: "polymer_standard", label: "Polymère — colle standard" },
-          { key: "polymer_transparent", label: "Polymère — transparent" }
-        ]
-      },
-
-      { key: "microperfore", label: "Adhésif micro-perforé" },
-      { key: "papierpeint", label: "Papier peint 110 g" },
-      { key: "magnetique", label: "Magnétique" }
-    ],
-
-    /* ===== SOUPLE — SANS IMPRESSION ===== */
-    souple_sans: [
-      { key: "depoli", label: "Adhésif dépoli (sans impression)" },
-      { key: "conformable", label: "Adhésif conformable (sans impression)" },
-      { key: "polymer", label: "Adhésif polymère (sans impression)" },
-      { key: "microperfore", label: "Adhésif micro-perforé (sans impression)" },
-      { key: "papierpeint", label: "Papier peint 110 g" },
-      { key: "magnetique", label: "Magnétique" }
-    ],
-
-    /* ===== RIGIDE — AVEC IMPRESSION ===== */
-    rigide_avec: [
-      { key: "pvc3", label: "PVC 3 mm" },
-      { key: "pvc5", label: "PVC 5 mm" },
-      { key: "pvc10", label: "PVC 10 mm" },
-      { key: "akilux35", label: "Akilux 3,5 mm" },  // ✔ SEUL AKILUX
-      { key: "plexi3", label: "Plexi 3 mm" },
-      { key: "plexi5", label: "Plexi 5 mm" },
-      { key: "plexi8", label: "Plexi 8 mm" },
-      { key: "plexi10", label: "Plexi 10 mm" },
-      { key: "dibond3", label: "ACM Dibond 3 mm" }
-    ],
-
-    /* ===== RIGIDE — SANS IMPRESSION ===== */
-    rigide_sans: [
-      { key: "pvc3", label: "PVC 3 mm (sans impression)" },
-      { key: "pvc5", label: "PVC 5 mm (sans impression)" },
-      { key: "pvc10", label: "PVC 10 mm (sans impression)" },
-      { key: "akilux35", label: "Akilux 3,5 mm" },
-      { key: "plexi3", label: "Plexi 3 mm" },
-      { key: "plexi5", label: "Plexi 5 mm" },
-      { key: "plexi8", label: "Plexi 8 mm" },
-      { key: "plexi10", label: "Plexi 10 mm" },
-      { key: "dibond3", label: "ACM Dibond 3 mm" }
-    ]
-  };
-  
-  /* ============================================================
-     3 — FONCTIONS UTILITAIRES
-  ============================================================ */
   const id = x => document.getElementById(x);
 
-  function materialHasVariants(key) {
-    const group = MATERIALS[state.support + "_" + state.impression];
-    const m = group.find(x => x.key === key);
-    return m && m.variants;
+  function getRule() {
+    return MATERIAL_RULES[state.support + "_" + state.impression][state.materialKey];
   }
 
-  function getMaterialVariants(key) {
-    const group = MATERIALS[state.support + "_" + state.impression];
-    const m = group.find(x => x.key === key);
-    return m.variants || null;
+  function getVariantRule() {
+    const r = getRule();
+    if (!r.variants) return null;
+    return r.variants[state.variantKey];
+  }
+
+  function isVariantStepRequired() {
+    const r = MATERIAL_RULES[state.support + "_" + state.impression][state.materialKey];
+    return r.variants !== null;
   }
 
   /* ============================================================
-     4 — AFFICHAGE DES MATIÈRES
+     3 — REMPLISSAGE DES ÉTAPES
   ============================================================ */
+
+  /********** ÉTAPE 3 — MATIÈRES **********/
   function populateMaterials() {
     const cont = id("listeMatieres");
     cont.innerHTML = "";
 
-    const list = MATERIALS[state.support + "_" + state.impression];
-
-    list.forEach(mat => {
+    const list = MATERIAL_RULES[state.support + "_" + state.impression];
+    for (let key in list) {
+      const m = list[key];
       const lbl = document.createElement("label");
       lbl.innerHTML = `
-        <input type="radio" name="material" value="${mat.key}">
-        ${mat.label}
+        <input type="radio" name="material" value="${key}">
+        ${m.label}
       `;
       cont.appendChild(lbl);
-    });
+    }
   }
 
+  /********** ÉTAPE 4 — VARIANTES **********/
   function populateVariants() {
     const cont = id("listeVariantes");
     cont.innerHTML = "";
 
-    const variants = getMaterialVariants(state.materialKey);
-    variants.forEach(v => {
+    const r = getRule();
+    const variants = r.variants;
+
+    for (let key in variants) {
+      const v = variants[key];
+
       const lbl = document.createElement("label");
       lbl.innerHTML = `
-        <input type="radio" name="variant" value="${v.key}">
+        <input type="radio" name="variant" value="${key}">
         ${v.label}
       `;
       cont.appendChild(lbl);
-    });
+    }
   }
 
-  /* ============================================================
-     5 — OPTIONS LOGIQUES PAR MATIÈRE
-  ============================================================ */
-
-  /* Découpe */
+  /********** ÉTAPE 5 — DÉCOUPE **********/
   function populateDecoupe() {
     const cont = id("decoupeContainer");
     cont.innerHTML = "";
 
-    let options = [];
+    const rule = getVariantRule() || getRule();
+    const list = rule.decoupe;
 
-    if (state.support === "souple") {
-      // Souple
-      if (state.materialKey === "microperfore") {
-        options = ["Découpe normale"];
-      } else {
-        options = ["Découpe normale", "Découpe complexe"];
-      }
-    } else {
-      // Rigide
-      options = ["Découpe normale", "Découpe complexe"];
-    }
-
-    options.forEach(opt => {
+    list.forEach(opt => {
       const lbl = document.createElement("label");
       lbl.innerHTML = `
         <input type="radio" name="decoupe" value="${opt}">
-        ${opt}
+        Découpe ${opt}
       `;
       cont.appendChild(lbl);
     });
   }
 
-  /* Lamination */
+  /********** ÉTAPE 6 — LAMINATION **********/
   function populateLamination() {
     const cont = id("laminationContainer");
     const info = id("laminationInfo");
+
     cont.innerHTML = "";
     info.textContent = "";
 
-    const nonLaminables = ["microperfore", "papierpeint", "magnetique"];
+    const rule = getVariantRule() || getRule();
+    const list = rule.lamination;
 
-    if (nonLaminables.includes(state.materialKey)) {
-      info.textContent = "La lamination n'est pas possible sur ce support.";
+    if (!list || list.length === 0) {
+      info.textContent = "Pas de lamination possible pour cette matière.";
       return;
     }
 
-    ["Lamination mate", "Lamination brillante"].forEach(opt => {
+    list.forEach(opt => {
       const lbl = document.createElement("label");
       lbl.innerHTML = `
         <input type="radio" name="lamination" value="${opt}">
-        ${opt}
+        Lamination ${opt}
       `;
       cont.appendChild(lbl);
     });
   }
 
-  /* Blanc de soutien */
+  /********** ÉTAPE 7 — BLANC **********/
   function populateBlanc() {
     const cont = id("blancContainer");
     const info = id("blancInfo");
+
     cont.innerHTML = "";
     info.textContent = "";
 
-    const compatibles = ["polymer", "conformable", "microperfore", "pvc3", "pvc5", "pvc10"];
+    const rule = getVariantRule() || getRule();
+    const list = rule.blanc;
 
-    if (!compatibles.includes(state.materialKey)) {
-      info.textContent = "Le blanc de soutien n'est pas disponible pour cette matière.";
+    if (!list || list.length === 0) {
+      info.textContent = "Blanc de soutien non disponible pour cette matière.";
       return;
     }
 
-    ["Avec blanc de soutien", "Sans blanc de soutien"].forEach(opt => {
+    list.forEach(opt => {
       const lbl = document.createElement("label");
       lbl.innerHTML = `
         <input type="radio" name="blanc" value="${opt}">
@@ -221,15 +160,37 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  /********** ÉTAPE 8 — OEILLETS **********/
+  function populateOeillets() {
+    const cont = id("oeilletsContainer");
+    const info = id("oeilletsInfo");
+
+    cont.innerHTML = "";
+    info.textContent = "";
+
+    const rule = getVariantRule() || getRule();
+
+    if (!rule.oeillets) {
+      info.textContent = "Œillets non disponibles pour cette matière.";
+      return;
+    }
+
+    cont.innerHTML = `
+      <label>Nombre d'œillets :</label>
+      <input type="number" id="oeilletsCount" min="0" value="0">
+    `;
+  }
+
   /* ============================================================
-     6 — WIZARD (NAVIGATION)
+     4 — NAVIGATION ENTRE ÉTAPES
   ============================================================ */
-  let current = 1;
+
   const sections = [...document.querySelectorAll(".step-section")];
   const navItems = [...document.querySelectorAll(".step-item")];
+  let currentStep = 1;
 
   function goTo(step) {
-    current = step;
+    currentStep = step;
 
     sections.forEach((sec, i) => {
       sec.classList.toggle("active", i + 1 === step);
@@ -242,40 +203,37 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ============================================================
-     7 — GESTION DES ÉTAPES
+     5 — GESTION DES ÉTAPES (boutons)
   ============================================================ */
 
-  /* ÉTAPE 1 → 2 */
+  /***** ÉTAPE 1 → 2 *****/
   id("next1").onclick = () => {
     const sel = document.querySelector("input[name='support']:checked");
-    if (!sel) return alert("Choisis un support.");
-
+    if (!sel) return alert("Choisir un support.");
     state.support = sel.value;
     goTo(2);
   };
 
-  /* ÉTAPE 2 → 3 */
+  /***** ÉTAPE 2 → 3 *****/
   id("prev2").onclick = () => goTo(1);
   id("next2").onclick = () => {
     const sel = document.querySelector("input[name='impression']:checked");
-    if (!sel) return alert("Choisis un mode d'impression.");
-
+    if (!sel) return alert("Choisir impression / sans.");
     state.impression = sel.value;
-
     populateMaterials();
     goTo(3);
   };
 
-  /* ÉTAPE 3 → 4 ou 5 */
+  /***** ÉTAPE 3 → 4 OU 5 *****/
   id("prev3").onclick = () => goTo(2);
   id("next3").onclick = () => {
     const sel = document.querySelector("input[name='material']:checked");
-    if (!sel) return alert("Choisis une matière.");
+    if (!sel) return alert("Choisir une matière.");
 
     state.materialKey = sel.value;
-    state.materialLabel = sel.parentElement.textContent.trim();
+    state.materialLabel = getRule().label;
 
-    if (materialHasVariants(state.materialKey)) {
+    if (isVariantStepRequired()) {
       populateVariants();
       goTo(4);
     } else {
@@ -284,105 +242,100 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  /* ÉTAPE 4 → 5 */
+  /***** ÉTAPE 4 → 5 *****/
   id("prev4").onclick = () => goTo(3);
   id("next4").onclick = () => {
     const sel = document.querySelector("input[name='variant']:checked");
-    if (!sel) return alert("Choisis une variante.");
+    if (!sel) return alert("Choisir une variante.");
 
-    const variants = getMaterialVariants(state.materialKey);
-    const v = variants.find(x => x.key === sel.value);
-
-    state.variantKey = v.key;
-    state.variantLabel = v.label;
+    state.variantKey = sel.value;
+    state.variantLabel = getVariantRule().label;
 
     populateDecoupe();
     goTo(5);
   };
 
-  /* ÉTAPE 5 → 6 */
+  /***** ÉTAPE 5 → 6 *****/
   id("prev5").onclick = () => {
-    if (materialHasVariants(state.materialKey)) goTo(4);
+    if (isVariantStepRequired()) goTo(4);
     else goTo(3);
   };
 
   id("next5").onclick = () => {
     const sel = document.querySelector("input[name='decoupe']:checked");
-    if (!sel) return alert("Choisis un type de découpe.");
-
+    if (!sel) return alert("Choisir une découpe.");
     state.decoupe = sel.value;
 
     populateLamination();
     goTo(6);
   };
 
-  /* ÉTAPE 6 → 7 */
+  /***** ÉTAPE 6 → 7 *****/
   id("prev6").onclick = () => goTo(5);
-
   id("next6").onclick = () => {
-    const nonLaminables = ["microperfore", "papierpeint", "magnetique"];
-    if (!nonLaminables.includes(state.materialKey)) {
+    const rule = getVariantRule() || getRule();
+    if (rule.lamination.length > 0) {
       const sel = document.querySelector("input[name='lamination']:checked");
-      if (!sel) return alert("Choisis une option de lamination.");
+      if (!sel) return alert("Choisir une lamination.");
       state.lamination = sel.value;
     } else {
-      state.lamination = "Aucune (non disponible)";
+      state.lamination = "Non disponible";
     }
 
     populateBlanc();
     goTo(7);
   };
 
-  /* ÉTAPE 7 → 8 */
+  /***** ÉTAPE 7 → 8 *****/
   id("prev7").onclick = () => goTo(6);
-
   id("next7").onclick = () => {
-    const compatibles = ["polymer", "conformable", "microperfore", "pvc3", "pvc5", "pvc10"];
-
-    if (compatibles.includes(state.materialKey)) {
+    const rule = getVariantRule() || getRule();
+    if (rule.blanc.length > 0) {
       const sel = document.querySelector("input[name='blanc']:checked");
-      if (!sel) return alert("Choisis une option.");
+      if (!sel) return alert("Choisir une option de blanc.");
       state.blanc = sel.value;
     } else {
       state.blanc = "Non disponible";
     }
 
+    populateOeillets();
     goTo(8);
   };
 
-  /* ÉTAPE 8 → 9 */
+  /***** ÉTAPE 8 → 9 *****/
   id("prev8").onclick = () => goTo(7);
-
   id("next8").onclick = () => {
-    if (state.materialKey === "akilux35") {
+    const rule = getVariantRule() || getRule();
+
+    if (rule.oeillets) {
       state.oeillets = Number(id("oeilletsCount").value);
     } else {
       state.oeillets = 0;
     }
+
     goTo(9);
   };
 
-  /* ÉTAPE 9 → 10 */
+  /***** ÉTAPE 9 → 10 *****/
   id("prev9").onclick = () => goTo(8);
-
   id("next9").onclick = () => {
     state.largeur = id("largeur").value;
     state.hauteur = id("hauteur").value;
     state.quantite = id("quantite").value;
 
     if (!state.largeur || !state.hauteur) {
-      return alert("Renseigne largeur et hauteur.");
+      return alert("Renseigner largeur et hauteur.");
     }
 
     renderRecap();
     goTo(10);
   };
 
-  /* ÉTAPE 10 → retour */
+  /***** ÉTAPE 10 → retour *****/
   id("prev10").onclick = () => goTo(9);
 
   /* ============================================================
-     8 — RÉCAPITULATIF
+     6 — RÉCAP
   ============================================================ */
   function renderRecap() {
     id("recap").innerHTML = `
