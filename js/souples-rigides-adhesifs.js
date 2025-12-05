@@ -5,7 +5,6 @@
  * Variante → Découpe → Lamination → Blanc → Œillets → Format → Récap
  ******************************************************/
 
-
 document.addEventListener("DOMContentLoaded", () => {
 
   console.log("JS configurateur chargé ✔");
@@ -33,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
      2 — OUTILS
   ============================================================ */
 
-  const id = x => document.getElementById(x);
+  const id = (x) => document.getElementById(x);
 
   function getRule() {
     return MATERIAL_RULES[state.support + "_" + state.impression][state.materialKey];
@@ -46,8 +45,34 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function isVariantStepRequired() {
-    const r = MATERIAL_RULES[state.support + "_" + state.impression][state.materialKey];
-    return r.variants !== null;
+    return getRule().variants !== null;
+  }
+
+  /* -------------------------------------------------------
+      UTILITAIRES POUR AFFICHER / CACHER LES ÉTAPES
+  ------------------------------------------------------- */
+  function hideStep(stepNumber) {
+    const nav = document.querySelector(`.step-item[data-step='${stepNumber}']`);
+    const sec = document.getElementById(`step${stepNumber}`);
+    if (nav) nav.style.display = "none";
+    if (sec) sec.style.display = "none";
+  }
+
+  function showStep(stepNumber) {
+    const nav = document.querySelector(`.step-item[data-step='${stepNumber}']`);
+    const sec = document.getElementById(`step${stepNumber}`);
+    if (nav) nav.style.display = "block";
+    if (sec) sec.style.display = "block";
+  }
+
+  function stepIsRequired_Blanc() {
+    const rule = getVariantRule() || getRule();
+    return rule.blanc && rule.blanc.length > 0;
+  }
+
+  function stepIsRequired_Oeillets() {
+    const rule = getVariantRule() || getRule();
+    return rule.oeillets === true;
   }
 
   /* ============================================================
@@ -60,6 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
     cont.innerHTML = "";
 
     const list = MATERIAL_RULES[state.support + "_" + state.impression];
+
     for (let key in list) {
       const m = list[key];
       const lbl = document.createElement("label");
@@ -76,12 +102,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const cont = id("listeVariantes");
     cont.innerHTML = "";
 
-    const r = getRule();
-    const variants = r.variants;
+    const variants = getRule().variants;
 
     for (let key in variants) {
       const v = variants[key];
-
       const lbl = document.createElement("label");
       lbl.innerHTML = `
         <input type="radio" name="variant" value="${key}">
@@ -99,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const rule = getVariantRule() || getRule();
     const list = rule.decoupe;
 
-    list.forEach(opt => {
+    list.forEach((opt) => {
       const lbl = document.createElement("label");
       lbl.innerHTML = `
         <input type="radio" name="decoupe" value="${opt}">
@@ -113,7 +137,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function populateLamination() {
     const cont = id("laminationContainer");
     const info = id("laminationInfo");
-
     cont.innerHTML = "";
     info.textContent = "";
 
@@ -125,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    list.forEach(opt => {
+    list.forEach((opt) => {
       const lbl = document.createElement("label");
       lbl.innerHTML = `
         <input type="radio" name="lamination" value="${opt}">
@@ -139,7 +162,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function populateBlanc() {
     const cont = id("blancContainer");
     const info = id("blancInfo");
-
     cont.innerHTML = "";
     info.textContent = "";
 
@@ -151,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    list.forEach(opt => {
+    list.forEach((opt) => {
       const lbl = document.createElement("label");
       lbl.innerHTML = `
         <input type="radio" name="blanc" value="${opt}">
@@ -161,7 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  /********** ÉTAPE 8 — OEILLETS **********/
+  /********** ÉTAPE 8 — ŒILLETS **********/
   function populateOeillets() {
     const cont = id("oeilletsContainer");
     const info = id("oeilletsInfo");
@@ -234,6 +256,10 @@ document.addEventListener("DOMContentLoaded", () => {
     state.materialKey = sel.value;
     state.materialLabel = getRule().label;
 
+    // Ajuster la visibilité des étapes dès le choix matière
+    stepIsRequired_Blanc() ? showStep(7) : hideStep(7);
+    stepIsRequired_Oeillets() ? showStep(8) : hideStep(8);
+
     if (isVariantStepRequired()) {
       populateVariants();
       goTo(4);
@@ -275,6 +301,7 @@ document.addEventListener("DOMContentLoaded", () => {
   id("prev6").onclick = () => goTo(5);
   id("next6").onclick = () => {
     const rule = getVariantRule() || getRule();
+
     if (rule.lamination.length > 0) {
       const sel = document.querySelector("input[name='lamination']:checked");
       if (!sel) return alert("Choisir une lamination.");
@@ -283,14 +310,29 @@ document.addEventListener("DOMContentLoaded", () => {
       state.lamination = "Non disponible";
     }
 
-    populateBlanc();
-    goTo(7);
+    if (stepIsRequired_Blanc()) {
+      populateBlanc();
+      showStep(7);
+      goTo(7);
+    } else {
+      hideStep(7);
+      state.blanc = "Non disponible";
+
+      if (stepIsRequired_Oeillets()) {
+        showStep(8);
+        goTo(8);
+      } else {
+        hideStep(8);
+        goTo(9);
+      }
+    }
   };
 
   /***** ÉTAPE 7 → 8 *****/
   id("prev7").onclick = () => goTo(6);
   id("next7").onclick = () => {
     const rule = getVariantRule() || getRule();
+
     if (rule.blanc.length > 0) {
       const sel = document.querySelector("input[name='blanc']:checked");
       if (!sel) return alert("Choisir une option de blanc.");
@@ -299,21 +341,25 @@ document.addEventListener("DOMContentLoaded", () => {
       state.blanc = "Non disponible";
     }
 
-    populateOeillets();
-    goTo(8);
+    if (stepIsRequired_Oeillets()) {
+      populateOeillets();
+      showStep(8);
+      goTo(8);
+    } else {
+      hideStep(8);
+      goTo(9);
+    }
   };
 
   /***** ÉTAPE 8 → 9 *****/
   id("prev8").onclick = () => goTo(7);
   id("next8").onclick = () => {
     const rule = getVariantRule() || getRule();
-
     if (rule.oeillets) {
       state.oeillets = Number(id("oeilletsCount").value);
     } else {
       state.oeillets = 0;
     }
-
     goTo(9);
   };
 
@@ -332,7 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
     goTo(10);
   };
 
-  /***** ÉTAPE 10 → retour *****/
+  /***** ÉTAPE 10 → RETOUR *****/
   id("prev10").onclick = () => goTo(9);
 
   /* ============================================================
