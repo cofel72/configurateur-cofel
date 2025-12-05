@@ -9,7 +9,6 @@
 document.addEventListener("DOMContentLoaded", () => {
 
   console.log("JS configurateur chargé ✔");
-
   
   /* ============================================================
      1 — ÉTAT GLOBAL
