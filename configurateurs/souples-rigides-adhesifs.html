@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
 <title>Configurateur — Supports Souples, Rigides & Adhésifs | Cofel</title>
 
-
 <!-- Styles communs Cofel -->
 <link rel="stylesheet" href="../styles/cofel.css" />
 <link rel="stylesheet" href="../styles/cofel-config.css" />
@@ -47,6 +46,7 @@
   }
   .cofel-brand img{height:36px; border-radius:8px;}
 
+  /* CONTAINER */
   .wrapper{ max-width:1100px; margin:0 auto; padding:20px; }
   h1{text-align:center; margin-bottom:10px;}
 
@@ -122,7 +122,7 @@
 
 <div class="wrapper">
 
-  <!-- Barre d'étapes -->
+  <!-- BARRE D'ÉTAPES -->
   <div class="steps-nav" id="stepsNav">
     <div class="step-item active" data-step="1">1. Support</div>
     <div class="step-item locked" data-step="2">2. Impression</div>
@@ -131,7 +131,7 @@
     <div class="step-item locked" data-step="5">5. Découpe</div>
     <div class="step-item locked" data-step="6">6. Lamination</div>
     <div class="step-item locked" data-step="7">7. Blanc</div>
-    <div class="step-item locked" data-step="8">8. Œillets</div>
+    <div class="step-item locked" data-step="8" id="stepOeillets">8. Œillets</div>
     <div class="step-item locked" data-step="9">9. Format</div>
     <div class="step-item locked" data-step="10">10. Récapitulatif</div>
   </div>
@@ -277,7 +277,7 @@
   © Cofel — Supports Souples, Rigides & Adhésifs
 </footer>
 
-<!-- Ruleset du configurateur -->
+<!-- Ruleset -->
 <script src="../js/souples-rigides-adhesifs-rules.js"></script>
 
 <!-- Script principal -->
