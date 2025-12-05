@@ -67,7 +67,7 @@
   }
   .step-item.locked{ cursor:not-allowed; opacity:.3; display:block; }
 
-  /* SECTIONS (Étapes du configurateur) */
+  /* SECTIONS */
   .step-section{ display:none; }
   .step-section.active{ display:block; }
 
@@ -105,6 +105,10 @@
     background:white; color:#222;
     box-shadow:0 6px 18px rgba(0,0,0,.25);
   }
+
+  .hint{
+    font-size:13px; opacity:.85; margin-top:8px;
+  }
 </style>
 </head>
 
@@ -127,13 +131,16 @@
     <div class="step-item active" data-step="1">1. Support</div>
     <div class="step-item locked" data-step="2">2. Impression</div>
     <div class="step-item locked" data-step="3">3. Matière</div>
-    <div class="step-item locked" data-step="4" id="step4nav">4. Variante — Adhésif polymère</div>
-    <div class="step-item locked" data-step="5">5. Options</div>
-    <div class="step-item locked" data-step="6">6. Format</div>
-    <div class="step-item locked" data-step="7">7. Récapitulatif</div>
+    <div class="step-item locked" data-step="4" id="step4nav">4. Variante — Polymère</div>
+    <div class="step-item locked" data-step="5">5. Découpe</div>
+    <div class="step-item locked" data-step="6">6. Lamination</div>
+    <div class="step-item locked" data-step="7">7. Blanc de soutien</div>
+    <div class="step-item locked" data-step="8">8. Œillets</div>
+    <div class="step-item locked" data-step="9">9. Format</div>
+    <div class="step-item locked" data-step="10">10. Récapitulatif</div>
   </div>
 
-  <!-- ÉTAPE 1 : Support -->
+  <!-- ÉTAPE 1 -->
   <section class="step-section active" id="step1">
     <fieldset>
       <legend>Choix du support</legend>
@@ -142,12 +149,10 @@
         <label><input type="radio" name="support" value="rigide"> Support rigide</label>
       </div>
     </fieldset>
-    <div class="nav-buttons">
-      <button class="btn-nav" id="next1">Étape suivante ➜</button>
-    </div>
+    <div class="nav-buttons"><button class="btn-nav" id="next1">Étape suivante ➜</button></div>
   </section>
 
-  <!-- ÉTAPE 2 : Impression -->
+  <!-- ÉTAPE 2 -->
   <section class="step-section" id="step2">
     <fieldset>
       <legend>Impression</legend>
@@ -162,13 +167,11 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 3 : Matière -->
+  <!-- ÉTAPE 3 -->
   <section class="step-section" id="step3">
     <fieldset>
       <legend>Matière</legend>
-      <div id="listeMatieres" class="radio-row">
-        <!-- JS remplira ici -->
-      </div>
+      <div id="listeMatieres" class="radio-row"></div>
     </fieldset>
     <div class="nav-buttons">
       <button class="btn-nav" id="prev3">⬅ Précédent</button>
@@ -176,13 +179,11 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 4 : Variantes polymère -->
+  <!-- ÉTAPE 4 -->
   <section class="step-section" id="step4">
     <fieldset>
       <legend>Variante — Adhésif polymère</legend>
-      <div id="listeVariantes" class="radio-row">
-        <!-- JS remplira ici -->
-      </div>
+      <div id="listeVariantes" class="radio-row"></div>
     </fieldset>
     <div class="nav-buttons">
       <button class="btn-nav" id="prev4">⬅ Précédent</button>
@@ -190,13 +191,11 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 5 : Options -->
+  <!-- ÉTAPE 5 : DÉCOUPE -->
   <section class="step-section" id="step5">
     <fieldset>
-      <legend>Options disponibles</legend>
-      <div id="optionsContainer">
-        <!-- JS remplira ici -->
-      </div>
+      <legend>Type de découpe</legend>
+      <div id="decoupeContainer" class="radio-row"></div>
     </fieldset>
     <div class="nav-buttons">
       <button class="btn-nav" id="prev5">⬅ Précédent</button>
@@ -204,8 +203,48 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 6 : Format -->
+  <!-- ÉTAPE 6 : LAMINATION -->
   <section class="step-section" id="step6">
+    <fieldset>
+      <legend>Lamination</legend>
+      <div id="laminationContainer" class="radio-row"></div>
+      <p id="laminationInfo" class="hint"></p>
+    </fieldset>
+    <div class="nav-buttons">
+      <button class="btn-nav" id="prev6">⬅ Précédent</button>
+      <button class="btn-nav" id="next6">Étape suivante ➜</button>
+    </div>
+  </section>
+
+  <!-- ÉTAPE 7 : BLANC -->
+  <section class="step-section" id="step7">
+    <fieldset>
+      <legend>Blanc de soutien</legend>
+      <div id="blancContainer" class="radio-row"></div>
+      <p id="blancInfo" class="hint"></p>
+    </fieldset>
+    <div class="nav-buttons">
+      <button class="btn-nav" id="prev7">⬅ Précédent</button>
+      <button class="btn-nav" id="next7">Étape suivante ➜</button>
+    </div>
+  </section>
+
+  <!-- ÉTAPE 8 : ŒILLETS -->
+  <section class="step-section" id="step8">
+    <fieldset>
+      <legend>Œillets</legend>
+      <p class="hint">Disponible uniquement pour Akilux 3,5 mm</p>
+      <label>Nombre d'œillets</label>
+      <input type="number" id="oeilletsCount" min="0" value="0">
+    </fieldset>
+    <div class="nav-buttons">
+      <button class="btn-nav" id="prev8">⬅ Précédent</button>
+      <button class="btn-nav" id="next8">Étape suivante ➜</button>
+    </div>
+  </section>
+
+  <!-- ÉTAPE 9 : FORMAT -->
+  <section class="step-section" id="step9">
     <fieldset>
       <legend>Format & Quantité</legend>
 
@@ -217,24 +256,23 @@
 
       <label>Quantité</label>
       <input type="number" id="quantite" min="1" value="1">
-
     </fieldset>
+
     <div class="nav-buttons">
-      <button class="btn-nav" id="prev6">⬅ Précédent</button>
-      <button class="btn-nav" id="next6">Étape suivante ➜</button>
+      <button class="btn-nav" id="prev9">⬅ Précédent</button>
+      <button class="btn-nav" id="next9">Étape suivante ➜</button>
     </div>
   </section>
 
-  <!-- ÉTAPE 7 : Récapitulatif -->
-  <section class="step-section" id="step7">
+  <!-- ÉTAPE 10 : RÉCAP -->
+  <section class="step-section" id="step10">
     <fieldset>
       <legend>Récapitulatif</legend>
-      <div id="recap">
-        <!-- JS -->
-      </div>
+      <div id="recap"></div>
     </fieldset>
+
     <div class="nav-buttons">
-      <button class="btn-nav" id="prev7">⬅ Précédent</button>
+      <button class="btn-nav" id="prev10">⬅ Précédent</button>
     </div>
   </section>
 
@@ -244,7 +282,6 @@
   © Cofel — Supports Souples, Rigides & Adhésifs
 </footer>
 
-<!-- Script externe -->
 <script src="../js/souples-rigides-adhesifs.js"></script>
 
 </body>
