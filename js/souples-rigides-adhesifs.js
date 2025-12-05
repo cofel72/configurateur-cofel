@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
       { key: "dibond3", label: "ACM Dibond 3 mm" }
     ]
   };
-
+  
   /* ============================================================
      3 — FONCTIONS UTILITAIRES
   ============================================================ */
