@@ -65,7 +65,7 @@
   .step-item.active{
     opacity:1; border-color:white; font-weight:700; text-decoration:underline;
   }
-  .step-item.locked{ cursor:not-allowed; opacity:.3; }
+  .step-item.locked{ cursor:not-allowed; opacity:.3; display:block; }
 
   /* SECTIONS (Étapes du configurateur) */
   .step-section{ display:none; }
@@ -105,9 +105,9 @@
     background:white; color:#222;
     box-shadow:0 6px 18px rgba(0,0,0,.25);
   }
-
 </style>
 </head>
+
 <body>
 
 <header class="cofel-header">
@@ -127,9 +127,10 @@
     <div class="step-item active" data-step="1">1. Support</div>
     <div class="step-item locked" data-step="2">2. Impression</div>
     <div class="step-item locked" data-step="3">3. Matière</div>
-    <div class="step-item locked" data-step="4">4. Options</div>
-    <div class="step-item locked" data-step="5">5. Format</div>
-    <div class="step-item locked" data-step="6">6. Résumé</div>
+    <div class="step-item locked" data-step="4" id="step4nav">4. Variante — Adhésif polymère</div>
+    <div class="step-item locked" data-step="5">5. Options</div>
+    <div class="step-item locked" data-step="6">6. Format</div>
+    <div class="step-item locked" data-step="7">7. Récapitulatif</div>
   </div>
 
   <!-- ÉTAPE 1 : Support -->
@@ -141,7 +142,6 @@
         <label><input type="radio" name="support" value="rigide"> Support rigide</label>
       </div>
     </fieldset>
-
     <div class="nav-buttons">
       <button class="btn-nav" id="next1">Étape suivante ➜</button>
     </div>
@@ -156,7 +156,6 @@
         <label><input type="radio" name="impression" value="sans"> Sans impression</label>
       </div>
     </fieldset>
-
     <div class="nav-buttons">
       <button class="btn-nav" id="prev2">⬅ Précédent</button>
       <button class="btn-nav" id="next2">Étape suivante ➜</button>
@@ -168,35 +167,48 @@
     <fieldset>
       <legend>Matière</legend>
       <div id="listeMatieres" class="radio-row">
-        <!-- ⚠️ Le JS remplira automatiquement les matières selon ton arbre -->
+        <!-- JS remplira ici -->
       </div>
     </fieldset>
-
     <div class="nav-buttons">
       <button class="btn-nav" id="prev3">⬅ Précédent</button>
       <button class="btn-nav" id="next3">Étape suivante ➜</button>
     </div>
   </section>
 
-  <!-- ÉTAPE 4 : Options -->
+  <!-- ÉTAPE 4 : Variantes polymère -->
   <section class="step-section" id="step4">
     <fieldset>
-      <legend>Options disponibles</legend>
-      <div id="optionsContainer">
-        <!-- ⚠️ Le JS remplira selon la matière choisie -->
+      <legend>Variante — Adhésif polymère</legend>
+      <div id="listeVariantes" class="radio-row">
+        <!-- JS remplira ici -->
       </div>
     </fieldset>
-
     <div class="nav-buttons">
       <button class="btn-nav" id="prev4">⬅ Précédent</button>
       <button class="btn-nav" id="next4">Étape suivante ➜</button>
     </div>
   </section>
 
-  <!-- ÉTAPE 5 : Format -->
+  <!-- ÉTAPE 5 : Options -->
   <section class="step-section" id="step5">
     <fieldset>
+      <legend>Options disponibles</legend>
+      <div id="optionsContainer">
+        <!-- JS remplira ici -->
+      </div>
+    </fieldset>
+    <div class="nav-buttons">
+      <button class="btn-nav" id="prev5">⬅ Précédent</button>
+      <button class="btn-nav" id="next5">Étape suivante ➜</button>
+    </div>
+  </section>
+
+  <!-- ÉTAPE 6 : Format -->
+  <section class="step-section" id="step6">
+    <fieldset>
       <legend>Format & Quantité</legend>
+
       <label>Largeur (mm)</label>
       <input type="number" id="largeur" min="1" placeholder="Ex : 1200">
 
@@ -205,26 +217,24 @@
 
       <label>Quantité</label>
       <input type="number" id="quantite" min="1" value="1">
-    </fieldset>
 
+    </fieldset>
     <div class="nav-buttons">
-      <button class="btn-nav" id="prev5">⬅ Précédent</button>
-      <button class="btn-nav" id="next5">Étape suivante ➜</button>
+      <button class="btn-nav" id="prev6">⬅ Précédent</button>
+      <button class="btn-nav" id="next6">Étape suivante ➜</button>
     </div>
   </section>
 
-  <!-- ÉTAPE 6 : Récapitulatif -->
-  <section class="step-section" id="step6">
+  <!-- ÉTAPE 7 : Récapitulatif -->
+  <section class="step-section" id="step7">
     <fieldset>
       <legend>Récapitulatif</legend>
       <div id="recap">
-        <!-- Le JS remplira ici -->
+        <!-- JS -->
       </div>
     </fieldset>
-
     <div class="nav-buttons">
-      <button class="btn-nav" id="prev6">⬅ Précédent</button>
-      <!-- PAS encore de bouton ajouter au devis -->
+      <button class="btn-nav" id="prev7">⬅ Précédent</button>
     </div>
   </section>
 
@@ -234,9 +244,8 @@
   © Cofel — Supports Souples, Rigides & Adhésifs
 </footer>
 
+<!-- Script externe -->
 <script src="../js/souples-rigides-adhesifs.js"></script>
-
 
 </body>
 </html>
-
