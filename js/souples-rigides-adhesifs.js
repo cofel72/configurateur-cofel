@@ -1,3 +1,5 @@
+// build: refresh cache
+
 /******************************************************
  * CONFIGURATEUR COFEL — Supports SOUPLES / RIGIDES / ADHÉSIFS
  * Version dynamique pilotée par MATERIAL_RULES
