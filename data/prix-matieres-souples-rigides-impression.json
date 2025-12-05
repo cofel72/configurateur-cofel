@@ -1,1 +1,52 @@
+{
+  "coeff_public": 3.5,
+  "prix_minimum_article": 5,
 
+  "impression": {
+    "prix_m2": 0,
+    "minimum": 5
+  },
+
+  "decoupe": {
+    "format": 3,
+    "complexe_souple": 13,
+    "complexe_rigide": 6
+  },
+
+  "lamination_application_m2": 3,
+  
+  "blanc_soutien_m2": 3,
+
+  "oeillet_unite": 1,
+
+  "matieres": {
+    "depoli": 5.30,
+    "conformable": 8.66,
+    "polymer_opaque_standard": 2.96,
+    "polymer_opaque_renforce": 3.71,
+    "polymer_ultraclear": 4.15,
+    "microperfore_transparent": 0,
+    "microperfore_opaque": 8.90,
+    "papierpeint": 0,
+    "vinyl_teinte_masse": 3.99,
+    "magnetique": 8.89,
+    "ardoisine": 24.91,
+
+    "lam_mate_brillante_standard": 2.63,
+    "lam_mate_brillante_conformable": 6.55,
+    "lam_anti_graffiti": 8.55,
+    "lam_antiderapante": 8.52,
+    "lam_velleda": 10.05,
+
+    "pvc3": 4.14,
+    "pvc5": 6.90,
+    "pvc10": 13.74,
+    "akilux35": 1.59,
+
+    "plexi3": 20,
+    "plexi5": 30.30,
+    "plexi8": 48.49,
+    "plexi10": 60.61,
+    "dibond3": 12.85
+  }
+}
