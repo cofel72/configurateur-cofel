@@ -1,1 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Configurateur — Supports Souples, Rigides & Adhésifs | Cofel</title>
+
+<!-- Styles communs Cofel -->
+<link rel="stylesheet" href="../styles/cofel.css" />
+<link rel="stylesheet" href="../styles/cofel-config.css" />
+
+<style>
+  /* --- Thème Cofel (violet + verre) --- */
+  :root{
+    --violet:#5a2d82;
+    --violet-2:#7838a7;
+    --glass: rgba(255,255,255,.08);
+    --glass-hr: rgba(255,255,255,.14);
+    --txt:#f5f7ff;
+    --txt-dim:#e6e6ff;
+    --accent:#c9b7ff;
+    --radius:18px;
+    --blur:18px;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; color:var(--txt);
+    background: linear-gradient(135deg, var(--violet), var(--violet-2));
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
+  }
+
+  /* HEADER */
+  .cofel-header{
+    position:sticky; top:0; z-index:1000; padding:8px 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
+    border-bottom:1px solid rgba(255,255,255,.2);
+    backdrop-filter: blur(var(--blur));
+  }
+  .cofel-header .row{ display:flex; align-items:center; gap:12px; max-width:1200px; margin:auto; }
+  .cofel-back{
+    color:white; text-decoration:none;
+    padding:8px 14px; border-radius:12px;
+    border:1px solid rgba(255,255,255,.35);
+  }
+  .cofel-brand img{height:36px; border-radius:8px;}
+
+  /* CONTAINER */
+  .wrapper{ max-width:1100px; margin:0 auto; padding:20px; }
+
+  h1{text-align:center; margin-bottom:10px;}
+
+  /* BREADCRUMB / ÉTAPES */
+  .steps-nav{
+    display:flex; justify-content:center; gap:14px;
+    flex-wrap:wrap; padding:10px 0; margin-bottom:20px;
+  }
+  .step-item{
+    padding:6px 12px; border-radius:12px;
+    border:1px solid rgba(255,255,255,.25);
+    background:rgba(255,255,255,.08);
+    font-size:14px; cursor:pointer;
+    opacity:.6; transition:.15s;
+  }
+  .step-item.active{
+    opacity:1; border-color:white; font-weight:700; text-decoration:underline;
+  }
+  .step-item.locked{ cursor:not-allowed; opacity:.3; }
+
+  /* SECTIONS (Étapes du configurateur) */
+  .step-section{ display:none; }
+  .step-section.active{ display:block; }
+
+  /* Fieldset style Cofel */
+  fieldset{
+    border:1px solid rgba(255,255,255,.2);
+    border-radius:20px; padding:16px; margin:18px 0;
+    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
+    backdrop-filter: blur(var(--blur));
+    box-shadow:var(--shadow);
+  }
+  legend{
+    padding:0 10px; font-weight:800;
+  }
+
+  .radio-row{
+    display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;
+  }
+  .radio-row label{
+    display:flex; align-items:center; gap:8px;
+    padding:10px 14px; border-radius:14px;
+    background: rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.24);
+    cursor:pointer; font-weight:700;
+  }
+
+  /* Boutons navigation */
+  .nav-buttons{
+    margin-top:20px; text-align:center;
+    display:flex; justify-content:center; gap:20px;
+  }
+  .btn-nav{
+    padding:10px 18px; font-weight:700; border-radius:12px;
+    border:none; cursor:pointer;
+    background:white; color:#222;
+    box-shadow:0 6px 18px rgba(0,0,0,.25);
+  }
+
+</style>
+</head>
+<body>
+
+<header class="cofel-header">
+  <div class="row">
+    <a href="../index.html" class="cofel-back">⬅ Retour</a>
+    <div class="cofel-brand">
+      <img src="../assets/logo cofel.jpg" alt="Cofel">
+      <h1 class="cofel-title">Supports Souples, Rigides & Adhésifs</h1>
+    </div>
+  </div>
+</header>
+
+<div class="wrapper">
+
+  <!-- Barre d'étapes -->
+  <div class="steps-nav" id="stepsNav">
+    <div class="step-item active" data-step="1">1. Support</div>
+    <div class="step-item locked" data-step="2">2. Impression</div>
+    <div class="step-item locked" data-step="3">3. Matière</div>
+    <div class="step-item locked" data-step="4">4. Options</div>
+    <div class="step-item locked" data-step="5">5. Format</div>
+    <div class="step-item locked" data-step="6">6. Résumé</div>
+  </div>
+
+  <!-- ÉTAPE 1 : Support -->
+  <section class="step-section active" id="step1">
+    <fieldset>
+      <legend>Choix du support</legend>
+      <div class="radio-row">
+        <label><input type="radio" name="support" value="souple"> Support souple</label>
+        <label><input type="radio" name="support" value="rigide"> Support rigide</label>
+      </div>
+    </fieldset>
+
+    <div class="nav-buttons">
+      <button class="btn-nav" id="next1">Étape suivante ➜</button>
+    </div>
+  </section>
+
+  <!-- ÉTAPE 2 : Impression -->
+  <section class="step-section" id="step2">
+    <fieldset>
+      <legend>Impression</legend>
+      <div class="radio-row">
+        <label><input type="radio" name="impression" value="avec"> Avec impression</label>
+        <label><input type="radio" name="impression" value="sans"> Sans impression</label>
+      </div>
+    </fieldset>
+
+    <div class="nav-buttons">
+      <button class="btn-nav" id="prev2">⬅ Précédent</button>
+      <button class="btn-nav" id="next2">Étape suivante ➜</button>
+    </div>
+  </section>
+
+  <!-- ÉTAPE 3 : Matière -->
+  <section class="step-section" id="step3">
+    <fieldset>
+      <legend>Matière</legend>
+      <div id="listeMatieres" class="radio-row">
+        <!-- ⚠️ Le JS remplira automatiquement les matières selon ton arbre -->
+      </div>
+    </fieldset>
+
+    <div class="nav-buttons">
+      <button class="btn-nav" id="prev3">⬅ Précédent</button>
+      <button class="btn-nav" id="next3">Étape suivante ➜</button>
+    </div>
+  </section>
+
+  <!-- ÉTAPE 4 : Options -->
+  <section class="step-section" id="step4">
+    <fieldset>
+      <legend>Options disponibles</legend>
+      <div id="optionsContainer">
+        <!-- ⚠️ Le JS remplira selon la matière choisie -->
+      </div>
+    </fieldset>
+
+    <div class="nav-buttons">
+      <button class="btn-nav" id="prev4">⬅ Précédent</button>
+      <button class="btn-nav" id="next4">Étape suivante ➜</button>
+    </div>
+  </section>
+
+  <!-- ÉTAPE 5 : Format -->
+  <section class="step-section" id="step5">
+    <fieldset>
+      <legend>Format & Quantité</legend>
+      <label>Largeur (mm)</label>
+      <input type="number" id="largeur" min="1" placeholder="Ex : 1200">
+
+      <label>Hauteur (mm)</label>
+      <input type="number" id="hauteur" min="1" placeholder="Ex : 800">
+
+      <label>Quantité</label>
+      <input type="number" id="quantite" min="1" value="1">
+    </fieldset>
+
+    <div class="nav-buttons">
+      <button class="btn-nav" id="prev5">⬅ Précédent</button>
+      <button class="btn-nav" id="next5">Étape suivante ➜</button>
+    </div>
+  </section>
+
+  <!-- ÉTAPE 6 : Récapitulatif -->
+  <section class="step-section" id="step6">
+    <fieldset>
+      <legend>Récapitulatif</legend>
+      <div id="recap">
+        <!-- Le JS remplira ici -->
+      </div>
+    </fieldset>
+
+    <div class="nav-buttons">
+      <button class="btn-nav" id="prev6">⬅ Précédent</button>
+      <!-- PAS encore de bouton ajouter au devis -->
+    </div>
+  </section>
+
+</div>
+
+<footer class="cofel-footer">
+  © Cofel — Supports Souples, Rigides & Adhésifs
+</footer>
+
+<!-- JS navigation (simple) -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const steps = [...document.querySelectorAll(".step-section")];
+  const navItems = [...document.querySelectorAll(".step-item")];
+  let current = 1;
+
+  function goTo(step){
+    current = step;
+    steps.forEach((s,i)=> s.classList.toggle("active", i+1 === step));
+    navItems.forEach((n,i)=>{
+      n.classList.toggle("active", i+1 === step);
+      n.classList.toggle("locked", i+1 > current);
+    });
+  }
+
+  /* Navigation boutons */
+  document.getElementById("next1").onclick = () => goTo(2);
+  document.getElementById("prev2").onclick = () => goTo(1);
+  document.getElementById("next2").onclick = () => goTo(3);
+  document.getElementById("prev3").onclick = () => goTo(2);
+  document.getElementById("next3").onclick = () => goTo(4);
+  document.getElementById("prev4").onclick = () => goTo(3);
+  document.getElementById("next4").onclick = () => goTo(5);
+  document.getElementById("prev5").onclick = () => goTo(4);
+  document.getElementById("next5").onclick = () => goTo(6);
+  document.getElementById("prev6").onclick = () => goTo(5);
+
+  /* Navigation via barre d’étapes (uniquement pour revenir en arrière) */
+  navItems.forEach(item => {
+    item.onclick = () => {
+      const target = Number(item.dataset.step);
+      if(target <= current) goTo(target);
+    };
+  });
+
+});
+</script>
+
+</body>
+</html>
 
