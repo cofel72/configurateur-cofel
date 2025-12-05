@@ -1,453 +1,317 @@
+/******************************************************
+ * CONFIGURATEUR — SUPPORTS SOUPLES, RIGIDES & ADHÉSIFS
+ * Cofel — Navigation Wizard 7 étapes avec variantes
+ ******************************************************/
+
 document.addEventListener("DOMContentLoaded", () => {
 
-  // =============================
-  // 1. CONFIG (ARBRE DES MATIÈRES)
-  // =============================
-
-  const CONFIG = {
-    souple: {
-      avec: [
-        { key: "adh_depol", label: "Adhésif dépoli",
-          options: { hasBlanc:true, decoupeFormat:true, decoupeComplexe:true, lamination:[], extra:{} }
-        },
-        { key: "adh_conformable", label: "Adhésif conformable",
-          options:{ hasBlanc:false, decoupeFormat:true, decoupeComplexe:true, lamination:["mate","brillante"], extra:{} }
-        },
-        { key: "adh_poly_colleRenforcee", label:"Adhésif polymère — colle renforcée",
-          options:{ hasBlanc:false, decoupeFormat:true, decoupeComplexe:true,
-                    lamination:["mate","brillante","antidérapante","antigraffitis"], extra:{} }
-        },
-        { key: "adh_poly_colleStandard", label:"Adhésif polymère — colle standard",
-          options:{ hasBlanc:false, decoupeFormat:true, decoupeComplexe:true,
-                    lamination:["mate","brillante"], extra:{} }
-        },
-        { key: "adh_poly_transparent", label:"Adhésif polymère transparent",
-          options:{ hasBlanc:true, decoupeFormat:true, decoupeComplexe:true,
-                    lamination:["mate","brillante"], extra:{} }
-        },
-        { key: "adh_microperfore", label:"Adhésif microperforé",
-          options:{ hasBlanc:true, decoupeFormat:true, decoupeComplexe:true,
-                    lamination:[], extra:{} }
-        },
-        { key: "adh_papierPeint110", label:"Adhésif papier peint 110 g",
-          options:{ hasBlanc:false, decoupeFormat:true, decoupeComplexe:false,
-                    lamination:[], extra:{} }
-        },
-        { key: "magnetique", label:"Magnétique",
-          options:{ hasBlanc:false, decoupeFormat:true, decoupeComplexe:true,
-                    lamination:["mate","brillante","velleda"], extra:{} }
-        }
-      ],
-      sans: [
-        { key:"adh_depol_sans", label:"Adhésif dépoli",
-          options:{ hasBlanc:false, decoupeFormat:true, decoupeComplexe:true, lamination:[], extra:{} }
-        },
-        { key:"vinyl_teinte_masse", label:"Vinyle polymère teinté masse",
-          options:{ hasBlanc:false, decoupeFormat:true, decoupeComplexe:true, lamination:[], extra:{} }
-        },
-        { key:"ardoisine", label:"Ardoisine",
-          options:{ hasBlanc:false, decoupeFormat:true, decoupeComplexe:true, lamination:[], extra:{} }
-        }
-      ]
-    },
-
-    rigide: {
-      avec: [
-        { key:"pvc3", label:"PVC 3 mm",
-          options:{ hasBlanc:false, decoupeFormat:true, decoupeComplexe:true, lamination:[], extra:{} }
-        },
-        { key:"pvc5", label:"PVC 5 mm",
-          options:{ hasBlanc:false, decoupeFormat:true, decoupeComplexe:true, lamination:[], extra:{} }
-        },
-        { key:"pvc10", label:"PVC 10 mm",
-          options:{ hasBlanc:false, decoupeFormat:true, decoupeComplexe:true, lamination:[], extra:{} }
-        },
-        { key:"akilux35", label:"Akilux 3,5 mm",
-          options:{ hasBlanc:false, decoupeFormat:true, decoupeComplexe:false, lamination:[], extra:{oeillets:true} }
-        },
-        { key:"akilux10", label:"Akilux 10 mm",
-          options:{ hasBlanc:false, decoupeFormat:true, decoupeComplexe:false, lamination:[], extra:{oeillets:true} }
-        },
-        { key:"plexi3", label:"Plexi incolore 3 mm",
-          options:{ hasBlanc:true, decoupeFormat:true, decoupeComplexe:true, lamination:[], extra:{} }
-        },
-        { key:"plexi5", label:"Plexi incolore 5 mm",
-          options:{ hasBlanc:true, decoupeFormat:true, decoupeComplexe:true, lamination:[], extra:{} }
-        },
-        { key:"plexi8", label:"Plexi incolore 8 mm",
-          options:{ hasBlanc:true, decoupeFormat:true, decoupeComplexe:true, lamination:[], extra:{} }
-        },
-        { key:"plexi10", label:"Plexi incolore 10 mm",
-          options:{ hasBlanc:true, decoupeFormat:true, decoupeComplexe:true, lamination:[], extra:{} }
-        },
-        { key:"acm3", label:"ACM 3 mm (Dibond)",
-          options:{ hasBlanc:false, decoupeFormat:true, decoupeComplexe:true,
-                    lamination:["mate","brillante","velleda"], extra:{} }
-        }
-      ],
-      sans: [] // à compléter si besoin plus tard
-    }
-  };
-
-  // =============================
-  // 2. STATE (CHOIX DU CLIENT)
-  // =============================
-
+  /* ========= STATE ========= */
   const state = {
-    support:null,
-    impression:null,
-    materialKey:null,
-    material:null,
-    options:{
-      blanc:null,
-      decoupe:null,
-      lamination:null,
-      oeillets:false,
-      nbOeillets:0
-    },
-    largeur:null,
-    hauteur:null,
-    quantite:1
+    support: null,
+    impression: null,
+    materialKey: null,
+    materialLabel: null,
+    variantKey: null,
+    variantLabel: null,
+    options: {},
+    largeur: null,
+    hauteur: null,
+    quantite: 1
   };
 
-  // =============================
-  // 3. ELEMENTS DOM
-  // =============================
+  /* ============================================================
+     CONFIGURATION DES MATIÈRES (OFFICIELLE SELON TON ARBRE)
+  ============================================================ */
 
-  const stepsSections = [...document.querySelectorAll(".step-section")];
-  const stepsNav = [...document.querySelectorAll(".step-item")];
-  const listeMatieres = document.getElementById("listeMatieres");
-  const optionsContainer = document.getElementById("optionsContainer");
-  const recapEl = document.getElementById("recap");
+  const MATERIALS = {
+
+    /* ===== SOUPLE — AVEC IMPRESSION ===== */
+    souple_avec: [
+      { key: "depoli", label: "Adhésif dépoli", variants: null },
+      { key: "conformable", label: "Adhésif conformable", variants: null },
+      
+      /* Le seul avec variantes ⬇ */
+      { key: "polymer", label: "Adhésif polymère", variants: [
+          { key: "polymer_renforce", label: "Polymère — colle renforcée" },
+          { key: "polymer_standard", label: "Polymère — colle standard" },
+          { key: "polymer_transparent", label: "Polymère — transparent" },
+        ]
+      },
+
+      { key: "microperfore", label: "Adhésif micro-perforé", variants: null },
+      { key: "papierpeint", label: "Papier peint 110 g", variants: null },
+      { key: "magnetique", label: "Magnétique", variants: null }
+    ],
+
+    /* ===== SOUPLE — SANS IMPRESSION ===== */
+    souple_sans: [
+      { key: "depoli", label: "Adhésif dépoli (sans impression)", variants: null },
+      { key: "conformable", label: "Adhésif conformable (sans impression)", variants: null },
+      { key: "polymer", label: "Adhésif polymère (sans impression)", variants: null },
+      { key: "microperfore", label: "Adhésif micro-perforé (sans impression)", variants: null },
+      { key: "papierpeint", label: "Papier peint 110 g", variants: null },
+      { key: "magnetique", label: "Magnétique", variants: null }
+    ],
+
+    /* ===== RIGIDE — AVEC IMPRESSION ===== */
+    rigide_avec: [
+      { key: "pvc3", label: "PVC 3 mm", variants: null },
+      { key: "pvc5", label: "PVC 5 mm", variants: null },
+      { key: "pvc10", label: "PVC 10 mm", variants: null },
+      { key: "akilux35", label: "Akilux 3,5 mm", variants: null },  // ✔ SEUL AKILUX OFFICIEL
+      { key: "plexi3", label: "Plexi 3 mm", variants: null },
+      { key: "plexi5", label: "Plexi 5 mm", variants: null },
+      { key: "plexi8", label: "Plexi 8 mm", variants: null },
+      { key: "plexi10", label: "Plexi 10 mm", variants: null },
+      { key: "dibond3", label: "ACM Dibond 3 mm", variants: null }
+    ],
+
+    /* ===== RIGIDE — SANS IMPRESSION ===== */
+    rigide_sans: [
+      { key: "pvc3", label: "PVC 3 mm (sans impression)", variants: null },
+      { key: "pvc5", label: "PVC 5 mm (sans impression)", variants: null },
+      { key: "pvc10", label: "PVC 10 mm (sans impression)", variants: null },
+      { key: "akilux35", label: "Akilux 3,5 mm (sans impression)", variants: null },
+      { key: "plexi3", label: "Plexi 3 mm (sans impression)", variants: null },
+      { key: "plexi5", label: "Plexi 5 mm (sans impression)", variants: null },
+      { key: "plexi8", label: "Plexi 8 mm (sans impression)", variants: null },
+      { key: "plexi10", label: "Plexi 10 mm (sans impression)", variants: null },
+      { key: "dibond3", label: "ACM Dibond 3 mm (sans impression)", variants: null }
+    ]
+  };
+
+  /* ========= OPTIONS — seront améliorées après ton Excel ========= */
+  const OPTIONS = {
+    decoupe_normale: { label: "Découpe normale" },
+    decoupe_complexe: { label: "Découpe complexe" },
+    blanc_soutien: { label: "Blanc de soutien" },
+    lamination_mate: { label: "Lamination mate" },
+    lamination_bril: { label: "Lamination brillante" },
+    oeillets: { label: "Œillets (prix par œillet)" }
+  };
+
+  /* ============================================================
+     SÉLECTEURS UTILITAIRES
+  ============================================================ */
+
+  const steps = [...document.querySelectorAll(".step-section")];
+  const navItems = [...document.querySelectorAll(".step-item")];
+  const navStep4 = document.getElementById("step4nav");
+
+  const id = (x) => document.getElementById(x);
+
+  /* ============================================================
+     FONCTIONS NAVIGATION WIZARD
+  ============================================================ */
 
   let currentStep = 1;
-  let maxStep = 1;
 
-  // =============================
-  // 4. NAVIGATION ENTRE ÉTAPES
-  // =============================
-
-  function renderSteps(){
-    stepsSections.forEach((sec,i)=>{
-      sec.classList.toggle("active", i+1 === currentStep);
-    });
-    stepsNav.forEach((nav,i)=>{
-      const step = i+1;
-      nav.classList.toggle("active", step === currentStep);
-      nav.classList.toggle("locked", step > maxStep);
-    });
-  }
-
-  function goTo(step){
+  function goTo(step) {
     currentStep = step;
-    if(step > maxStep) maxStep = step;
-    renderSteps();
-    if(step === 3) populateMaterials();
-    if(step === 4) populateOptions();
-    if(step === 6) buildRecap();
-  }
 
-  function getChecked(name){
-    const el = document.querySelector(`input[name="${name}"]:checked`);
-    return el ? el.value : null;
-  }
-
-  function validate(step){
-
-    if(step === 1){
-      const v = getChecked("support");
-      if(!v){ alert("Choisis un type de support."); return false; }
-      state.support = v;
-      return true;
-    }
-
-    if(step === 2){
-      const v = getChecked("impression");
-      if(!v){ alert("Choisis si tu veux une impression."); return false; }
-      state.impression = v;
-      return true;
-    }
-
-    if(step === 3){
-      if(!state.materialKey){ alert("Choisis une matière."); return false; }
-      return true;
-    }
-
-    if(step === 4){
-      const mat = state.material;
-
-      if(mat.options.hasBlanc && !state.options.blanc){
-        alert("Précise le blanc de soutien.");
-        return false;
-      }
-
-      if((mat.options.decoupeFormat || mat.options.decoupeComplexe) &&
-        !state.options.decoupe){
-        alert("Choisis un type de découpe.");
-        return false;
-      }
-
-      if(mat.options.lamination.length > 0 && !state.options.lamination){
-        state.options.lamination = "aucune";
-      }
-
-      return true;
-    }
-
-    if(step === 5){
-      const L = Number(document.getElementById("largeur").value || 0);
-      const H = Number(document.getElementById("hauteur").value || 0);
-      const Q = Number(document.getElementById("quantite").value || 0);
-
-      if(!L || !H){ alert("Renseigne largeur et hauteur."); return false; }
-      if(!Q || Q < 1){ alert("Quantité invalide."); return false; }
-
-      state.largeur = L;
-      state.hauteur = H;
-      state.quantite = Q;
-
-      return true;
-    }
-
-    return true;
-  }
-
-  // =============================
-  // 5. MATIÈRES (ÉTAPE 3)
-  // =============================
-  function populateMaterials(){
-    listeMatieres.innerHTML = "";
-
-    if(!state.support || !state.impression){
-      listeMatieres.textContent = "Choisis support + impression d’abord.";
-      return;
-    }
-
-    const branch = CONFIG[state.support][state.impression];
-    if(!branch){
-      listeMatieres.textContent = "Aucune matière disponible.";
-      return;
-    }
-
-    branch.forEach(mat => {
-      const label = document.createElement("label");
-      label.className = "pill";
-
-      const inp = document.createElement("input");
-      inp.type = "radio";
-      inp.name = "matiere";
-      inp.value = mat.key;
-
-      if(state.materialKey === mat.key) inp.checked = true;
-
-      inp.addEventListener("change",()=>{
-        state.materialKey = mat.key;
-        state.material = mat;
-        state.options = { blanc:null, decoupe:null, lamination:null, oeillets:false, nbOeillets:0 };
-      });
-
-      label.appendChild(inp);
-      label.appendChild(document.createTextNode(mat.label));
-      listeMatieres.appendChild(label);
+    steps.forEach((s, i) => {
+      s.classList.toggle("active", i + 1 === step);
     });
-  }
 
-  // =============================
-  // 6. OPTIONS (ÉTAPE 4)
-  // =============================
-  function populateOptions(){
-    optionsContainer.innerHTML = "";
-    const mat = state.material;
+    navItems.forEach((n, i) => {
+      const st = i + 1;
+      n.classList.toggle("active", st === step);
 
-    if(!mat){
-      optionsContainer.textContent = "Choisis une matière d’abord.";
-      return;
-    }
+      if (st <= step) {
+        n.classList.remove("locked");
+        n.style.display = "block";
+      } else {
+        n.classList.add("locked");
 
-    // --- Blanc de soutien ---
-    if(mat.options.hasBlanc){
-      const bloc = sectionTitle("Blanc de soutien");
-      const row = radioRow("opt_blanc", [
-        {v:"avec", txt:"Avec blanc de soutien"},
-        {v:"sans", txt:"Sans blanc de soutien"}
-      ], state.options.blanc, (v)=> state.options.blanc = v);
-      bloc.appendChild(row);
-      optionsContainer.appendChild(bloc);
-    }
-
-    // --- Découpe ---
-    if(mat.options.decoupeFormat || mat.options.decoupeComplexe){
-      const choc = [];
-      if(mat.options.decoupeFormat) choc.push({v:"format", txt:"Découpe au format"});
-      if(mat.options.decoupeComplexe) choc.push({v:"complexe", txt:"Découpe complexe"});
-
-      const bloc = sectionTitle("Découpe");
-      const row = radioRow("opt_decoupe", choc,
-        state.options.decoupe,
-        (v)=> state.options.decoupe = v
-      );
-      bloc.appendChild(row);
-      optionsContainer.appendChild(bloc);
-    }
-
-    // --- Lamination ---
-    const lam = mat.options.lamination || [];
-    const blocLam = sectionTitle("Lamination");
-
-    if(lam.length === 0){
-      blocLam.appendChild(infoText("Pas de lamination possible sur ce support."));
-    } else {
-      const list = [{v:"aucune", txt:"Aucune lamination"}];
-      lam.forEach(l => {
-        list.push({v:l, txt:("Lamination " + l)});
-      });
-      const row = radioRow("opt_lami", list, state.options.lamination,
-        (v)=> state.options.lamination = v);
-      blocLam.appendChild(row);
-    }
-    optionsContainer.appendChild(blocLam);
-
-    // --- Œillets ---
-    if(mat.options.extra && mat.options.extra.oeillets){
-      const bloc = sectionTitle("Œillets");
-
-      const chk = document.createElement("input");
-      chk.type = "checkbox";
-      chk.checked = state.options.oeillets;
-
-      const lab = document.createElement("label");
-      lab.style.marginLeft = "8px";
-      lab.textContent = "Ajouter des œillets";
-
-      chk.addEventListener("change",()=>{
-        state.options.oeillets = chk.checked;
-        if(!chk.checked) state.options.nbOeillets = 0;
-      });
-
-      const nb = document.createElement("input");
-      nb.type = "number";
-      nb.min = 0;
-      nb.placeholder = "Nombre d'œillets";
-      nb.style.marginLeft = "10px";
-      nb.value = state.options.nbOeillets || "";
-
-      nb.addEventListener("input",()=>{
-        const v = Number(nb.value||0);
-        state.options.nbOeillets = v>0 ? v : 0;
-        if(v>0){
-          state.options.oeillets = true;
-          chk.checked = true;
+        // Étape 4 masquée si non pertinente
+        if (st === 4 && !materialHasVariants(state.materialKey)) {
+          n.style.display = "none";
+        } else {
+          n.style.display = "block";
         }
-      });
+      }
+    });
+  }
 
-      const wrap = document.createElement("div");
-      wrap.style.display = "flex";
-      wrap.style.alignItems = "center";
-      wrap.appendChild(chk);
-      wrap.appendChild(lab);
-      wrap.appendChild(nb);
+  /* ============================================================
+     HELPERS : VARIANTES
+  ============================================================ */
+  function materialHasVariants(materialKey) {
+    if (!materialKey) return false;
 
-      bloc.appendChild(wrap);
-      optionsContainer.appendChild(bloc);
+    const group = MATERIALS[state.support + "_" + state.impression];
+    const found = group.find(m => m.key === materialKey);
+    return found && found.variants;
+  }
+
+  function getMaterialVariants(materialKey) {
+    const group = MATERIALS[state.support + "_" + state.impression];
+    return group.find(m => m.key === materialKey).variants;
+  }
+
+  /* ============================================================
+     REMPLISSAGE DES MATIÈRES (ÉTAPE 3)
+  ============================================================ */
+  function populateMaterials() {
+    const cont = id("listeMatieres");
+    cont.innerHTML = "";
+
+    if (!state.support || !state.impression) return;
+
+    const list = MATERIALS[state.support + "_" + state.impression];
+
+    list.forEach(mat => {
+      const div = document.createElement("label");
+      div.innerHTML = `<input type="radio" name="material" value="${mat.key}"> ${mat.label}`;
+      cont.appendChild(div);
+    });
+  }
+
+  /* ============================================================
+     REMPLISSAGE DES VARIANTES (ÉTAPE 4)
+  ============================================================ */
+  function populateVariants() {
+    const cont = id("listeVariantes");
+    cont.innerHTML = "";
+
+    const variants = getMaterialVariants(state.materialKey);
+    variants.forEach(v => {
+      const lbl = document.createElement("label");
+      lbl.innerHTML = `<input type="radio" name="variant" value="${v.key}"> ${v.label}`;
+      cont.appendChild(lbl);
+    });
+  }
+
+  /* ============================================================
+     OPTIONS (ÉTAPE 5)
+  ============================================================ */
+  function populateOptions() {
+    const cont = id("optionsContainer");
+    cont.innerHTML = "";
+
+    // ✨ tu ajouteras plus tard logique par matière
+    for (let key in OPTIONS) {
+      const op = OPTIONS[key];
+      const line = document.createElement("label");
+      line.innerHTML = `<input type="checkbox" data-opt="${key}"> ${op.label}`;
+      cont.appendChild(line);
     }
   }
 
-  // =============================
-  // 7. RÉCAP (ÉTAPE 6)
-  // =============================
-  function buildRecap(){
-    recapEl.innerHTML = "";
-
-    const data = [
-      ["Support", state.support === "souple" ? "Support souple" : "Support rigide"],
-      ["Impression", state.impression === "avec" ? "Avec impression" : "Sans impression"],
-      ["Matière", state.material ? state.material.label : ""],
-      ["Blanc de soutien", state.options.blanc ? (state.options.blanc==="avec"?"Avec":"Sans") : "—"],
-      ["Découpe", state.options.decoupe ? (state.options.decoupe==="format"?"Format":"Complexe") : "—"],
-      ["Lamination", state.options.lamination || "—"],
-      ["Format", `${state.largeur} × ${state.hauteur} mm`],
-      ["Quantité", state.quantite],
-      ["Œillets", state.options.oeillets? (state.options.nbOeillets+" œillets"):"—"]
-    ];
-
-    const ul = document.createElement("ul");
-    ul.style.listStyle = "none";
-    ul.style.paddingLeft = "0";
-
-    data.forEach(([lbl,val])=>{
-      const li = document.createElement("li");
-      li.style.marginBottom = "6px";
-      li.innerHTML = `<strong>${lbl} :</strong> ${val}`;
-      ul.appendChild(li);
-    });
-
-    recapEl.appendChild(ul);
+  /* ============================================================
+     RÉCAP (ÉTAPE 7)
+  ============================================================ */
+  function renderRecap() {
+    id("recap").innerHTML = `
+      <p><b>Support :</b> ${state.support}</p>
+      <p><b>Impression :</b> ${state.impression}</p>
+      <p><b>Matière :</b> ${state.materialLabel}</p>
+      ${state.variantLabel ? `<p><b>Variante :</b> ${state.variantLabel}</p>` : ""}
+      <p><b>Options :</b> ${Object.values(state.options).join(", ") || "Aucune"}</p>
+      <p><b>Format :</b> ${state.largeur} × ${state.hauteur} mm</p>
+      <p><b>Quantité :</b> ${state.quantite}</p>
+    `;
   }
 
-  // =============================
-  // 8. OUTILS UI (GÉNÉRATEURS)
-  // =============================
-  function sectionTitle(txt){
-    const d = document.createElement("div");
-    const h = document.createElement("h3");
-    h.textContent = txt;
-    d.appendChild(h);
-    return d;
-  }
+  /* ============================================================
+     ÉCOUTEURS DES BOUTONS
+  ============================================================ */
 
-  function infoText(txt){
-    const p = document.createElement("p");
-    p.style.fontSize = "13px";
-    p.style.opacity = "0.85";
-    p.textContent = txt;
-    return p;
-  }
+  /* ————— ÉTAPE 1 → 2 ————— */
+  id("next1").onclick = () => {
+    const sel = document.querySelector("input[name='support']:checked");
+    if (!sel) return alert("Sélectionne un support.");
 
-  function radioRow(name, options, selected, callback){
-    const wrap = document.createElement("div");
-    wrap.className = "radio-row";
+    state.support = sel.value;
+    goTo(2);
+  };
 
-    options.forEach(opt=>{
-      const lab = document.createElement("label");
-      const inp = document.createElement("input");
-      inp.type = "radio";
-      inp.name = name;
-      inp.value = opt.v;
+  /* ————— ÉTAPE 2 → 3 ————— */
+  id("prev2").onclick = () => goTo(1);
+  id("next2").onclick = () => {
+    const sel = document.querySelector("input[name='impression']:checked");
+    if (!sel) return alert("Sélectionne un mode d'impression.");
 
-      if(selected === opt.v || (!selected && opt.v==="aucune")){
-        inp.checked = true;
+    state.impression = sel.value;
+
+    populateMaterials();
+    goTo(3);
+  };
+
+  /* ————— ÉTAPE 3 → (4 ou 5) ————— */
+  id("prev3").onclick = () => goTo(2);
+  id("next3").onclick = () => {
+    const sel = document.querySelector("input[name='material']:checked");
+    if (!sel) return alert("Choisis une matière.");
+
+    state.materialKey = sel.value;
+    state.materialLabel = sel.parentElement.textContent.trim();
+
+    if (materialHasVariants(state.materialKey)) {
+      populateVariants();
+      goTo(4);
+    } else {
+      populateOptions();
+      goTo(5);
+    }
+  };
+
+  /* ————— ÉTAPE 4 → 5 ————— */
+  id("prev4").onclick = () => goTo(3);
+  id("next4").onclick = () => {
+    const sel = document.querySelector("input[name='variant']:checked");
+    if (!sel) return alert("Choisis une variante polymère.");
+
+    const list = getMaterialVariants(state.materialKey);
+    const variant = list.find(v => v.key === sel.value);
+
+    state.variantKey = variant.key;
+    state.variantLabel = variant.label;
+
+    populateOptions();
+    goTo(5);
+  };
+
+  /* ————— ÉTAPE 5 → 6 ————— */
+  id("prev5").onclick = () => {
+    if (materialHasVariants(state.materialKey)) goTo(4);
+    else goTo(3);
+  };
+  id("next5").onclick = () => {
+    state.options = {};
+    document.querySelectorAll("#optionsContainer input[type='checkbox']").forEach(cb => {
+      if (cb.checked) {
+        const key = cb.dataset.opt;
+        state.options[key] = OPTIONS[key].label;
       }
-
-      inp.addEventListener("change",()=> callback(opt.v));
-
-      lab.appendChild(inp);
-      lab.appendChild(document.createTextNode(opt.txt));
-      wrap.appendChild(lab);
     });
+    goTo(6);
+  };
 
-    return wrap;
-  }
+  /* ————— ÉTAPE 6 → 7 ————— */
+  id("prev6").onclick = () => goTo(5);
+  id("next6").onclick = () => {
+    state.largeur = id("largeur").value;
+    state.hauteur = id("hauteur").value;
+    state.quantite = id("quantite").value;
 
-  // =============================
-  // 9. BOUTONS DE NAVIGATION
-  // =============================
-  document.getElementById("next1").onclick = () => { if(validate(1)) goTo(2); };
-  document.getElementById("prev2").onclick = () => goTo(1);
-  document.getElementById("next2").onclick = () => { if(validate(2)) goTo(3); };
-  document.getElementById("prev3").onclick = () => goTo(2);
-  document.getElementById("next3").onclick = () => { if(validate(3)) goTo(4); };
-  document.getElementById("prev4").onclick = () => goTo(3);
-  document.getElementById("next4").onclick = () => { if(validate(4)) goTo(5); };
-  document.getElementById("prev5").onclick = () => goTo(4);
-  document.getElementById("next5").onclick = () => { if(validate(5)) goTo(6); };
-  document.getElementById("prev6").onclick = () => goTo(5);
+    if (!state.largeur || !state.hauteur) {
+      return alert("Renseigne largeur et hauteur.");
+    }
 
-  // Clic sur barre d’étapes (retour uniquement)
-  stepsNav.forEach(nav=>{
-    nav.addEventListener("click",()=>{
-      const target = Number(nav.dataset.step);
-      if(target <= maxStep) goTo(target);
-    });
+    renderRecap();
+    goTo(7);
+  };
+
+  /* ————— ÉTAPE 7 → retour ————— */
+  id("prev7").onclick = () => goTo(6);
+
+  /* Navigation via barre d'étapes (retour en arrière uniquement) */
+  navItems.forEach(item => {
+    item.onclick = () => {
+      const target = Number(item.dataset.step);
+      if (target <= currentStep) goTo(target);
+    };
   });
 
 });
