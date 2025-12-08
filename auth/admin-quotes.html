@@ -133,12 +133,22 @@
 
 <script>
 // Vérifier que l'utilisateur connecté est l'administrateur
+/****************************************************
+ * PROTECTION ADMIN — accès réservé aux FULL ADMINS
+ ****************************************************/
 const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
 
-if (profile.email !== "commercial@cofel72.fr") {
-    alert("⛔ Accès réservé à l'administrateur.");
+// Emails autorisés en administration complète
+const FULL_ADMINS = [
+    "commercial@cofel72.fr"   // toi
+];
+
+// Si l'utilisateur n'est pas un administrateur complet → accès refusé
+if (!FULL_ADMINS.includes(profile.email || "")) {
+    alert("⛔ Accès réservé à l'administrateur complet.");
     window.location.href = "../index.html";
 }
+
 </script>
 
 <header>
