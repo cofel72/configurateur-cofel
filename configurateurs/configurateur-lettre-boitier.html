@@ -10,13 +10,13 @@
 <style>
   /* ===================== THEME (Cofel – verre + violets harmonisés) ===================== */
   :root{
-    --violet:#5a2d82;         /* dégradé fond */
-    --violet-2:#7838a7;       /* dégradé fond */
-    --glass: rgba(255,255,255,.08);  /* cartes & champs */
-    --glass-hr: rgba(255,255,255,.14); /* contours */
-    --txt:#f5f7ff;            /* texte principal */
-    --txt-dim:#e6e6ff;        /* texte atténué */
-    --accent:#c9b7ff;         /* labels & accents */
+    --violet:#5a2d82;
+    --violet-2:#7838a7;
+    --glass: rgba(255,255,255,.08);
+    --glass-hr: rgba(255,255,255,.14);
+    --txt:#f5f7ff;
+    --txt-dim:#e6e6ff;
+    --accent:#c9b7ff;
     --radius:18px; --blur:18px; --shadow:0 10px 30px rgba(0,0,0,.35);
   }
   *{box-sizing:border-box}
@@ -80,7 +80,7 @@
     box-shadow:0 0 0 3px rgba(201,183,255,.25), var(--shadow);
   }
 
-  /* ====== SELECT CUSTOM (verre harmonisé) ====== */
+  /* SELECT CUSTOM */
   .native-select{ position:absolute !important; opacity:0 !important; pointer-events:none !important; width:0;height:0;margin:0;padding:0;border:0; }
   .cselect{ position:relative; margin-top:6px; }
   .cselect-toggle{
@@ -92,22 +92,7 @@
     background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
     backdrop-filter:blur(var(--blur));
   }
-  .cselect-toggle:hover{ filter:brightness(1.06); }
-  .cselect-toggle:focus-visible{ outline:none; box-shadow: 0 0 0 3px rgba(201,183,255,.35); }
-  .cselect-label{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1}
-  .cselect-caret{
-    width:10px; height:10px; flex:0 0 auto; opacity:.9;
-    background-image:
-      linear-gradient(45deg, transparent 50%, var(--txt) 50%),
-      linear-gradient(135deg, var(--txt) 50%, transparent 50%);
-    background-size:6px 6px, 6px 6px;
-    background-position:right top, right bottom;
-    background-repeat:no-repeat;
-    transform: translateY(1px);
-  }
-  .cselect[aria-expanded="true"] .cselect-caret{ transform: rotate(180deg); }
 
-  /* Menu porté dans <body> */
   .cselect-menu{
     position:fixed; left:0; top:0; width:260px; z-index:99999; max-height:280px; overflow:auto; padding:6px;
     border-radius:14px; border:1px solid var(--glass-hr);
@@ -116,22 +101,7 @@
     backdrop-filter:blur(var(--blur));
     display:none;
   }
-  .cselect[aria-expanded="true"] .cselect-menu{ display:block; }
-  .cselect-option{
-    border-radius:10px; margin:4px 0; padding:10px 12px; cursor:pointer; color:var(--txt);
-    border:1px solid var(--glass-hr);
-    background: rgba(255,255,255,.10);
-  }
-  .cselect-option:hover, .cselect-option[aria-selected="true"]{
-    background: rgba(255,255,255,.22);
-    border-color: rgba(255,255,255,.28);
-  }
 
-  /* ===================== BADGES & NOTE ===================== */
-  .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.14);color:var(--txt);font-size:12px;border:1px solid var(--glass-hr);margin:6px 6px 0 0}
-  .note{ margin-top:10px;background:#fff7e6;border:1px solid #ffd38a;border-radius:10px;padding:10px;font-size:13px;color:#5a430e;display:none }
-
-  /* ====== OPTION LISSE ====== */
   .option-item{
     display:flex;align-items:center;gap:10px;cursor:pointer;
     border-radius:14px;padding:10px 14px;
@@ -141,46 +111,10 @@
     margin-top:10px;
     color:var(--txt);
   }
-  .option-item input{
-    appearance:none;-webkit-appearance:none;
-    width:20px;height:20px;border-radius:6px;
-    border:1px solid rgba(255,255,255,.7);
-    background:rgba(255,255,255,.15);
-    position:relative;
-  }
-  .option-item input:checked{
-    background:var(--violet-2);
-    border-color:#fff;
-  }
-  .option-item input:checked::after{
-    content:"";position:absolute;inset:3px 5px 5px 3px;
-    border-right:3px solid #fff;
-    border-bottom:3px solid #fff;
-    transform:rotate(45deg);
-  }
-
-  /* ===================== RESULT + BUTTONS ===================== */
-  .result{
-    text-align:center;padding:16px;
-    background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
-    border:1px solid var(--glass-hr); border-radius:16px;
-    box-shadow:0 8px 22px rgba(0,0,0,.28);
-    font-size:18px; backdrop-filter:blur(var(--blur));
-  }
-  .result b{font-size:20px}
-  .btn{
-    appearance:none;border:none;cursor:pointer;font-weight:700;
-    color:#0b0b0b;background:#fff;border-radius:12px;padding:10px 14px;
-    box-shadow:0 10px 24px rgba(0,0,0,.25);
-    transition:transform .16s, box-shadow .16s;
-  }
-  .btn:active{transform:translateY(1px);box-shadow:0 6px 16px rgba(0,0,0,.28);}
-  .btn-ghost{background:transparent;color:var(--txt);border:1px solid var(--glass-hr);} 
 </style>
 </head>
 <body>
 
-<!-- ===================== HERO ===================== -->
 <div class="hero">
   <div class="hero-inner">
     <div class="brand">
@@ -192,7 +126,6 @@
   <div class="tagline">Choisissez la famille, la hauteur et l’éclairage. Les montants s’actualisent automatiquement.</div>
 </div>
 
-<!-- ===================== CONTENU ===================== -->
 <main class="wrap">
   <section class="panel">
     <h2>⚙️ Paramètres</h2>
@@ -200,15 +133,11 @@
     <div class="card grid">
       <div>
         <label for="famille">Type de lettre boîtier</label>
-
-        <!-- Select natif (masqué) -->
         <select id="famille" class="native-select"><option value="">— sélectionnez —</option></select>
-
-        <!-- Select custom -->
         <div class="cselect" data-bind="famille" aria-haspopup="listbox" aria-expanded="false">
           <button type="button" class="cselect-toggle">
             <span class="cselect-label">— sélectionnez —</span>
-            <span class="cselect-caret" aria-hidden="true"></span>
+            <span class="cselect-caret"></span>
           </button>
           <div class="cselect-menu" role="listbox"></div>
         </div>
@@ -227,39 +156,30 @@
         <div id="rangesHelp" class="help"></div>
       </div>
       <div>
-        <label for="variant">Éclairage (si présent)</label>
-
-        <!-- Select natif (masqué) -->
+        <label for="variant">Éclairage</label>
         <select id="variant" class="native-select"><option value="">— (aucun filtre) —</option></select>
-
-        <!-- Select custom -->
         <div class="cselect" data-bind="variant" aria-haspopup="listbox" aria-expanded="false">
           <button type="button" class="cselect-toggle">
             <span class="cselect-label">— (aucun filtre) —</span>
-            <span class="cselect-caret" aria-hidden="true"></span>
+            <span class="cselect-caret"></span>
           </button>
           <div class="cselect-menu" role="listbox"></div>
         </div>
-
-        <div class="help" id="variantHelp"></div>
-        <div id="dibondRule" class="note">Pour les <b>faces Dibond</b> : si un éclairage est choisi, alors <b>rétroéclairage</b> </div>
+        <div id="variantHelp" class="help"></div>
       </div>
     </div>
 
-    <!-- ====== OPTION POSE SUR LISSE ====== -->
     <div class="card">
       <label class="option-item">
         <input type="checkbox" id="optLisse" />
         <span>Pose sur lisse</span>
       </label>
-      <div style="margin-top:10px;">
-        <label for="lisseLongueur">Longueur de la lisse (mm)</label>
-        <input type="number" id="lisseLongueur" placeholder="Ex : 3000" min="0" />
-        <div class="muted">Tarif interne : 25 €/ml · ajouté au prix des lettres</div>
-      </div>
+      <label for="lisseLongueur">Longueur de la lisse (mm)</label>
+      <input type="number" id="lisseLongueur" placeholder="Ex : 3000" min="0" />
+      <div class="muted">Tarif interne : 25 €/ml · ajouté une seule fois</div>
     </div>
-  </section>
 
+  </section>
   <section class="panel">
     <h2>🧾 Récapitulatif</h2>
     <div class="result">
@@ -282,10 +202,10 @@
 <script>
 /* ======================= CONFIG ======================= */
 const TVA = 0.20;
-const UPLIFT_PUBLIC = 2.0; // multiplicateur interne (non montré)
+const UPLIFT_PUBLIC = 2.0; // multiplicateur interne
 
-/* Supplément lisse (interne) */
-const TARIF_LISSE_INTERNE_ML = 25; // €/ml interne
+/* Supplément lisse (INTERNE) — NON multiplié par quantité */
+const TARIF_LISSE_INTERNE_ML = 25; // €/ml
 
 const FAMILLES = [
   { name: "Boîtier Bâton – face PMMA blanc diffusant",
@@ -298,376 +218,524 @@ const FAMILLES = [
     url: "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/lettres/Lettre%20boitier%20Fantaisie%20chants%20laqu%C3%A9s%20et%20faces%20PMMA%20blanc%20diffusant.csv" }
 ];
 
-/* ======================= STATE & ELEMENTS ======================= */
-let CURRENT=null, HEADS=[], ROWS=[], MAP=null; // MAP: {hminKey,hmaxKey,baseKey,variantKey}
-const $=id=>document.getElementById(id);
-const elFam=$("famille"), elQ=$("quantite"), elH=$("hauteur");
-const elVar=$("variant"), elVarHelp=$("variantHelp");
-const elRanges=$("rangesHelp"), elHT=$("prixHT"), elTTC=$("prixTTC");
-const elDibondRule=$("dibondRule");
+/* ======================= STATE ======================= */
+let CURRENT=null, HEADS=[], ROWS=[], MAP=null;
 
-/* Lisse */
+const $ = id => document.getElementById(id);
+
+const elFam = $("famille");
+const elQ   = $("quantite");
+const elH   = $("hauteur");
+const elVar = $("variant");
+const elVarHelp = $("variantHelp");
+const elRanges  = $("rangesHelp");
+const elHT  = $("prixHT");
+const elTTC = $("prixTTC");
 const elOptLisse = $("optLisse");
 const elLongLisse = $("lisseLongueur");
 
 /* ======================= UTILS ======================= */
-function normKey(k){return String(k||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'').trim();}
+function normKey(k){
+  return String(k||'').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'')
+    .trim();
+}
+
 function numFR(v){
   if(v==null) return NaN;
-  let s = String(v).trim().replace(/€/g,'').replace(/[\u00A0\u202F]/g,'').replace(/\s+/g,'');
-  if (s.includes(',') && s.includes('.')) s = s.replace(/\./g,'');
-  s = s.replace(',','.');
+  let s = String(v).trim().replace(/€/g,'')
+    .replace(/[\u00A0\u202F]/g,'')
+    .replace(/\s+/g,'');
+  if(s.includes(',') && s.includes('.')) s=s.replace(/\./g,'');
+  s=s.replace(',','.');
   const m=s.match(/-?\d+(\.\d+)?/);
   return m ? parseFloat(m[0]) : NaN;
 }
-function euro(n){return (isFinite(n)?n:0).toFixed(2).replace('.',',');}
 
-/* ======= Custom select (build/sync/portal) ======= */
+function euro(n){
+  return (isFinite(n)?n:0).toFixed(2).replace('.',',');
+}
+
+/* ======================= CUSTOM SELECT ======================= */
+/* — identique à la version stable — */
 const customSelects=new Map();
+
 function buildCustomFromNative(native){
-  const wrap=document.querySelector('.cselect[data-bind="'+native.id+'"]'); if(!wrap) return;
+  const wrap=document.querySelector('.cselect[data-bind="'+native.id+'"]');
+  if(!wrap) return;
+
   const toggle=wrap.querySelector('.cselect-toggle');
   const label=wrap.querySelector('.cselect-label');
-  const menu=wrap.querySelector('.cselect-menu');
+  const menu =wrap.querySelector('.cselect-menu');
   menu.innerHTML='';
+
   Array.from(native.options).forEach(opt=>{
     const d=document.createElement('div');
-    d.className='cselect-option'; d.setAttribute('role','option'); d.tabIndex=-1;
-    d.dataset.value=opt.value; d.textContent=opt.textContent;
+    d.className='cselect-option';
+    d.setAttribute('role','option');
+    d.dataset.value=opt.value;
+    d.textContent=opt.textContent;
     if(opt.selected) d.setAttribute('aria-selected','true');
+
     d.addEventListener('click',()=>{ setNativeValue(native,opt.value); closeMenu(native.id); });
-    d.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault(); setNativeValue(native,opt.value); closeMenu(native.id);} });
+
     menu.appendChild(d);
   });
-  label.textContent = (native.selectedOptions[0]||native.options[0])?.textContent || '';
-  toggle.onclick=()=>{ const exp=wrap.getAttribute('aria-expanded')==='true'; exp?closeMenu(native.id):openMenu(native.id); };
-  toggle.onkeydown=(e)=>{
-    const exp=wrap.getAttribute('aria-expanded')==='true';
-    if((e.key==='ArrowDown'||e.key==='ArrowUp')&&!exp){e.preventDefault();openMenu(native.id);(menu.querySelector('.cselect-option')||{}).focus?.();}
-    else if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle.click();}
-    else if(e.key==='Escape'&&exp){closeMenu(native.id);} };
+
+  label.textContent = native.selectedOptions[0]?.textContent || "";
+
+  toggle.onclick = ()=> {
+    const exp = wrap.getAttribute('aria-expanded')==='true';
+    exp ? closeMenu(native.id) : openMenu(native.id);
+  };
+
   customSelects.set(native.id,{wrap,toggle,labelSpan:label,menu,native});
 }
+
 function setNativeValue(native,val){
-  if(native.value!==val){ native.value=val; native.dispatchEvent(new Event('change',{bubbles:true})); }
-  const api=customSelects.get(native.id);
+  if(native.value !== val){
+    native.value = val;
+    native.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  const api = customSelects.get(native.id);
   if(api){
-    api.labelSpan.textContent = native.selectedOptions[0]?.textContent || '';
-    Array.from(api.menu.children).forEach(n=>n.classList.contains('cselect-option')&&n.setAttribute('aria-selected',n.dataset.value===val?'true':'false'));
+    api.labelSpan.textContent = native.selectedOptions[0]?.textContent || "";
+    Array.from(api.menu.children).forEach(n=>{
+      n.setAttribute('aria-selected', n.dataset.value===val ? 'true':'false');
+    });
   }
 }
+
 function openMenu(id){
-  const api=customSelects.get(id); if(!api) return;
-  const {wrap,toggle,menu}=api;
+  const api = customSelects.get(id);
+  if(!api) return;
+
+  const {wrap,toggle,menu} = api;
+
   wrap.setAttribute('aria-expanded','true');
+
   const r=toggle.getBoundingClientRect();
-  menu.style.left=Math.round(r.left)+'px';
-  menu.style.top =Math.round(r.bottom+6)+'px';
-  menu.style.width=Math.round(r.width)+'px';
+  menu.style.left = Math.round(r.left)+'px';
+  menu.style.top  = Math.round(r.bottom+6)+'px';
+  menu.style.width= Math.round(r.width)+'px';
+
   if(menu.parentElement!==document.body) document.body.appendChild(menu);
   menu.style.display='block';
-  const onViewport=()=>closeMenu(id);
-  const onDocClick=(e)=>{ if(!wrap.contains(e.target)&&!menu.contains(e.target)) closeMenu(id); };
+
+  const onDocClick = (e)=>{
+    if(!wrap.contains(e.target) && !menu.contains(e.target)) closeMenu(id);
+  };
+  const onViewport = ()=> closeMenu(id);
+
   window.addEventListener('scroll',onViewport,{passive:true});
   window.addEventListener('resize',onViewport);
   document.addEventListener('click',onDocClick);
-  api.__off=()=>{window.removeEventListener('scroll',onViewport);window.removeEventListener('resize',onViewport);document.removeEventListener('click',onDocClick);};
+
+  api.__off = ()=>{
+    window.removeEventListener('scroll',onViewport);
+    window.removeEventListener('resize',onViewport);
+    document.removeEventListener('click',onDocClick);
+  };
 }
+
 function closeMenu(id){
-  const api=customSelects.get(id); if(!api) return;
-  const {wrap,menu,__off}=api;
+  const api = customSelects.get(id);
+  if(!api) return;
+
+  const {wrap,menu,__off} = api;
+
   wrap.setAttribute('aria-expanded','false');
   menu.style.display='none';
   if(menu.parentElement!==wrap) wrap.appendChild(menu);
+
   if(typeof __off==='function') __off();
   api.toggle.focus();
 }
 
-/* ======================= CSV & MAPPING ======================= */
+/* ======================= CSV PARSER ======================= */
 function parseCSVLine(line,sep=','){
   const out=[]; let cur='', inQ=false;
   for(let i=0;i<line.length;i++){
     const ch=line[i], nx=line[i+1];
     if(ch==='"'){
-      if(inQ && nx==='"'){ cur+='"'; i++; } else inQ=!inQ;
-    }else if(ch===sep && !inQ){ out.push(cur); cur=''; }
-    else cur+=ch;
+      if(inQ && nx==='"'){ cur+='"'; i++; }
+      else inQ=!inQ;
+    } else if(ch===sep && !inQ){
+      out.push(cur); cur='';
+    } else cur+=ch;
   }
-  out.push(cur); return out;
+  out.push(cur);
+  return out;
 }
+
 function normalizeWeirdCSV(text){
   let t=text.replace(/^\uFEFF/,'').replace(/\r/g,'');
-  const manyQuotes=(t.match(/"/g)||[]).length>50, fewNewlines=(t.match(/\n/g)||[]).length<3;
-  if(manyQuotes&&fewNewlines){
-    t=t.replace(/""/g,'"'); const blocks=[],re=/"([^"]*)"/g; let m; while((m=re.exec(t))!==null) blocks.push(m[1]);
+  const manyQuotes=(t.match(/"/g)||[]).length>50;
+  const fewNewlines=(t.match(/\n/g)||[]).length<3;
+  if(manyQuotes && fewNewlines){
+    t=t.replace(/""/g,'"');
+    const blocks=[], re=/"([^"]*)"/g; let m;
+    while((m=re.exec(t))!==null) blocks.push(m[1]);
     if(!blocks.length) return text;
-    const cols=parseCSVLine(blocks[0],',').length, lines=[];
-    for(let i=0;i<blocks.length;i+=cols) lines.push(blocks.slice(i,i+cols).map(s=>'"'+s+'"').join(','));
+    const cols=parseCSVLine(blocks[0],',').length;
+    const lines=[];
+    for(let i=0;i<blocks.length;i+=cols){
+      lines.push(blocks.slice(i,i+cols).map(s=>'"'+s+'"').join(','));
+    }
     return lines.join('\n');
   }
-  return t.split('\n').map(l=>{const s=l.trim();return (s.startsWith('"')&&s.endsWith('"'))?s.slice(1,-1):s;}).join('\n');
+  return t.split('\n').map(l=>{
+    const s=l.trim();
+    return (s.startsWith('"') && s.endsWith('"')) ? s.slice(1,-1) : s;
+  }).join('\n');
 }
+
 function parseCSVAuto(text){
   const norm=normalizeWeirdCSV(text);
   const lines=norm.split('\n').filter(l=>l.trim()!=='');
   if(!lines.length) return {rawHeads:[],rows:[]};
+
   const first=lines[0];
-  const sep=((first.match(/;/g)||[]).length>(first.match(/,/g)||[]).length)?';':',';
-  const rawHeads=parseCSVLine(lines[0],sep).map(s=>s.replace(/^"+|"+$/g,'').trim());
+  const sep=((first.match(/;/g)||[]).length > (first.match(/,/g)||[]).length) ? ';' : ',';
+
+  const rawHeads=parseCSVLine(first,sep).map(s=>s.replace(/^"+|"+$/g,'').trim());
   const rows=lines.slice(1).map(line=>{
     const cells=parseCSVLine(line,sep).map(s=>s.replace(/^"+|"+$/g,'').trim());
-    const o={}; rawHeads.forEach((h,i)=>o[h]=cells[i]??''); return o;
+    const o={}; rawHeads.forEach((h,i)=>o[h]=cells[i]??'');
+    return o;
   });
+
   return {rawHeads,rows};
 }
+
+/* ======================= MAPPING CSV → champs utiles ======================= */
 function buildMapping(rawHeads){
-  const NK=rawHeads.map(normKey);
-  const find=(k)=>{const i=NK.indexOf(k);return i>=0?rawHeads[i]:null;};
-  const loose=(...res)=>{for(let i=0;i<NK.length;i++){const k=NK[i];if(res.every(r=>r.test(k))) return rawHeads[i];}return null;};
-  const hminKey=find('hauteurminmm')||loose(/hauteur/,/min/);
-  const hmaxKey=find('hauteurmaxmm')||loose(/hauteur/,/max/);
-  const baseKey=find('prixunitaireeur')||loose(/prix|tarif/,/eur|ht|unitaire/);
-  const variantKey=find('eclairage')||loose(/eclair|led/);
+  const NK = rawHeads.map(normKey);
+  const find = (k)=>{
+    const i = NK.indexOf(k);
+    return i>=0 ? rawHeads[i] : null;
+  };
+  const loose = (...reg)=> {
+    for(let i=0;i<NK.length;i++){
+      if(reg.every(r=>r.test(NK[i]))) return rawHeads[i];
+    }
+    return null;
+  };
+
+  const hminKey = find('hauteurminmm') || loose(/hauteur/,/min/);
+  const hmaxKey = find('hauteurmaxmm') || loose(/hauteur/,/max/);
+  const baseKey = find('prixunitaireeur') || loose(/prix|tarif/,/eur|ht|unitaire/);
+  const variantKey = find('eclairage') || loose(/eclair|led/);
+
   return {hminKey,hmaxKey,baseKey,variantKey};
 }
 
 /* ======================= UI BUILDERS ======================= */
 function fillFamilles(){
-  elFam.innerHTML = '<option value="">— sélectionnez —</option>' + FAMILLES.map((f,i)=>`<option value="${i}">${f.name}</option>`).join('');
+  elFam.innerHTML =
+    '<option value="">— sélectionnez —</option>' +
+    FAMILLES.map((f,i)=>`<option value="${i}">${f.name}</option>`).join('');
   buildCustomFromNative(elFam);
 }
+
 function buildVariantUI(){
   elVar.innerHTML = '<option value="">— (aucun filtre) —</option>';
   elVarHelp.textContent = '';
-  if(!MAP?.variantKey){ buildCustomFromNative(elVar); return; }
+
+  if(!MAP?.variantKey){
+    buildCustomFromNative(elVar);
+    return;
+  }
+
   const key=MAP.variantKey;
   const values=[...new Set(ROWS.map(r=>String(r[key]||'').trim()).filter(Boolean))].sort();
-  elVar.innerHTML = values.length
-    ? '<option value="">— sélectionnez —</option>' + values.map(v=>`<option value="${v}">${v}</option>`).join('')
-    : '<option value="">— (aucun filtre) —</option>';
-  elVarHelp.textContent = values.length ? `Filtre sur « ${key} ».` : '';
+
+  elVar.innerHTML =
+    '<option value="">— sélectionnez —</option>' +
+    values.map(v=>`<option value="${v}">${v}</option>`).join('');
+
+  elVarHelp.textContent = values.length ? `Filtre sur « ${key} »` : '';
+
   buildCustomFromNative(elVar);
 }
-/* Affiche juste "Hauteur maximale X mm" en respectant le filtre d’éclairage */
+
 function buildRangesHelp(){
   if(!MAP?.hmaxKey){ elRanges.innerHTML=''; return; }
-  const kmax = MAP.hmaxKey;
-  const rows = filterRowsByVariant(ROWS);
-  const maxVals = rows.map(r => numFR(r[kmax])).filter(Number.isFinite);
+  const kmax=MAP.hmaxKey;
+  const rows=ROWS;
+  const maxVals = rows.map(r=>numFR(r[kmax])).filter(Number.isFinite);
   if(!maxVals.length){ elRanges.innerHTML=''; return; }
   const maxH = Math.max(...maxVals);
   elRanges.innerHTML = `Hauteur maximale ${Math.round(maxH)} mm`;
 }
 
-/* ======================= RULE ======================= */
+/* Vérifie règle spéciale Dibond */
 function updateDibondRule(){
-  const isDibond = (CURRENT?.name||'').toLowerCase().includes('dibond');
-  const hasLighting = !!elVar.value;
-  elDibondRule.style.display = (isDibond && hasLighting) ? 'block' : 'none';
+  const isDibond = (CURRENT?.name||'').toLowerCase().includes("dibond");
+  const hasLight = !!elVar.value;
+  const node = document.getElementById("dibondRule");
+  if(node) node.style.display = (isDibond && hasLight) ? "block" : "none";
 }
 
-/* ======================= COMPUTE ======================= */
+/* Filtre lignes CSV selon variant */
 function filterRowsByVariant(rows){
   if(!MAP?.variantKey) return rows;
-  const v=elVar.value; if(!v) return rows;
-  return rows.filter(r=>String(r[MAP.variantKey]||'').trim()===v);
+  const v=elVar.value;
+  if(!v) return rows;
+  return rows.filter(r => String(r[MAP.variantKey]||'').trim() === v);
 }
 
+/* Trouve la ligne CSV correspondant à la hauteur */
 function findRowForHeight(H){
-  const kmin=MAP.hminKey, kmax=MAP.hmaxKey;
+  const kmin=MAP.hminKey;
+  const kmax=MAP.hmaxKey;
+
   let rows=filterRowsByVariant(ROWS);
   if(!rows.length) return null;
 
-  rows = rows.slice().map(r=>{
-    const a = numFR(kmin ? r[kmin] : 0);
-    const b = numFR(r[kmax]);
-    return { ...r, __a:a, __b:b };
-  }).filter(r => Number.isFinite(r.__b))
-    .sort((a,b)=> a.__a!==b.__a ? a.__a - b.__a : a.__b - b.__b);
+  rows = rows.map(r=>{
+    const a=numFR(kmin?r[kmin]:0);
+    const b=numFR(r[kmax]);
+    return {...r, __a:a, __b:b};
+  }).filter(r=>Number.isFinite(r.__b))
+    .sort((a,b)=>a.__a!==b.__a ? a.__a-b.__a : a.__b-b.__b);
 
-  const exact = rows.find(r => Number.isFinite(r.__a) && Number.isFinite(r.__b) && H>=r.__a && H<=r.__b);
-  if (exact) return exact;
+  const exact=rows.find(r=>H>=r.__a && H<=r.__b);
+  if(exact) return exact;
 
   let best=null, bestDist=Infinity;
   for(const r of rows){
-    const d = (H < r.__a) ? (r.__a - H) : (H - r.__b);
-    if (d < bestDist || (d === bestDist && r.__a > (best?.__a ?? -Infinity))){
-      best = r; bestDist = d;
-    }
+    const d = (H<r.__a) ? (r.__a-H) : (H-r.__b);
+    if(d<bestDist){ bestDist=d; best=r; }
   }
   return best || rows[0];
 }
-
+/* ======================= COMPUTE ======================= */
 function compute(){
-  // === Remise automatique client ===
-    // === Mode tarif (cliquer dans index-test) ===
+  // === Mode tarif (client ou pro) ===
   const mode = localStorage.getItem("cofel_price_mode") || "client";
 
-  // Recalcul quand le switch change
-  window.addEventListener("cofel-price-mode-changed", compute);
-
+  // Remise client automatique
   let remiseClient = 1;
   try {
-      const p = JSON.parse(localStorage.getItem('cofel_client_profile'));
-      if (p && typeof p.discountRate === 'number') remiseClient = 1 - p.discountRate;
+    const p = JSON.parse(localStorage.getItem("cofel_client_profile"));
+    if (p && typeof p.discountRate === "number") {
+      remiseClient = 1 - p.discountRate;
+    }
   } catch(e){}
 
-  const H=Number(elH.value||0), Q=Math.max(1,Number(elQ.value||1));
+  const H = Number(elH.value || 0);
+  const Q = Math.max(1, Number(elQ.value || 1));
 
   if (MAP?.variantKey && !elVar.value){
-    elHT.textContent='0,00'; elTTC.textContent='0,00'; updateDibondRule(); return;
+    elHT.textContent="0,00";
+    elTTC.textContent="0,00";
+    updateDibondRule();
+    return;
   }
 
-  if(!(H>0)||!ROWS.length||!MAP?.hmaxKey||!MAP?.baseKey){
-    elHT.textContent='0,00'; elTTC.textContent='0,00'; updateDibondRule(); return;
+  if(!(H>0) || !ROWS.length || !MAP?.hmaxKey || !MAP?.baseKey){
+    elHT.textContent="0,00";
+    elTTC.textContent="0,00";
+    updateDibondRule();
+    return;
   }
 
-  const row=findRowForHeight(H);
-  const base_interne=row? numFR(row[MAP.baseKey]) : 0;
+  // ====== Ligne CSV correspondante ======
+  const row = findRowForHeight(H);
+  const base_interne = row ? numFR(row[MAP.baseKey]) : 0;
 
-  // ===== Supplément lisse (option A : ajout au prix des lettres) =====
-  let base_interne_total = base_interne;
-  if(elOptLisse && elOptLisse.checked){
-    const Lmm = Number(elLongLisse.value||0);
-    if(Lmm>0){
-      const Lml = Lmm / 1000; // conversion mm → ml
-      const prix_lisse_interne = TARIF_LISSE_INTERNE_ML * Lml;
-      base_interne_total += prix_lisse_interne;
+  // ============================================================
+  // 🔥 CORRECTION MAJEURE — Lisse NON multipliée par quantité
+  // ============================================================
+  let supplement_lisse_interne = 0;
+
+  if (elOptLisse && elOptLisse.checked){
+    const Lmm = Number(elLongLisse.value || 0);
+    if (Lmm > 0){
+      const Lml = Lmm / 1000; // mm → ml
+      supplement_lisse_interne = TARIF_LISSE_INTERNE_ML * Lml;
     }
   }
 
-  // 1. Prix interne unitaire
-const pu_interne = base_interne_total;
+  // Prix interne unitaire (lettre seule)
+  const pu_interne_lettre = base_interne;
 
-// 2. Prix PUBLIC (multiplicateur interne)
-const pu_public = pu_interne * UPLIFT_PUBLIC;
+  // Prix interne total LETTRES
+  const total_interne_lettres = pu_interne_lettre * Q;
 
-// 3. Prix REMISÉ (en fonction du profil client)
-const pu_remise = pu_public * remiseClient;
+  // Prix interne TOTAL = lettres + lisse NON multipliée
+  const total_interne = total_interne_lettres + supplement_lisse_interne;
 
-// 4. Totaux
-const total_public = pu_public * Q;
-const total_remise = pu_remise * Q;
+  // Conversion en PUBLIC
+  const total_public = total_interne * UPLIFT_PUBLIC;
 
-// 5. Affichage conditionné selon mode tarif
-let total_affiche = (mode === "pro") ? total_remise : total_public;
+  // Application remise client
+  const total_remise = total_public * remiseClient;
 
-elHT.textContent = euro(total_affiche);
-elTTC.textContent = euro(total_affiche * (1 + TVA));
+  // Prix unitaire pour le moteur de devis
+  const pu_public_ht = total_public / Q;
+  const pu_remise_ht = total_remise / Q;
 
+  // Affichage
+  let total_affiche = (mode === "pro") ? total_remise : total_public;
 
-// 6. Sauvegarde temporaire pour addLine()
-window._LETTER_BOITIER_LAST = {
-  pu_public_ht : Number(pu_public.toFixed(2)),
-  pu_remise_ht : Number(pu_remise.toFixed(2)),
-  total_public_ht : Number(total_public.toFixed(2)),
-  total_remise_ht : Number(total_remise.toFixed(2))
-};
+  elHT.textContent  = euro(total_affiche);
+  elTTC.textContent = euro(total_affiche * (1 + TVA));
 
-updateDibondRule();
+  // Export pour addLine()
+  window._LETTER_BOITIER_LAST = {
+    pu_public_ht : Number(pu_public_ht.toFixed(2)),
+    pu_remise_ht : Number(pu_remise_ht.toFixed(2)),
+    total_public_ht : Number(total_public.toFixed(2)),
+    total_remise_ht : Number(total_remise.toFixed(2)),
+    supplement_lisse_interne : Number(supplement_lisse_interne.toFixed(2))
+  };
+
+  updateDibondRule();
 }
 
 /* ======================= LOADERS ======================= */
-async function fetchText(u){ const r=await fetch(u,{cache:'no-store'}); if(!r.ok) throw new Error('HTTP '+r.status); return await r.text(); }
-async function loadFamily(f){
-  const txt=await fetchText(f.url);
-  const {rawHeads,rows}=parseCSVAuto(txt);
-  HEADS=rawHeads; ROWS=rows; MAP=buildMapping(HEADS);
-  buildVariantUI(); buildRangesHelp(); compute();
+async function fetchText(url){
+  const r = await fetch(url, {cache:"no-store"});
+  if(!r.ok) throw new Error("HTTP " + r.status);
+  return await r.text();
 }
 
-/* ======================= INIT ======================= */
+async function loadFamily(f){
+  const txt = await fetchText(f.url);
+  const {rawHeads,rows} = parseCSVAuto(txt);
+  HEADS = rawHeads;
+  ROWS  = rows;
+  MAP   = buildMapping(HEADS);
+  buildVariantUI();
+  buildRangesHelp();
+  compute();
+}
+
+/* ======================= INIT & BIND ======================= */
 function bind(){
-  elFam.addEventListener('change', async ()=>{
-    const i=parseInt(elFam.value,10);
-    if(isNaN(i)){ CURRENT=null; ROWS=[]; MAP=null; compute(); return; }
-    CURRENT=FAMILLES[i];
-    try{ await loadFamily(CURRENT); }catch(e){ console.error(e); alert("Erreur de chargement des données."); }
+  elFam.addEventListener("change", async ()=>{
+    const i = parseInt(elFam.value,10);
+    if (isNaN(i)){
+      CURRENT=null; ROWS=[]; MAP=null; compute();
+      return;
+    }
+    CURRENT = FAMILLES[i];
+    try { await loadFamily(CURRENT); }
+    catch(e){ console.error(e); alert("Erreur chargement CSV."); }
   });
-  elQ.addEventListener('input', compute);
-  elH.addEventListener('input', ()=>{ buildRangesHelp(); compute(); });
-  elVar.addEventListener('change', ()=>{ buildRangesHelp(); updateDibondRule(); compute(); });
+
+  elQ.addEventListener("input", compute);
+  elH.addEventListener("input", ()=>{ buildRangesHelp(); compute(); });
+  elVar.addEventListener("change", ()=>{ buildRangesHelp(); updateDibondRule(); compute(); });
 
   // Lisse
-  if(elOptLisse){
-    elOptLisse.addEventListener('change', compute);
-  }
-  if(elLongLisse){
-    elLongLisse.addEventListener('input', compute);
-  }
+  elOptLisse.addEventListener("change", compute);
+  elLongLisse.addEventListener("input", compute);
 
-  $("btnReset").addEventListener('click', ()=>{
-    elFam.value=""; buildCustomFromNative(elFam);
+  // Reset
+  $("btnReset").addEventListener("click", ()=>{
+    elFam.value = ""; buildCustomFromNative(elFam);
     CURRENT=null; ROWS=[]; MAP=null;
-    elVar.innerHTML='<option value="">— (aucun filtre) —</option>'; buildCustomFromNative(elVar);
-    elQ.value=1; elH.value='';
-    elRanges.innerHTML = '';
+    elVar.innerHTML='<option value="">— (aucun filtre) —</option>';
+    buildCustomFromNative(elVar);
 
-    if(elOptLisse){ elOptLisse.checked = false; }
-    if(elLongLisse){ elLongLisse.value = ''; }
+    elQ.value=1;
+    elH.value="";
+    elRanges.innerHTML="";
+
+    elOptLisse.checked = false;
+    elLongLisse.value="";
 
     compute();
   });
 }
-(function init(){ fillFamilles(); bind(); })();
-</script>
 
-<!-- ========= Intégration au devis ========= -->
+(function init(){
+  fillFamilles();
+  bind();
+})();
+</script>
 <script src="../js/devis-core.js"></script>
 <script>
-document.getElementById("btnAddDevis").addEventListener("click", ()=>{
-  try{
-    if(!window.Devis) throw new Error("Moteur de devis introuvable.");
-    const famIdx=parseInt(document.getElementById("famille").value,10);
-    if(isNaN(famIdx)){ alert("Choisis d'abord une famille de lettres boîtiers."); return; }
-    const familleName=(FAMILLES[famIdx]||{}).name||"Lettres boîtiers";
-    const qte=Math.max(1, Number(document.getElementById("quantite").value||1));
-    const H=Number(document.getElementById("hauteur").value||0);
-    if(!(H>0)){ alert("Saisis une hauteur valide."); return; }
-    const variant=document.getElementById("variant").value;
+document.getElementById("btnAddDevis").addEventListener("click", () => {
+  try {
 
-    const total_ht=parseFloat(document.getElementById("prixHT").innerText.replace(',','.'))||0;
-    if(total_ht<=0){ alert("Le prix est à 0, vérifie la famille/hauteur/éclairage."); return; }
-    const pu_public_ht = qte>0 ? (total_ht/qte) : 0;
+    if (!window.Devis) throw new Error("Moteur de devis introuvable.");
 
-    let designation = `${familleName} — H ${H} mm` + (variant?` — Éclairage: ${variant}`:'');
-
-    // Ajout lisse dans la désignation
-    const optLisse = document.getElementById("optLisse");
-    const lisseLongueur = document.getElementById("lisseLongueur");
-    if(optLisse && optLisse.checked){
-      const Lmm = Number(lisseLongueur?.value || 0);
-      designation += Lmm > 0
-        ? ` — Pose sur lisse (${Lmm} mm)`
-        : ` — Pose sur lisse`;
+    // ---- Lecture des champs ----
+    const famIdx = parseInt(document.getElementById("famille").value, 10);
+    if (isNaN(famIdx)) {
+      alert("Choisis d'abord une famille de lettres boîtiers.");
+      return;
     }
 
+    const familleName = (FAMILLES[famIdx] || {}).name || "Lettres boîtiers";
+    const qte = Math.max(1, Number(document.getElementById("quantite").value || 1));
+    const H   = Number(document.getElementById("hauteur").value || 0);
+    const variant = document.getElementById("variant").value;
+
+    if (!(H > 0)) {
+      alert("Saisis une hauteur valide.");
+      return;
+    }
+
+    // ---- Prix calculés par compute() ----
     const p = window._LETTER_BOITIER_LAST;
-if(!p){
-    alert("Erreur interne : pas de calcul disponible.");
-    return;
-}
+    if (!p) {
+      alert("Erreur interne : le calcul n’a pas été trouvé.");
+      return;
+    }
 
-Devis.addLine({
-  type: 'Lettres Boîtiers',
-  designation,
-  quantite: qte,
+    const optLisse = document.getElementById("optLisse").checked;
+    const lisseLongueur = Number(document.getElementById("lisseLongueur").value || 0);
 
-  pu_public_ht: p.pu_public_ht,
-  pu_remise_ht: p.pu_remise_ht,
-  total_public_ht: p.total_public_ht,
-  total_remise_ht: p.total_remise_ht
-});
+    // ---- Désignation ----
+    let designation = `${familleName} — H ${H} mm`;
+    if (variant) designation += ` — Éclairage: ${variant}`;
 
-alert("✅ Ligne ajoutée au devis !");
+    if (optLisse) {
+      if (lisseLongueur > 0) {
+        designation += ` — Pose sur lisse (${lisseLongueur} mm)`;
+      } else {
+        designation += ` — Pose sur lisse`;
+      }
+    }
 
-  }catch(err){ console.error(err); alert('Erreur lors de l’ajout au devis : '+err.message); }
+    // ---- Vérification prix affiché ----
+    const total_ht_affiche = parseFloat(
+      document.getElementById("prixHT").innerText.replace(",", ".")
+    ) || 0;
+
+    if (total_ht_affiche <= 0) {
+      alert("Le prix calculé est à 0. Vérifie famille / hauteur / éclairage.");
+      return;
+    }
+
+    // ---- Prix unitaire (pour le moteur de devis) ----
+    const pu_public_ht = p.pu_public_ht;
+    const pu_remise_ht = p.pu_remise_ht;
+
+    // ---- Ajout au devis ----
+    Devis.addLine({
+      type: "Lettres Boîtiers",
+      designation,
+      quantite: qte,
+
+      pu_public_ht: pu_public_ht,
+      pu_remise_ht: pu_remise_ht,
+      pu_net_ht: pu_remise_ht  // cohérent avec tes autres configurateurs
+    });
+
+    alert("✅ Ligne ajoutée au devis !");
+
+  } catch (err) {
+    console.error(err);
+    alert("Erreur lors de l’ajout au devis : " + err.message);
+  }
 });
 </script>
-
-</body>
-</html>
-
-
 
 
