@@ -117,6 +117,30 @@
   background: rgba(255,255,255,.22);
   border-color: rgba(255,255,255,.28);
 }
+/* ===================== BUTTONS ===================== */
+.btn{
+  appearance:none;
+  border:none;
+  cursor:pointer;
+  font-weight:700;
+  color:#0b0b0b;
+  background:#fff;
+  border-radius:12px;
+  padding:10px 14px;
+  box-shadow:0 10px 24px rgba(0,0,0,.25);
+  transition:transform .16s, box-shadow .16s;
+}
+
+.btn:active{
+  transform:translateY(1px);
+  box-shadow:0 6px 16px rgba(0,0,0,.28);
+}
+
+.btn-ghost{
+  background:transparent;
+  color:var(--txt);
+  border:1px solid var(--glass-hr);
+}
 
 </style>
 </head>
@@ -744,6 +768,7 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
   }
 });
 </script>
+
 
 
 
