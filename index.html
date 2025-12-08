@@ -459,9 +459,10 @@ try {
             <td class="right">${fmt(l.total_ligne_ht)}</td>
             <td class="center">
   <button class="btn btn-ghost btn-qty" style="margin-right:6px;">📝 Qté</button>
-  ${isAdmin ? `
+  ${canEditQuote ? `
     <button class="btn btn-ghost btn-edit" style="margin-right:6px;">✏️ Modifier</button>
-  ` : ""}
+` : ""}
+
   <button class="btn btn-danger btn-del">Suppr.</button>
 </td>
 
@@ -519,10 +520,12 @@ document.getElementById("btnAddManu").addEventListener("click", () => {
 // === MODIFIER DESIGNATION + PU (admin) ===
 if (e.target.classList.contains('btn-edit')) {
 
-  if (!isAdmin) {
-    alert("Seul l'administrateur peut modifier une ligne.");
-    return;
-  }
+  // ----- Autorisation modification ligne (admin complet OU éditeur devis) -----
+if (!canEditQuote) {
+  alert("⛔ Vous n’êtes pas autorisé à modifier une ligne.");
+  return;
+}
+
 
   const tr = e.target.closest("tr[data-id]");
   const id = tr.getAttribute("data-id");
