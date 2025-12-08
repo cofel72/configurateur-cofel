@@ -111,6 +111,13 @@
     margin-top:10px;
     color:var(--txt);
   }
+  /* Survol et sélection des options des menus déroulants */
+.cselect-option:hover,
+.cselect-option[aria-selected="true"] {
+  background: rgba(255,255,255,.22);
+  border-color: rgba(255,255,255,.28);
+}
+
 </style>
 </head>
 <body>
@@ -737,5 +744,6 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
   }
 });
 </script>
+
 
 
