@@ -233,7 +233,7 @@
 <script>
 /* ======================= CONFIG ======================= */
 const TVA = 0.20;
-const UPLIFT_PUBLIC = 2.0; // multiplicateur interne
+const COEF_PUBLIC = 2;
 
 /* Supplément lisse (INTERNE) — NON multiplié par quantité */
 const TARIF_LISSE_INTERNE_ML = 25; // €/ml
@@ -545,7 +545,6 @@ function findRowForHeight(H){
 /* ======================= COMPUTE ======================= */
 function compute(){
   // === Mode tarif (client ou pro) ===
-  const mode = localStorage.getItem("cofel_price_mode") || "client";
 
   // Remise client automatique
   let remiseClient = 1;
@@ -599,30 +598,26 @@ function compute(){
   // Prix interne TOTAL = lettres + lisse NON multipliée
   const total_interne = total_interne_lettres + supplement_lisse_interne;
 
-  // Conversion en PUBLIC
-  const total_public = total_interne * UPLIFT_PUBLIC;
+// === PRIX PUBLIC BRUT ===
+const total_public_brut = total_interne * COEF_PUBLIC;
 
-  // Application remise client
-  const total_remise = total_public * remiseClient;
+// === PRIX NET CLIENT (après remise) ===
+const total_net_client = total_public_brut * remiseClient;
 
-  // Prix unitaire pour le moteur de devis
-  const pu_public_ht = total_public / Q;
-  const pu_remise_ht = total_remise / Q;
+// === PRIX UNITAIRE POUR LE DEVIS ===
+const pu_public_ht = Q > 0 ? (total_net_client / Q) : 0;
 
-  // Affichage
-  let total_affiche = (mode === "pro") ? total_remise : total_public;
+// === AFFICHAGE ===
+elHT.textContent  = euro(total_net_client);
+elTTC.textContent = euro(total_net_client * (1 + TVA));
 
-  elHT.textContent  = euro(total_affiche);
-  elTTC.textContent = euro(total_affiche * (1 + TVA));
+// === EXPORT POUR AJOUT AU DEVIS ===
+window._LETTER_BOITIER_LAST = {
+  pu_public_ht : Number(pu_public_ht.toFixed(2)),
+  total_net_ht : Number(total_net_client.toFixed(2)),
+  supplement_lisse_interne : Number(supplement_lisse_interne.toFixed(2))
+};
 
-  // Export pour addLine()
-  window._LETTER_BOITIER_LAST = {
-    pu_public_ht : Number(pu_public_ht.toFixed(2)),
-    pu_remise_ht : Number(pu_remise_ht.toFixed(2)),
-    total_public_ht : Number(total_public.toFixed(2)),
-    total_remise_ht : Number(total_remise.toFixed(2)),
-    supplement_lisse_interne : Number(supplement_lisse_interne.toFixed(2))
-  };
 
   updateDibondRule();
 }
@@ -747,18 +742,15 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
 
     // ---- Prix unitaire (pour le moteur de devis) ----
     const pu_public_ht = p.pu_public_ht;
-    const pu_remise_ht = p.pu_remise_ht;
 
     // ---- Ajout au devis ----
-    Devis.addLine({
-      type: "Lettres Boîtiers",
-      designation,
-      quantite: qte,
+  Devis.addLine({
+  type: "Lettres Boîtiers",
+  designation,
+  quantite: qte,
+  pu_public_ht: pu_public_ht
+});
 
-      pu_public_ht: pu_public_ht,
-      pu_remise_ht: pu_remise_ht,
-      pu_net_ht: pu_remise_ht  // cohérent avec tes autres configurateurs
-    });
 
     alert("✅ Ligne ajoutée au devis !");
 
@@ -768,6 +760,7 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
   }
 });
 </script>
+
 
 
 
