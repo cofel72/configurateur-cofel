@@ -209,7 +209,8 @@
    CONFIG GÉNÉRALE
 ================================ */
 const TVA = 0.20;
-const UPLIFT_PUBLIC = 2.0;
+const COEF_PUBLIC = 2;
+ 
 
 const CSV_URL =
   "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/configurateurs/Lettre%20PVC.csv";
@@ -376,7 +377,15 @@ function compute() {
 
   base += lisse_interne;
 
-  const unit = base * UPLIFT_PUBLIC * remiseClient;
+  // === PRIX INTERNE ===
+const unit_interne = base;
+
+// === PRIX PUBLIC AVANT REMISE ===
+const unit_public = unit_interne * COEF_PUBLIC;
+
+// === PRIX NET CLIENT ===
+const unit = unit_public * remiseClient;
+
   const tot = unit * q;
   const ttc = tot * (1 + TVA);
 
@@ -463,7 +472,15 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
       }
     }
 
-    const pu = base * UPLIFT_PUBLIC * remiseClient;
+    // === PRIX INTERNE ===
+const pu_interne = base;
+
+// === PRIX PUBLIC AVANT REMISE ===
+const pu_public = pu_interne * COEF_PUBLIC;
+
+// === PRIX NET CLIENT ===
+const pu = pu_public * remiseClient;
+
 
     /* désignation */
     let designation = `Lettre PVC ${h} mm (ép. ${e} mm)`;
@@ -493,5 +510,6 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
 
 </body>
 </html>
+
 
 
