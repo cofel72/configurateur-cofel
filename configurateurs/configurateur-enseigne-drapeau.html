@@ -1,211 +1,396 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Configurateur — Enseignes Drapeaux | Cofel</title>
+
+<head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Configurateur — Enseignes Drapeaux | Cofel</title>
 
-  <!-- Styles Cofel -->
   <link rel="stylesheet" href="../styles/cofel.css">
   <link rel="stylesheet" href="../styles/cofel-components.css">
   <link rel="stylesheet" href="../styles/cofel-glass.css">
 </head>
 
+</head>
 <body>
 
-<!-- ===================== HEADER ===================== -->
-<header class="cofel-header">
-  <div class="row">
-    <a class="cofel-back" href="../index.html">⬅ Retour accueil (Devis)</a>
-    <div class="cofel-brand">
-      <img src="../assets/logo cofel.jpg" alt="Cofel" />
-      <h1 class="cofel-title">Configurateur — Enseignes Drapeaux</h1>
+  <!-- ===== HERO ===== -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="brand">
+        <img src="../assets/logo cofel.jpg" alt="Cofel" />
+        <h1>Configurateur — Enseignes Drapeaux</h1>
+      </div>
+      <a class="brand" href="../index.html" style="text-decoration:none;color:inherit">⬅ Retour accueil (devis)</a>
     </div>
+    <div class="tagline">Choisissez la forme, la dimension et les options. Les montants s’actualisent automatiquement. <span id="testStatus" aria-live="polite"></span></div>
   </div>
-</header>
 
-<!-- ===================== CONTENU ===================== -->
-<div class="cofel-container">
+  <!-- ===== CONTENU ===== -->
+  <main class="wrap">
 
-  <!-- PARAMÈTRES -->
-  <section class="card">
-    <h2>⚙️ Paramètres</h2>
-
-    <div class="grid">
-      <div>
-        <label for="forme">Forme</label>
-        <select id="forme" class="native-select">
-          <option value="">(choisir)</option>
-        </select>
-        <div class="cselect" data-bind="forme" aria-expanded="false">
-          <button type="button" class="cselect-toggle">
-            <span class="cselect-label">(choisir)</span>
-            <span class="cselect-caret"></span>
-          </button>
-          <div class="cselect-menu"></div>
+    <!-- Paramètres principaux -->
+    <section class="panel" aria-label="Paramètres">
+      <h2>⚙️ Paramètres</h2>
+      <div class="card grid">
+        <div>
+          <label for="forme">Forme</label>
+          <select id="forme" class="native-select"><option value="">(choisir)</option></select>
+          <div class="cselect" data-bind="forme" aria-haspopup="listbox" aria-expanded="false">
+            <button type="button" class="cselect-toggle">
+              <span class="cselect-label">(choisir)</span>
+              <span class="cselect-caret" aria-hidden="true"></span>
+            </button>
+            <div class="cselect-menu" role="listbox"></div>
+          </div>
+          <div id="noteForme" class="muted"></div>
         </div>
-        <div id="noteForme" class="muted"></div>
-      </div>
 
-      <div>
-        <label for="dimension">Dimension</label>
-        <select id="dimension" class="native-select">
-          <option value="">(choisir la dimension)</option>
-        </select>
-        <div class="cselect" data-bind="dimension" aria-expanded="false">
-          <button type="button" class="cselect-toggle">
-            <span class="cselect-label">(choisir la dimension)</span>
-            <span class="cselect-caret"></span>
-          </button>
-          <div class="cselect-menu"></div>
+        <div>
+          <label for="dimension">Dimension</label>
+          <select id="dimension" class="native-select"><option value="">(choisir la dimension)</option></select>
+          <div class="cselect" data-bind="dimension" aria-haspopup="listbox" aria-expanded="false">
+            <button type="button" class="cselect-toggle">
+              <span class="cselect-label">(choisir la dimension)</span>
+              <span class="cselect-caret" aria-hidden="true"></span>
+            </button>
+            <div class="cselect-menu" role="listbox"></div>
+          </div>
+          <div id="helpDim" class="muted"></div>
         </div>
-        <div id="helpDim" class="muted"></div>
+
+        <div>
+          <label for="quantite">Quantité</label>
+          <input type="number" id="quantite" min="1" value="1" />
+        </div>
+
+        <!-- ✅ Nouveau champ demandé -->
+        <div>
+          <label for="potence">Longueur de potence (mm)</label>
+          <input type="number" id="potence" min="0" step="1" placeholder="ex : 600" />
+          <div class="muted">Indiquez la longueur utile de la potence en millimètres.</div>
+        </div>
       </div>
+    </section>
 
-      <div>
-        <label for="quantite">Quantité</label>
-        <input type="number" id="quantite" min="1" value="1" />
+    <!-- Options (finition obligatoire) -->
+    <section class="panel" aria-label="Options">
+      <h2>🎛️ Options</h2>
+      <fieldset class="card" style="border:none; padding:0;">
+        <legend class="muted" style="margin-bottom:8px;">Finition (obligatoire)</legend>
+        <div class="grid">
+          <label class="option-item"><input type="radio" name="finition" id="finPre" value="prelaque" checked /><span>Prélaqué (base)</span></label>
+          <label class="option-item"><input type="radio" name="finition" id="finLq" value="laque" /><span>Laqué</span></label>
+          <label class="option-item"><input type="radio" name="finition" id="finAj" value="ajour" /><span>Ajourage + PMMA 3 mm + lumineux (laqué)</span></label>
+        </div>
+        <div id="helpFinition" class="muted"></div>
+      </fieldset>
+    </section>
+
+    <!-- Récap prix -->
+    <section class="panel" aria-label="Récapitulatif">
+      <h2>🧾 Récapitulatif</h2>
+      <div class="result">
+        <p>Prix HT : <b><span id="prixHT">0,00</span> €</b></p>
+        <p>Prix TTC : <b><span id="prixTTC">0,00</span> €</b></p>
+        <div class="muted">TVA 20 % incluse dans le calcul.</div>
       </div>
-
-      <div>
-        <label for="potence">Longueur de potence (mm)</label>
-        <input type="number" id="potence" min="0" placeholder="Ex : 600">
-        <div class="muted">Information sans impact tarifaire</div>
+      <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+        <button id="btnAddDevis" class="btn">➕ Ajouter au devis</button>
+        <button id="btnReset" class="btn btn-ghost">🔄 Réinitialiser</button>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- OPTIONS -->
-  <section class="card">
-    <h2>🎛️ Options</h2>
+  </main>
 
-    <div class="grid">
-      <label class="option-item">
-        <input type="radio" name="finition" id="finPre" checked>
-        <span>Prélaqué (base)</span>
-      </label>
+  <footer>
+    © Cofel — ZA du Perquoi, 72560 Changé — SIRET 927 659 458 00024 — TVA FR80927659458
+  </footer>
 
-      <label class="option-item">
-        <input type="radio" name="finition" id="finLq">
-        <span>Laqué</span>
-      </label>
+  <!-- ===== LOGIQUE (inchangée sauf reset + désignation) ===== -->
+  <script>
+  const TVA = 0.20;
+  const CSV_URL = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/Enseigne%20drapeaux.csv";
 
-      <label class="option-item">
-        <input type="radio" name="finition" id="finAj">
-        <span>Ajourage + PMMA + lumineux</span>
-      </label>
-    </div>
+  let HEADS=[], ROWS=[], MAP=null;
+  const $ = id=>document.getElementById(id);
+  const elForme=$("forme"), elQ=$("quantite"), elDim=$("dimension"), elPot=$("potence");
+  const elFinPre=$("finPre"), elFinLq=$("finLq"), elFinAj=$("finAj");
+  const elHT=$("prixHT"), elTTC=$("prixTTC");
+  const elHelpDim=$("helpDim"), elNote=$("noteForme"), elHelpFinition=$("helpFinition");
 
-    <div id="helpFinition" class="muted"></div>
-  </section>
+  function normKey(k){ return String(k||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9+]+/g,'').trim(); }
+  function numFR(v){ if(v==null) return NaN; let s=String(v).trim().replace(/€/g,'').replace(/[\u00A0\u202F]/g,'').replace(/\s+/g,''); if(s.includes(',') && s.includes('.')) s=s.replace(/\./g,''); s=s.replace(',', '.'); const m=s.match(/-?\d+(\.\d+)?/); return m?parseFloat(m[0]):NaN; }
+  function euro(n){ return (isFinite(n)?n:0).toFixed(2).replace('.', ','); }
 
-  <!-- RÉCAP -->
-  <section class="card result">
-    <div>Prix HT : <b><span id="prixHT">0,00</span> €</b></div>
-    <div>Prix TTC : <b><span id="prixTTC">0,00</span> €</b></div>
+  function parseCSVAuto(text){
+    const raw = String(text || "").replace(/^\uFEFF/, "");
+    const lines = raw.split(/\r\n|\n|\r/).filter(l => l.trim() !== "");
+    if (!lines.length) return { rawHeads: [], rows: [] };
+    const first = lines[0];
+    const sep = ((first.match(/;/g) || []).length > (first.match(/,/g) || []).length) ? ';' : ',';
+    function parseCSVLine(line){
+      const out=[]; let cur=''; let inQ=false;
+      for(let i=0;i<line.length;i++){
+        const ch=line[i], nx=line[i+1];
+        if(ch === '"'){
+          if(inQ && nx === '"'){ cur+='"'; i++; } else { inQ = !inQ; }
+        } else if(ch === sep && !inQ){ out.push(cur); cur=''; }
+        else cur += ch;
+      }
+      out.push(cur); return out;
+    }
+    const rawHeads = parseCSVLine(first).map(s => s.replace(/^"+|"+$/g,'').trim());
+    const rows = lines.slice(1).map(line => {
+      const cells = parseCSVLine(line).map(s => s.replace(/^"+|"+$/g,'').trim());
+      const o = {}; rawHeads.forEach((h,i)=> o[h] = cells[i] ?? '');
+      return o;
+    });
+    return { rawHeads, rows };
+  }
 
-    <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
-      <button id="btnAddDevis" class="btn">➕ Ajouter au devis</button>
-      <button id="btnReset" class="btn btn-ghost">🔄 Réinitialiser</button>
-    </div>
-  </section>
+  function buildMapping(rawHeads){
+    const nk=rawHeads.map(normKey);
+    const find=(k)=>{ const i=nk.indexOf(k); return i>=0?rawHeads[i]:null; };
+    const like=(...res)=>{ for(let i=0;i<nk.length;i++){ const k=nk[i]; if(res.every(re=>re.test(k))) return rawHeads[i]; } return null; };
+    const FORME=find('forme')||like(/forme/);
+    const DIM=find('dimensionmm')||like(/dimension|dim/);
+    const FIN=find('finition')||like(/fini/);
+    const PRIX=find('prixeurl')||like(/prix|eur/);
+    const OPTAJL=find('opt_ajourage+lumineux')||like(/ajour|lum/);
+    return {FORME,DIM,FIN,PRIX,OPTAJL};
+  }
 
-</div>
+  function distinct(v){return [...new Set(v)]}
 
-<footer class="cofel-footer">
-  © Cofel — ZA du Perquoi, 72560 Changé — SIRET 927 659 458 00024 — TVA FR80927659458
-</footer>
+  /* ===== Custom Select ===== */
+  const customSelects = new Map();
+  function buildCustomFromNative(native){
+    const wrap = document.querySelector('.cselect[data-bind="'+native.id+'"]'); if(!wrap) return;
+    const toggle = wrap.querySelector('.cselect-toggle');
+    const labelSpan = wrap.querySelector('.cselect-label');
+    const menu = wrap.querySelector('.cselect-menu');
+    menu.innerHTML = '';
+    Array.from(native.options).forEach(opt=>{
+      const div=document.createElement('div');
+      div.className='cselect-option'; div.setAttribute('role','option'); div.tabIndex=-1;
+      div.dataset.value=opt.value; div.textContent=opt.textContent;
+      if(opt.selected) div.setAttribute('aria-selected','true');
+      div.addEventListener('click', ()=>{ setNativeValue(native, opt.value); closeMenu(native.id); });
+      div.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); setNativeValue(native, opt.value); closeMenu(native.id); } });
+      menu.appendChild(div);
+    });
+    labelSpan.textContent = (native.selectedOptions[0] || native.options[0])?.textContent || '';
+    toggle.onclick = ()=> { const expanded = wrap.getAttribute('aria-expanded')==='true'; expanded ? closeMenu(native.id) : openMenu(native.id); };
+    toggle.onkeydown = (e)=>{
+      const expanded = wrap.getAttribute('aria-expanded')==='true';
+      if((e.key==='ArrowDown' || e.key==='ArrowUp') && !expanded){ e.preventDefault(); openMenu(native.id); (menu.querySelector('.cselect-option')||{}).focus?.(); }
+      else if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle.click(); }
+      else if(e.key==='Escape' && expanded){ closeMenu(native.id); }
+    };
+    customSelects.set(native.id, { wrap, toggle, labelSpan, menu, native });
+  }
+  function setNativeValue(native, val){
+    if(native.value !== val){ native.value = val; native.dispatchEvent(new Event('change', { bubbles:true })); }
+    const api = customSelects.get(native.id);
+    if(api){
+      api.labelSpan.textContent = native.selectedOptions[0]?.textContent || '';
+      Array.from(api.menu.children).forEach(n=>{ if(n.classList.contains('cselect-option')) n.setAttribute('aria-selected', n.dataset.value===val ? 'true' : 'false'); });
+    }
+  }
+  function openMenu(id){
+    const api = customSelects.get(id); if(!api) return;
+    const {wrap, toggle, menu} = api;
+    wrap.setAttribute('aria-expanded','true');
+    const r = toggle.getBoundingClientRect();
+    menu.style.left = Math.round(r.left) + 'px';
+    menu.style.top  = Math.round(r.bottom + 6) + 'px';
+    menu.style.width= Math.round(r.width) + 'px';
+    if(menu.parentElement !== document.body){ document.body.appendChild(menu); }
+    menu.style.display = 'block';
+    const onViewport = ()=> closeMenu(id);
+    const onDocClick = (e)=>{ if(!wrap.contains(e.target) && !menu.contains(e.target)) closeMenu(id); };
+    window.addEventListener('scroll', onViewport, {passive:true});
+    window.addEventListener('resize', onViewport);
+    document.addEventListener('click', onDocClick);
+    api.__off = ()=>{ window.removeEventListener('scroll', onViewport); window.removeEventListener('resize', onViewport); document.removeEventListener('click', onDocClick); };
+  }
+  function closeMenu(id){
+    const api = customSelects.get(id); if(!api) return;
+    const {wrap, menu, __off} = api;
+    wrap.setAttribute('aria-expanded','false');
+    menu.style.display = 'none';
+    if(menu.parentElement !== wrap){ wrap.appendChild(menu); }
+    if(typeof __off === 'function') __off();
+    api.toggle.focus();
+  }
+  function rebuildCustom(native){ buildCustomFromNative(native); }
 
-<!-- ===================== SCRIPT MÉTIER (INCHANGÉ) ===================== -->
-<script src="../js/devis-core.js"></script>
-
-<script>
-/* ===== CONFIG ===== */
-const TVA = 0.20;
-const CSV_URL = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/Enseigne%20drapeaux.csv";
-
-/* ===== DOM ===== */
-const $ = id => document.getElementById(id);
-const elForme = $('forme');
-const elDim = $('dimension');
-const elQ = $('quantite');
-const elPot = $('potence');
-const elHT = $('prixHT');
-const elTTC = $('prixTTC');
-const elFinPre = $('finPre');
-const elFinLq = $('finLq');
-const elFinAj = $('finAj');
-const elHelpDim = $('helpDim');
-const elHelpFinition = $('helpFinition');
-const elNote = $('noteForme');
-
-let HEADS = [], ROWS = [], MAP = null;
-
-/* ===== UTILS ===== */
-function euro(n){return (isFinite(n)?n:0).toFixed(2).replace('.',',')}
-function numFR(v){return parseFloat(String(v).replace(',','.'))||0}
-function normKey(k){return String(k).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
-
-/* ===== CSV ===== */
-function parseCSV(txt){
-  const l = txt.split(/\r?\n/).filter(Boolean);
-  const h = l.shift().split(';');
-  const r = l.map(line=>{
-    const o={};
-    line.split(';').forEach((v,i)=>o[h[i]]=v);
-    return o;
-  });
-  return {h,r};
-}
-
-/* ===== LOGIQUE ===== */
-function getFinition(){
-  if(elFinAj.checked) return 'ajour';
-  if(elFinLq.checked) return 'laque';
-  return 'prelaque';
-}
-
+  /* ===== UI data ===== */
+  function populateFormes(){
+    const formes = distinct(ROWS.map(r=>String(r[MAP.FORME]||'').toLowerCase()).filter(Boolean)).sort((a,b)=>a.localeCompare(b));
+    elForme.innerHTML='<option value="">(choisir)</option>';
+    formes.forEach(v=> elForme.innerHTML+=`<option value="${v}">${v}</option>`);
+    elNote.textContent = formes.length ? '' : 'Aucune forme disponible dans le CSV.';
+    rebuildCustom(elForme);
+  }
+  function getFinition(){ if(elFinAj.checked) return 'ajour'; if(elFinLq.checked) return 'laque'; return 'prelaque'; }
+  function setFinition(val){ elFinPre.checked = (val==='prelaque'); elFinLq.checked  = (val==='laque'); elFinAj.checked  = (val==='ajour'); }
+  function filteredPool(){
+    let pool=[...ROWS];
+    if(elForme.value) pool=pool.filter(r=>String(r[MAP.FORME]).toLowerCase()===elForme.value);
+    const fin=r=>String(r[MAP.FIN]).trim().toLowerCase();
+    const opt=r=>String(r[MAP.OPTAJL]).trim().toLowerCase();
+    const finSel = getFinition();
+    if(elForme.value==='carré'){
+      if(finSel==='ajour'){ pool=pool.filter(r=>opt(r)==='vrai' && fin(r)==='laqué'); }
+      else if(finSel==='laque'){ pool=pool.filter(r=>fin(r)==='laqué' && opt(r)!=='vrai'); }
+      else { pool=pool.filter(r=>fin(r)==='prélaqué' && opt(r)!=='vrai'); }
+    } else if(elForme.value==='rond'){
+      if(finSel==='ajour'){ pool=pool.filter(r=>fin(r)==='laqué' && opt(r)==='vrai'); }
+      else { pool=pool.filter(r=>fin(r)==='laqué' && opt(r)!=='vrai'); }
+    } else {
+      if(finSel==='ajour') pool=pool.filter(r=>opt(r)==='vrai');
+      else if(finSel==='laque') pool=pool.filter(r=>fin(r)==='laqué' && opt(r)!=='vrai');
+      else pool=pool.filter(r=>fin(r)==='prélaqué' && opt(r)!=='vrai');
+    }
+    return pool;
+  }
+  function populateDimensions(){
+    const prev = elDim.value;               
+    const pool = filteredPool();
+    const dims = distinct(pool.map(r => String(r[MAP.DIM] || '').trim()).filter(Boolean)).sort((a,b)=>a.localeCompare(b,'fr',{numeric:true}));
+    let html = '<option value="">(choisir la dimension)</option>';
+    for(const v of dims){ const selected = (v === prev) ? ' selected' : ''; html += `<option value="${v}"${selected}>${v}</option>`; }
+    elDim.innerHTML = html;
+    if (prev && !dims.includes(prev)) { elDim.value = ""; }
+    elHelpDim.textContent = dims.length ? `Dimensions dispo : ${dims.slice(0,10).join(' • ')}${dims.length>10?' …':''}` : '';
+    rebuildCustom(elDim);
+  }
+  function findRow(){ const pool=filteredPool(); if(!pool.length) return null; if(elDim.value) return pool.find(r=>String(r[MAP.DIM]).trim()===elDim.value) || null; return pool[0]; }
+  function syncFinitionUI(){
+    if(elForme.value==='rond'){
+      elFinPre.disabled = true; if(elFinPre.checked){ setFinition('laque'); }
+      elHelpFinition.textContent = 'Pour les drapeaux ronds, la finition est toujours laquée (ajourage possible si dispo).';
+    } else { elFinPre.disabled = false; elHelpFinition.textContent = ''; }
+  }
 function compute(){
-  const row = ROWS.find(r =>
-    (!elForme.value || r[MAP.FORME].toLowerCase()===elForme.value) &&
-    (!elDim.value || r[MAP.DIM]===elDim.value)
-  );
-  if(!row){ elHT.textContent='0,00'; elTTC.textContent='0,00'; return; }
 
-  let base = numFR(row[MAP.PRIX]) * 2;
-  let remise = 1;
-  try{
-    const p = JSON.parse(localStorage.getItem('cofel_client_profile'));
-    if(p?.discountRate) remise = 1 - p.discountRate;
-  }catch{}
+  // === Synchronisation UI finition ===
+  syncFinitionUI();
 
-  const totalHT = base * remise * elQ.value;
-  elHT.textContent = euro(totalHT);
-  elTTC.textContent = euro(totalHT*(1+TVA));
+  const row = findRow();
+  const Q = Math.max(1, Number(elQ.value || 1));
+
+  if (!row) {
+    elHT.textContent = '0,00';
+    elTTC.textContent = '0,00';
+    return;
+  }
+
+  // === Prix interne issu du CSV ===
+let unit_interne = numFR(row[MAP.PRIX]);
+if (!isFinite(unit_interne)) unit_interne = 0;
+
+// === Coefficient tarif public Cofel ===
+const COEF_PUBLIC = 2;
+
+// === Prix public de base ===
+const unit_public = unit_interne * COEF_PUBLIC;
+
+// === Remise client automatique (si profil connecté) ===
+let remiseClient = 1;
+try {
+  const profile = JSON.parse(localStorage.getItem('cofel_client_profile'));
+  if (profile && typeof profile.discountRate === 'number') {
+    remiseClient = 1 - profile.discountRate;
+  }
+} catch(e){}
+
+// === PRIX NET CLIENT FINAL ===
+const unit_net = unit_public * remiseClient;
+
+
+  const totalHT  = unit_net * Q;
+  const totalTTC = totalHT * (1 + TVA);
+
+  // === Affichage ===
+  elHT.textContent  = euro(totalHT);
+  elTTC.textContent = euro(totalTTC);
 }
 
-async function load(){
-  const txt = await fetch(CSV_URL,{cache:'no-store'}).then(r=>r.text());
-  const {h,r} = parseCSV(txt);
-  HEADS=h; ROWS=r;
-  MAP={
-    FORME:h.find(x=>normKey(x).includes('forme')),
-    DIM:h.find(x=>normKey(x).includes('dimension')),
-    PRIX:h.find(x=>normKey(x).includes('prix'))
-  };
-  [...new Set(r.map(x=>x[MAP.FORME]))].forEach(f=>{
-    elForme.innerHTML+=`<option value="${f.toLowerCase()}">${f}</option>`;
+
+  async function loadCSV(){
+    try{ const r=await fetch(CSV_URL,{cache:'no-store'}); const txt=await r.text(); const {rawHeads,rows}=parseCSVAuto(txt); HEADS=rawHeads; ROWS=rows; MAP=buildMapping(HEADS); populateFormes(); populateDimensions(); compute(); }
+    catch(e){ console.error(e); alert("Erreur lors du chargement des données. Réessayez plus tard."); }
+  }
+  ["input","change"].forEach(evt=>{
+    [elForme, elQ, elDim, elFinPre, elFinLq, elFinAj].forEach(el=>{
+      el.addEventListener(evt, e=>{ if(e.target===elForme || e.target===elFinPre || e.target===elFinLq || e.target===elFinAj){ populateDimensions(); } compute(); });
+    });
   });
-}
+  function resetAll(){ elForme.value=""; elDim.value=""; elQ.value=1; if(elPot) elPot.value=""; setFinition('prelaque'); populateFormes(); populateDimensions(); compute(); }
+  buildCustomFromNative(elForme); buildCustomFromNative(elDim);
+  document.getElementById("btnReset")?.addEventListener("click", resetAll);
+  loadCSV();
 
-['change','input'].forEach(e=>{
-  [elForme,elDim,elQ,elFinPre,elFinLq,elFinAj].forEach(x=>x.addEventListener(e,compute));
-});
+  /* Tests rapides (masqués visuellement) */
+  (function runUnitTests(){
+    const status = document.getElementById('testStatus');
+    const prev = {HEADS, ROWS, MAP};
+    try{
+      const heads=["Forme","Dimension (mm)","Finition","Prix EUR l.","Opt_Ajourage + lumineux"];
+      const rows=[
+        {"Forme":"carré","Dimension (mm)":"400x400","Finition":"prélaqué","Prix EUR l.":"100","Opt_Ajourage + lumineux":"faux"},
+        {"Forme":"carré","Dimension (mm)":"400x400","Finition":"laqué","Prix EUR l.":"120","Opt_Ajourage + lumineux":"faux"},
+        {"Forme":"carré","Dimension (mm)":"500x500","Finition":"laqué","Prix EUR l.":"150","Opt_Ajourage + lumineux":"vrai"},
+        {"Forme":"rond","Dimension (mm)":"Ø400","Finition":"laqué","Prix EUR l.":"130","Opt_Ajourage + lumineux":"faux"},
+        {"Forme":"rond","Dimension (mm)":"Ø500","Finition":"laqué","Prix EUR l.":"160","Opt_Ajourage + lumineux":"vrai"}
+      ];
+      HEADS=heads; ROWS=rows; MAP=buildMapping(heads);
+      elForme.value='carré'; setFinition('prelaque'); let p=filteredPool(); console.assert(p.length===1 && p[0][MAP.FIN]==='prélaqué', 'Test1');
+      setFinition('ajour'); p=filteredPool(); console.assert(p.length===1 && p[0][MAP.OPTAJL]==='vrai' && p[0][MAP.FIN]==='laqué', 'Test2');
+      elForme.value='rond'; setFinition('prelaque'); p=filteredPool(); console.assert(p.every(r=>r[MAP.FIN]==='laqué'), 'Test3');
+      elDim.value='400x400'; setFinition('laque'); elQ.value=2; p=filteredPool(); const row=p.find(r=>String(r[MAP.DIM]).trim()==='400x400'); let unit=numFR(row[MAP.PRIX]); const totalHT = unit * 2;console.assert(totalHT===480, 'Test4');
+      status.textContent='';
+    }catch(err){ console.warn('Tests error', err); if(status) status.textContent='⚠ tests partiels'; }
+    finally{ HEADS=prev.HEADS; ROWS=prev.ROWS; MAP=prev.MAP; elForme.value=""; elDim.value=""; elQ.value=1; setFinition('prelaque'); }
+  })();
+  </script>
 
-$('btnReset').onclick=()=>{location.reload()};
-
-load();
-</script>
+  <!-- Moteur de devis -->
+  <script src="../js/devis-core.js"></script>
+  <script>
+  document.getElementById("btnAddDevis").addEventListener("click", () => {
+    const quantite = Math.max(1, Number(document.getElementById("quantite").value || 1));
+    const prixTotalText = document.getElementById("prixHT").innerText.trim();
+    const total_ht = parseFloat(prixTotalText.replace(",", ".")) || 0;
+    const pu_public_ht = total_ht / quantite;
+    const designationParts = [];
+    const formeVal = document.getElementById("forme").value || "";
+    const dimVal = document.getElementById("dimension").value || "";
+    const potVal = (document.getElementById('potence')?.value || '').trim();
+    if(formeVal) designationParts.push(formeVal);
+    if(dimVal) designationParts.push(dimVal);
+    if(potVal) designationParts.push(`potence ${potVal} mm`);
+    const finSel = (document.getElementById('finAj').checked ? 'ajour' : (document.getElementById('finLq').checked ? 'laque' : 'prelaque'));
+    if(finSel==='ajour') designationParts.push('ajourage lumineux laqué');
+    else if(finSel==='laque') designationParts.push('laqué');
+    else designationParts.push('prélaqué');
+    const designation = "Enseigne Drapeau" + (designationParts.length ? " — " + designationParts.join(" / ") : "");
+    Devis.addLine({ type: "Enseigne Drapeau", designation, quantite, pu_public_ht });
+    alert(`✅ Ajouté au devis !\n${designation}\nQté : ${quantite}\nPU HT : ${pu_public_ht.toFixed(2)} €`);
+  });
+  </script>
 
 </body>
 </html>
+
+
+
+
+
