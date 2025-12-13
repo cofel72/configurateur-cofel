@@ -292,4 +292,29 @@ input::placeholder {
   outline:none;
   box-shadow: 0 0 0 3px rgba(201,183,255,.35);
 }
+/* ===============================
+   PATCH configurateur Enseigne Drapeau (legacy hero)
+   =============================== */
+
+.hero {
+  padding: 28px 20px 16px;
+}
+
+.hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.brand img {
+  max-height: 48px;
+  width: auto;
+}
+
+.brand {
+  gap: 12px;
+}
+
+.wrap {
+  padding-top: 10px;
+}
 
