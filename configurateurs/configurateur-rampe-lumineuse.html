@@ -189,7 +189,6 @@ const TVA = 0.20;
 const PRICE_RAMPE_ML = 100.00;           // laquage inclus (mémoire projet)
 const PRICE_FIX_DIRECTE = 5.00;
 const PRICE_FIX_PLATINE = 15.00;
-const UPLIFT_PUBLIC = 2.0;
 
 /*** DOM ***/
 const $ = id => document.getElementById(id);
@@ -222,7 +221,18 @@ function compute(){
   const nbFix = Math.max(2, Math.ceil(Lm) + 1);
   const rampeHT = PRICE_RAMPE_ML * Lm;
   const fixHT = fixPrice * nbFix;
-  const unitHT = (rampeHT + fixHT) * UPLIFT_PUBLIC * remiseClient; // affichage public
+  // === Coefficient tarif public Cofel ===
+const COEF_PUBLIC = 2;
+
+// === Base interne ===
+const unitHT_interne = (rampeHT + fixHT);
+
+// === Prix public avant remise ===
+const unitHT_public_base = unitHT_interne * COEF_PUBLIC;
+
+// === Prix net client (après remise) ===
+const unitHT = unitHT_public_base * remiseClient;
+
   const totalHT = unitHT * Q;
   const totalTTC = totalHT * (1 + TVA);
 
@@ -291,3 +301,4 @@ compute();
 
 </body>
 </html>
+
