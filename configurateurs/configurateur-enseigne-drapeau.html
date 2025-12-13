@@ -79,11 +79,23 @@
       <h2>🎛️ Options</h2>
       <fieldset class="card" style="border:none; padding:0;">
         <legend class="muted" style="margin-bottom:8px;">Finition (obligatoire)</legend>
-        <div class="choice-group">
-          <label class="option-item"><input type="radio" name="finition" id="finPre" value="prelaque" checked /><span>Prélaqué (base)</span></label>
-          <label class="option-item"><input type="radio" name="finition" id="finLq" value="laque" /><span>Laqué</span></label>
-          <label class="option-item"><input type="radio" name="finition" id="finAj" value="ajour" /><span>Ajourage + PMMA 3 mm + lumineux (laqué)</span></label>
-        </div>
+       <div class="radio-row">
+  <label class="pill">
+    <input type="radio" name="finition" id="finPre" value="prelaque" checked>
+    Prélaqué (base)
+  </label>
+
+  <label class="pill">
+    <input type="radio" name="finition" id="finLq" value="laque">
+    Laqué
+  </label>
+
+  <label class="pill">
+    <input type="radio" name="finition" id="finAj" value="ajour">
+    Ajourage + PMMA 3 mm + lumineux (laqué)
+  </label>
+</div>
+
         <div id="helpFinition" class="muted"></div>
       </fieldset>
     </section>
@@ -387,6 +399,7 @@ const unit_net = unit_public * remiseClient;
 
 </body>
 </html>
+
 
 
 
