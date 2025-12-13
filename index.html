@@ -947,8 +947,15 @@ await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf", {
   }
 });
 
-    // Initial render
-    render();
+        // Initial render (important après login / reload Cloudflare)
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => {
+        render();
+      });
+    } else {
+      render();
+    }
+
 
    // 🚪 Déconnexion (client + admin)
 (function setupLogout(){
