@@ -16,18 +16,19 @@
 <body>
 
   <!-- ===== HERO ===== -->
-  <div class="hero">
-    <div class="hero-inner">
-      <div class="brand">
-        <img src="../assets/logo cofel.jpg" alt="Cofel" />
-        <h1>Configurateur — Enseignes Drapeaux</h1>
-      </div>
-      <a class="brand" href="../index.html" style="text-decoration:none;color:inherit">⬅ Retour accueil (devis)</a>
-    </div>
-    <div class="tagline">Choisissez la forme, la dimension et les options. Les montants s’actualisent automatiquement. <span id="testStatus" aria-live="polite"></span></div>
-  </div>
+ <header class="cofel-header">
+  <div class="row">
+    <a class="cofel-back" href="../index.html">⬅ Retour accueil (Devis)</a>
 
-  <!-- ===== CONTENU ===== -->
+    <div class="cofel-brand">
+      <img src="../assets/logo cofel.jpg" alt="Cofel" />
+      <h1 class="cofel-title">Configurateur — Enseignes Drapeaux</h1>
+    </div>
+  </div>
+</header>
+
+<div class="cofel-container">
+
   <main class="wrap">
 
     <!-- Paramètres principaux -->
@@ -103,6 +104,7 @@
     </section>
 
   </main>
+</div> <!-- fin cofel-container -->
 
   <footer>
     © Cofel — ZA du Perquoi, 72560 Changé — SIRET 927 659 458 00024 — TVA FR80927659458
@@ -386,6 +388,7 @@ const unit_net = unit_public * remiseClient;
 
 </body>
 </html>
+
 
 
 
