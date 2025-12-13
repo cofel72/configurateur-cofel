@@ -347,4 +347,68 @@ input::placeholder {
     max-width: 100%;
   }
 }
+/* ============================
+   GROUPES DE CHOIX (radios type cartes)
+   — utilisé pour Finition / Matière
+============================ */
+
+.choice-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.choice-group .option-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 18px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-weight: 700;
+  text-align: center;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.18),
+    rgba(255,255,255,0.08)
+  );
+  border: 1px solid rgba(255,255,255,0.28);
+  box-shadow: var(--shadow);
+
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.choice-group .option-item:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.26),
+    rgba(255,255,255,0.12)
+  );
+}
+
+/* cache le radio natif */
+.choice-group .option-item input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* état sélectionné */
+.choice-group .option-item input[type="radio"]:checked + span {
+  color: #fff;
+}
+
+.choice-group .option-item input[type="radio"]:checked ~ span,
+.choice-group .option-item:has(input[type="radio"]:checked) {
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.35),
+    rgba(255,255,255,0.18)
+  );
+  border-color: rgba(255,255,255,0.6);
+  box-shadow: 0 12px 26px rgba(0,0,0,0.35);
+}
 
