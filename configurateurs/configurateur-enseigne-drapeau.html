@@ -393,21 +393,28 @@ function compute(){
     return;
   }
 
-  // === Prix interne issu du CSV (BASE UNIQUE) ===
-  let unit_interne = numFR(row[MAP.PRIX]);
-  if (!isFinite(unit_interne)) unit_interne = 0;
+  // === Prix interne issu du CSV ===
+let unit_interne = numFR(row[MAP.PRIX]);
+if (!isFinite(unit_interne)) unit_interne = 0;
 
-  // === Remise client automatique (si profil connecté) ===
-  let remiseClient = 1; // 1 = aucune remise
-  try {
-    const profile = JSON.parse(localStorage.getItem('cofel_client_profile'));
-    if (profile && typeof profile.discountRate === 'number') {
-      remiseClient = 1 - profile.discountRate; // ex: 0.7 si -30 %
-    }
-  } catch(e){}
+// === Coefficient tarif public Cofel ===
+const COEF_PUBLIC = 2;
 
-  // === PRIX NET FINAL ===
-  const unit_net = unit_interne * remiseClient;
+// === Prix public de base ===
+const unit_public = unit_interne * COEF_PUBLIC;
+
+// === Remise client automatique (si profil connecté) ===
+let remiseClient = 1;
+try {
+  const profile = JSON.parse(localStorage.getItem('cofel_client_profile'));
+  if (profile && typeof profile.discountRate === 'number') {
+    remiseClient = 1 - profile.discountRate;
+  }
+} catch(e){}
+
+// === PRIX NET CLIENT FINAL ===
+const unit_net = unit_public * remiseClient;
+
 
   const totalHT  = unit_net * Q;
   const totalTTC = totalHT * (1 + TVA);
@@ -483,6 +490,7 @@ function compute(){
 
 </body>
 </html>
+
 
 
 
