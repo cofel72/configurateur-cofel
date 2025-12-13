@@ -126,16 +126,25 @@ st.lignes.push({
     writeStore(st);
   }
 
-  function updateQty(id, q) {
-    q = Number(q);
-    if (!(q > 0)) return;
-    const st = ensureState();
-    const l = st.lignes.find(x => x.id === id);
-    if (!l) return;
-    l.quantite = q;
-    l.total_ligne_ht = +(q * Number(l.pu_net_ht || 0)).toFixed(2);
-    writeStore(st);
-  }
+ function updateQty(id, q) {
+  q = Number(q);
+  if (!(q > 0)) return;
+
+  const st = ensureState();
+  const l = st.lignes.find(x => x.id === id);
+  if (!l) return;
+
+  l.quantite = q;
+
+  const pu_net = Number(l.pu_net_ht || 0);
+
+  l.total_ligne_ht  = +(q * pu_net).toFixed(2);
+  l.total_public_ht = +(q * pu_net).toFixed(2);
+  l.total_remise_ht = +(q * pu_net).toFixed(2);
+
+  writeStore(st);
+}
+
   // === RÉCUPÉRER UNE LIGNE PAR ID ===
   function getLine(id) {
     const st = ensureState();
@@ -182,23 +191,32 @@ if (adminDidNotEditPrice) {
 }
 
 // 👉 CAS 2 : l’admin MODIFIE le PU → recalcul normal
-const pu = Number(
-  updated.pu_public_ht !== undefined ? updated.pu_public_ht :
-  updated.pu_remise_ht !== undefined ? updated.pu_remise_ht :
-  updated.pu_net_ht !== undefined ? updated.pu_net_ht : 0
-);
+let pu_net = 0;
 
-updated.pu_public_ht   = pu;
-updated.pu_remise_ht   = pu;
-updated.pu_net_ht      = pu;
+if (patch.pu_net_ht !== undefined) {
+  pu_net = Number(patch.pu_net_ht);
+} else if (patch.pu_remise_ht !== undefined) {
+  pu_net = Number(patch.pu_remise_ht);
+} else if (patch.pu_public_ht !== undefined) {
+  pu_net = Number(patch.pu_public_ht);
+} else {
+  pu_net = Number(old.pu_net_ht || 0);
+}
 
-updated.total_public_ht = +(q * pu).toFixed(2);
-updated.total_remise_ht = +(q * pu).toFixed(2);
-updated.total_ligne_ht  = +(q * pu).toFixed(2);
+if (!isFinite(pu_net)) pu_net = 0;
+
+updated.pu_net_ht = pu_net;
+updated.pu_public_ht = pu_net;
+updated.pu_remise_ht = pu_net;
+
+updated.total_ligne_ht  = +(q * pu_net).toFixed(2);
+updated.total_public_ht = +(q * pu_net).toFixed(2);
+updated.total_remise_ht = +(q * pu_net).toFixed(2);
 
 lignes[idx] = updated;
 st.lignes = lignes;
 writeStore(st);
+
 
   }
 
