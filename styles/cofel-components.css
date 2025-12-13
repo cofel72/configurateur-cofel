@@ -317,4 +317,34 @@ input::placeholder {
 .wrap {
   padding-top: 10px;
 }
+/* ================================
+   Ajustement options radio (panels)
+   ================================ */
+
+.panel .radio-row,
+.panel .grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Boutons radio / options */
+.panel .option-item {
+  flex: 1 1 calc(50% - 12px);
+  max-width: calc(50% - 12px);
+}
+
+/* Cas où il n'y a que 2 options */
+.panel .option-item:only-child,
+.panel .option-item:nth-last-child(2):first-child {
+  flex: 1 1 calc(50% - 12px);
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .panel .option-item {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+}
 
