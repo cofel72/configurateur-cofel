@@ -947,11 +947,11 @@ await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf", {
   }
 });
 
-        // 🔁 Recharge explicite du devis AVANT affichage (Cloudflare fix)
+// 🔁 Boot devis robuste : recharge + render, et se relance à chaque retour/focus
 function bootDevis() {
   try {
     if (window.Devis && typeof Devis.reload === "function") {
-      Devis.reload(); // 👈 ESSENTIEL
+      Devis.reload();
     }
   } catch (e) {
     console.warn("Reload devis impossible", e);
@@ -960,11 +960,22 @@ function bootDevis() {
   render();
 }
 
+// 1) premier chargement
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", bootDevis);
+  document.addEventListener("DOMContentLoaded", bootDevis, { once: true });
 } else {
   bootDevis();
 }
+
+// 2) quand on revient sur la page (bfcache / back / restore)
+window.addEventListener("pageshow", bootDevis);
+
+// 3) quand l’onglet redevient actif
+window.addEventListener("focus", bootDevis);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) bootDevis();
+});
+
 
 
 
