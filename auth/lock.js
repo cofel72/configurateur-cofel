@@ -53,4 +53,8 @@ function hasClientProfile() {
 // === Point d'entrée ===
 if (!hasValidAdminToken() && !hasClientProfile()) {
   redirectToLogin();
+} else {
+  // ✅ Authentification OK → signal global
+  window.dispatchEvent(new Event("cofel-auth-ready"));
 }
+
