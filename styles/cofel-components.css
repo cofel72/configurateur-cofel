@@ -1,1 +1,189 @@
+/* =========================================================
+   COFEL – COMPONENTS
+   Composants réutilisables (structure & UX)
+   Aucune couleur de thème ici (géré par cofel-glass.css)
+   ========================================================= */
 
+/* ---------- Helpers ---------- */
+.hidden {
+  display: none !important;
+}
+
+/* ---------- Layout ---------- */
+.cofel-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 820px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ---------- Header ---------- */
+.cofel-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.cofel-header .row {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.cofel-back {
+  text-decoration: none;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+.cofel-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cofel-brand img {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+}
+
+.cofel-title {
+  margin: 0;
+  font-size: 18px;
+}
+
+/* ---------- Fieldsets ---------- */
+fieldset {
+  border-radius: 20px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+legend {
+  padding: 0 10px;
+  font-weight: 800;
+}
+
+/* ---------- Form elements ---------- */
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+input[type="number"],
+input[type="text"],
+select {
+  width: 100%;
+  margin-top: 6px;
+  padding: 12px;
+  min-height: 42px;
+  border-radius: 14px;
+  outline: none;
+}
+
+input:disabled {
+  opacity: 0.75;
+}
+
+input::placeholder {
+  opacity: 0.7;
+}
+
+/* ---------- Radio / checkbox pills ---------- */
+.radio-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.radio-row label,
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-weight: 700;
+}
+
+.radio-row input[type="radio"],
+.radio-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- Hint / helper text ---------- */
+.hint {
+  font-size: 12px;
+  margin-top: 6px;
+  opacity: 0.85;
+}
+
+/* ---------- Result block ---------- */
+.result {
+  border-radius: 20px;
+  padding: 16px;
+  margin-top: 18px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.result span {
+  font-weight: 800;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* Floating action button (ajout devis) */
+#btnAddDevis {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  z-index: 2000;
+}
+
+/* ---------- Footer ---------- */
+.cofel-footer {
+  font-size: 12px;
+  text-align: center;
+  padding: 24px 10px;
+  opacity: 0.9;
+}
