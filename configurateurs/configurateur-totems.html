@@ -206,7 +206,6 @@
 const URL_TARIFS  = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/Tarifs_Totems_.csv";
 const URL_OPTIONS = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/option%20platine%20et%20panier%20de%20crosses%20(1).csv";
 const TVA = 0.20;
-const UPLIFT_PUBLIC = 2.0; // affichage PUBLIC x2
 const RAL_PRICE_PUBLIC_M2 = 112; // ✅ déjà prix PUBLIC (x2 inclus)
 
 /* ------- STATE ------- */
@@ -550,15 +549,26 @@ function compute(){
   const opt_interne  = priceOptionsSum();
   const qte  = Math.max(1, parseInt(elQte.value||'1',10));
 
-  // Prix PUBLIC issus du modèle existant
-  const unit_public_base = (base_interne + opt_interne) * UPLIFT_PUBLIC;
+  // === COEF TARIF PUBLIC COFEL ===
+const COEF_PUBLIC = 2;
 
-  // ✅ Surcharge PUBLIC Laquage RAL (déjà x2) – calcul par unité
-  const ral_public_unit = elOptRAL.checked ? (area2FacesM2() * RAL_PRICE_PUBLIC_M2) : 0;
-// Laquage pieds du totem (prix PUBLIC fixe)
+// === BASE INTERNE ===
+const unit_interne = base_interne + opt_interne;
+
+// === PRIX PUBLIC AVANT REMISE ===
+const unit_public_base = unit_interne * COEF_PUBLIC;
+
+// === OPTIONS DÉJÀ EN PUBLIC ===
+const ral_public_unit = elOptRAL.checked
+  ? (area2FacesM2() * RAL_PRICE_PUBLIC_M2)
+  : 0;
+
 const pieds_public_unit = document.getElementById('optPieds').checked ? 35 : 0;
 
-  const unit_public_total = (unit_public_base + ral_public_unit + pieds_public_unit) * remiseClient;
+// === PRIX NET CLIENT ===
+const unit_public_total =
+  (unit_public_base + ral_public_unit + pieds_public_unit) * remiseClient;
+
 
   const totalHT_pub  = unit_public_total * qte;
   const totalTTC_pub = totalHT_pub * (1+TVA);
@@ -711,5 +721,6 @@ loadAll();
 </script>
 </body>
 </html>
+
 
 
