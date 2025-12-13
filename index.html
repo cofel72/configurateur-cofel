@@ -523,11 +523,10 @@ document.getElementById("btnAddManu").addEventListener("click", () => {
 if (e.target.classList.contains('btn-edit')) {
 
   // ----- Autorisation modification ligne (admin complet OU éditeur devis) -----
-if (!canEditQuote) {
-  alert("⛔ Vous n’êtes pas autorisé à modifier une ligne.");
-  return;
-}
-
+  if (!canEditQuote) {
+    alert("⛔ Vous n’êtes pas autorisé à modifier une ligne.");
+    return;
+  }
 
   const tr = e.target.closest("tr[data-id]");
   const id = tr.getAttribute("data-id");
@@ -537,17 +536,26 @@ if (!canEditQuote) {
   const newDesignation = prompt("Nouvelle désignation :", l.designation || "");
   if (newDesignation === null) return;
 
-  const newPU = prompt("Nouveau PU HT :", l.pu_net_ht);
-  if (newPU === null) return;
+  const newPUraw = prompt("Nouveau PU HT :", l.pu_net_ht);
+  if (newPUraw === null) return;
 
+  const newPU = Number(newPUraw);
+  if (isNaN(newPU) || newPU < 0) {
+    alert("❌ Prix invalide.");
+    return;
+  }
+
+  // 🔧 MISE À JOUR COMPLÈTE DE LA LIGNE
   Devis.updateLine(id, {
     designation: newDesignation.trim(),
-    pu_net_ht: Number(newPU)
+    pu_net_ht: newPU,
+    total_ligne_ht: +(newPU * Number(l.quantite || 1)).toFixed(2)
   });
 
   render();
   return;
 }
+
 
       if(e.target.classList.contains('btn-del')){
         if(confirm("Supprimer cette ligne du devis ?")){
