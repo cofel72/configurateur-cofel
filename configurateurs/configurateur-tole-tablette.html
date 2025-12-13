@@ -318,7 +318,6 @@ const BOX_PRICE_M2 = {
   laque: 105.0
 };
 const AJOURAGE_PRICE_M2 = 99.0;
-const UPLIFT_PUBLIC = 2.0;
 const LISSE_PRICE_ML = 25;  // prix interne en €/mètre linéaire
 
 /*** STATE / DOM ***/
@@ -564,7 +563,15 @@ function compute(){
 
   const unitHT_interne = base_interne_majoré + ajourage_interne + pmma_interne + led_interne + fix_interne;
 
-  const unitHT_public = unitHT_interne * UPLIFT_PUBLIC * remiseClient;
+  // === Coefficient tarif public Cofel ===
+const COEF_PUBLIC = 2;
+
+// === Prix public avant remise ===
+const unitHT_public_base = unitHT_interne * COEF_PUBLIC;
+
+// === Prix net client ===
+const unitHT_public = unitHT_public_base * remiseClient;
+
   const totalHT_public = unitHT_public * Q;
   const totalTTC_public = totalHT_public * (1+TVA);
 
@@ -720,6 +727,7 @@ const lisseML = lisseMM / 1000;
 
 </body>
 </html>
+
 
 
 
