@@ -942,31 +942,31 @@ await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf", {
     // Initial render
     render();
 
-    // 🚪 Déconnexion (client + admin)
-    (function setupLogout(){
-      const btn = document.getElementById("logoutBtn");
-      if (!btn) return;
+   // 🚪 Déconnexion (client + admin)
+(function setupLogout(){
+  const btn = document.getElementById("logoutBtn");
+  if (!btn) return;
 
-      btn.addEventListener("click", () => {
-        try {
-          // Profil client
-          localStorage.removeItem('cofel_client_profile');
-          // Tokens admin éventuels
-          Object.keys(localStorage).forEach(key => {
-            if (key.startsWith('auth_token_')) {
-              localStorage.removeItem(key);
-            }
-          });
-        } catch (e) {
-          console.error("Erreur nettoyage stockage lors de la déconnexion", e);
+  btn.addEventListener("click", () => {
+    try {
+      // Profil client
+      localStorage.removeItem("cofel_client_profile");
+
+      // Tokens admin éventuels
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith("auth_token_")) {
+          localStorage.removeItem(key);
         }
-
-        const parts = location.pathname.split("/").filter(Boolean);
-        const project = parts.length ? parts[0] : "";
-        const loginUrl = `/${project}/auth/client-login.html`;
-        location.href = loginUrl;
       });
-    })();
+    } catch (e) {
+      console.error("Erreur nettoyage stockage lors de la déconnexion", e);
+    }
+
+    // 🔁 Redirection simple (Cloudflare OK)
+    location.href = "/auth/client-login.html";
+  });
+})();
+
 
   })();
   </script>
