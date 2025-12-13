@@ -947,14 +947,25 @@ await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf", {
   }
 });
 
-        // Initial render (important après login / reload Cloudflare)
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", () => {
-        render();
-      });
-    } else {
-      render();
+        // 🔁 Recharge explicite du devis AVANT affichage (Cloudflare fix)
+function bootDevis() {
+  try {
+    if (window.Devis && typeof Devis.reload === "function") {
+      Devis.reload(); // 👈 ESSENTIEL
     }
+  } catch (e) {
+    console.warn("Reload devis impossible", e);
+  }
+
+  render();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bootDevis);
+} else {
+  bootDevis();
+}
+
 
 
    // 🚪 Déconnexion (client + admin)
