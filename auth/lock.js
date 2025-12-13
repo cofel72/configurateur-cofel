@@ -18,7 +18,7 @@ function getProjectBase() {
 function redirectToLogin() {
   const base = getProjectBase();
   const returnUrl = encodeURIComponent(location.href);
-  location.replace(`${base}auth/login.html?return=${returnUrl}`);
+  location.replace(`${base}auth/client-login.html?return=${returnUrl}`);
 }
 
 function hasValidAdminToken() {
