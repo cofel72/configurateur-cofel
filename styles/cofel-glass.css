@@ -323,3 +323,57 @@ select:focus{
   padding:24px 10px;
   opacity:.9;
 }
+/* ===========================
+   OVERRIDES THEME GLASS
+   =========================== */
+
+body {
+  color: #f5f7ff;
+}
+
+/* Textes */
+label,
+legend,
+.field label,
+.hint,
+.muted,
+.sub,
+.result,
+.result span,
+.result b {
+  color: #f5f7ff;
+}
+
+/* Inputs */
+input,
+select,
+textarea {
+  color: #ffffff;
+}
+
+/* Placeholders */
+input::placeholder {
+  color: rgba(245, 247, 255, 0.6);
+}
+
+/* Cartes */
+.card,
+fieldset {
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.16),
+    rgba(255,255,255,0.06)
+  );
+  color: #f5f7ff;
+}
+
+/* Résultats */
+.result {
+  color: #ffffff;
+}
+
+/* Sécurité radio / checkbox */
+.radio-row label {
+  color: #ffffff;
+}
+
