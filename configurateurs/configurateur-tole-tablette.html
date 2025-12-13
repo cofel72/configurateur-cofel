@@ -6,131 +6,12 @@
 <title>Configurateur Tôle Tablette – Cofel</title>
 
 <!-- Styles communs Cofel (si présents) -->
-<link rel="stylesheet" href="../styles/cofel.css" />
-<link rel="stylesheet" href="../styles/cofel-config.css" />
+<link rel="stylesheet" href="../styles/cofel.css">
+<link rel="stylesheet" href="../styles/cofel-components.css">
+<link rel="stylesheet" href="../styles/cofel-glass.css">
 
-<style>
-  /* ====== DA Cofel : verre violet (même esprit que tes autres configurateurs validés) ====== */
-  :root{
-    --violet:#5a2d82;
-    --violet-2:#7838a7;
-    --glass: rgba(255,255,255,.08);
-    --glass-hr: rgba(255,255,255,.14);
-    --txt:#f5f7ff;
-    --txt-dim:#e6e6ff;
-    --accent:#c9b7ff;
-    --radius:18px;
-    --blur:18px;
-    --shadow: 0 10px 30px rgba(0,0,0,.35);
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; color:var(--txt);
-    font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Arial, sans-serif;
-    background:
-      radial-gradient(800px 500px at 20% -10%, rgba(255,255,255,.10), transparent 60%),
-      radial-gradient(800px 500px at 110% 10%, rgba(255,255,255,.08), transparent 60%),
-      linear-gradient(135deg, var(--violet), var(--violet-2));
-  }
 
-  .cofel-header{
-    position:sticky; top:0; z-index:1000; color:#fff;
-    background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
-    border-bottom:1px solid rgba(255,255,255,.18);
-    backdrop-filter: blur(var(--blur));
-  }
-  .cofel-header .row{
-    max-width:1200px; margin:0 auto; display:flex; align-items:center; gap:16px; padding:10px 14px;
-  }
-  .cofel-back{
-    color:#fff; text-decoration:none; border:1px solid rgba(255,255,255,.35);
-    padding:8px 12px; border-radius:12px; backdrop-filter: blur(10px);
-  }
-  .cofel-brand{display:flex; align-items:center; gap:10px}
-  .cofel-brand img{height:36px; border-radius:8px; object-fit:cover}
-  .cofel-title{font-size:18px; margin:0}
 
-  .cofel-container{max-width:1100px; margin:0 auto; padding:18px}
-
-  h1{margin:8px 0 14px; text-align:center; letter-spacing:.2px}
-
-  fieldset{
-    border:1px solid rgba(255,255,255,.2);
-    border-radius:20px; padding:16px; margin:16px 0;
-    background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
-    box-shadow: var(--shadow); backdrop-filter: blur(var(--blur));
-    overflow:visible;
-  }
-  legend{
-    padding:0 10px; font-weight:800; color:#fff; letter-spacing:.2px;
-  }
-
-  label{font-weight:700; font-size:13px; color:var(--accent); display:block; margin-top:10px}
-
-  input[type="number"],
-  input[type="text"],
-  select{
-    width:100%; margin-top:6px; padding:12px 12px; min-height:42px;
-    background: rgba(255,255,255,.10); color:var(--txt);
-    border:1px solid rgba(255,255,255,.24); border-radius:14px; outline:none;
-    transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
-    position:relative; z-index:1;
-  }
-
-  input::placeholder{color:#f0edff; opacity:.75}
-  input:focus, select:focus{
-    border-color: rgba(255,255,255,.38);
-    background: rgba(255,255,255,.16);
-    box-shadow: 0 0 0 4px rgba(255,255,255,.08) inset;
-  }
-
-  select{ appearance:auto; }
-  select option{ background:#3c1f61; color:#fff; }
-  fieldset, .radio-row, .glass-card{ position:relative; z-index:1; }
-  select:focus{ z-index:1001; }
-
-  .grid{display:grid; gap:16px}
-  @media(min-width:820px){ .grid{grid-template-columns:1fr 1fr} }
-
-  .radio-row{
-    display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;
-  }
-  .radio-row label,
-  .pill{
-    display:flex; align-items:center; gap:10px; cursor:pointer;
-    padding:10px 14px; border-radius:14px;
-    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
-    border:1px solid rgba(255,255,255,.24); color:#fff; font-weight:700;
-    box-shadow: var(--shadow);
-  }
-  .radio-row input[type="radio"],
-  .radio-row input[type="checkbox"]{ accent-color:#cbb3ff; width:18px; height:18px }
-
-  .hint{ color:var(--txt-dim); font-size:12px; margin-top:6px }
-
-  .hidden{display:none}
-
-  .result{
-    background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
-    border:1px solid rgba(255,255,255,.24);
-    border-radius:20px; padding:16px; margin-top:18px; text-align:center; font-size:18px;
-    box-shadow: var(--shadow); backdrop-filter: blur(var(--blur));
-  }
-  .result span{ font-weight:800; }
-
-  #btnAddDevis{
-    position:fixed; right:20px; bottom:20px; padding:12px 18px;
-    background:#fff; color:#0b0b0b; border:none; border-radius:14px;
-    box-shadow:0 10px 24px rgba(0,0,0,.25); cursor:pointer; font-weight:800; z-index:2000;
-    transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease;
-  }
-  #btnAddDevis:active{ transform: translateY(1px); box-shadow: 0 6px 16px rgba(0,0,0,.28); }
-
-  .cofel-footer{
-    color:#f3ecff; font-size:12px; text-align:center; padding:24px 10px; opacity:.9;
-  }
-</style>
 </head>
 <body>
 
@@ -727,6 +608,7 @@ const lisseML = lisseMM / 1000;
 
 </body>
 </html>
+
 
 
 
