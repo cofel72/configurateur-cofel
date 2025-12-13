@@ -215,7 +215,6 @@
   <!-- ===== LOGIQUE (inchangée sauf reset + désignation) ===== -->
   <script>
   const TVA = 0.20;
-  const UPLIFT_PUBLIC = 2.0;
   const CSV_URL = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/Enseigne%20drapeaux.csv";
 
   let HEADS=[], ROWS=[], MAP=null;
@@ -381,21 +380,8 @@
     } else { elFinPre.disabled = false; elHelpFinition.textContent = ''; }
   }
 function compute(){
-  // === Remise automatique client ===
-  let remiseClient = 1; // 1 = pas de remise
-  try {
-    const p = JSON.parse(localStorage.getItem('cofel_client_profile'));
-    if (p && typeof p.discountRate === 'number') {
-      // discountRate est un nombre entre 0 et 1 (ex: 0.3 = 30 %)
-      remiseClient = 1 - p.discountRate;
-    }
-  } catch(e){}
 
-  // === Mode tarif : client final / prix remisé ===
-  const mode = localStorage.getItem('cofel_price_mode') || 'client';
-  // 'client' = prix public
-  // 'pro'    = prix remisé
-
+  // === Synchronisation UI finition ===
   syncFinitionUI();
 
   const row = findRow();
@@ -406,31 +392,31 @@ function compute(){
     elTTC.textContent = '0,00';
     return;
   }
-// 🔥 Recalcul automatique quand le mode tarif change
-window.addEventListener("cofel-price-mode-changed", compute);
-  // Prix de base (interne) lu dans le CSV
+
+  // === Prix interne issu du CSV (BASE UNIQUE) ===
   let unit_interne = numFR(row[MAP.PRIX]);
   if (!isFinite(unit_interne)) unit_interne = 0;
 
-  // Prix public théorique (sans remise)
-  const unit_public_base = unit_interne * UPLIFT_PUBLIC;
+  // === Remise client automatique (si profil connecté) ===
+  let remiseClient = 1; // 1 = aucune remise
+  try {
+    const profile = JSON.parse(localStorage.getItem('cofel_client_profile'));
+    if (profile && typeof profile.discountRate === 'number') {
+      remiseClient = 1 - profile.discountRate; // ex: 0.7 si -30 %
+    }
+  } catch(e){}
 
-  // Prix affiché selon le mode
-  let unit_affiche;
-  if (mode === 'pro') {
-    // Mode Prix Remisé : on applique la remise client
-    unit_affiche = unit_public_base * remiseClient;
-  } else {
-    // Mode Client Final : pas de remise appliquée
-    unit_affiche = unit_public_base;
-  }
+  // === PRIX NET FINAL ===
+  const unit_net = unit_interne * remiseClient;
 
-  const totalHT  = unit_affiche * Q;
+  const totalHT  = unit_net * Q;
   const totalTTC = totalHT * (1 + TVA);
 
+  // === Affichage ===
   elHT.textContent  = euro(totalHT);
   elTTC.textContent = euro(totalTTC);
 }
+
 
   async function loadCSV(){
     try{ const r=await fetch(CSV_URL,{cache:'no-store'}); const txt=await r.text(); const {rawHeads,rows}=parseCSVAuto(txt); HEADS=rawHeads; ROWS=rows; MAP=buildMapping(HEADS); populateFormes(); populateDimensions(); compute(); }
@@ -463,7 +449,7 @@ window.addEventListener("cofel-price-mode-changed", compute);
       elForme.value='carré'; setFinition('prelaque'); let p=filteredPool(); console.assert(p.length===1 && p[0][MAP.FIN]==='prélaqué', 'Test1');
       setFinition('ajour'); p=filteredPool(); console.assert(p.length===1 && p[0][MAP.OPTAJL]==='vrai' && p[0][MAP.FIN]==='laqué', 'Test2');
       elForme.value='rond'; setFinition('prelaque'); p=filteredPool(); console.assert(p.every(r=>r[MAP.FIN]==='laqué'), 'Test3');
-      elDim.value='400x400'; setFinition('laque'); elQ.value=2; p=filteredPool(); const row=p.find(r=>String(r[MAP.DIM]).trim()==='400x400'); let unit=numFR(row[MAP.PRIX]); const totalHT=unit*UPLIFT_PUBLIC*2; console.assert(totalHT===480, 'Test4');
+      elDim.value='400x400'; setFinition('laque'); elQ.value=2; p=filteredPool(); const row=p.find(r=>String(r[MAP.DIM]).trim()==='400x400'); let unit=numFR(row[MAP.PRIX]); const totalHT = unit * 2;console.assert(totalHT===480, 'Test4');
       status.textContent='';
     }catch(err){ console.warn('Tests error', err); if(status) status.textContent='⚠ tests partiels'; }
     finally{ HEADS=prev.HEADS; ROWS=prev.ROWS; MAP=prev.MAP; elForme.value=""; elDim.value=""; elQ.value=1; setFinition('prelaque'); }
@@ -497,5 +483,6 @@ window.addEventListener("cofel-price-mode-changed", compute);
 
 </body>
 </html>
+
 
 
