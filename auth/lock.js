@@ -10,9 +10,9 @@ const TOKEN_KEY = `auth_token_${AUTH_SETTINGS.siteId}`;
 const CLIENT_KEY = "cofel_client_profile";
 
 function getProjectBase() {
-  const parts = location.pathname.split("/").filter(Boolean);
-  const project = parts.length ? parts[0] : "";
-  return `/${project}/`;
+  // Sur Cloudflare Pages, ton site est servi à la racine,
+  // donc la base est toujours "/"
+  return "/";
 }
 
 function redirectToLogin() {
