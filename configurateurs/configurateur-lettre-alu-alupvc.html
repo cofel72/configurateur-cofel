@@ -280,7 +280,7 @@
 <!-- ===================== JS ===================== -->
 <script>
 const TVA = 0.20;
-const UPLIFT_PUBLIC = 2.0;
+const COEF_PUBLIC = 2;
 const CSV_URL = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/lettres/Lettre%20alu%2020_10%20%C3%A8me%20ou%20Type%20Dibond%203%20mm.csv";
 const H_MAX = 1500;
 const LISSE_PRICE_ML = 25; // €/ml interne
@@ -487,7 +487,12 @@ function compute(){
     }
   }
 
-  const unit_public = unit_interne * UPLIFT_PUBLIC * remiseClient;
+  // === PRIX PUBLIC AVANT REMISE ===
+const unit_public_brut = unit_interne * COEF_PUBLIC;
+
+// === PRIX NET CLIENT ===
+const unit_public = unit_public_brut * remiseClient;
+
   const totalHT = unit_public * Q;
   const totalTTC = totalHT * (1+TVA);
 
@@ -573,3 +578,4 @@ $("btnAddDevis").addEventListener("click", ()=>{
 
 </body>
 </html>
+
