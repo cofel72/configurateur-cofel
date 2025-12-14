@@ -4,194 +4,29 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
 <title>Configurateur — Lettres Alu 20/10 & Dibond 3 mm | Cofel</title>
+  
+<link rel="stylesheet" href="../styles/cofel.css">
+<link rel="stylesheet" href="../styles/cofel-components.css">
+<link rel="stylesheet" href="../styles/cofel-glass.css">
 
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<style>
-  /* ====== DA Cofel : verre violet (modèle « Tôle Tablette ») ====== */
-  :root{
-    --violet:#5a2d82;
-    --violet-2:#7838a7;
-    --glass: rgba(255,255,255,.08);
-    --glass-hr: rgba(255,255,255,.14);
-    --txt:#f5f7ff;
-    --txt-dim:#e6e6ff;
-    --accent:#c9b7ff;
-    --radius:18px;
-    --blur:18px;
-    --shadow: 0 10px 30px rgba(0,0,0,.35);
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; color:var(--txt);
-    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
-    background:
-      radial-gradient(800px 500px at 20% -10%, rgba(255,255,255,.10), transparent 60%),
-      radial-gradient(800px 500px at 110% 10%, rgba(255,255,255,.08), transparent 60%),
-      linear-gradient(135deg, var(--violet), var(--violet-2));
-  }
-
-  /* ===================== HERO ===================== */
-  .hero{position:relative;z-index:1;padding:40px 20px 24px;}
-  .hero-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;}
-  .brand{
-    display:flex;align-items:center;gap:14px;
-    backdrop-filter:blur(var(--blur));
-    background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
-    border:1px solid rgba(255,255,255,.18);
-    padding:10px 14px;border-radius:14px;box-shadow:var(--shadow);
-  }
-  .brand img{height:42px;width:auto;border-radius:10px}
-  .brand h1{font-size:clamp(18px,2.6vw,22px);margin:0}
-  .tagline{max-width:1200px;margin:18px auto 0;padding:0 20px;color:var(--txt-dim)}
-
-  /* ===================== LAYOUT / CARDS ===================== */
-  .wrap{max-width:1200px;margin:26px auto;padding:0 20px 40px;}
-  .panel{
-    background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));
-    border:1px solid rgba(255,255,255,.2);
-    border-radius:20px;padding:18px;box-shadow:var(--shadow);backdrop-filter:blur(var(--blur));
-    margin-bottom:18px; position:relative; z-index:1;
-  }
-  .panel h2{margin:0 0 12px;font-size:clamp(18px,2.4vw,22px);letter-spacing:.2px;color:var(--accent)}
-  .card{
-    background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
-    border:1px solid rgba(255,255,255,.18);
-    border-radius:16px;padding:14px;box-shadow:var(--shadow); backdrop-filter: blur(var(--blur));
-  }
-  .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
-  .muted{color:var(--txt-dim);font-size:12px;margin-top:6px;white-space:pre-wrap}
-  footer{color:#f3ecff;font-size:12px;text-align:center;padding:24px 10px;opacity:.9;}
-
-  /* ===================== FORM CONTROLS (harmonisés) ===================== */
-  label{font-weight:700;font-size:13px;color:var(--accent);}  
-  input[type="number"], select{
-    width:100%; padding:12px; margin-top:6px; min-height:42px;
-    border-radius:14px; outline:none; color:var(--txt);
-    border:1px solid rgba(255,255,255,.24);
-    background: rgba(255,255,255,.10);
-    box-shadow:var(--shadow);
-    transition:border-color .18s, box-shadow .18s, background .18s;
-    position:relative; z-index:1;
-  }
-  input::placeholder{color:#f0edff; opacity:.75}
-  input:focus, select:focus{
-    border-color:rgba(255,255,255,.38);
-    background: rgba(255,255,255,.16);
-    box-shadow:0 0 0 4px rgba(255,255,255,.08) inset;
-  }
-  /* Select natif : options violettes lisibles */
-  select{ appearance:auto; }
-  select option{ background:#3c1f61; color:#fff; }
-  select:focus{ z-index:1001; }
-
-  /* ====== SELECT CUSTOM (look aligné aux inputs) ====== */
-  .native-select{ position:absolute !important; opacity:0 !important; pointer-events:none !important; width:0;height:0;margin:0;padding:0;border:0; }
-  .cselect{ position:relative; margin-top:6px; }
-  .cselect-toggle{
-    width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding:12px; color:var(--txt);
-    border-radius:14px; cursor:pointer; user-select:none;
-    border:1px solid rgba(255,255,255,.24);
-    box-shadow: var(--shadow);
-    background: rgba(255,255,255,.10);
-  }
-  .cselect-toggle:hover{ background: rgba(255,255,255,.16); }
-  .cselect-toggle:focus-visible{ outline:none; box-shadow: 0 0 0 4px rgba(255,255,255,.08) inset; }
-  .cselect-label{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1}
-  .cselect-caret{
-    width:10px; height:10px; flex:0 0 auto; opacity:.9;
-    background-image:
-      linear-gradient(45deg, transparent 50%, var(--txt) 50%),
-      linear-gradient(135deg, var(--txt) 50%, transparent 50%);
-    background-size:6px 6px, 6px 6px;
-    background-position:right top, right bottom;
-    background-repeat:no-repeat; transform: translateY(1px);
-  }
-  .cselect[aria-expanded="true"] .cselect-caret{ transform: rotate(180deg); }
-  .cselect-menu{
-    position:fixed; left:0; top:0; width:260px; z-index:99999;
-    max-height:300px; overflow:auto; padding:6px;
-    border-radius:14px; border:1px solid rgba(255,255,255,.22);
-    box-shadow: 0 16px 40px rgba(0,0,0,.45);
-    background: #3c1f61;  /* fond violet sombre */
-    display:none;
-  }
-  .cselect[aria-expanded="true"] .cselect-menu{ display:block; }
-  .cselect-option{
-    border-radius:10px; margin:4px 0; padding:10px 12px; cursor:pointer;
-    color:#fff;
-    border:1px solid rgba(255,255,255,.18);
-    background: rgba(255,255,255,.08);
-  }
-  .cselect-option:hover, .cselect-option[aria-selected="true"]{
-    background: rgba(255,255,255,.18);
-    border-color: rgba(255,255,255,.28);
-  }
-
-  /* ===================== CHECKBOX / RADIO ===================== */
-  .option-item{
-    display:flex;align-items:center;gap:10px;cursor:pointer;
-    border-radius:14px;padding:10px 14px;
-    border:1px solid rgba(255,255,255,.24);
-    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
-    box-shadow:var(--shadow);
-    margin-bottom:8px;
-    color:var(--txt);
-  }
-  .option-item input{
-    appearance:none;-webkit-appearance:none;
-    width:20px;height:20px;border-radius:6px;
-    border:1px solid rgba(255,255,255,.7);
-    background:rgba(255,255,255,.15);
-    position:relative;
-  }
-  .option-item input:checked{
-    background:var(--violet-2);
-    border-color:#fff;
-  }
-  .option-item input:checked::after{
-    content:"";position:absolute;inset:3px 5px 5px 3px;
-    border-right:3px solid #fff;border-bottom:3px solid #fff;transform:rotate(45deg);
-  }
-
-  /* ===================== RESULT + BUTTONS ===================== */
-  .result{
-    text-align:center;padding:16px;
-    background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
-    border:1px solid rgba(255,255,255,.22); border-radius:16px;
-    box-shadow:0 8px 22px rgba(0,0,0,.28);
-    font-size:18px; color:#fff;
-  }
-  .result b{font-size:20px}
-  .btn{
-    appearance:none;border:none;cursor:pointer;font-weight:700;
-    color:#0b0b0b;background:#fff;border-radius:12px;padding:10px 14px;
-    box-shadow:0 10px 24px rgba(0,0,0,.25);
-    transition:transform .16s, box-shadow .16s;
-  }
-  .btn:active{transform:translateY(1px);box-shadow:0 6px 16px rgba(0,0,0,.28);}
-  .btn-ghost{background:transparent;color:var(--txt);border:1px solid rgba(255,255,255,.24);} 
-
-  .hidden{display:none;}
-</style>
 </head>
 <body>
 
 <!-- ===================== HERO ===================== -->
-<div class="hero">
-  <div class="hero-inner">
-    <div class="brand">
+<header class="cofel-header">
+  <div class="row">
+    <a class="cofel-back" href="../index.html">⬅ Retour accueil (devis)</a>
+
+    <div class="cofel-brand">
       <img src="../assets/logo cofel.jpg" alt="Cofel" />
-      <h1>Configurateur — Lettres Alu 20/10 & Dibond 3 mm</h1>
+      <h1 class="cofel-title">Configurateur — Lettres Alu 20/10 & Dibond 3 mm</h1>
     </div>
-    <a class="brand" href="../index.html" style="text-decoration:none;color:inherit">⬅ Retour accueil (devis)</a>
   </div>
-  <div class="tagline">Saisissez la hauteur, choisissez la finition et les options. Le prix se met à jour automatiquement.</div>
-</div>
+</header>
+
 
 <!-- ===================== CONTENU ===================== -->
+  <div class="cofel-container">
 <main class="wrap">
   <section class="panel" aria-label="Paramètres">
     <h2>⚙️ Paramètres</h2>
@@ -266,14 +101,16 @@
       <div class="muted">TVA 20 % incluse dans le calcul.</div>
     </div>
 
-    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
-      <button id="btnAddDevis" class="btn">➕ Ajouter au devis</button>
-      <button id="btnReset"   class="btn btn-ghost">🔄 Réinitialiser</button>
-    </div>
+   <div class="cofel-actions">
+  <button id="btnAddDevis" class="cofel-fab">➕ Ajouter au devis</button>
+  <button id="btnReset" class="btn btn-ghost">🔄 Réinitialiser</button>
+</div>
+
   </section>
 </main>
+</div>
 
-<footer>
+<footer class="cofel-footer">
   © Cofel — ZA du Perquoi, 72560 Changé — SIRET 927 659 458 00024 — TVA FR80927659458
 </footer>
 
@@ -578,4 +415,5 @@ $("btnAddDevis").addEventListener("click", ()=>{
 
 </body>
 </html>
+
 
