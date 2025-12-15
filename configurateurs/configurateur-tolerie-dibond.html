@@ -136,11 +136,14 @@ const PRICE_PANEL = {
 };
 
 /* ===== PRIX CHÂSSIS (IDENTIQUES TÔLE TABLETTE) ===== */
-const CHASSIS_ML = { 
-  30: 10.5,
-  40: 10.5,
-  50: 10.5
+const CHASSIS_BASE_30 = 10.5; // €/ml interne
+
+const CHASSIS_ML = {
+  30: CHASSIS_BASE_30,
+  40: +(CHASSIS_BASE_30 * 1.10).toFixed(2),
+  50: +(CHASSIS_BASE_30 * 1.10 * 1.10).toFixed(2)
 };
+
  // €/ml interne
 const GOUSSET_PRICE = 6.5; // €/u interne
 
@@ -239,4 +242,5 @@ $('btnAddDevis').addEventListener('click',()=>{
 
 </body>
 </html>
+
 
