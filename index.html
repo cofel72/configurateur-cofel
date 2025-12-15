@@ -977,18 +977,8 @@ document.addEventListener("visibilitychange", () => {
   })();
   </script>
   <!-- Lien Admin (invisible par défaut) -->
-<div id="admin-links" style="
-    display:none;
-    position:fixed;
-    top:12px;
-    right:12px;
-    z-index:9999;
-    background:#5a2d82;
-    color:white;
-    padding:8px 15px;
-    border-radius:12px;
-    font-size:14px;
-">
+<div id="admin-links" class="admin-links hidden">
+
     <a href="/auth/admin-clients.html" style="color:white; text-decoration:none; margin-right:10px;">👤 Admin Clients</a>
     <a href="/auth/admin-quotes.html" style="color:white; text-decoration:none;">📄 Admin Devis</a>
 </div>
