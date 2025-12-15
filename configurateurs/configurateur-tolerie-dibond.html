@@ -3,22 +3,21 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-<title>Configurateur – Tôlerie sur mesure & panneau Alu/PVC</title>
+<title>Configurateur – Tôlerie & Châssis aluminium</title>
 
 <link rel="stylesheet" href="../styles/cofel-components.css" />
 <link rel="stylesheet" href="../styles/cofel-glass.css" />
 
 <style>
-/* ===== HEADER GLASS – HARMONISATION CONFIGURATEURS ===== */
 .cofel-header.glass{
   background: rgba(90,45,130,.35);
   backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
   border-bottom: 1px solid rgba(255,255,255,.15);
 }
-.cofel-header .cofel-title{ color:#fff; }
-.cofel-header .cofel-back{ color:rgba(255,255,255,.85); }
-.cofel-header .cofel-back:hover{ color:#fff; }
+.cofel-header .cofel-title{color:#ffffff;}
+.cofel-header .cofel-back{color:rgba(255,255,255,.85);}
+.cofel-header .cofel-back:hover{color:#fff;}
+.muted{opacity:.7;font-size:13px;}
 </style>
 </head>
 
@@ -29,30 +28,26 @@
     <a class="cofel-back" href="../index.html">⬅ Retour accueil (Devis)</a>
     <div class="cofel-brand">
       <img src="../assets/logo cofel.jpg" alt="Cofel" />
-      <h1 class="cofel-title">Configurateur — Tôlerie & Panneaux</h1>
+      <h1 class="cofel-title">Configurateur — Tôlerie & Châssis</h1>
     </div>
   </div>
 </header>
 
 <main class="wrap">
 
-<!-- ================= TYPE DE PRODUIT ================= -->
+<!-- TYPE -->
 <fieldset>
   <legend>Type de produit</legend>
   <div class="radio-row">
-    <label>
-      <input type="radio" name="typeProduit" value="panneau" checked>
-      Panneau / Tôlerie
-    </label>
-    <label>
-      <input type="radio" name="typeProduit" value="chassis">
-      Châssis aluminium
-    </label>
+    <label><input type="radio" name="typeProduit" value="panneau" checked> Panneau / Tôlerie</label>
+    <label><input type="radio" name="typeProduit" value="chassis"> Châssis aluminium</label>
   </div>
 </fieldset>
 
-<!-- ================= PANNEAU ================= -->
-<fieldset id="blockPanneau">
+<!-- ===================== PANNEAU ===================== -->
+<div id="blockPanneau">
+
+<fieldset>
   <div class="grid">
     <div>
       <label>Famille</label>
@@ -86,47 +81,40 @@
   </div>
 </fieldset>
 
-<fieldset id="blockDimensions">
+<fieldset>
   <legend>Dimensions panneau</legend>
   <div class="grid-dimensions">
-    <div>
-      <label>Largeur (mm)</label>
-      <input type="number" id="largeur">
-    </div>
-    <div>
-      <label>Hauteur (mm)</label>
-      <input type="number" id="hauteur">
-    </div>
+    <div><label>Largeur (mm)</label><input type="number" id="largeur"></div>
+    <div><label>Hauteur (mm)</label><input type="number" id="hauteur"></div>
   </div>
   <label>Surface</label>
   <input id="surface" disabled value="0,000 m²">
 </fieldset>
 
-<!-- ================= CHÂSSIS ================= -->
-<fieldset id="blockChassis" style="display:none">
+</div>
+
+<!-- ===================== CHÂSSIS ===================== -->
+<div id="blockChassis" style="display:none">
+
+<fieldset>
   <legend>Châssis aluminium</legend>
 
   <div class="radio-row">
-    <label><input type="radio" name="typeChassis" checked> Châssis alu 30×30 mm</label>
-    <label><input type="radio" name="typeChassis"> Châssis alu 40×40 mm</label>
-    <label><input type="radio" name="typeChassis"> Châssis alu 50×50 mm</label>
+    <label><input type="radio" name="sectionChassis" value="30" checked> 30×30 mm</label>
+    <label><input type="radio" name="sectionChassis" value="40"> 40×40 mm</label>
+    <label><input type="radio" name="sectionChassis" value="50"> 50×50 mm</label>
   </div>
 
   <div class="grid-dimensions">
-    <div>
-      <label>Largeur extérieure (mm)</label>
-      <input type="number">
-    </div>
-    <div>
-      <label>Hauteur extérieure (mm)</label>
-      <input type="number">
-    </div>
+    <div><label>Largeur extérieure (mm)</label><input type="number" id="chL"></div>
+    <div><label>Hauteur extérieure (mm)</label><input type="number" id="chH"></div>
   </div>
 
-  <p class="muted">🛈 Calcul du châssis à venir</p>
+  <p class="muted">Calcul identique au configurateur Tôle Tablette</p>
 </fieldset>
 
-<!-- ================= RÉSULTATS ================= -->
+</div>
+
 <div class="result">
   <p>Total HT : <b><span id="prixHT">0,00</span> €</b></p>
   <p>Total TTC : <b><span id="prixTTC">0,00</span> €</b></p>
@@ -137,55 +125,37 @@
 <button id="btnAddDevis">➕ Ajouter au devis</button>
 
 <script>
-/* ===== CONFIG ===== */
 const TVA = 0.20;
-const UPLIFT_PUBLIC = 2;
+const COEF_PUBLIC = 2;
 
-const PRICE = {
-  alu15_pre: 82,
-  alu15_laq: 94,
-  alu20_pre: 89,
-  alu20_laq: 105,
-  dibond_pre: 50,
-  dibond_laq: 71
+/* ===== PRIX PANNEAUX ===== */
+const PRICE_PANEL = {
+  alu15_pre: 82, alu15_laq: 94,
+  alu20_pre: 89, alu20_laq: 105,
+  dibond_pre: 50, dibond_laq: 71
 };
 
+/* ===== PRIX CHÂSSIS (IDENTIQUES TÔLE TABLETTE) ===== */
+const CHASSIS_ML = { 30: 32, 40: 38, 50: 45 }; // €/ml interne
+const GOUSSET_PRICE = 6.5; // €/u interne
+
 const $ = id => document.getElementById(id);
+const euro = n => (isFinite(n)?n:0).toFixed(2).replace('.',',');
 
-function surfaceM2(l,h){ return (l*h)/1e6; }
-function euro(n){ return (isFinite(n)?n:0).toFixed(2).replace('.',','); }
-
-function selectedKey(){
-  if($('famille').value === 'alu'){
-    return document.querySelector('input[name="matAlu"]:checked').value;
-  }
-  return document.querySelector('input[name="matDibond"]:checked').value;
-}
-
-function toggleBlocks(){
-  const isAlu = $('famille').value === 'alu';
-  $('blockAlu').style.display = isAlu ? '' : 'none';
-  $('blockDibond').style.display = isAlu ? 'none' : '';
-}
-
-function toggleTypeProduit(){
+function toggleUI(){
   const type = document.querySelector('input[name="typeProduit"]:checked').value;
-  const isChassis = type === 'chassis';
+  $('blockPanneau').style.display = type==='panneau'?'':'none';
+  $('blockChassis').style.display = type==='chassis'?'':'none';
+}
 
-  $('blockPanneau').style.display   = isChassis ? 'none' : '';
-  $('blockAlu').style.display       = isChassis ? 'none' : '';
-  $('blockDibond').style.display    = isChassis ? 'none' : '';
-  $('blockDimensions').style.display= isChassis ? 'none' : '';
-  $('blockChassis').style.display   = isChassis ? '' : '';
+function selectedPanelKey(){
+  return $('famille').value === 'alu'
+    ? document.querySelector('input[name="matAlu"]:checked').value
+    : document.querySelector('input[name="matDibond"]:checked').value;
 }
 
 function compute(){
-  toggleTypeProduit();
-  if(document.querySelector('input[name="typeProduit"]:checked').value === 'chassis'){
-    $('prixHT').textContent = '0,00';
-    $('prixTTC').textContent = '0,00';
-    return;
-  }
+  toggleUI();
 
   let remise = 1;
   try{
@@ -193,66 +163,69 @@ function compute(){
     if(p?.discountRate) remise = 1 - p.discountRate;
   }catch{}
 
-  const L = Number($('largeur').value||0);
-  const H = Number($('hauteur').value||0);
-  const Q = Math.max(1,Number($('quantite').value||1));
-  const surf = surfaceM2(L,H);
+  const type = document.querySelector('input[name="typeProduit"]:checked').value;
 
-  $('surface').value = surf.toFixed(3).replace('.',',')+' m²';
+  /* ===== PANNEAU ===== */
+  if(type==='panneau'){
+    const L = Number($('largeur').value||0);
+    const H = Number($('hauteur').value||0);
+    const Q = Math.max(1,Number($('quantite').value||1));
+    const surf = (L*H)/1e6;
+    $('surface').value = surf.toFixed(3).replace('.',',')+' m²';
 
-  if(surf<=0){
-    $('prixHT').textContent='0,00';
-    $('prixTTC').textContent='0,00';
+    if(surf<=0){ $('prixHT').textContent='0,00'; $('prixTTC').textContent='0,00'; return; }
+
+    const pu = PRICE_PANEL[selectedPanelKey()] * surf;
+    const total = pu * COEF_PUBLIC * remise * Q;
+
+    $('prixHT').textContent = euro(total);
+    $('prixTTC').textContent = euro(total*(1+TVA));
+
+    window._LAST = { pu_public_ht:(total/Q).toFixed(2), type:'panneau' };
     return;
   }
 
-  const pu_interne = PRICE[selectedKey()] * surf;
-  const pu_public = pu_interne * UPLIFT_PUBLIC * remise;
-  const total = pu_public * Q;
+  /* ===== CHÂSSIS ===== */
+  const L = Number($('chL').value||0);
+  const H = Number($('chH').value||0);
+  if(L<=0 || H<=0){ $('prixHT').textContent='0,00'; $('prixTTC').textContent='0,00'; return; }
+
+  const section = document.querySelector('input[name="sectionChassis"]:checked').value;
+  const perimetre_ml = ((L+H)*2)/1000;
+  const surface_m2 = (L*H)/1e6;
+
+  const goussets = Math.max(4, Math.ceil(surface_m2)*4);
+  const interne = perimetre_ml*CHASSIS_ML[section] + goussets*GOUSSET_PRICE;
+  const total = interne * COEF_PUBLIC * remise;
 
   $('prixHT').textContent = euro(total);
   $('prixTTC').textContent = euro(total*(1+TVA));
 
-  window._TOLERIE_LAST = {
-    pu_public_ht: Number(pu_public.toFixed(2)),
-    surface_m2: Number(surf.toFixed(3))
+  window._LAST = {
+    pu_public_ht: total.toFixed(2),
+    type:'chassis',
+    designation:`Châssis alu ${section}×${section} — ${L}×${H} mm`
   };
 }
 
-['input','change'].forEach(e=>{
-  document.addEventListener(e, ev=>{
-    if(ev.target.matches('#famille,#quantite,#largeur,#hauteur,input[type=radio]')){
-      toggleBlocks();
-      compute();
-    }
-  });
-});
-
-toggleBlocks();
+document.addEventListener('input', compute);
+document.addEventListener('change', compute);
 compute();
 </script>
 
 <script src="../js/devis-core.js"></script>
 
 <script>
-document.getElementById('btnAddDevis').addEventListener('click',()=>{
-  if(document.querySelector('input[name="typeProduit"]:checked').value === 'chassis'){
-    alert("Le calcul châssis n’est pas encore actif.");
-    return;
-  }
+$('btnAddDevis').addEventListener('click',()=>{
+  if(!window._LAST || !window.Devis) return alert("Erreur devis");
 
-  const p = window._TOLERIE_LAST;
-  if(!p || !window.Devis){ alert("Erreur devis"); return; }
-
-  const qte = Number($('quantite').value||1);
-  const L = $('largeur').value;
-  const H = $('hauteur').value;
+  const data = window._LAST;
 
   Devis.addLine({
-    type:'Tôlerie & Dibond',
-    designation:`Panneau ${L}×${H} mm — ${p.surface_m2} m²`,
-    quantite:qte,
-    pu_public_ht:p.pu_public_ht
+    type: data.type==='chassis'?'Châssis aluminium':'Tôlerie & Panneaux',
+    designation: data.designation || 'Panneau',
+    quantite: 1,
+    pu_public_ht: Number(data.pu_public_ht)
   });
 
   alert("✅ Ligne ajoutée au devis !");
