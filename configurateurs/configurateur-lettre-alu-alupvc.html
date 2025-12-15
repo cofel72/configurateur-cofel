@@ -536,7 +536,7 @@ async function loadCSV(){
 }
 
 ["input","change"].forEach(evt=>{
-    [elH, elQ, elFix, elTige, elFBrut, elFLaque, elLisse, elLisseLongueur].forEach(el=>{
+    [elH, elQ, $("categorie"), elFix, elTige, elFBrut, elFLaque, elLisse, elLisseLongueur].forEach(el=>{
     if(!el) return;
     el.addEventListener(evt, ()=>{
       updateLisseUI();
@@ -555,7 +555,10 @@ $("btnReset").addEventListener("click", ()=>{
 loadCSV();
 
 buildCustomFromNative($("categorie"));
-$("categorie").addEventListener("change", ()=>{ /* synchro visuelle ok */ });
+$("categorie").addEventListener("change", ()=>{
+  compute();
+});
+
 </script>
 
 <!-- ===================== MOTEUR DE DEVIS ===================== -->
@@ -580,7 +583,10 @@ $("btnAddDevis").addEventListener("click", ()=>{
       : '';
 
     const catVal = $("categorie").value;
-    const catTxt = (catVal==='alu20') ? 'Lettre aluminium 20/10' : 'Lettre alu/PVC 3 mm (type Dibond)';
+    let catTxt = 'Lettre aluminium 20/10';
+if (catVal === 'dibond3') catTxt = 'Lettre alu/PVC 3 mm (type Dibond)';
+if (catVal === 'dibond4') catTxt = 'Lettre alu/PVC 4 mm (type Dibond)';
+
     const total_ht = parseFloat($("prixHT").innerText.replace(',','.')) || 0;
     const pu_public_ht = qte>0 ? (total_ht / qte) : 0;
     const designation = `${catTxt} — H ${hauteur || 'n.c.'} mm — ${fin}${fix}${supLisseText}`;
@@ -598,6 +604,7 @@ $("btnAddDevis").addEventListener("click", ()=>{
 
 </body>
 </html>
+
 
 
 
