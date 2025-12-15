@@ -3,105 +3,127 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="../styles/cofel.css">
-  <link rel="stylesheet" href="../styles/cofel-components.css">
+
+<link rel="stylesheet" href="../styles/cofel.css">
+<link rel="stylesheet" href="../styles/cofel-components.css">
 <link rel="stylesheet" href="../styles/cofel-glass.css">
 
 <title>Configurateur — Lettres Boîtiers | Cofel</title>
 
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
 <style>
- 
-/* ===== GRID VERTICALE POUR SUPPLÉMENTS ===== */
 .grid-vertical{
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:8px;
 }
-
-
 </style>
 </head>
+
 <body>
+
 <header class="cofel-header">
   <div class="row">
     <a class="cofel-back" href="../index.html">⬅ Retour accueil (devis)</a>
-
     <div class="cofel-brand">
       <img src="../assets/logo cofel.jpg" alt="Cofel" />
-      <h1 class="cofel-title">
-        Configurateur — Lettres Boîtiers
-      </h1>
+      <h1 class="cofel-title">Configurateur — Lettres Boîtiers</h1>
     </div>
   </div>
 </header>
 
-
 <div class="cofel-container">
+
+  <!-- ================= PARAMÈTRES ================= -->
   <section class="panel">
     <h2>⚙️ Paramètres</h2>
 
-    <div class="card grid">
-      <div>
-        <label for="famille">Type de lettre boîtier</label>
-        <select id="famille" class="native-select"><option value="">— sélectionnez —</option></select>
-        <div class="cselect" data-bind="famille" aria-haspopup="listbox" aria-expanded="false">
-          <button type="button" class="cselect-toggle">
-            <span class="cselect-label">— sélectionnez —</span>
-            <span class="cselect-caret"></span>
-          </button>
-          <div class="cselect-menu" role="listbox"></div>
+    <div class="card">
+
+      <div class="grid">
+        <div>
+          <label for="famille">Type de lettre boîtier</label>
+          <select id="famille" class="native-select">
+            <option value="">— sélectionnez —</option>
+          </select>
+
+          <div class="cselect" data-bind="famille">
+            <button type="button" class="cselect-toggle">
+              <span class="cselect-label">— sélectionnez —</span>
+              <span class="cselect-caret"></span>
+            </button>
+            <div class="cselect-menu"></div>
+          </div>
+        </div>
+
+        <div>
+          <label for="quantite">Quantité</label>
+          <input type="number" id="quantite" value="1" min="1"/>
         </div>
       </div>
 
-      <div>
-        <label for="quantite">Quantité</label>
-        <input type="number" id="quantite" value="1" min="1"/>
-      </div>
-    </div>
-
-    <div class="card grid">
-      <div>
-        <label for="hauteur">Hauteur (mm)</label>
-        <input type="number" id="hauteur" placeholder="Ex : 325" min="1"/>
-        <div id="rangesHelp" class="help"></div>
-      </div>
-      <div>
-        <label for="variant">Éclairage</label>
-        <select id="variant" class="native-select"><option value="">— (aucun filtre) —</option></select>
-        <div class="cselect" data-bind="variant" aria-haspopup="listbox" aria-expanded="false">
-          <button type="button" class="cselect-toggle">
-            <span class="cselect-label">— (aucun filtre) —</span>
-            <span class="cselect-caret"></span>
-          </button>
-          <div class="cselect-menu" role="listbox"></div>
+      <div class="grid">
+        <div>
+          <label for="hauteur">Hauteur (mm)</label>
+          <input type="number" id="hauteur" placeholder="Ex : 325" min="1"/>
+          <div id="rangesHelp" class="help"></div>
         </div>
-        <div id="variantHelp" class="help"></div>
+
+        <div>
+          <label for="variant">Éclairage</label>
+          <select id="variant" class="native-select">
+            <option value="">— (aucun filtre) —</option>
+          </select>
+
+          <div class="cselect" data-bind="variant">
+            <button type="button" class="cselect-toggle">
+              <span class="cselect-label">— (aucun filtre) —</span>
+              <span class="cselect-caret"></span>
+            </button>
+            <div class="cselect-menu"></div>
+          </div>
+
+          <div id="variantHelp" class="help"></div>
+        </div>
       </div>
+
+      <div class="grid">
+        <div>
+          <h3 class="card-title">Suppléments</h3>
+
+          <div class="grid-vertical">
+            <label class="option-item">
+              <input type="checkbox" id="optLisse">
+              <span>Pose sur lisse</span>
+            </label>
+          </div>
+
+          <div id="lisseBlock" class="hidden" style="margin-top:10px">
+            <label for="lisseLongueur">Longueur de la lisse (mm)</label>
+            <input type="number" id="lisseLongueur" placeholder="Ex : 3000">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= RÉCAP ================= -->
+  <section class="panel">
+    <h2>🧾 Récapitulatif</h2>
+
+    <div class="result">
+      <p>Prix HT : <b><span id="prixHT">0,00</span> €</b></p>
+      <p>Prix TTC : <b><span id="prixTTC">0,00</span> €</b></p>
+      <div class="muted">TVA 20 % incluse dans le calcul.</div>
     </div>
 
-   <div class="card grid">
-  <div>
-    <h3 class="card-title">Suppléments</h3>
-
-    <div class="grid grid-vertical">
-      <label class="option-item">
-        <input type="checkbox" id="optLisse" />
-        <span>Pose sur lisse</span>
-      </label>
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+      <button id="btnAddDevis" class="btn">➕ Ajouter au devis</button>
+      <button id="btnReset" class="btn btn-ghost">🔄 Réinitialiser</button>
     </div>
-
-    <div id="lisseBlock" class="hidden" style="margin-top:10px;">
-      <label for="lisseLongueur">Longueur de la lisse (mm)</label>
-      <input type="number" id="lisseLongueur" placeholder="Ex : 3000" min="0" />
-      <div class="muted">Tarif interne : 25 €/ml · ajouté une seule fois</div>
-    </div>
-  </div>
-</div>
-
 
   </section>
+
   <section class="panel">
     <h2>🧾 Récapitulatif</h2>
     <div class="result">
@@ -665,6 +687,7 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
   }
 });
 </script>
+
 
 
 
