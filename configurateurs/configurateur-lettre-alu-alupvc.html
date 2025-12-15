@@ -180,16 +180,19 @@
 <body>
 
 <!-- ===================== HERO ===================== -->
-<div class="hero">
-  <div class="hero-inner">
-    <div class="brand">
+<header class="cofel-header">
+  <div class="row">
+    <a class="cofel-back" href="../index.html">⬅ Retour accueil (devis)</a>
+
+    <div class="cofel-brand">
       <img src="../assets/logo cofel.jpg" alt="Cofel" />
-      <h1>Configurateur — Lettres Alu 20/10 & Dibond 3 mm</h1>
+      <h1 class="cofel-title">
+        Configurateur — Lettres Alu 20/10 & Dibond 3 mm
+      </h1>
     </div>
-    <a class="brand" href="../index.html" style="text-decoration:none;color:inherit">⬅ Retour accueil (devis)</a>
   </div>
-  <div class="tagline">Saisissez la hauteur, choisissez la finition et les options. Le prix se met à jour automatiquement.</div>
-</div>
+</header>
+
 
 <!-- ===================== CONTENU ===================== -->
 <main class="wrap">
@@ -227,33 +230,39 @@
       </div>
 
       <div>
-        <fieldset>
-          <legend style="color:var(--accent);font-weight:800;">Finition</legend>
-          <label class="option-item">
-            <input type="radio" name="finition" id="finitionBrut" value="brut" checked />
-            <span>Brut</span>
-          </label>
-          <label class="option-item">
-            <input type="radio" name="finition" id="finitionLaque" value="laque" />
-            <span>Laqué</span>
-          </label>
-        </fieldset>
+       <div>
+  <h3 style="color:var(--accent);margin:0 0 8px;">Finition</h3>
 
-        <fieldset>
-          <legend style="color:var(--accent);font-weight:800;">Supplément</legend>
-          <label class="option-item">
-            <input type="checkbox" id="optFixation" />
-            <span>Fixations</span>
-          </label>
-          <label class="option-item">
-            <input type="checkbox" id="optLisse" />
-            <span>Pose sur lisse</span>
-          </label>
-          <div id="lisseBlock" class="hidden" style="margin-top:8px;">
-            <label for="lisseLongueur">Longueur de la lisse (mm)</label>
-            <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 3000" />
-          </div>
-        </fieldset>
+  <label class="option-item">
+    <input type="radio" name="finition" id="finitionBrut" value="brut" checked />
+    <span>Brut</span>
+  </label>
+
+  <label class="option-item">
+    <input type="radio" name="finition" id="finitionLaque" value="laque" />
+    <span>Laqué</span>
+  </label>
+</div>
+
+<div style="margin-top:14px;">
+  <h3 style="color:var(--accent);margin:0 0 8px;">Supplément</h3>
+
+  <label class="option-item">
+    <input type="checkbox" id="optFixation" />
+    <span>Fixations</span>
+  </label>
+
+  <label class="option-item">
+    <input type="checkbox" id="optLisse" />
+    <span>Pose sur lisse</span>
+  </label>
+
+  <div id="lisseBlock" class="hidden" style="margin-top:8px;">
+    <label for="lisseLongueur">Longueur de la lisse (mm)</label>
+    <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 3000" />
+  </div>
+</div>
+
       </div>
     </div>
   </section>
@@ -578,4 +587,5 @@ $("btnAddDevis").addEventListener("click", ()=>{
 
 </body>
 </html>
+
 
