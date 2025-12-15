@@ -637,54 +637,71 @@ async function loadFamily(f){
 
 /* ======================= INIT & BIND ======================= */
 function bind(){
+
+  // === CHANGEMENT DE FAMILLE ===
   elFam.addEventListener("change", async ()=>{
     const i = parseInt(elFam.value,10);
     if (isNaN(i)){
-      CURRENT=null; ROWS=[]; MAP=null; compute();
+      CURRENT = null;
+      ROWS = [];
+      MAP = null;
+      compute();
       return;
     }
-   CURRENT = FAMILLES[i];
-try {
-  await loadFamily(CURRENT);
-  updateLightingInfo();
-} catch(e){
-  console.error(e);
-  alert("Erreur chargement CSV.");
-}
 
+    CURRENT = FAMILLES[i];
+    try {
+      await loadFamily(CURRENT);
+      updateLightingInfo();
+    } catch(e){
+      console.error(e);
+      alert("Erreur chargement CSV.");
+    }
+  });
 
+  // === CHAMPS STANDARD ===
   elQ.addEventListener("input", compute);
-  elH.addEventListener("input", ()=>{ buildRangesHelp(); compute(); });
-  elVar.addEventListener("change", ()=>{ 
-  buildRangesHelp();
-  updateDibondRule();
-  updateLightingInfo();
-  compute(); 
-});
 
+  elH.addEventListener("input", ()=>{
+    buildRangesHelp();
+    compute();
+  });
 
-  // Lisse
+  elVar.addEventListener("change", ()=>{
+    buildRangesHelp();
+    updateDibondRule();
+    updateLightingInfo();
+    compute();
+  });
+
+  // === LISSE ===
   elOptLisse.addEventListener("change", compute);
   elLongLisse.addEventListener("input", compute);
 
-  // Reset
+  // === RESET ===
   $("btnReset").addEventListener("click", ()=>{
-    elFam.value = ""; buildCustomFromNative(elFam);
-    CURRENT=null; ROWS=[]; MAP=null;
-    elVar.innerHTML='<option value="">— (aucun filtre) —</option>';
+    elFam.value = "";
+    buildCustomFromNative(elFam);
+
+    CURRENT = null;
+    ROWS = [];
+    MAP = null;
+
+    elVar.innerHTML = '<option value="">— (aucun filtre) —</option>';
     buildCustomFromNative(elVar);
 
-    elQ.value=1;
-    elH.value="";
-    elRanges.innerHTML="";
+    elQ.value = 1;
+    elH.value = "";
+    elRanges.innerHTML = "";
 
     elOptLisse.checked = false;
-    elLongLisse.value="";
-updateLisseUI();
+    elLongLisse.value = "";
+    updateLisseUI();
 
     compute();
   });
 }
+
 
 (function init(){
   fillFamilles();
@@ -769,6 +786,7 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
   }
 });
 </script>
+
 
 
 
