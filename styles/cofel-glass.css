@@ -301,3 +301,24 @@ select:focus{
   opacity:.9;
 }
 
+/* =========================================================
+   COFEL — AJUSTEMENTS GLASS SPÉCIFIQUES (Index / Panels)
+   ========================================================= */
+/* ================= FIX FINAL GLASS COFEL ================= */
+
+/* Panel glass = simple conteneur */
+.panel.glass{
+  background: transparent;
+}
+
+/* Card glass = vrai effet verre Cofel */
+.panel.glass > .card.glass{
+  background: linear-gradient(
+    160deg,
+    rgba(120,56,167,.35),
+    rgba(60,25,90,.55)
+  );
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,.18);
+}
