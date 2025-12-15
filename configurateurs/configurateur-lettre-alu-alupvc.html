@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <link rel="stylesheet" href="../styles/cofel-components.css">
+<link rel="stylesheet" href="../styles/cofel-glass.css">
+
 <title>Configurateur — Lettres Alu 20/10 & Dibond 3 mm | Cofel</title>
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,21 +34,7 @@
       radial-gradient(800px 500px at 110% 10%, rgba(255,255,255,.08), transparent 60%),
       linear-gradient(135deg, var(--violet), var(--violet-2));
   }
-
-  /* ===================== HERO ===================== */
-  .hero{position:relative;z-index:1;padding:40px 20px 24px;}
-  .hero-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;}
-  .brand{
-    display:flex;align-items:center;gap:14px;
-    backdrop-filter:blur(var(--blur));
-    background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
-    border:1px solid rgba(255,255,255,.18);
-    padding:10px 14px;border-radius:14px;box-shadow:var(--shadow);
-  }
-  .brand img{height:42px;width:auto;border-radius:10px}
-  .brand h1{font-size:clamp(18px,2.6vw,22px);margin:0}
-  .tagline{max-width:1200px;margin:18px auto 0;padding:0 20px;color:var(--txt-dim)}
-
+  
   /* ===================== LAYOUT / CARDS ===================== */
   .wrap{max-width:1200px;margin:26px auto;padding:0 20px 40px;}
   .panel{
@@ -587,5 +576,6 @@ $("btnAddDevis").addEventListener("click", ()=>{
 
 </body>
 </html>
+
 
 
