@@ -7,11 +7,88 @@
 
   <link rel="stylesheet" href="../styles/cofel-components.css">
   <link rel="stylesheet" href="../styles/cofel-glass.css">
+
+  <!-- Petit patch local UNIQUEMENT pour harmoniser comme Tôle Tablette
+       (tu pourras le déplacer plus tard dans cofel-components/glass) -->
+  <style>
+    /* Panels/cards (si pas déjà définis globalement) */
+    .panel{
+      margin: 18px 0;
+    }
+    .card{
+      border-radius: 20px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(var(--blur));
+    }
+
+    /* Actions */
+    .actions{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-start;
+    }
+
+    /* Bouton “ghost” */
+    .btn-ghost{
+      background: transparent;
+      color: var(--txt);
+      border: 1px solid rgba(255,255,255,.28);
+    }
+
+    /* Fixation en “cartes” */
+    .choice-group{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 10px;
+    }
+    .option-item{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding: 16px 18px;
+      border-radius: 16px;
+      cursor: pointer;
+      font-weight: 800;
+      text-align:center;
+      background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
+      border: 1px solid rgba(255,255,255,.28);
+      box-shadow: var(--shadow);
+      transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+      position: relative;
+    }
+    .option-item:hover{
+      transform: translateY(-1px);
+      background: linear-gradient(180deg, rgba(255,255,255,.26), rgba(255,255,255,.12));
+    }
+    .option-item input[type="radio"]{
+      position:absolute;
+      opacity:0;
+      pointer-events:none;
+    }
+    .option-item small{
+      display:block;
+      font-weight:700;
+      opacity:.9;
+      margin-top:4px;
+    }
+    /* état sélectionné */
+    .option-item:has(input[type="radio"]:checked){
+      background: linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,.18));
+      border-color: rgba(255,255,255,.6);
+      box-shadow: 0 12px 26px rgba(0,0,0,0.35);
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- ===================== HEADER ===================== -->
 <header class="cofel-header">
   <div class="row">
     <a class="cofel-back" href="../index.html">⬅ Retour accueil (Devis)</a>
@@ -22,183 +99,223 @@
   </div>
 </header>
 
-
-<!-- ===================== CONTENU ===================== -->
 <div class="cofel-container">
-  <section>
-    <fieldset>
-      <legend>📏 Dimensions & quantité</legend>
-      <div class="grid">
-        <div>
-          <label for="longueur">Longueur de rampe (mm)</label>
-          <input type="number" id="longueur" min="1" placeholder="Ex : 2500" />
-          <!-- info tarif masquée visuellement -->
-          <div class="hint">Tarif rampe (laquage inclus) : <b>100,00 € HT / m</b></div>
+
+  <section class="panel">
+    <div class="card">
+
+      <fieldset>
+        <legend>📏 Dimensions & quantité</legend>
+        <div class="grid">
+          <div>
+            <label for="longueur">Longueur de rampe (mm)</label>
+            <input type="number" id="longueur" min="1" placeholder="Ex : 2500" />
+            <div class="hint">Tarif rampe (laquage inclus) : <b>100,00 € HT / m</b></div>
+          </div>
+          <div>
+            <label for="quantite">Quantité</label>
+            <input type="number" id="quantite" min="1" value="1" />
+          </div>
         </div>
-        <div>
-          <label for="quantite">Quantité</label>
-          <input type="number" id="quantite" min="1" value="1" />
+      </fieldset>
+
+      <fieldset style="margin-top:20px">
+        <legend>Fixation (laquage inclus)</legend>
+
+        <!-- ✅ Fixations en cartes (comme Tôle Tablette) -->
+        <div class="choice-group">
+          <label class="option-item">
+            <input type="radio" name="fixation" value="directe" checked>
+            <span>Fixation directe <small>5,00 € / u</small></span>
+          </label>
+
+          <label class="option-item">
+            <input type="radio" name="fixation" value="platine">
+            <span>Platine avec déport <small>15,00 € / u</small></span>
+          </label>
         </div>
-      </div>
-    </fieldset>
 
-    <fieldset style="margin-top:20px">
-      <legend> Fixation (laquage inclus)</legend>
-      <div class="radio-row">
-        <label><input type="radio" name="fixation" value="directe" checked> Fixation directe <span>— <b>5,00 € / u</b></span></label>
-        <label><input type="radio" name="fixation" value="platine"> Platine avec déport <span>— <b>15,00 € / u</b></span></label>
-      </div>
+        <div id="blocDeport" class="hidden" style="margin-top:10px">
+          <label for="deport">Déport souhaité (mm)</label>
+          <input type="number" id="deport" min="0" step="1" placeholder="Ex : 120" />
+          <div class="hint">Le déport est informatif (pas d’impact tarifaire).</div>
+        </div>
+      </fieldset>
 
-      <div id="blocDeport" class="hidden" style="margin-top:10px">
-        <label for="deport">Déport souhaité (mm)</label>
-        <input type="number" id="deport" min="0" step="1" placeholder="Ex : 120" />
-        <div class="hint"> Le déport est informatif (pas d’impact tarifaire).</div>
-      </div>
-    </fieldset>
-
-    <div class="result" style="margin-top:20px">
-      <div>Prix unitaire HT : <b><span id="prixUHT">0,00</span> €</b></div>
-     <div class="hint">
-        Longueur : <span id="lenM">0,000</span> m •
-        Fixations : <span id="nbFix">0</span> u (<span id="typeFix">directe</span>)
-      </div>
-      <div style="margin-top:10px">Total HT : <b><span id="prixHT">0,00</span> €</b></div>
-      <div>Total TTC (TVA 20%) : <b><span id="prixTTC">0,00</span> €</b></div>
     </div>
+  </section>
 
-    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
-      <button id="btnAddDevis" class="btn">➕ Ajouter au devis</button>
-      <button id="btnReset" class="btn"> 🔄 Réinitialiser</button>
+  <section class="panel">
+    <div class="card">
+      <div class="result">
+        <div>Prix unitaire HT : <b><span id="prixUHT">0,00</span> €</b></div>
+        <div class="hint" style="margin-top:6px">
+          Longueur : <span id="lenM">0,000</span> m •
+          Fixations : <span id="nbFix">0</span> u (<span id="typeFix">directe</span>)
+        </div>
+        <div style="margin-top:10px">Total HT : <b><span id="prixHT">0,00</span> €</b></div>
+        <div>Total TTC (TVA 20%) : <b><span id="prixTTC">0,00</span> €</b></div>
+      </div>
+
+      <div class="actions">
+        <button id="btnAddDevis" class="btn">➕ Ajouter au devis</button>
+        <button id="btnReset" class="btn btn-ghost">🔄 Réinitialiser</button>
+      </div>
     </div>
-    </section>
+  </section>
+
 </div>
-
 
 <footer class="cofel-footer">
   © Cofel — ZA du Perquoi, 72560 Changé — SIRET 927 659 458 00024 — TVA FR80927659458
 </footer>
 
-
 <script>
 /*** CONFIG ***/
 const TVA = 0.20;
-const PRICE_RAMPE_ML = 100.00;           // laquage inclus (mémoire projet)
+const PRICE_RAMPE_ML = 100.00;   // laquage inclus
 const PRICE_FIX_DIRECTE = 5.00;
 const PRICE_FIX_PLATINE = 15.00;
+const COEF_PUBLIC = 2;
 
 /*** DOM ***/
 const $ = id => document.getElementById(id);
 const elL = $('longueur');
 const elQ = $('quantite');
+const elDeport = $('deport');
 const elBlocDeport = $('blocDeport');
+
 const elPrixUHT = $('prixUHT');
-const elPrixHT = $('prixHT');
+const elPrixHT  = $('prixHT');
 const elPrixTTC = $('prixTTC');
-const elLenM = $('lenM');
-const elNbFix = $('nbFix');
+const elLenM    = $('lenM');
+const elNbFix   = $('nbFix');
 const elTypeFix = $('typeFix');
 
-function euro(n){return (isFinite(n)?n:0).toFixed(2).replace('.', ',');}
-function round3(n){return Math.round(n*1000)/1000;}
-
-function compute(){
-  // === Remise automatique client ===
-  let remiseClient = 1;
-  try {
-      const p = JSON.parse(localStorage.getItem('cofel_client_profile'));
-      if (p && typeof p.discountRate === 'number') remiseClient = 1 - p.discountRate;
-  } catch(e){}
-
-  const Lmm = Math.max(0, Number(elL.value||0));
-  const Lm = Lmm / 1000;
-  const Q = Math.max(1, Number(elQ.value||1));
-  const fixVal = (document.querySelector('input[name="fixation"]:checked')||{}).value || 'directe';
-  const fixPrice = (fixVal === 'platine') ? PRICE_FIX_PLATINE : PRICE_FIX_DIRECTE;
-  const nbFix = Math.max(2, Math.ceil(Lm) + 1);
-  const rampeHT = PRICE_RAMPE_ML * Lm;
-  const fixHT = fixPrice * nbFix;
-  // === Coefficient tarif public Cofel ===
-const COEF_PUBLIC = 2;
-
-// === Base interne ===
-const unitHT_interne = (rampeHT + fixHT);
-
-// === Prix public avant remise ===
-const unitHT_public_base = unitHT_interne * COEF_PUBLIC;
-
-// === Prix net client (après remise) ===
-const unitHT = unitHT_public_base * remiseClient;
-
-  const totalHT = unitHT * Q;
-  const totalTTC = totalHT * (1 + TVA);
-
-  elLenM.textContent = round3(Lm).toFixed(3).replace('.', ',');
-  elNbFix.textContent = nbFix;
-  elTypeFix.textContent = fixVal;
-  elPrixUHT.textContent = euro(unitHT);
-  elPrixHT.textContent = euro(totalHT);
-  elPrixTTC.textContent = euro(totalTTC);
-}
+function euro(n){ return (isFinite(n)?n:0).toFixed(2).replace('.', ','); }
+function round3(n){ return Math.round(n*1000)/1000; }
 
 function toggleBlocks(){
   const fixVal = (document.querySelector('input[name="fixation"]:checked')||{}).value || 'directe';
-  elBlocDeport.classList.toggle('hidden', fixVal!=='platine');
+  elBlocDeport.classList.toggle('hidden', fixVal !== 'platine');
 }
 
-['input','change'].forEach(evt=>{
-  [longueur, quantite, deport, ...document.querySelectorAll('input[name="fixation"]')]
-    .forEach(el=>el.addEventListener(evt, ()=>{toggleBlocks();compute();}));
-});
+function compute(){
+  // Remise client automatique
+  let remiseClient = 1;
+  try{
+    const p = JSON.parse(localStorage.getItem('cofel_client_profile'));
+    if (p && typeof p.discountRate === 'number') remiseClient = 1 - p.discountRate;
+  }catch(e){}
 
-document.getElementById('btnReset').addEventListener('click',()=>{
-  elL.value='';elQ.value=1;document.querySelector('input[value="directe"]').checked=true;
-  $('deport').value='';toggleBlocks();compute();
-});
+  const Lmm = Math.max(0, Number(elL.value||0));
+  const Lm  = Lmm / 1000;
+  const Q   = Math.max(1, Number(elQ.value||1));
+
+  const fixVal = (document.querySelector('input[name="fixation"]:checked')||{}).value || 'directe';
+  const fixPrice = (fixVal === 'platine') ? PRICE_FIX_PLATINE : PRICE_FIX_DIRECTE;
+
+  // ✅ Tant que longueur = 0, tout doit rester à 0 (pas de “10€” fantôme)
+  if(!(Lm > 0)){
+    elLenM.textContent = '0,000';
+    elNbFix.textContent = '0';
+    elTypeFix.textContent = fixVal;
+    elPrixUHT.textContent = '0,00';
+    elPrixHT.textContent  = '0,00';
+    elPrixTTC.textContent = '0,00';
+    return;
+  }
+
+  const nbFix = Math.max(2, Math.ceil(Lm) + 1);
+  const rampeHT_interne = PRICE_RAMPE_ML * Lm;
+  const fixHT_interne   = fixPrice * nbFix;
+
+  const unitHT_interne = rampeHT_interne + fixHT_interne;
+  const unitHT_public_base = unitHT_interne * COEF_PUBLIC;
+  const unitHT_net_client  = unitHT_public_base * remiseClient;
+
+  const totalHT  = unitHT_net_client * Q;
+  const totalTTC = totalHT * (1 + TVA);
+
+  elLenM.textContent  = round3(Lm).toFixed(3).replace('.', ',');
+  elNbFix.textContent = nbFix;
+  elTypeFix.textContent = fixVal;
+
+  elPrixUHT.textContent = euro(unitHT_net_client);
+  elPrixHT.textContent  = euro(totalHT);
+  elPrixTTC.textContent = euro(totalTTC);
+}
+
+function bind(){
+  const radios = Array.from(document.querySelectorAll('input[name="fixation"]'));
+  const watch = [elL, elQ, elDeport, ...radios].filter(Boolean);
+
+  watch.forEach(el=>{
+    el.addEventListener('input', ()=>{ toggleBlocks(); compute(); });
+    el.addEventListener('change', ()=>{ toggleBlocks(); compute(); });
+  });
+
+  $('btnReset').addEventListener('click', ()=>{
+    elL.value = '';
+    elQ.value = 1;
+    document.querySelector('input[name="fixation"][value="directe"]').checked = true;
+    elDeport.value = '';
+    toggleBlocks();
+    compute();
+  });
+}
 
 toggleBlocks();
 compute();
+bind();
 </script>
 
-<!-- ===================== MOTEUR DE DEVIS ===================== -->
 <script src="../js/devis-core.js"></script>
 <script>
 (function(){
   const btn = document.getElementById('btnAddDevis');
-  if(!btn)return;
-  function parseTotalHTPublic(){
-    const txt=document.getElementById('prixHT').innerText.trim();
-    return Number(txt.replace(/\s/g,'').replace(',','.'))||0;
+  if(!btn) return;
+
+  function parseTotalHTAffiche(){
+    const txt = document.getElementById('prixHT').innerText.trim();
+    return Number(txt.replace(/\s/g,'').replace(',','.')) || 0;
   }
-  btn.addEventListener('click',()=>{
+
+  btn.addEventListener('click', ()=>{
     try{
       if(!window.Devis) throw new Error("Moteur de devis introuvable.");
-      const Lmm=Math.max(0,Number(document.getElementById('longueur').value||0));
-      const qte=Math.max(1,Number(document.getElementById('quantite').value||1));
-      if(!(Lmm>0)){alert("Renseigne la longueur de rampe.");return;}
-      const fixVal=(document.querySelector('input[name=\"fixation\"]:checked')||{}).value||'directe';
-      const deport=Number(document.getElementById('deport')?.value||0);
-      const total_ht_public=parseTotalHTPublic();
-      if(total_ht_public<=0){alert("Le prix est à 0, vérifie les paramètres.");return;}
-      const pu_public_ht=qte>0?total_ht_public/qte:0;
-      const parts=[`Rampe lumineuse (PLL)`,`L ${Lmm} mm`,`Fixation: ${fixVal}`];
-      if(fixVal==='platine'&&deport>0)parts.push(`Déport ${deport} mm`);
-      const designation=parts.join(' — ');
+
+      const Lmm = Math.max(0, Number(document.getElementById('longueur').value||0));
+      const qte = Math.max(1, Number(document.getElementById('quantite').value||1));
+      if(!(Lmm > 0)){ alert("Renseigne la longueur de rampe."); return; }
+
+      const fixVal = (document.querySelector('input[name="fixation"]:checked')||{}).value || 'directe';
+      const deport = Number(document.getElementById('deport')?.value || 0);
+
+      const total_ht = parseTotalHTAffiche();
+      if(total_ht <= 0){ alert("Le prix est à 0, vérifie les paramètres."); return; }
+
+      const pu_public_ht = qte > 0 ? total_ht / qte : 0;
+
+      const parts = [`Rampe lumineuse (PLL)`, `L ${Lmm} mm`, `Fixation: ${fixVal}`];
+      if(fixVal === 'platine' && deport > 0) parts.push(`Déport ${deport} mm`);
+      const designation = parts.join(' — ');
+
       Devis.addLine({
-        type:'Rampe lumineuse (PLL)',
+        type: 'Rampe lumineuse (PLL)',
         designation,
-        quantite:qte,
-        pu_public_ht:Number(pu_public_ht.toFixed(2))
+        quantite: qte,
+        pu_public_ht: Number(pu_public_ht.toFixed(2))
       });
-      alert(`✅ Ligne ajoutée au devis !\n${designation}\nQté : ${qte}\nPU HT : ${pu_public_ht.toFixed(2)} €`);
-    }catch(err){console.error(err);alert('Erreur : '+err.message);}    
+
+      alert("✅ Ligne ajoutée au devis !");
+    }catch(err){
+      console.error(err);
+      alert("Erreur : " + err.message);
+    }
   });
 })();
 </script>
 
 </body>
 </html>
-
-
-
-
-
