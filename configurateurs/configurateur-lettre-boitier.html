@@ -15,8 +15,11 @@
  
 /* ===== GRID VERTICALE POUR SUPPLÉMENTS ===== */
 .grid-vertical{
+  display: grid;
   grid-template-columns: 1fr;
+  gap: 8px;
 }
+
 
 </style>
 </head>
@@ -36,7 +39,6 @@
 
 
 <div class="cofel-container">
-  <div>
   <section class="panel">
     <h2>⚙️ Paramètres</h2>
 
@@ -111,9 +113,9 @@
     <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
       <button id="btnAddDevis" class="btn">➕ Ajouter au devis</button>
       <button id="btnReset" class="btn btn-ghost">🔄 Réinitialiser</button>
-    </div>
+   
   </section>
-</main>
+  </div>
 
 <footer class="cofel-footer">
   © Cofel — ZA du Perquoi, 72560 Changé — SIRET 927 659 458 00024 — TVA FR80927659458
@@ -663,6 +665,7 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
   }
 });
 </script>
+
 
 
 
