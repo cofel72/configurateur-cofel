@@ -33,7 +33,7 @@
           <label for="longueur">Longueur de rampe (mm)</label>
           <input type="number" id="longueur" min="1" placeholder="Ex : 2500" />
           <!-- info tarif masquée visuellement -->
-          <div class="muted">Tarif rampe (laquage inclus) : <b>100,00 € HT / m</b></div>
+          <div class="hint">Tarif rampe (laquage inclus) : <b>100,00 € HT / m</b></div>
         </div>
         <div>
           <label for="quantite">Quantité</label>
@@ -45,8 +45,8 @@
     <fieldset style="margin-top:20px">
       <legend> Fixation (laquage inclus)</legend>
       <div class="radio-row">
-        <label><input type="radio" name="fixation" value="directe" checked> Fixation directe <span class=>— <b>5,00 € / u</b></span></label>
-        <label><input type="radio" name="fixation" value="platine"> Platine avec déport <span class=>— <b>15,00 € / u</b></span></label>
+        <label><input type="radio" name="fixation" value="directe" checked> Fixation directe <span>— <b>5,00 € / u</b></span></label>
+        <label><input type="radio" name="fixation" value="platine"> Platine avec déport <span>— <b>15,00 € / u</b></span></label>
       </div>
 
       <div id="blocDeport" class="hidden" style="margin-top:10px">
@@ -197,6 +197,7 @@ compute();
 
 </body>
 </html>
+
 
 
 
