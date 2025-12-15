@@ -643,12 +643,15 @@ function bind(){
       CURRENT=null; ROWS=[]; MAP=null; compute();
       return;
     }
-    CURRENT = FAMILLES[i];
-    try { await loadFamily(CURRENT); }
-      updateLightingInfo();
+   CURRENT = FAMILLES[i];
+try {
+  await loadFamily(CURRENT);
+  updateLightingInfo();
+} catch(e){
+  console.error(e);
+  alert("Erreur chargement CSV.");
+}
 
-    catch(e){ console.error(e); alert("Erreur chargement CSV."); }
-  });
 
   elQ.addEventListener("input", compute);
   elH.addEventListener("input", ()=>{ buildRangesHelp(); compute(); });
@@ -766,6 +769,7 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
   }
 });
 </script>
+
 
 
 
