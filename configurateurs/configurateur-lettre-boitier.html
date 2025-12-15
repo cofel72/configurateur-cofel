@@ -105,21 +105,7 @@
     display:none;
   }
 
-  .option-item{
-    display:flex;align-items:center;gap:10px;cursor:pointer;
-    border-radius:14px;padding:10px 14px;
-    border:1px solid rgba(255,255,255,.24);
-    background: linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.08));
-    box-shadow:var(--shadow);
-    margin-top:10px;
-    color:var(--txt);
-  }
-  /* Survol et sélection des options des menus déroulants */
-.cselect-option:hover,
-.cselect-option[aria-selected="true"] {
-  background: rgba(255,255,255,.22);
-  border-color: rgba(255,255,255,.28);
-}
+ 
   /* ===== OPTIONS CHECKBOX : pleine largeur ===== */
 .option-item{
   width: 100%;
@@ -183,14 +169,9 @@
   color:var(--txt);
   border:1px solid var(--glass-hr);
 }
-/* ===== FIX SELECT : options pleine largeur ===== */
-.cselect-menu{
-  display: block;
-}
-
-.cselect-option{
-  width: 100% !important;
-  display: block !important;
+/* ===== GRID VERTICALE POUR SUPPLÉMENTS ===== */
+.grid-vertical{
+  grid-template-columns: 1fr;
 }
 
 </style>
@@ -257,7 +238,7 @@
   <div>
     <h3 class="card-title">Suppléments</h3>
 
-    <div class="grid">
+    <div class="grid grid-vertical">
       <label class="option-item">
         <input type="checkbox" id="optLisse" />
         <span>Pose sur lisse</span>
@@ -837,6 +818,7 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
   }
 });
 </script>
+
 
 
 
