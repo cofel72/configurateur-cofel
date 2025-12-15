@@ -18,6 +18,35 @@
 }
 </style>
   <style>
+/* ================= FIX GLASS SELECT & INPUT ================= */
+
+/* Bouton du select custom */
+.cselect-toggle{
+  background: rgba(90,45,130,.45) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,.25);
+}
+
+/* Label du select */
+.cselect-label{
+  color: #fff !important;
+}
+
+/* Inputs dans les panels glass */
+.panel.glass input,
+.panel.glass select{
+  background: rgba(90,45,130,.35);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.25);
+}
+
+/* Placeholder lisible */
+.panel.glass input::placeholder{
+  color: rgba(255,255,255,.6);
+}
+</style>
+
+  <style>
 /* ===== FIX VISUELS CONFIGURATEUR ===== */
 
 .panel.glass{
@@ -136,7 +165,7 @@
 
   <!-- ================= RÉCAP ================= -->
 
-  <section class="panel">
+  <section class="panel glass">
     <h2>🧾 Récapitulatif</h2>
     <div class="result">
       <p>Prix HT : <b><span id="prixHT">0,00</span> €</b></p>
@@ -699,6 +728,7 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
   }
 });
 </script>
+
 
 
 
