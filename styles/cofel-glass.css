@@ -189,29 +189,10 @@ select:focus{
   z-index:1001;
 }
 
-/* =========================================================
-   GRILLES
-   ========================================================= */
-.grid{
-  display:grid;
-  gap:16px;
-}
-
-@media (min-width:820px){
-  .grid{
-    grid-template-columns:1fr 1fr;
-  }
-}
 
 /* =========================================================
    RADIOS / CHECKBOX PILLS
    ========================================================= */
-.radio-row{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-top:8px;
-}
 
 .radio-row label,
 .pill{
@@ -250,10 +231,6 @@ select:focus{
   color:var(--txt-dim);
   font-size:12px;
   margin-top:6px;
-}
-
-.hidden{
-  display:none;
 }
 
 /* =========================================================
@@ -322,58 +299,5 @@ select:focus{
   text-align:center;
   padding:24px 10px;
   opacity:.9;
-}
-/* ===========================
-   OVERRIDES THEME GLASS
-   =========================== */
-
-body {
-  color: #f5f7ff;
-}
-
-/* Textes */
-label,
-legend,
-.field label,
-.hint,
-.muted,
-.sub,
-.result,
-.result span,
-.result b {
-  color: #f5f7ff;
-}
-
-/* Inputs */
-input,
-select,
-textarea {
-  color: #ffffff;
-}
-
-/* Placeholders */
-input::placeholder {
-  color: rgba(245, 247, 255, 0.6);
-}
-
-/* Cartes */
-.card,
-fieldset {
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,0.16),
-    rgba(255,255,255,0.06)
-  );
-  color: #f5f7ff;
-}
-
-/* Résultats */
-.result {
-  color: #ffffff;
-}
-
-/* Sécurité radio / checkbox */
-.radio-row label {
-  color: #ffffff;
 }
 
