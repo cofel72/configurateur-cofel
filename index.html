@@ -297,6 +297,38 @@
   <!-- Script principal -->
   <script>
   (function(){
+  /************************************************************
+ * RÔLES UTILISATEURS — Administrateur complet + éditeurs devis
+ ************************************************************/
+
+// Email(s) administrateur(s) complet(s) :
+const FULL_ADMINS = [
+  "commercial@cofel72.fr"     // toi
+];
+
+// Email(s) ayant le droit de modifier les lignes d’un devis :
+const QUOTE_EDITORS = [
+   "souvre@cofel72.fr", "secretaire@cofel72.fr" , "direction@deco72.com"
+  
+  // 👉 remplace par l’adresse à autoriser
+];
+
+// Variables de rôle exploitées dans le devis
+let isFullAdmin = false;
+let canEditQuote = false;
+
+// Lecture du profil connecté
+try {
+  const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
+  const email = profile.email || "";
+
+  isFullAdmin  = FULL_ADMINS.includes(email);
+  canEditQuote = isFullAdmin || QUOTE_EDITORS.includes(email);
+
+} catch (e) {
+  console.warn("Impossible de lire le profil utilisateur", e);
+}
+
 
     if(!window.Devis){
       console.error("Devis-core non chargé. Vérifiez ./js/devis-core.js");
@@ -977,11 +1009,28 @@ document.addEventListener("visibilitychange", () => {
   })();
   </script>
   <!-- Lien Admin (invisible par défaut) -->
-<div id="admin-links" class="admin-links hidden">
-
+<div id="admin-links" style="
+    display:none;
+    position:fixed;
+    top:12px;
+    right:12px;
+    z-index:9999;
+    background:#5a2d82;
+    color:white;
+    padding:8px 15px;
+    border-radius:12px;
+    font-size:14px;
+">
     <a href="/auth/admin-clients.html" style="color:white; text-decoration:none; margin-right:10px;">👤 Admin Clients</a>
     <a href="/auth/admin-quotes.html" style="color:white; text-decoration:none;">📄 Admin Devis</a>
 </div>
-<script src="./js/index-roles.js"></script>
+
+<script>
+// Afficher le lien Admin seulement pour l'administrateur
+const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
+if (profile.email === "commercial@cofel72.fr") {
+    document.getElementById("admin-links").style.display = "block";
+}
+</script>
 </body>
 </html>
