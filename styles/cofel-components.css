@@ -4,8 +4,6 @@
    Aucune couleur de thème ici (géré par cofel-glass.css)
    ========================================================= */
 
-/* ---------- Helpers ---------- */
-
 /* ---------- Layout ---------- */
 .cofel-container {
   max-width: 1100px;
@@ -96,13 +94,14 @@
 }
 
 
-input:disabled {
+.cofel-form input:disabled {
   opacity: 0.75;
 }
 
-input::placeholder {
+.cofel-form input::placeholder {
   opacity: 0.7;
 }
+
 
 /* ---------- Radio / checkbox pills ---------- */
 .radio-row {
@@ -167,14 +166,10 @@ input::placeholder {
 }
 
 /* Floating action button (ajout devis) */
-#btnAddDevis {
+.btn-fab{
   position: fixed;
   right: 20px;
   bottom: 20px;
-  padding: 12px 18px;
-  border-radius: 14px;
-  font-weight: 800;
-  cursor: pointer;
   z-index: 2000;
 }
 
