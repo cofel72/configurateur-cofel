@@ -197,7 +197,14 @@
 const TVA = 0.20;
 const CSV_URL = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/toles_tabelette";
 const CORNIERE_PRICE_ML = 6.5;
-const CHASSIS_PRICE_ML  = 10.5;
+const CHASSIS_BASE_30 = 10.5; // €/ml interne base 30×30
+
+const CHASSIS_PRICE_ML = {
+  30: CHASSIS_BASE_30,
+  40: +(CHASSIS_BASE_30 * 1.10).toFixed(2),
+  50: +(CHASSIS_BASE_30 * 1.10 * 1.10).toFixed(2)
+};
+
 const MATERIAL_PRICE_M2 = {
   brut: 71.5,
   prelaque: 89.0,
@@ -437,12 +444,11 @@ function compute(){
   fixVal === 'chassis50'
 ){
 
-  let coefChassis = 1; // 30x30 = base
+ const section =
+  fixVal === 'chassis30' ? 30 :
+  fixVal === 'chassis40' ? 40 : 50;
 
-  if (fixVal === 'chassis40') coefChassis = 1.10;
-  if (fixVal === 'chassis50') coefChassis = 1.21; // 1.10 × 1.10
-
-  const chLinCost = CHASSIS_PRICE_ML * coefChassis * P;
+const chLinCost = CHASSIS_PRICE_ML[section] * P;
 
   nbGoussets = Math.max(4, Math.ceil(4 + 4 * A));
   let gusU = autoFindPrice(/gousset/,'u');
@@ -642,6 +648,7 @@ const lisseML = lisseMM / 1000;
 
 </body>
 </html>
+
 
 
 
