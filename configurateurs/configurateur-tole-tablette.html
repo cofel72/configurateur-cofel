@@ -132,7 +132,18 @@
     <div class="radio-row">
   <label><input type="radio" name="fixation" value="aucune" checked> Aucune</label>
   <label><input type="radio" name="fixation" value="boite"> Boîte à chaussure</label>
-  <label><input type="radio" name="fixation" value="chassis"> Châssis tube 30×30</label>
+  <label>
+  <input type="radio" name="fixation" value="chassis30">
+  Châssis tube aluminium 30×30
+</label>
+<label>
+  <input type="radio" name="fixation" value="chassis40">
+  Châssis tube aluminium 40×40
+</label>
+<label>
+  <input type="radio" name="fixation" value="chassis50">
+  Châssis tube aluminium 50×50
+</label>
   <label><input type="radio" name="fixation" value="corniere"> Cornière</label>
   <label><input type="radio" name="fixation" value="lisse"> Pose sur lisse</label>
 </div>
@@ -422,15 +433,29 @@ function compute(){
     const boiteM2 = BOX_PRICE_M2[boiteMat] || 0;
     fix_interne = boiteM2 * A;
 
-  }else if(fixVal==='chassis'){
-    const chLinCost = CHASSIS_PRICE_ML * P;
-    nbGoussets = Math.max(4, Math.ceil(4 + 4 * A));
-    let gusU = autoFindPrice(/gousset/,'u');
-    if(!isFinite(gusU)) gusU = Number(elGoussetPrixU?.value||0);
-    const gusCost = (isFinite(gusU)?gusU:0) * nbGoussets;
-    fix_interne = chLinCost + gusCost;
+  }else if(
+  fixVal === 'chassis30' ||
+  fixVal === 'chassis40' ||
+  fixVal === 'chassis50'
+){
 
-  }else if(fixVal==='corniere'){
+  let coefChassis = 1; // 30x30 = base
+
+  if (fixVal === 'chassis40') coefChassis = 1.10;
+  if (fixVal === 'chassis50') coefChassis = 1.21; // 1.10 × 1.10
+
+  const chLinCost = CHASSIS_PRICE_ML * coefChassis * P;
+
+  nbGoussets = Math.max(4, Math.ceil(4 + 4 * A));
+  let gusU = autoFindPrice(/gousset/,'u');
+  if(!isFinite(gusU)) gusU = Number(elGoussetPrixU?.value||0);
+
+  const gusCost = (isFinite(gusU)?gusU:0) * nbGoussets;
+
+  fix_interne = chLinCost + gusCost;
+}
+
+  else if(fixVal==='corniere'){
     fix_interne = CORNIERE_PRICE_ML * P;
   } else if (fixVal === 'lisse') {
     const lisseMM = Number(document.getElementById("lisseLongueur")?.value || 0);
@@ -467,7 +492,10 @@ function toggleBlocks(){
   elBlockAjour.classList.toggle('hidden', !elOptAjour.checked);
   const fixVal = (document.querySelector('input[name="fixation"]:checked')||{}).value || 'aucune';
   elFixBoite.classList.toggle('hidden', fixVal!=='boite');
-  elFixChassis.classList.toggle('hidden', fixVal!=='chassis');
+  elFixChassis.classList.toggle(
+  'hidden',
+  !(fixVal === 'chassis30' || fixVal === 'chassis40' || fixVal === 'chassis50')
+);
   elFixCorniere.classList.toggle('hidden', fixVal!=='corniere');
   const elFixLisse = document.getElementById('fixLisse');
 elFixLisse.classList.toggle('hidden', fixVal!=='lisse');
@@ -575,9 +603,17 @@ const lisseML = lisseMM / 1000;
 
       if (fixVal==='boite'){
         parts.push(`Fixation: boîte${boiteMat? ' ('+boiteMat+')':''}`);
-      }else if(fixVal==='chassis'){
-        parts.push(`Fixation: châssis tube 30×30${gusU? ' · gousset '+gusU+' €/u':''}`);
-      }else if(fixVal==='corniere'){
+      }else if(fixVal.startsWith('chassis')){
+  const size =
+    fixVal === 'chassis30' ? '30×30' :
+    fixVal === 'chassis40' ? '40×40' :
+    '50×50';
+
+  parts.push(
+    `Fixation: châssis tube aluminium ${size}${gusU ? ' · gousset ' + gusU + ' €/u' : ''}`
+  );
+}
+      else if(fixVal==='corniere'){
         parts.push(`Fixation: cornière`);
         } else if(fixVal === 'lisse') {
     parts.push(`Fixation: pose sur lisse — ${lisseMM} mm (${lisseML.toFixed(2)} ml)`);
@@ -608,6 +644,7 @@ const lisseML = lisseMM / 1000;
 
 </body>
 </html>
+
 
 
 
