@@ -7,12 +7,34 @@
 
 <link rel="stylesheet" href="../styles/cofel-components.css" />
 <link rel="stylesheet" href="../styles/cofel-glass.css" />
+<style>
+/* ===== HEADER GLASS – HARMONISATION CONFIGURATEURS ===== */
+
+.cofel-header.glass{
+  background: rgba(90,45,130,.35);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(255,255,255,.15);
+}
+
+.cofel-header .cofel-title{
+  color: #fff;
+}
+
+.cofel-header .cofel-back{
+  color: rgba(255,255,255,.85);
+}
+
+.cofel-header .cofel-back:hover{
+  color: #fff;
+}
+</style>
 
 </head>
 
 <body>
 
-<header class="cofel-header">
+<header class="cofel-header glass">
   <div class="row">
     <a class="cofel-back" href="../index.html">⬅ Retour accueil (devis)</a>
 
@@ -187,6 +209,7 @@ document.getElementById('btnAddDevis').addEventListener('click',()=>{
 
 </body>
 </html>
+
 
 
 
