@@ -451,6 +451,22 @@ function updateLisseUI(){
   if(!block) return;
   block.classList.toggle("hidden", !elLisse.checked);
 }
+function updateFixationTigeAvailability(){
+  const catVal = $("categorie").value;
+
+  // le <label> qui contient la checkbox tige
+  const labelTige = elTige ? elTige.closest("label") : null;
+  if (!labelTige) return;
+
+  if (catVal === "alu20") {
+    // autorisé
+    labelTige.classList.remove("hidden");
+  } else {
+    // interdit pour Dibond
+    elTige.checked = false;        // sécurité prix
+    labelTige.classList.add("hidden");
+  }
+}
 
 function compute(){
   // === Remise automatique client ===
@@ -518,6 +534,7 @@ const unit_public = unit_public_brut * remiseClient;
 
   elPrixHT.textContent  = euro(totalHT);
   elPrixTTC.textContent = euro(totalTTC);
+  updateFixationTigeAvailability();
 }
 
 async function loadCSV(){
@@ -527,8 +544,9 @@ async function loadCSV(){
     const {rawHeads, rows} = parseCSVAuto(txt);
     HEADS=rawHeads; ROWS=rows; MAP=buildMapping(HEADS);
     if (elHelp) elHelp.textContent = "Hauteur max 1500 mm";
-    updateLisseUI();
-    compute();
+   updateLisseUI();
+updateFixationTigeAvailability();
+compute();
   }catch(e){
     console.error(e);
     alert("Erreur lors du chargement des données. Réessayez plus tard.");
@@ -556,6 +574,7 @@ loadCSV();
 
 buildCustomFromNative($("categorie"));
 $("categorie").addEventListener("change", ()=>{
+  updateFixationTigeAvailability();
   compute();
 });
 
@@ -573,6 +592,9 @@ $("btnAddDevis").addEventListener("click", ()=>{
     if (hauteur > 1500) { hauteur = 1500; $("hauteur").value = 1500; }
 
     const fin = $("finitionLaque").checked ? 'laqué' : 'brut';
+    if ($("categorie").value !== "alu20" && elTige) {
+  elTige.checked = false;
+}
     const fix = $("optFixation").checked
   ? ' + fixation entretoise à clipser (taquet)'
   : '';
@@ -605,6 +627,7 @@ if (catVal === 'dibond4') catTxt = 'Lettre alu/PVC 4 mm (type Dibond)';
 
 </body>
 </html>
+
 
 
 
