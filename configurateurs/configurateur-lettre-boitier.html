@@ -139,6 +139,7 @@
           </div>
 
           <div id="variantHelp" class="help"></div>
+          <div id="lightingInfo" class="help hidden"></div>
         </div>
       </div>
 
@@ -171,6 +172,7 @@
       <p>Prix HT : <b><span id="prixHT">0,00</span> €</b></p>
       <p>Prix TTC : <b><span id="prixTTC">0,00</span> €</b></p>
       <div class="muted">TVA 20 % incluse dans le calcul.</div>
+      <div class="muted">📐 Plan de pose inclus avec nos lettres boîtiers.</div>
     </div>
 
     <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
@@ -218,6 +220,7 @@ const elHT  = $("prixHT");
 const elTTC = $("prixTTC");
 const elOptLisse = $("optLisse");
 const elLongLisse = $("lisseLongueur");
+const elLightingInfo = document.getElementById("lightingInfo");
 function updateLisseUI(){
   const block = document.getElementById("lisseBlock");
   if (!block) return;
@@ -472,6 +475,32 @@ function updateDibondRule(){
   const node = document.getElementById("dibondRule");
   if(node) node.style.display = (isDibond && hasLight) ? "block" : "none";
 }
+function updateLightingInfo(){
+  if (!elLightingInfo) return;
+
+  // reset
+  elLightingInfo.classList.add("hidden");
+  elLightingInfo.textContent = "";
+
+  // si pas d’éclairage sélectionné → rien
+  if (!elVar.value) return;
+
+  const famName = (CURRENT?.name || "").toLowerCase();
+
+  // FACE PMMA → éclairage en face avant
+  if (famName.includes("pmma")) {
+    elLightingInfo.textContent =
+      "💡 Éclairage par la face avant (PMMA diffusant).";
+    elLightingInfo.classList.remove("hidden");
+  }
+
+  // FACE DIBOND → rétro-éclairage
+  if (famName.includes("dibond")) {
+    elLightingInfo.textContent =
+      "💡 Rétro-éclairage : diffusion lumineuse par l’arrière de la lettre.";
+    elLightingInfo.classList.remove("hidden");
+  }
+}
 
 /* Filtre lignes CSV selon variant */
 function filterRowsByVariant(rows){
@@ -534,6 +563,7 @@ function compute(){updateLisseUI();
     elHT.textContent="0,00";
     elTTC.textContent="0,00";
     updateDibondRule();
+    updateLightingInfo();
     return;
   }
 
@@ -615,12 +645,20 @@ function bind(){
     }
     CURRENT = FAMILLES[i];
     try { await loadFamily(CURRENT); }
+      updateLightingInfo();
+
     catch(e){ console.error(e); alert("Erreur chargement CSV."); }
   });
 
   elQ.addEventListener("input", compute);
   elH.addEventListener("input", ()=>{ buildRangesHelp(); compute(); });
-  elVar.addEventListener("change", ()=>{ buildRangesHelp(); updateDibondRule(); compute(); });
+  elVar.addEventListener("change", ()=>{ 
+  buildRangesHelp();
+  updateDibondRule();
+  updateLightingInfo();
+  compute(); 
+});
+
 
   // Lisse
   elOptLisse.addEventListener("change", compute);
@@ -728,6 +766,7 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
   }
 });
 </script>
+
 
 
 
