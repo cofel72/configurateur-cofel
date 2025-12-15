@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="../styles/cofel-components.css">
+<link rel="stylesheet" href="../styles/cofel-glass.css">
+
 <title>Configurateur — Lettres Boîtiers | Cofel</title>
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -145,17 +148,19 @@
 </style>
 </head>
 <body>
+<header class="cofel-header">
+  <div class="row">
+    <a class="cofel-back" href="../index.html">⬅ Retour accueil (devis)</a>
 
-<div class="hero">
-  <div class="hero-inner">
-    <div class="brand">
+    <div class="cofel-brand">
       <img src="../assets/logo cofel.jpg" alt="Cofel" />
-      <h1>Configurateur — Lettres Boîtiers</h1>
+      <h1 class="cofel-title">
+        Configurateur — Lettres Boîtiers
+      </h1>
     </div>
-    <a class="brand" href="../index.html" style="text-decoration:none;color:inherit">⬅ Retour accueil (devis)</a>
   </div>
-  <div class="tagline">Choisissez la famille, la hauteur et l’éclairage. Les montants s’actualisent automatiquement.</div>
-</div>
+</header>
+
 
 <main class="wrap">
   <section class="panel">
@@ -200,15 +205,25 @@
       </div>
     </div>
 
-    <div class="card">
+   <div class="card grid">
+  <div>
+    <h3 class="card-title">Suppléments</h3>
+
+    <div class="grid">
       <label class="option-item">
         <input type="checkbox" id="optLisse" />
         <span>Pose sur lisse</span>
       </label>
+    </div>
+
+    <div id="lisseBlock" class="hidden" style="margin-top:10px;">
       <label for="lisseLongueur">Longueur de la lisse (mm)</label>
       <input type="number" id="lisseLongueur" placeholder="Ex : 3000" min="0" />
       <div class="muted">Tarif interne : 25 €/ml · ajouté une seule fois</div>
     </div>
+  </div>
+</div>
+
 
   </section>
   <section class="panel">
@@ -264,6 +279,16 @@ const elHT  = $("prixHT");
 const elTTC = $("prixTTC");
 const elOptLisse = $("optLisse");
 const elLongLisse = $("lisseLongueur");
+function updateLisseUI(){
+  const block = document.getElementById("lisseBlock");
+  if (!block) return;
+
+  if (elOptLisse.checked) {
+    block.classList.remove("hidden");
+  } else {
+    block.classList.add("hidden");
+  }
+}
 
 /* ======================= UTILS ======================= */
 function normKey(k){
@@ -543,7 +568,8 @@ function findRowForHeight(H){
   return best || rows[0];
 }
 /* ======================= COMPUTE ======================= */
-function compute(){
+function compute(){updateLisseUI();
+
   // === Mode tarif (client ou pro) ===
 
   // Remise client automatique
@@ -674,6 +700,7 @@ function bind(){
 
     elOptLisse.checked = false;
     elLongLisse.value="";
+updateLisseUI();
 
     compute();
   });
@@ -682,7 +709,9 @@ function bind(){
 (function init(){
   fillFamilles();
   bind();
+  updateLisseUI();
 })();
+
 </script>
 <script src="../js/devis-core.js"></script>
 <script>
@@ -760,6 +789,7 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
   }
 });
 </script>
+
 
 
 
