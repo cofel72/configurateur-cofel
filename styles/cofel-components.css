@@ -5,9 +5,6 @@
    ========================================================= */
 
 /* ---------- Helpers ---------- */
-.hidden {
-  display: none !important;
-}
 
 /* ---------- Layout ---------- */
 .cofel-container {
@@ -68,28 +65,28 @@
 }
 
 /* ---------- Fieldsets ---------- */
-fieldset {
+/* ---------- Form elements (encapsulés Cofel) ---------- */
+.cofel-form fieldset {
   border-radius: 20px;
   padding: 16px;
   margin: 16px 0;
 }
 
-legend {
+.cofel-form legend {
   padding: 0 10px;
   font-weight: 800;
 }
 
-/* ---------- Form elements ---------- */
-label {
+.cofel-form label {
   display: block;
   margin-top: 10px;
   font-weight: 700;
   font-size: 13px;
 }
 
-input[type="number"],
-input[type="text"],
-select {
+.cofel-form input[type="number"],
+.cofel-form input[type="text"],
+.cofel-form select {
   width: 100%;
   margin-top: 6px;
   padding: 12px;
@@ -97,6 +94,7 @@ select {
   border-radius: 14px;
   outline: none;
 }
+
 
 input:disabled {
   opacity: 0.75;
@@ -265,21 +263,48 @@ input::placeholder {
   cursor:pointer;
 }
 
-/* ================= FIX FINAL GLASS COFEL ================= */
+/* ===== UTILITAIRES ===== */
+.hidden{ display:none !important; }
 
-/* Panel glass = simple conteneur */
-.panel.glass{
-  background: transparent;
-}
+.text-right{ text-align:right; }
+.text-center{ text-align:center; }
 
-/* Card glass = vrai effet verre Cofel */
-.panel.glass > .card.glass{
-  background: linear-gradient(
-    160deg,
-    rgba(120,56,167,.35),
-    rgba(60,25,90,.55)
-  );
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255,255,255,.18);
+.mt-16{ margin-top:16px; }
+.flex{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
 }
+.input-compact{
+  width:100%;
+  padding:6px 8px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.10);
+  color:var(--txt);
+}
+.input-compact.text-center{ text-align:center; }
+.input-compact.text-right{ text-align:right; }
+
+.btn-sm{
+  padding:6px 10px;
+  font-size:13px;
+}
+.admin-links{
+  position:fixed;
+  top:12px;
+  right:12px;
+  z-index:9999;
+  background:var(--cofel);
+  color:white;
+  padding:8px 15px;
+  border-radius:12px;
+  font-size:14px;
+}
+.admin-links a{
+  color:white;
+  text-decoration:none;
+  margin-right:10px;
+}
+.admin-links a:last-child{ margin-right:0; }
