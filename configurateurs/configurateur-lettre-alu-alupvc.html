@@ -194,6 +194,7 @@
         <select id="categorie" class="native-select">
           <option value="alu20" selected>Lettre aluminium 20/10</option>
           <option value="dibond3">Lettre alu/PVC 3 mm (type Dibond)</option>
+          <option value="dibond4">Lettre alu/PVC 4 mm (type Dibond)</option>
         </select>
         <div class="cselect" data-bind="categorie" aria-haspopup="listbox" aria-expanded="false">
           <button type="button" class="cselect-toggle">
@@ -243,7 +244,12 @@
     <input type="checkbox" id="optFixation" />
     <span>Fixations</span>
   </label>
-
+  
+<label class="option-item">
+  <input type="checkbox" id="optTige" />
+  <span>Fixation tige aluminium soudée à sceller</span>
+</label>
+  
   <label class="option-item">
     <input type="checkbox" id="optLisse" />
     <span>Pose sur lisse</span>
@@ -300,6 +306,7 @@ const elPrixTTC = $("prixTTC");
 const elHelp = $("helpRanges");
 const elLisse = $("optLisse");
 const elLisseLongueur = $("lisseLongueur");
+const elTige = $("optTige");
 
 function normKey(k){
   return String(k||'').toLowerCase()
@@ -475,11 +482,21 @@ function compute(){
   else if(isFinite(brut)) unit_interne = brut;
   else if(isFinite(laqe)) { unit_interne = laqe; elFLaque.checked=true; elFBrut.checked=false; }
 
-  // Supplément : fixations
-  if(elFix.checked && MAP.fixKey){
-    const fx = numFR(row[MAP.fixKey]);
-    if(isFinite(fx)) unit_interne += fx;
+  // === Surépaisseur Dibond 4 mm (+15%) ===
+const catVal = $("categorie").value;
+if (catVal === 'dibond4') {
+  unit_interne *= 1.15;
+}
+
+ // Suppléments : fixations (taquet / tige = même prix)
+if (MAP.fixKey) {
+  const fx = numFR(row[MAP.fixKey]);
+  if (isFinite(fx)) {
+    if (elFix.checked) unit_interne += fx;                 // taquet clipsable
+    if (elTige && elTige.checked) unit_interne += fx;      // tige alu soudée à sceller
   }
+}
+
 
   // Supplément : pose sur lisse (25 €/ml interne)
   if (elLisse && elLisse.checked) {
@@ -519,7 +536,7 @@ async function loadCSV(){
 }
 
 ["input","change"].forEach(evt=>{
-  [elH, elQ, elFix, elFBrut, elFLaque, elLisse, elLisseLongueur].forEach(el=>{
+    [elH, elQ, elFix, elTige, elFBrut, elFLaque, elLisse, elLisseLongueur].forEach(el=>{
     if(!el) return;
     el.addEventListener(evt, ()=>{
       updateLisseUI();
@@ -528,7 +545,7 @@ async function loadCSV(){
   });
 });
 $("btnReset").addEventListener("click", ()=>{
-  elH.value=''; elQ.value=1; elFix.checked=false; elFBrut.checked=true; elFLaque.checked=false;
+  elH.value=''; elQ.value=1; elFix.checked=false; if(elTige) elTige.checked=false; elFBrut.checked=true; elFLaque.checked=false;
   if (elLisse) elLisse.checked = false;
   if (elLisseLongueur) elLisseLongueur.value = '';
   updateLisseUI();
@@ -581,6 +598,7 @@ $("btnAddDevis").addEventListener("click", ()=>{
 
 </body>
 </html>
+
 
 
 
