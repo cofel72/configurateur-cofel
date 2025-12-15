@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-<title>Configurateur — Enseigne Drapeau | Cofel</title>
+<title>Configurateur — Enseignes Drapeaux | Cofel</title>
 
 <link rel="stylesheet" href="../styles/cofel.css">
 <link rel="stylesheet" href="../styles/cofel-components.css">
@@ -12,62 +12,47 @@
 
 <body>
 
-<!-- ================= HEADER ================= -->
 <header class="cofel-header">
   <div class="row">
     <a class="cofel-back" href="../index.html">⬅ Retour accueil (Devis)</a>
     <div class="cofel-brand">
-      <img src="../assets/logo cofel.jpg" alt="Cofel" />
-      <h1 class="cofel-title">Configurateur — Enseigne Drapeau</h1>
+      <img src="../assets/logo cofel.jpg" alt="Cofel">
+      <h1 class="cofel-title">Configurateur — Enseignes Drapeaux</h1>
     </div>
   </div>
 </header>
 
-<!-- ================= CONTENU ================= -->
 <div class="cofel-container">
+  <h1>Enseigne Drapeau</h1>
 
   <!-- PARAMÈTRES -->
   <fieldset>
     <legend>Paramètres</legend>
-
     <div class="grid">
 
       <div>
-        <label for="forme">Forme</label>
-        <select id="forme" class="native-select"></select>
-
-        <div class="cselect" data-bind="forme" aria-expanded="false">
-          <button type="button" class="cselect-toggle">
-            <span class="cselect-label">(choisir)</span>
-            <span class="cselect-caret"></span>
-          </button>
-          <div class="cselect-menu"></div>
-        </div>
-        <div id="noteForme" class="hint"></div>
+        <label>Forme</label>
+        <select id="forme">
+          <option value="">(choisir)</option>
+        </select>
       </div>
 
       <div>
-        <label for="dimension">Dimension</label>
-        <select id="dimension" class="native-select"></select>
-
-        <div class="cselect" data-bind="dimension" aria-expanded="false">
-          <button type="button" class="cselect-toggle">
-            <span class="cselect-label">(choisir)</span>
-            <span class="cselect-caret"></span>
-          </button>
-          <div class="cselect-menu"></div>
-        </div>
-        <div id="helpDim" class="hint"></div>
+        <label>Dimension</label>
+        <select id="dimension">
+          <option value="">(choisir)</option>
+        </select>
       </div>
 
       <div>
-        <label for="quantite">Quantité</label>
+        <label>Quantité</label>
         <input type="number" id="quantite" min="1" value="1">
       </div>
 
       <div>
-        <label for="potence">Longueur de potence (mm)</label>
+        <label>Longueur de potence (mm)</label>
         <input type="number" id="potence" min="0" placeholder="ex : 600">
+        <div class="hint">Information indicative (sans impact tarifaire).</div>
       </div>
 
     </div>
@@ -76,82 +61,105 @@
   <!-- FINITION -->
   <fieldset>
     <legend>Finition</legend>
-
     <div class="radio-row">
-      <label class="pill">
-        <input type="radio" name="finition" value="prelaque" checked>
-        Prélaqué
-      </label>
-
-      <label class="pill">
-        <input type="radio" name="finition" value="laque">
-        Laqué
-      </label>
-
-      <label class="pill">
-        <input type="radio" name="finition" value="ajour">
-        Ajourage + PMMA + LED
-      </label>
+      <label><input type="radio" name="finition" value="prelaque" checked> Prélaqué</label>
+      <label><input type="radio" name="finition" value="laque"> Laqué</label>
+      <label><input type="radio" name="finition" value="ajour"> Ajourage lumineux</label>
     </div>
-
     <div id="helpFinition" class="hint"></div>
   </fieldset>
 
-  <!-- RÉSULTATS -->
+  <!-- RÉSULTAT -->
   <div class="result">
-    <p>Total HT : <span id="prixHT">0,00</span> €</p>
-    <p>Total TTC : <span id="prixTTC">0,00</span> €</p>
+    <p>Total HT : <b><span id="prixHT">0,00</span> €</b></p>
+    <p>Total TTC : <b><span id="prixTTC">0,00</span> €</b></p>
   </div>
 
-  <!-- ACTIONS -->
-  <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+  <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
     <button id="btnAddDevis" class="btn">➕ Ajouter au devis</button>
     <button id="btnReset" class="btn">🔄 Réinitialiser</button>
   </div>
-
 </div>
 
 <footer class="cofel-footer">
-  © Cofel — ZA du Perquoi, 72560 Changé
+© Cofel — ZA du Perquoi, 72560 Changé — SIRET 927 659 458 00024 — TVA FR80927659458
 </footer>
 
-<!-- ================= LOGIQUE ================= -->
 <script>
+/* ================= CONFIG ================= */
 const TVA = 0.20;
+const COEF_PUBLIC = 2;
 const CSV_URL = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/Enseigne%20drapeaux.csv";
 
+/* ================= UTILS ================= */
 const $ = id => document.getElementById(id);
-const elForme=$("forme"), elDim=$("dimension"), elQ=$("quantite"), elPot=$("potence");
-const elHT=$("prixHT"), elTTC=$("prixTTC");
-const elHelpDim=$("helpDim"), elNote=$("noteForme"), elHelpFinition=$("helpFinition");
+const euro = n => (isFinite(n)?n:0).toFixed(2).replace('.',',');
+const numFR = v => parseFloat(String(v).replace(',', '.')) || 0;
+const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 
-let ROWS=[], MAP=null;
+/* ================= DOM ================= */
+const elForme=$('forme'), elDim=$('dimension'), elQ=$('quantite');
+const elHT=$('prixHT'), elTTC=$('prixTTC'), elHelp=$('helpFinition');
 
-function euro(n){return (isFinite(n)?n:0).toFixed(2).replace('.',',');}
-function numFR(v){
-  if(!v) return NaN;
-  return Number(String(v).replace(',','.').replace(/[^\d.]/g,''));
-}
+/* ================= CSV ================= */
+let ROWS=[], MAP={};
 
-function parseCSV(text){
-  const [h,...l]=text.trim().split(/\r?\n/);
-  const heads=h.split(';');
-  return l.map(r=>{
-    const o={}; r.split(';').forEach((v,i)=>o[heads[i]]=v); return o;
+function parseCSV(txt){
+  const lines=txt.split(/\r?\n/).filter(l=>l.trim());
+  const sep = lines[0].includes(';') ? ';' : ',';
+  const heads=lines[0].split(sep).map(h=>h.trim());
+  const rows=lines.slice(1).map(l=>{
+    const c=l.split(sep);
+    const o={}; heads.forEach((h,i)=>o[h]=c[i]);
+    return o;
   });
+  return {heads, rows};
 }
 
-function build(){
-  const formes=[...new Set(ROWS.map(r=>r.Forme))];
-  elForme.innerHTML='<option value=""></option>'+formes.map(f=>`<option>${f}</option>`).join('');
+function buildMap(heads){
+  const n=heads.map(norm);
+  const find=r=>heads[n.findIndex(h=>r.test(h))];
+  return {
+    FORME: find(/forme/),
+    DIM: find(/dimension/),
+    FIN: find(/finition/),
+    PRIX: find(/prix/)
+  };
 }
 
+/* ================= UI ================= */
+function populateFormes(){
+  const f=[...new Set(ROWS.map(r=>r[MAP.FORME]).filter(Boolean))];
+  elForme.innerHTML='<option value=""></option>'+f.map(v=>`<option>${v}</option>`).join('');
+}
+
+function populateDims(){
+  const d=[...new Set(
+    ROWS.filter(r=>!elForme.value||r[MAP.FORME]===elForme.value)
+        .map(r=>r[MAP.DIM]).filter(Boolean)
+  )];
+  elDim.innerHTML='<option value=""></option>'+d.map(v=>`<option>${v}</option>`).join('');
+}
+
+function getFinition(){
+  return document.querySelector('input[name="finition"]:checked').value;
+}
+
+/* ================= CALCUL ================= */
 function compute(){
-  const row=ROWS.find(r=>r.Forme===elForme.value && r.Dimension===elDim.value);
-  if(!row){ elHT.textContent='0,00'; elTTC.textContent='0,00'; return; }
+  const row = ROWS.find(r =>
+    r[MAP.FORME]===elForme.value &&
+    r[MAP.DIM]===elDim.value &&
+    norm(r[MAP.FIN])===norm(getFinition())
+  );
 
-  let price=numFR(row.Prix);
-  price*=2; // coef public
+  if(!row){
+    elHT.textContent='0,00';
+    elTTC.textContent='0,00';
+    return;
+  }
+
+  let unit = numFR(row[MAP.PRIX]) * COEF_PUBLIC;
 
   let remise=1;
   try{
@@ -159,37 +167,64 @@ function compute(){
     if(p?.discountRate) remise=1-p.discountRate;
   }catch{}
 
-  const total=price*elQ.value*remise;
+  const total = unit * elQ.value * remise;
   elHT.textContent=euro(total);
   elTTC.textContent=euro(total*(1+TVA));
 }
 
-fetch(CSV_URL).then(r=>r.text()).then(t=>{
-  ROWS=parseCSV(t);
-  build();
-  compute();
+/* ================= EVENTS ================= */
+['change','input'].forEach(e=>{
+  document.addEventListener(e,ev=>{
+    if(ev.target===elForme){ populateDims(); }
+    compute();
+  });
 });
 
-["input","change"].forEach(e=>{
-  document.addEventListener(e,ev=>{
-    if(ev.target.matches("select,input")) compute();
-  });
+$('btnReset').onclick=()=>{
+  elForme.value='';
+  elDim.value='';
+  elQ.value=1;
+  populateFormes();
+  populateDims();
+  compute();
+};
+
+/* ================= INIT ================= */
+fetch(CSV_URL)
+.then(r=>r.text())
+.then(t=>{
+  const {heads,rows}=parseCSV(t);
+  ROWS=rows;
+  MAP=buildMap(heads);
+  populateFormes();
+  populateDims();
+  compute();
 });
 </script>
 
 <script src="../js/devis-core.js"></script>
 <script>
-document.getElementById("btnAddDevis").addEventListener("click",()=>{
-  const q=Number(elQ.value||1);
-  const pu=Number(elHT.textContent.replace(',','.'))/q;
+$('btnAddDevis').onclick=()=>{
+  const q=elQ.value;
+  const ht=parseFloat(elHT.textContent.replace(',','.'))||0;
+  if(!ht){ alert("Configuration incomplète"); return; }
+
+  const d=[
+    elForme.value,
+    elDim.value,
+    getFinition(),
+    $('potence').value?`potence ${$('potence').value} mm`:null
+  ].filter(Boolean).join(' — ');
+
   Devis.addLine({
     type:"Enseigne Drapeau",
-    designation:`${elForme.value} ${elDim.value} ${elPot.value?elPot.value+' mm':''}`,
+    designation:d,
     quantite:q,
-    pu_public_ht:Number(pu.toFixed(2))
+    pu_public_ht: ht/q
   });
+
   alert("✅ Ajouté au devis");
-});
+};
 </script>
 
 </body>
