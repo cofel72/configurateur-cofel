@@ -242,7 +242,7 @@
 <div class="grid">
   <label class="option-item">
     <input type="checkbox" id="optFixation" />
-    <span>Fixations</span>
+    <span>Fixation entretoise à clipser (taquet)</span>
   </label>
   
 <label class="option-item">
@@ -573,8 +573,9 @@ $("btnAddDevis").addEventListener("click", ()=>{
     if (hauteur > 1500) { hauteur = 1500; $("hauteur").value = 1500; }
 
     const fin = $("finitionLaque").checked ? 'laqué' : 'brut';
-    const fix = $("optFixation").checked ? ' + fixations' : '';
-
+    const fix = $("optFixation").checked
+  ? ' + fixation entretoise à clipser (taquet)'
+  : '';
     const optLisse = $("optLisse");
     const lisseMM = Number($("lisseLongueur")?.value || 0);
     const lisseML = lisseMM / 1000;
@@ -604,6 +605,7 @@ if (catVal === 'dibond4') catTxt = 'Lettre alu/PVC 4 mm (type Dibond)';
 
 </body>
 </html>
+
 
 
 
