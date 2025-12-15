@@ -215,21 +215,9 @@ input::placeholder {
   justify-content:space-between;
   gap:12px;
   padding:12px;
-  color:var(--txt);
   border-radius:14px;
   cursor:pointer;
   user-select:none;
-  border:1px solid rgba(255,255,255,.24);
-  background: rgba(255,255,255,.10);
-}
-
-.cselect-toggle:hover{
-  background: rgba(255,255,255,.16);
-}
-
-.cselect-toggle:focus-visible{
-  outline:none;
-  box-shadow: 0 0 0 4px rgba(255,255,255,.08) inset;
 }
 
 .cselect-label{
@@ -267,8 +255,6 @@ input::placeholder {
   overflow:auto;
   padding:6px;
   border-radius:14px;
-  border:1px solid rgba(255,255,255,.22);
-  background:#3c1f61;
   display:none;
 }
 
@@ -277,138 +263,5 @@ input::placeholder {
   margin:4px 0;
   padding:10px 12px;
   cursor:pointer;
-  color:#fff;
-  border:1px solid rgba(255,255,255,.18);
-  background: rgba(255,255,255,.08);
-}
-
-.cselect-option:hover,
-.cselect-option[aria-selected="true"]{
-  background: rgba(255,255,255,.18);
-  border-color: rgba(255,255,255,.28);
-}
-
-.cselect-option:focus-visible{
-  outline:none;
-  box-shadow: 0 0 0 3px rgba(201,183,255,.35);
-}
-/* ===============================
-   PATCH configurateur Enseigne Drapeau (legacy hero)
-   =============================== */
-
-.hero {
-  padding: 28px 20px 16px;
-}
-
-.hero-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.brand img {
-  max-height: 48px;
-  width: auto;
-}
-
-.brand {
-  gap: 12px;
-}
-
-.wrap {
-  padding-top: 10px;
-}
-/* ================================
-   Ajustement options radio (panels)
-   ================================ */
-
-.panel .radio-row,
-.panel .grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-/* Boutons radio / options */
-.panel .option-item {
-  flex: 1 1 calc(50% - 12px);
-  max-width: calc(50% - 12px);
-}
-
-/* Cas où il n'y a que 2 options */
-.panel .option-item:only-child,
-.panel .option-item:nth-last-child(2):first-child {
-  flex: 1 1 calc(50% - 12px);
-}
-
-/* Mobile */
-@media (max-width: 640px) {
-  .panel .option-item {
-    flex: 1 1 100%;
-    max-width: 100%;
-  }
-}
-/* ============================
-   GROUPES DE CHOIX (radios type cartes)
-   — utilisé pour Finition / Matière
-============================ */
-
-.choice-group {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-}
-
-.choice-group .option-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 18px;
-  border-radius: 16px;
-  cursor: pointer;
-  font-weight: 700;
-  text-align: center;
-
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,0.18),
-    rgba(255,255,255,0.08)
-  );
-  border: 1px solid rgba(255,255,255,0.28);
-  box-shadow: var(--shadow);
-
-  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
-}
-
-.choice-group .option-item:hover {
-  transform: translateY(-1px);
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,0.26),
-    rgba(255,255,255,0.12)
-  );
-}
-
-/* cache le radio natif */
-.choice-group .option-item input[type="radio"] {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* état sélectionné */
-.choice-group .option-item input[type="radio"]:checked + span {
-  color: #fff;
-}
-
-.choice-group .option-item input[type="radio"]:checked ~ span,
-.choice-group .option-item:has(input[type="radio"]:checked) {
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,0.35),
-    rgba(255,255,255,0.18)
-  );
-  border-color: rgba(255,255,255,0.6);
-  box-shadow: 0 12px 26px rgba(0,0,0,0.35);
 }
 
