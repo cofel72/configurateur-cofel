@@ -7,29 +7,19 @@
 
 <link rel="stylesheet" href="../styles/cofel-components.css" />
 <link rel="stylesheet" href="../styles/cofel-glass.css" />
+
 <style>
 /* ===== HEADER GLASS – HARMONISATION CONFIGURATEURS ===== */
-
 .cofel-header.glass{
   background: rgba(90,45,130,.35);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border-bottom: 1px solid rgba(255,255,255,.15);
 }
-
-.cofel-header .cofel-title{
-  color: #fff;
-}
-
-.cofel-header .cofel-back{
-  color: rgba(255,255,255,.85);
-}
-
-.cofel-header .cofel-back:hover{
-  color: #fff;
-}
+.cofel-header .cofel-title{ color:#fff; }
+.cofel-header .cofel-back{ color:rgba(255,255,255,.85); }
+.cofel-header .cofel-back:hover{ color:#fff; }
 </style>
-
 </head>
 
 <body>
@@ -44,10 +34,25 @@
   </div>
 </header>
 
-
 <main class="wrap">
 
+<!-- ================= TYPE DE PRODUIT ================= -->
 <fieldset>
+  <legend>Type de produit</legend>
+  <div class="radio-row">
+    <label>
+      <input type="radio" name="typeProduit" value="panneau" checked>
+      Panneau / Tôlerie
+    </label>
+    <label>
+      <input type="radio" name="typeProduit" value="chassis">
+      Châssis aluminium
+    </label>
+  </div>
+</fieldset>
+
+<!-- ================= PANNEAU ================= -->
+<fieldset id="blockPanneau">
   <div class="grid">
     <div>
       <label>Famille</label>
@@ -81,8 +86,8 @@
   </div>
 </fieldset>
 
-<fieldset>
-  <legend>Dimensions</legend>
+<fieldset id="blockDimensions">
+  <legend>Dimensions panneau</legend>
   <div class="grid-dimensions">
     <div>
       <label>Largeur (mm)</label>
@@ -97,6 +102,31 @@
   <input id="surface" disabled value="0,000 m²">
 </fieldset>
 
+<!-- ================= CHÂSSIS ================= -->
+<fieldset id="blockChassis" style="display:none">
+  <legend>Châssis aluminium</legend>
+
+  <div class="radio-row">
+    <label><input type="radio" name="typeChassis" checked> Châssis alu 30×30 mm</label>
+    <label><input type="radio" name="typeChassis"> Châssis alu 40×40 mm</label>
+    <label><input type="radio" name="typeChassis"> Châssis alu 50×50 mm</label>
+  </div>
+
+  <div class="grid-dimensions">
+    <div>
+      <label>Largeur extérieure (mm)</label>
+      <input type="number">
+    </div>
+    <div>
+      <label>Hauteur extérieure (mm)</label>
+      <input type="number">
+    </div>
+  </div>
+
+  <p class="muted">🛈 Calcul du châssis à venir</p>
+</fieldset>
+
+<!-- ================= RÉSULTATS ================= -->
 <div class="result">
   <p>Total HT : <b><span id="prixHT">0,00</span> €</b></p>
   <p>Total TTC : <b><span id="prixTTC">0,00</span> €</b></p>
@@ -138,7 +168,25 @@ function toggleBlocks(){
   $('blockDibond').style.display = isAlu ? 'none' : '';
 }
 
+function toggleTypeProduit(){
+  const type = document.querySelector('input[name="typeProduit"]:checked').value;
+  const isChassis = type === 'chassis';
+
+  $('blockPanneau').style.display   = isChassis ? 'none' : '';
+  $('blockAlu').style.display       = isChassis ? 'none' : '';
+  $('blockDibond').style.display    = isChassis ? 'none' : '';
+  $('blockDimensions').style.display= isChassis ? 'none' : '';
+  $('blockChassis').style.display   = isChassis ? '' : '';
+}
+
 function compute(){
+  toggleTypeProduit();
+  if(document.querySelector('input[name="typeProduit"]:checked').value === 'chassis'){
+    $('prixHT').textContent = '0,00';
+    $('prixTTC').textContent = '0,00';
+    return;
+  }
+
   let remise = 1;
   try{
     const p = JSON.parse(localStorage.getItem('cofel_client_profile'));
@@ -188,6 +236,11 @@ compute();
 
 <script>
 document.getElementById('btnAddDevis').addEventListener('click',()=>{
+  if(document.querySelector('input[name="typeProduit"]:checked').value === 'chassis'){
+    alert("Le calcul châssis n’est pas encore actif.");
+    return;
+  }
+
   const p = window._TOLERIE_LAST;
   if(!p || !window.Devis){ alert("Erreur devis"); return; }
 
@@ -208,9 +261,3 @@ document.getElementById('btnAddDevis').addEventListener('click',()=>{
 
 </body>
 </html>
-
-
-
-
-
-
