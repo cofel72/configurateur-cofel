@@ -10,7 +10,6 @@
 <link rel="stylesheet" href="../styles/cofel-components.css">
 <link rel="stylesheet" href="../styles/cofel-glass.css">
 <link rel="stylesheet" href="../styles/cofel-config-steps.css">
-
 </head>
 
 <body>
@@ -193,11 +192,26 @@
 <!-- Script principal -->
 <script src="../js/souples-rigides-adhesifs.js"></script>
 
-<!-- ===== Bridge "Ajouter au devis" (robuste + compatible index) ===== -->
+<!-- ===== Bridge: écrit EXACTEMENT dans devisCourant_v1 (format attendu par index.html) ===== -->
 <script>
 (function(){
   function q(sel){ return document.querySelector(sel); }
   function qa(sel){ return Array.from(document.querySelectorAll(sel)); }
+
+  const STORAGE_KEY = "devisCourant_v1"; // ✅ celui de ton index.html
+  const TVA_RATE = 0.20;
+
+  function genId(){
+    try{
+      if(window.crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+    }catch(e){}
+    return "L_" + Date.now() + "_" + Math.random().toString(16).slice(2);
+  }
+
+  function round2(n){
+    n = Number(n);
+    return Number.isFinite(n) ? Math.round(n * 100) / 100 : 0;
+  }
 
   function getCheckedText(containerSel){
     const root = q(containerSel);
@@ -218,14 +232,12 @@
     }).filter(Boolean);
   }
 
-  // ✅ FIX: regex € / EUR robuste (pas de \b après €)
   function extractTotalFromRecap(){
     const recap = q('#recap');
     if(!recap) return null;
 
     const texts = [];
     texts.push(recap.innerText || recap.textContent || "");
-
     recap.querySelectorAll('*').forEach(el=>{
       const t = (el.innerText || el.textContent || "").trim();
       if(t && t.length <= 250) texts.push(t);
@@ -233,7 +245,6 @@
 
     const joined = texts.join("\n");
 
-    // Montants suivis de € ou EUR
     const moneyRe = /(\d[\d\s]*([.,]\d+)?)\s*(?:€|eur\b)/gi;
     let m;
     const candidates = [];
@@ -242,7 +253,6 @@
       if(Number.isFinite(num)) candidates.push(num);
     }
 
-    // Fallback si "Total HT : 25,56" sans €
     if(candidates.length === 0){
       const totalRe = /total[^0-9]{0,25}(\d[\d\s]*([.,]\d+)?)/i;
       const mt = joined.match(totalRe);
@@ -253,13 +263,18 @@
     }
 
     if(candidates.length === 0) return null;
-
-    const max = Math.max(...candidates);
-    return Math.round(max * 100) / 100;
+    return round2(Math.max(...candidates));
   }
 
-  // ✅ FIX: on reconstruit designation (tu l’avais perdu)
-  function buildLine(){
+  function readStore(){
+    try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") || {}; }
+    catch(e){ return {}; }
+  }
+  function writeStore(st){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
+  }
+
+  function buildLineForIndex(){
     const support = (q('input[name="support"]:checked')?.value || "").trim();
     const impression = (q('input[name="impression"]:checked')?.value || "").trim();
 
@@ -274,7 +289,6 @@
     const h = parseInt(q('#hauteur')?.value || "0", 10);
     const qty = Math.max(1, parseInt(q('#quantite')?.value || "1", 10) || 1);
 
-    // designation lisible
     const parts = [];
     if(support) parts.push(support === "souple" ? "Support souple" : "Support rigide");
     if(impression) parts.push(impression === "avec" ? "Avec impression" : "Sans impression");
@@ -289,192 +303,36 @@
     const designation = parts.join(" • ") || "Supports Souples, Rigides & Adhésifs";
 
     const totalHT = extractTotalFromRecap();
-    const tvaRate = 0.20;
-
     const safeTotalHT = (totalHT != null ? totalHT : 0);
     const puHT = safeTotalHT / qty;
 
-    const totalTTC = Math.round(safeTotalHT * (1 + tvaRate) * 100) / 100;
-    const puTTC = Math.round((totalTTC / qty) * 100) / 100;
+    const id = genId();
 
-    const line = {
+    // ✅ FORMAT EXACT attendu par ton index.html / Devis-core
+    return {
+      id,
+      type: "configurateur",
       designation,
-      description: designation,
-      produit: "Supports Souples, Rigides & Adhésifs",
-      configurateur: "Supports Souples, Rigides & Adhésifs",
-
-      // quantités
-      qte: qty,
-      qty: qty,
       quantite: qty,
+      pu_net_ht: round2(puHT),
+      total_ligne_ht: round2(round2(puHT) * qty),
 
-      // unité
-      unite: "u",
-      unit: "u",
-
-      // dimensions
-      largeur_mm: Number.isFinite(w) ? w : null,
-      hauteur_mm: Number.isFinite(h) ? h : null,
-
-      // PRIX HT (synonymes)
-      pu_ht: Math.round(puHT * 100) / 100,
-      puHT: Math.round(puHT * 100) / 100,
-      prix_unitaire_ht: Math.round(puHT * 100) / 100,
-      unit_price_ht: Math.round(puHT * 100) / 100,
-
-      total_ht: Math.round(safeTotalHT * 100) / 100,
-      totalHT: Math.round(safeTotalHT * 100) / 100,
-      montant_ht: Math.round(safeTotalHT * 100) / 100,
-      montantHT: Math.round(safeTotalHT * 100) / 100,
-      total: Math.round(safeTotalHT * 100) / 100,
-
-      // PRIX TTC (au cas où)
-      pu_ttc: puTTC,
-      puTTC: puTTC,
-      total_ttc: totalTTC,
-      totalTTC: totalTTC,
-      montant_ttc: totalTTC,
-
-      // TVA
-      tva: tvaRate,
-
-      // debug utile
-      _debug_totalHT_detected: totalHT,
-
-      createdAt: new Date().toISOString()
+      // meta (n’impacte pas le devis, mais utile)
+      meta: {
+        configurateur: "Supports Souples, Rigides & Adhésifs",
+        largeur_mm: Number.isFinite(w) ? w : null,
+        hauteur_mm: Number.isFinite(h) ? h : null,
+        totalHT_detected: totalHT,
+        tva: TVA_RATE
+      }
     };
-
-    return line;
   }
 
-  function safeParseJSON(v){
-    try{ return JSON.parse(v); }catch(e){ return null; }
-  }
-
-  function looksLikeLineArray(arr){
-    if(!Array.isArray(arr)) return false;
-    if(arr.length === 0) return true;
-    const x = arr[arr.length-1];
-    return x && typeof x === "object" && (
-      "designation" in x || "description" in x || "produit" in x || "total_ht" in x || "totalHT" in x
-    );
-  }
-
-  function pushIntoValue(v, line){
-    if(Array.isArray(v)){
-      v.push(line);
-      return { updated: true, out: v };
-    }
-    if(v && typeof v === "object"){
-      const props = ["lines","lignes","items","rows","articles","produits"];
-      for(const p of props){
-        if(Array.isArray(v[p])){
-          v[p].push(line);
-          return { updated: true, out: v };
-        }
-      }
-      if(v.devis && typeof v.devis === "object"){
-        for(const p of props){
-          if(Array.isArray(v.devis[p])){
-            v.devis[p].push(line);
-            return { updated: true, out: v };
-          }
-        }
-      }
-    }
-    return { updated: false, out: v };
-  }
-
-  function writePending(line){
-    const raw = JSON.stringify(line);
-    sessionStorage.setItem("cofel_pending_devis_line", raw);
-    localStorage.setItem("cofel_pending_devis_line", raw);
-  }
-
-  function addLineToAllLikelyStorages(line){
-    writePending(line);
-
-    const writtenKeys = [];
-
-    const candidates = [
-      window.cofelDevisAddLine,
-      window.addLineToDevis,
-      window.addLineToQuote
-    ];
-    for(const fn of candidates){
-      if(typeof fn === "function"){
-        fn(line);
-        return { via: "function", keys: writtenKeys };
-      }
-    }
-    if(window.cofelDevis && typeof window.cofelDevis.addLine === "function"){
-      window.cofelDevis.addLine(line);
-      return { via: "cofelDevis.addLine", keys: writtenKeys };
-    }
-
-    const allKeys = Object.keys(localStorage);
-    const devisKeys = allKeys.filter(k => /devis|quote|lines|lignes/i.test(k));
-
-    for(const k of devisKeys){
-      const raw = localStorage.getItem(k);
-      const parsed = safeParseJSON(raw);
-      if(parsed == null) continue;
-
-      if(looksLikeLineArray(parsed)){
-        parsed.push(line);
-        localStorage.setItem(k, JSON.stringify(parsed));
-        writtenKeys.push(k);
-        continue;
-      }
-
-      const res = pushIntoValue(parsed, line);
-      if(res.updated){
-        localStorage.setItem(k, JSON.stringify(res.out));
-        writtenKeys.push(k);
-      }
-    }
-
-    const standardKeys = [
-      "cofel_devis_lines",
-      "cofel_devis_lignes",
-      "cofel_devis",
-      "devis_lines",
-      "quote_lines"
-    ];
-
-    for(const k of standardKeys){
-      const raw = localStorage.getItem(k);
-      const parsed = safeParseJSON(raw);
-
-      if(parsed == null){
-        localStorage.setItem(k, JSON.stringify([line]));
-        writtenKeys.push(k);
-        continue;
-      }
-
-      if(Array.isArray(parsed)){
-        parsed.push(line);
-        localStorage.setItem(k, JSON.stringify(parsed));
-        writtenKeys.push(k);
-        continue;
-      }
-
-      const res = pushIntoValue(parsed, line);
-      if(res.updated){
-        localStorage.setItem(k, JSON.stringify(res.out));
-        writtenKeys.push(k);
-        continue;
-      }
-
-      if(parsed && typeof parsed === "object"){
-        parsed.lines = Array.isArray(parsed.lines) ? parsed.lines : [];
-        parsed.lines.push(line);
-        localStorage.setItem(k, JSON.stringify(parsed));
-        writtenKeys.push(k);
-      }
-    }
-
-    return { via: "localStorage", keys: Array.from(new Set(writtenKeys)) };
+  function addLineToIndexStore(line){
+    const st = readStore();
+    if(!Array.isArray(st.lignes)) st.lignes = [];
+    st.lignes.push(line);
+    writeStore(st);
   }
 
   document.addEventListener('DOMContentLoaded', function(){
@@ -484,35 +342,26 @@
     if(addBtn){
       addBtn.addEventListener('click', function(){
         try{
-          const line = buildLine();
-          const res = addLineToAllLikelyStorages(line);
-
-          const totalTxt = (line._debug_totalHT_detected != null)
-            ? (line._debug_totalHT_detected + " € HT détecté")
-            : "Total HT non détecté (0€ envoyé)";
+          const line = buildLineForIndex();
+          addLineToIndexStore(line);
 
           const msg =
-            "Ligne enregistrée ✅\n" +
-            totalTxt + "\n" +
-            "Méthode : " + res.via + "\n" +
-            (res.keys && res.keys.length
-              ? ("Clés mises à jour :\n- " + res.keys.join("\n- "))
-              : "Clés mises à jour : (via pending / function)") +
-            "\n\nRevenir au devis maintenant ?";
+            "Ligne ajoutée au devis ✅\n\n" +
+            "PU HT (net) : " + line.pu_net_ht.toFixed(2).replace('.', ',') + " €\n" +
+            "Total HT : " + line.total_ligne_ht.toFixed(2).replace('.', ',') + " €\n\n" +
+            "Revenir au devis maintenant ?";
 
-          const go = confirm(msg);
-          if(go) location.href = "../index.html";
+          if(confirm(msg)) location.href = "/"; // ✅ retour index
         }catch(err){
-          console.error("Erreur Ajouter au devis:", err);
-          alert("Erreur côté configurateur (voir console) :\n" + (err?.message || err));
+          console.error(err);
+          alert("Erreur Ajouter au devis : " + (err?.message || err));
         }
       });
     }
 
     if(resetBtn){
       resetBtn.addEventListener('click', function(){
-        const ok = confirm("Réinitialiser ce configurateur ?");
-        if(ok) location.reload();
+        if(confirm("Réinitialiser ce configurateur ?")) location.reload();
       });
     }
   });
