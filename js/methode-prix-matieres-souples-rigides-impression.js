@@ -1,12 +1,16 @@
 /******************************************************
  * MÉTHODE PRIX — Supports Souples / Rigides / Adhésifs
- * Utilise le fichier JSON ../data/prix-matieres-souples-rigides-impression.json
- * + les règles métier validées.
  *
  * RÈGLE REMISE (SR) :
- *  - COEF_PUBLIC (=3.5) appliqué sur les coûts "matières" (matière support + film lamination fournisseur)
- *  - Les prestations (découpe, application lamination, blanc, oeillets, impression…) sont déjà en public
- *  - La remise SR s'applique UNIQUEMENT sur la matière support (pas sur les prestations)
+ *  - COEF_PUBLIC (=3.5) appliqué sur les coûts "matières" :
+ *      - matière support (JSON)
+ *      - film de lamination (fournisseur)
+ *  - Les prestations sont déjà en public :
+ *      - découpe, impression, blanc, oeillets, application lamination
+ *  - La remise SR s'applique sur :
+ *      ✅ matière support
+ *      ✅ film lamination
+ *      ❌ application lamination
  *
  * Résultat :
  *   computePrixSouplesRigidesImpression(state)
@@ -32,7 +36,7 @@ const PRIX_FOURN_LAM_ANTIGRAFFITI  = 8.55;
 const PRIX_FOURN_LAM_ANTIDERAPANT  = 8.52;
 const PRIX_FOURN_LAM_VELEDA        = 10.05;
 
-// Application lamination — déjà en prix public
+// Application lamination — déjà en prix public (NON REMISÉE)
 const PRIX_APPLICATION_LAM_M2      = 3;   // € / m²
 
 // Blanc de soutien — déjà en prix public
@@ -45,17 +49,13 @@ const PRIX_OEILLET_UNITE           = 1;   // € / pièce
 const COEF_PUBLIC                  = 3.5;
 const MIN_PAR_ARTICLE              = 5;   // € HT (par unité)
 
+
 // ------------------------
 // 2. CHARGEMENT DES TARIFS MATIÈRES (JSON)
 // ------------------------
 
 let COFEL_TARIFS_SR_PROMISE = null;
 
-/**
- * Normalise le JSON quelle que soit sa forme :
- *  - soit tableau [{key, prix_fournisseur}, ...]
- *  - soit objet { key: prix, ... }
- */
 function normaliserTarifs(data) {
   if (Array.isArray(data)) {
     const map = {};
@@ -79,15 +79,11 @@ function normaliserTarifs(data) {
   return map;
 }
 
-/**
- * Charge les tarifs matières depuis le JSON, une seule fois.
- */
 function loadTarifsMatieresSR() {
   if (!COFEL_TARIFS_SR_PROMISE) {
     COFEL_TARIFS_SR_PROMISE = fetch("../data/prix-matieres-souples-rigides-impression.json")
       .then((res) => res.json())
       .then((data) => {
-        // ✅ IMPORTANT : tes prix matières sont dans data.matieres
         const src = (data && typeof data === "object" && data.matieres)
           ? data.matieres
           : data;
@@ -109,28 +105,18 @@ function loadTarifsMatieresSR() {
 // 3. OUTILS
 // ------------------------
 
-/**
- * Calcule la surface totale en m² (avec la quantité)
- */
 function surfaceM2FromState(state) {
   const L = Number(state.largeur || 0); // mm
   const H = Number(state.hauteur || 0); // mm
   const Q = Math.max(1, Number(state.quantite || 1));
-
   if (!L || !H || !Q) return 0;
-
   const m2_unite = (L * H) / 1_000_000; // mm² → m²
   return m2_unite * Q;
 }
 
-/**
- * Récupère la clé du tableau de tarifs pour la matière choisie.
- * (basée sur la colonne "key" de ton Excel)
- */
 function getTarifKeyForMaterial(state) {
   const { materialKey, variantKey } = state;
 
-  // Adhésifs polymères
   if (materialKey === "polymer") {
     if (variantKey === "opaque_standard") return "polymer_opaque_standard";
     if (variantKey === "opaque_renforce") return "polymer_opaque_renforce";
@@ -138,24 +124,15 @@ function getTarifKeyForMaterial(state) {
     return null;
   }
 
-  // Micro-perforés
   if (materialKey === "microperfore") {
     if (variantKey === "transparent") return "microperfore_transparent";
     if (variantKey === "opaque")      return "microperfore_opaque";
     return null;
   }
 
-  // Papier peint
-  if (materialKey === "papierpeint") {
-    return "papierpeint";
-  }
+  if (materialKey === "papierpeint") return "papierpeint";
+  if (materialKey === "vinyl_teinte_masse") return "vinyl_teinte_masse";
 
-  // Vinyle teinté masse
-  if (materialKey === "vinyl_teinte_masse") {
-    return "vinyl_teinte_masse";
-  }
-
-  // Autres : mêmes clés que dans le ruleset + Excel
   switch (materialKey) {
     case "depoli":       return "depoli";
     case "conformable":  return "conformable";
@@ -176,11 +153,7 @@ function getTarifKeyForMaterial(state) {
   }
 }
 
-/**
- * Remise SR spécifique (profile.discount_sr).
- */
 function getClientDiscountSR() {
-  // ✅ Remise SR uniquement : pas de fallback sur la remise globale
   try {
     const raw = localStorage.getItem("cofel_client_profile");
     if (!raw) return 0;
@@ -189,7 +162,6 @@ function getClientDiscountSR() {
     if (!profile) return 0;
 
     let v = profile.discount_sr;
-
     if (v === undefined || v === null || v === "") return 0;
 
     if (typeof v === "string") v = v.replace(",", ".").trim();
@@ -197,8 +169,7 @@ function getClientDiscountSR() {
 
     if (!Number.isFinite(v)) return 0;
 
-    let rate = (v > 1) ? (v / 100) : v;
-
+    const rate = (v > 1) ? (v / 100) : v;
     if (rate < 0 || rate > 0.9) return 0;
 
     return rate;
@@ -217,11 +188,6 @@ function round2(n){
 // 4. CALCUL PRINCIPAL
 // ------------------------
 
-/**
- * Calcule tous les prix à partir du state du configurateur.
- * @param {object} state
- * @returns Promise<{ prix_public_ht, prix_final_ht, detail }>
- */
 async function computePrixSouplesRigidesImpression(state) {
   const tarifsMatieres = await loadTarifsMatieresSR();
 
@@ -232,7 +198,7 @@ async function computePrixSouplesRigidesImpression(state) {
   detail.coef_public = COEF_PUBLIC;
 
   // =========================
-  // A) MATIÈRE SUPPORT (coût → public)
+  // A) MATIÈRE SUPPORT (REMISÉE)
   // =========================
   let prixMatierePublic = 0;
 
@@ -243,11 +209,11 @@ async function computePrixSouplesRigidesImpression(state) {
     prixMatierePublic = prixFournMat * COEF_PUBLIC * m2;
   }
 
-  detail.prix_fourn_matiere_m2 = prixFournMat;
+  detail.prix_fourn_matiere_m2 = round2(prixFournMat);
   detail.prix_public_matiere   = round2(prixMatierePublic);
 
   // =========================
-  // B) PRESTATIONS (déjà en public)
+  // B) PRESTATIONS (NON REMISÉES)
   // =========================
 
   // --- Impression ---
@@ -268,37 +234,6 @@ async function computePrixSouplesRigidesImpression(state) {
   }
   detail.prix_decoupe = round2(prixDecoupe);
 
-  // --- Lamination (film = coût matière → public via COEF_PUBLIC) + application (public fixe) ---
-  let prixLaminationPublic = 0;
-  let prixFournLam = 0;
-  let prix_public_lam_m2 = 0;
-
-  if (state.lamination && state.lamination !== "Non disponible" && m2 > 0) {
-    if (state.lamination === "Anti-graffiti") {
-      prixFournLam = PRIX_FOURN_LAM_ANTIGRAFFITI;
-    } else if (state.lamination === "Anti-dérapante") {
-      prixFournLam = PRIX_FOURN_LAM_ANTIDERAPANT;
-    } else if (state.lamination === "Velleda") {
-      prixFournLam = PRIX_FOURN_LAM_VELEDA;
-    } else if (state.lamination === "Mate" || state.lamination === "Brillante") {
-      if (state.support === "souple" && state.materialKey === "conformable") {
-        prixFournLam = PRIX_FOURN_LAM_CONFORMABLE;
-      } else {
-        prixFournLam = PRIX_FOURN_LAM_STANDARD;
-      }
-    }
-
-    if (prixFournLam > 0) {
-      // film (matière) → public via coef, + application fixe (public)
-      prix_public_lam_m2 = (prixFournLam * COEF_PUBLIC) + PRIX_APPLICATION_LAM_M2;
-      prixLaminationPublic = prix_public_lam_m2 * m2;
-    }
-  }
-
-  detail.prix_fourn_lam_m2  = round2(prixFournLam);
-  detail.prix_public_lam_m2 = round2(prix_public_lam_m2);
-  detail.prix_lamination    = round2(prixLaminationPublic);
-
   // --- Blanc de soutien ---
   let prixBlanc = 0;
   if (state.blanc && state.blanc !== "Non disponible" && m2 > 0) {
@@ -317,35 +252,82 @@ async function computePrixSouplesRigidesImpression(state) {
   detail.prix_oeillets = round2(prixOeillets);
   detail.nb_oeillets   = nbOeillets;
 
-  const prixPrestationsPublic =
+  // =========================
+  // C) LAMINATION : FILM REMISÉ + APPLICATION NON REMISÉE
+  // =========================
+  let prixFournLam = 0;
+
+  if (state.lamination && state.lamination !== "Non disponible") {
+    if (state.lamination === "Anti-graffiti") {
+      prixFournLam = PRIX_FOURN_LAM_ANTIGRAFFITI;
+    } else if (state.lamination === "Anti-dérapante") {
+      prixFournLam = PRIX_FOURN_LAM_ANTIDERAPANT;
+    } else if (state.lamination === "Velleda") {
+      prixFournLam = PRIX_FOURN_LAM_VELEDA;
+    } else if (state.lamination === "Mate" || state.lamination === "Brillante") {
+      if (state.support === "souple" && state.materialKey === "conformable") {
+        prixFournLam = PRIX_FOURN_LAM_CONFORMABLE;
+      } else {
+        prixFournLam = PRIX_FOURN_LAM_STANDARD;
+      }
+    }
+  }
+
+  // Film (matière) → public via coef
+  const lam_film_public_m2 = (prixFournLam > 0) ? (prixFournLam * COEF_PUBLIC) : 0;
+  const lam_film_public_total = (lam_film_public_m2 > 0 && m2 > 0) ? (lam_film_public_m2 * m2) : 0;
+
+  // Application → public fixe (non remisée)
+  const lam_app_public_total = (prixFournLam > 0 && m2 > 0) ? (PRIX_APPLICATION_LAM_M2 * m2) : 0;
+
+  const prixLaminationPublic = lam_film_public_total + lam_app_public_total;
+
+  detail.prix_fourn_lam_m2 = round2(prixFournLam);
+  detail.prix_public_lam_film_m2 = round2(lam_film_public_m2);
+  detail.prix_public_lam_film_total = round2(lam_film_public_total);
+  detail.prix_public_lam_app_total  = round2(lam_app_public_total);
+  detail.prix_lamination = round2(prixLaminationPublic);
+
+  // =========================
+  // D) TOTAL PUBLIC
+  // =========================
+  const prixPublicHT =
+    prixMatierePublic +
     prixImpression +
     prixDecoupe +
-    prixLaminationPublic +
     prixBlanc +
-    prixOeillets;
+    prixOeillets +
+    prixLaminationPublic;
 
-  detail.prix_public_prestations = round2(prixPrestationsPublic);
-
-  // =========================
-  // C) TOTAL PUBLIC
-  // =========================
-  const prixPublicHT = prixMatierePublic + prixPrestationsPublic;
   detail.prix_public_ht = round2(prixPublicHT);
 
   // =========================
-  // D) REMISE SR UNIQUEMENT SUR MATIÈRE SUPPORT
+  // E) REMISE SR (matière support + film lamination)
   // =========================
-  const discount = getClientDiscountSR(); // 0 → 1
+  const discount = getClientDiscountSR();
   detail.remise_sr = discount;
-  detail.mode_remise = "matiere_only";
+  detail.mode_remise = "matiere_support + film_lamination";
 
-  const prixMatiereClient = prixMatierePublic * (1 - discount);
-  detail.prix_client_matiere = round2(prixMatiereClient);
+  // Partie remisée :
+  const remisable_public = prixMatierePublic + lam_film_public_total;
+  const remisable_client = remisable_public * (1 - discount);
 
-  let prixFinalHT = prixMatiereClient + prixPrestationsPublic;
+  // Partie NON remisée :
+  const non_remisable_public =
+    prixImpression +
+    prixDecoupe +
+    prixBlanc +
+    prixOeillets +
+    lam_app_public_total; // ✅ application lamination non remisée
+
+  detail.remisable_public = round2(remisable_public);
+  detail.remisable_client = round2(remisable_client);
+  detail.non_remisable_public = round2(non_remisable_public);
+
+  let prixFinalHT = remisable_client + non_remisable_public;
 
   // =========================
-  // E) MINIMUM PAR ARTICLE (par unité)
+  // F) MINIMUM PAR ARTICLE (par unité)
   // =========================
   const minTotal = MIN_PAR_ARTICLE * Q;
 
