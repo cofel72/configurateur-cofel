@@ -219,16 +219,45 @@
   }
 
   function extractTotalFromRecap(){
-    const recap = q('#recap');
-    if(!recap) return null;
-    const txt = recap.innerText || recap.textContent || "";
-    const re = /(\d[\d\s]*([.,]\d+)?)\s*€/g;
-    let m, last = null;
-    while((m = re.exec(txt)) !== null){ last = m[1]; }
-    if(!last) return null;
-    const num = parseFloat(String(last).replace(/\s+/g,'').replace(',', '.'));
-    return Number.isFinite(num) ? num : null;
+  const recap = q('#recap');
+  if(!recap) return null;
+
+  // On collecte plusieurs sources de texte (au cas où le total est dans un sous-bloc)
+  const texts = [];
+  texts.push(recap.innerText || recap.textContent || "");
+
+  recap.querySelectorAll('*').forEach(el=>{
+    const t = (el.innerText || el.textContent || "").trim();
+    if(t && t.length <= 200) texts.push(t);
+  });
+
+  const joined = texts.join("\n");
+
+  // 1) On récupère tous les montants suivis de € ou EUR
+  const moneyRe = /(\d[\d\s]*([.,]\d+)?)\s*(€|eur)\b/gi;
+  let m;
+  const candidates = [];
+  while((m = moneyRe.exec(joined)) !== null){
+    const num = parseFloat(String(m[1]).replace(/\s+/g,'').replace(',', '.'));
+    if(Number.isFinite(num)) candidates.push(num);
   }
+
+  // 2) Fallback : si le récap écrit "Total HT : 25,56" sans € (rare)
+  if(candidates.length === 0){
+    const totalRe = /total[^0-9]{0,20}(\d[\d\s]*([.,]\d+)?)/i;
+    const mt = joined.match(totalRe);
+    if(mt){
+      const num = parseFloat(String(mt[1]).replace(/\s+/g,'').replace(',', '.'));
+      if(Number.isFinite(num)) candidates.push(num);
+    }
+  }
+
+  if(candidates.length === 0) return null;
+
+  // On prend le plus grand montant trouvé (généralement le TOTAL, pas le PU)
+  const max = Math.max(...candidates);
+  return Math.round(max * 100) / 100;
+}
 
   function buildLine(){
     const support = (q('input[name="support"]:checked')?.value || "").trim();
@@ -245,48 +274,59 @@
     const h = parseInt(q('#hauteur')?.value || "0", 10);
     const qty = Math.max(1, parseInt(q('#quantite')?.value || "1", 10) || 1);
 
-    const totalHT = extractTotalFromRecap();
+  const totalHT = extractTotalFromRecap();
+const tvaRate = 0.20;
 
-    const parts = [];
-    if(support) parts.push(support === "souple" ? "Support souple" : "Support rigide");
-    if(impression) parts.push(impression === "avec" ? "Avec impression" : "Sans impression");
-    if(matiere) parts.push(matiere);
-    if(variante) parts.push(variante);
-    if(decoupe) parts.push("Découpe : " + decoupe);
-    if(lamination) parts.push("Lamination : " + lamination);
-    if(blanc) parts.push("Blanc : " + blanc);
-    if(oeillets.length) parts.push("Œillets : " + oeillets.join(", "));
-    if(w>0 && h>0) parts.push(`Format : ${w}×${h} mm`);
+const safeTotalHT = (totalHT != null ? totalHT : 0);
+const puHT = safeTotalHT / qty;
 
-    const designation = parts.join(" • ") || "Supports Souples, Rigides & Adhésifs";
+const totalTTC = Math.round(safeTotalHT * (1 + tvaRate) * 100) / 100;
+const puTTC = Math.round((totalTTC / qty) * 100) / 100;
 
-    const line = {
-      designation,
-      description: designation,
-      produit: "Supports Souples, Rigides & Adhésifs",
-      configurateur: "Supports Souples, Rigides & Adhésifs",
+const line = {
+  designation,
+  description: designation,
+  produit: "Supports Souples, Rigides & Adhésifs",
+  configurateur: "Supports Souples, Rigides & Adhésifs",
 
-      qte: qty,
-      qty: qty,
-      quantite: qty,
+  // quantités
+  qte: qty,
+  qty: qty,
+  quantite: qty,
 
-      unite: "u",
-      unit: "u",
+  // unité
+  unite: "u",
+  unit: "u",
 
-      largeur_mm: Number.isFinite(w) ? w : null,
-      hauteur_mm: Number.isFinite(h) ? h : null,
+  // dimensions
+  largeur_mm: Number.isFinite(w) ? w : null,
+  hauteur_mm: Number.isFinite(h) ? h : null,
 
-      total_ht: totalHT,
-      totalHT: totalHT,
-      montant_ht: totalHT,
+  // === PRIX HT (plein de noms possibles pour être compatible avec index) ===
+  pu_ht: Math.round(puHT * 100) / 100,
+  puHT: Math.round(puHT * 100) / 100,
+  prix_unitaire_ht: Math.round(puHT * 100) / 100,
+  unit_price_ht: Math.round(puHT * 100) / 100,
 
-      pu_ht: (totalHT != null ? (totalHT / qty) : null),
-      puHT: (totalHT != null ? (totalHT / qty) : null),
-      prix_unitaire_ht: (totalHT != null ? (totalHT / qty) : null),
+  total_ht: Math.round(safeTotalHT * 100) / 100,
+  totalHT: Math.round(safeTotalHT * 100) / 100,
+  montant_ht: Math.round(safeTotalHT * 100) / 100,
+  montantHT: Math.round(safeTotalHT * 100) / 100,
+  total: Math.round(safeTotalHT * 100) / 100,
 
-      tva: 0.20,
-      createdAt: new Date().toISOString()
-    };
+  // === PRIX TTC (au cas où index affiche en TTC) ===
+  pu_ttc: puTTC,
+  puTTC: puTTC,
+  total_ttc: totalTTC,
+  totalTTC: totalTTC,
+  montant_ttc: totalTTC,
+
+  // TVA
+  tva: tvaRate,
+
+  createdAt: new Date().toISOString()
+};
+
 
     return line;
   }
