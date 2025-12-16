@@ -4,16 +4,12 @@
  * Étapes : Support → Impression → Matière → Variante →
  * Découpe → Lamination → Blanc → (Œillets si applicable) →
  * Format → Récap
- *
- * ⚠ Nécessite :
- *   - souples-rigides-adhesifs-rules.js
- *   - methode-prix-matieres-souples-rigides-impression.js
  ******************************************************/
 
 document.addEventListener("DOMContentLoaded", () => {
 
   console.log("JS configurateur SR chargé ✔");
-  
+
   /* ============================================================
      1 — ÉTAT GLOBAL
   ============================================================ */
@@ -45,17 +41,80 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getVariantRule() {
     const r = getRule();
-    if (!r.variants) return null;
+    if (!r || !r.variants) return null;
     return r.variants[state.variantKey];
   }
 
   function isVariantStepRequired() {
     const r = MATERIAL_RULES[state.support + "_" + state.impression][state.materialKey];
-    return r.variants !== null;
+    return !!(r && r.variants !== null && r.variants !== undefined);
+  }
+
+  function safeList(v){
+    return Array.isArray(v) ? v : [];
+  }
+
+  // ✅ Pour Aquilux : on saisit les œillets dans l'étape Variantes => on ne montre pas l'étape 8
+  function shouldShowOeilletsStep(){
+    try{
+      const vr = getVariantRule();
+      const rule = vr || getRule();
+      if(!rule || !rule.oeillets) return false;
+      if(vr) return false; // oeillets gérés dans Variantes (Aquilux)
+      return true;
+    }catch(e){
+      return false;
+    }
   }
 
   /* ============================================================
-     3 — REMPLISSAGE DES ÉTAPES
+     3 — UI : bloc œillets INLINE dans l'étape Variantes
+  ============================================================ */
+
+  function ensureVariantOeilletsBlock(){
+    const cont = id("listeVariantes");
+    if(!cont) return null;
+
+    let block = id("variantOeilletsBlock");
+    if(block) return block;
+
+    const fieldset = cont.closest("fieldset") || cont.parentElement;
+    block = document.createElement("div");
+    block.id = "variantOeilletsBlock";
+    block.style.marginTop = "12px";
+    block.style.display = "none";
+
+    block.innerHTML = `
+      <label style="display:block; margin-bottom:6px;">Nombre d'œillets</label>
+      <input type="number" id="oeilletsInlineCount" min="1" value="4" />
+      <p class="hint" style="margin-top:6px;">(Uniquement si vous choisissez “Avec œillets”)</p>
+    `;
+
+    fieldset.appendChild(block);
+    return block;
+  }
+
+  function showVariantOeilletsBlock(show){
+    const block = ensureVariantOeilletsBlock();
+    if(!block) return;
+    block.style.display = show ? "block" : "none";
+    const input = id("oeilletsInlineCount");
+    if(!show && input){
+      input.value = "0";
+      state.oeillets = 0;
+    }
+  }
+
+  function getInlineOeilletsValue(){
+    const input = id("oeilletsInlineCount");
+    if(!input) return 0;
+    const v = Number(input.value || 0);
+    if(!Number.isFinite(v)) return 0;
+    return Math.max(0, Math.floor(v));
+  }
+
+  /* ============================================================
+     4 — REMPLISSAGE DES ÉTAPES
   ============================================================ */
 
   /********** ÉTAPE 3 — MATIÈRES **********/
@@ -83,6 +142,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const r = getRule();
     const variants = r.variants;
 
+    // reset inline oeillets
+    showVariantOeilletsBlock(false);
+
     for (let key in variants) {
       const v = variants[key];
       const lbl = document.createElement("label");
@@ -92,6 +154,25 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
       cont.appendChild(lbl);
     }
+
+    // ✅ si la variante sélectionnée a oeillets:true => afficher champ inline
+    const radios = cont.querySelectorAll('input[name="variant"]');
+    radios.forEach(radio => {
+      radio.addEventListener("change", () => {
+        const k = radio.value;
+        const vr = variants[k];
+        if(vr && vr.oeillets){
+          showVariantOeilletsBlock(true);
+          // si on avait déjà une valeur dans l'état
+          const input = id("oeilletsInlineCount");
+          if(input){
+            input.value = String(state.oeillets > 0 ? state.oeillets : 4);
+          }
+        }else{
+          showVariantOeilletsBlock(false);
+        }
+      });
+    });
   }
 
   /********** ÉTAPE 5 — DÉCOUPE **********/
@@ -100,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     cont.innerHTML = "";
 
     const rule = getVariantRule() || getRule();
-    const list = rule.decoupe;
+    const list = safeList(rule.decoupe);
 
     list.forEach(opt => {
       const lbl = document.createElement("label");
@@ -121,9 +202,9 @@ document.addEventListener("DOMContentLoaded", () => {
     info.textContent = "";
 
     const rule = getVariantRule() || getRule();
-    const list = rule.lamination;
+    const list = safeList(rule.lamination);
 
-    if (!list || list.length === 0) {
+    if (list.length === 0) {
       info.textContent = "Pas de lamination possible pour cette matière.";
       return;
     }
@@ -147,9 +228,9 @@ document.addEventListener("DOMContentLoaded", () => {
     info.textContent = "";
 
     const rule = getVariantRule() || getRule();
-    const list = rule.blanc;
+    const list = safeList(rule.blanc);
 
-    if (!list || list.length === 0) {
+    if (list.length === 0) {
       info.textContent = "Blanc de soutien non disponible pour cette matière.";
       return;
     }
@@ -164,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  /********** ÉTAPE 8 — ŒILLETS **********/
+  /********** ÉTAPE 8 — ŒILLETS (fallback seulement) **********/
   function populateOeillets() {
     const cont = id("oeilletsContainer");
     const info = id("oeilletsInfo");
@@ -186,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ============================================================
-     4 — NAVIGATION ENTRE ÉTAPES
+     5 — NAVIGATION ENTRE ÉTAPES
   ============================================================ */
 
   const sections = [...document.querySelectorAll(".step-section")];
@@ -196,18 +277,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function goTo(step) {
     currentStep = step;
 
-    // Déterminer si la matière actuelle gère des œillets (Aquilux 3,5 mm avec la variante correspondante)
-    let hasOeillets = false;
-    try {
-      const rule = getVariantRule() || getRule();
-      hasOeillets = !!(rule && rule.oeillets);
-    } catch (e) {
-      hasOeillets = false;
-    }
-
     sections.forEach((sec, i) => {
       sec.classList.toggle("active", i + 1 === step);
     });
+
+    const showOeilletsTab = shouldShowOeilletsStep();
 
     navItems.forEach((nav, i) => {
       const stepIndex = i + 1;
@@ -217,16 +291,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (stepIndex > step) nav.classList.add("locked");
       else nav.classList.remove("locked");
 
-      // masquer ou afficher l’onglet Œillets
+      // masquer/afficher l’onglet Œillets (step 8)
       if (nav.dataset.step === "8") {
-        nav.style.display = hasOeillets ? "inline-flex" : "none";
+        nav.style.display = showOeilletsTab ? "inline-flex" : "none";
       }
     });
   }
 
-  /* -----------------------------------------------------------
-     CLIC DIRECT SUR LES ONGLETS
-  ----------------------------------------------------------- */
+  // clic direct sur onglets
   document.querySelectorAll(".step-item").forEach(item => {
     item.addEventListener("click", () => {
       const step = Number(item.dataset.step);
@@ -236,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* ============================================================
-     5 — GESTION DES ÉTAPES (BOUTONS)
+     6 — GESTION DES ÉTAPES (BOUTONS)
   ============================================================ */
 
   /***** ÉTAPE 1 → 2 *****/
@@ -265,6 +337,10 @@ document.addEventListener("DOMContentLoaded", () => {
     state.materialKey = sel.value;
     state.materialLabel = getRule().label;
 
+    // reset oeillets si on change de matière
+    state.oeillets = 0;
+    showVariantOeilletsBlock(false);
+
     if (isVariantStepRequired()) {
       populateVariants();
       goTo(4);
@@ -281,13 +357,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!sel) return alert("Choisir une variante.");
 
     state.variantKey = sel.value;
-    state.variantLabel = getVariantRule().label;
+    state.variantLabel = (getVariantRule() && getVariantRule().label) ? getVariantRule().label : null;
+
+    // ✅ si variante "avec œillets" : on saisit ici le nombre
+    const vr = getVariantRule();
+    if(vr && vr.oeillets){
+      const v = getInlineOeilletsValue();
+      if(!v || v < 1) return alert("Renseigner un nombre d'œillets (≥ 1).");
+      state.oeillets = v;
+    }else{
+      state.oeillets = 0;
+    }
 
     populateDecoupe();
     goTo(5);
   };
 
-  /***** ÉTAPE 5 → 6 *****/
+  /***** ÉTAPE 5 → (6 ou 7 ou 9) *****/
   id("prev5").onclick = () => {
     if (isVariantStepRequired()) goTo(4);
     else goTo(3);
@@ -298,15 +384,43 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!sel) return alert("Choisir une découpe.");
     state.decoupe = sel.value;
 
+    const rule = getVariantRule() || getRule();
+    const lamList = safeList(rule.lamination);
+    const blancList = safeList(rule.blanc);
+
+    // ✅ saut automatique des étapes non disponibles
+    if(lamList.length === 0){
+      state.lamination = "Non disponible";
+
+      if(blancList.length === 0){
+        state.blanc = "Non disponible";
+
+        // oeillets étape 8 uniquement si réellement nécessaire (pas Aquilux)
+        if(shouldShowOeilletsStep()){
+          populateOeillets();
+          goTo(8);
+        }else{
+          goTo(9);
+        }
+        return;
+      }
+
+      populateBlanc();
+      goTo(7);
+      return;
+    }
+
     populateLamination();
     goTo(6);
   };
 
-  /***** ÉTAPE 6 → 7 *****/
+  /***** ÉTAPE 6 → (7 ou 9) *****/
   id("prev6").onclick = () => goTo(5);
   id("next6").onclick = () => {
     const rule = getVariantRule() || getRule();
-    if (rule.lamination.length > 0) {
+    const list = safeList(rule.lamination);
+
+    if (list.length > 0) {
       const sel = document.querySelector("input[name='lamination']:checked");
       if (!sel) return alert("Choisir une lamination.");
       state.lamination = sel.value;
@@ -314,16 +428,35 @@ document.addEventListener("DOMContentLoaded", () => {
       state.lamination = "Non disponible";
     }
 
+    const blancList = safeList(rule.blanc);
+    if(blancList.length === 0){
+      state.blanc = "Non disponible";
+      if(shouldShowOeilletsStep()){
+        populateOeillets();
+        goTo(8);
+      }else{
+        goTo(9);
+      }
+      return;
+    }
+
     populateBlanc();
     goTo(7);
   };
 
-  /***** ÉTAPE 7 → 8 (OU DIRECTEMENT 9) *****/
-  id("prev7").onclick = () => goTo(6);
+  /***** ÉTAPE 7 → (8 ou 9) *****/
+  id("prev7").onclick = () => {
+    const rule = getVariantRule() || getRule();
+    const lamList = safeList(rule.lamination);
+    if(lamList.length > 0) goTo(6);
+    else goTo(5);
+  };
+
   id("next7").onclick = () => {
     const rule = getVariantRule() || getRule();
+    const list = safeList(rule.blanc);
 
-    if (rule.blanc.length > 0) {
+    if (list.length > 0) {
       const sel = document.querySelector("input[name='blanc']:checked");
       if (!sel) return alert("Choisir une option de blanc.");
       state.blanc = sel.value;
@@ -331,18 +464,16 @@ document.addEventListener("DOMContentLoaded", () => {
       state.blanc = "Non disponible";
     }
 
-    // Si pas d'œillets pour cette matière : on saute l'étape 8
-    if (!rule.oeillets) {
-      state.oeillets = 0;
+    if (shouldShowOeilletsStep()) {
+      populateOeillets();
+      goTo(8);
+    } else {
+      // ✅ Aquilux : pas d’étape œillets, déjà saisi en Variantes
       goTo(9);
-      return;
     }
-
-    populateOeillets();
-    goTo(8);
   };
 
-  /***** ÉTAPE 8 → 9 *****/
+  /***** ÉTAPE 8 → 9 (fallback) *****/
   id("prev8").onclick = () => goTo(7);
   id("next8").onclick = () => {
     const rule = getVariantRule() || getRule();
@@ -357,8 +488,15 @@ document.addEventListener("DOMContentLoaded", () => {
   /***** ÉTAPE 9 → 10 *****/
   id("prev9").onclick = () => {
     const rule = getVariantRule() || getRule();
-    if (rule.oeillets) goTo(8);
-    else goTo(7);
+    if (shouldShowOeilletsStep()) return goTo(8);
+
+    const blancList = safeList(rule.blanc);
+    if(blancList.length > 0) return goTo(7);
+
+    const lamList = safeList(rule.lamination);
+    if(lamList.length > 0) return goTo(6);
+
+    return goTo(5);
   };
 
   id("next9").onclick = async () => {
@@ -370,7 +508,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return alert("Renseigner largeur / hauteur.");
     }
 
-    // Calcul du prix (appel à la méthode globale)
+    // Calcul du prix
     let pricing = null;
     try {
       pricing = await computePrixSouplesRigidesImpression(state);
@@ -387,21 +525,19 @@ document.addEventListener("DOMContentLoaded", () => {
   id("prev10").onclick = () => goTo(9);
 
   /* ============================================================
-     6 — RÉCAP
+     7 — RÉCAP
+     ✅ Pas d’œillets si 0
+     ✅ Afficher uniquement le prix client HT
   ============================================================ */
   function renderRecap(pricing) {
+    const oeilletsN = Number(state.oeillets || 0);
+
     let prixHtml = "";
     if (pricing && typeof pricing.prix_final_ht === "number") {
-      const pub  = pricing.prix_public_ht || 0;
-      const fin  = pricing.prix_final_ht || 0;
-      const rem  = (pricing.detail && pricing.detail.remise_sr) || 0;
-      const pct  = (rem * 100).toFixed(1).replace(".0", "");
-
+      const fin = pricing.prix_final_ht || 0;
       prixHtml = `
         <hr style="border-color:rgba(255,255,255,.35);margin:12px 0;">
-        <p><b>Prix public HT :</b> ${pub.toFixed(2)} €</p>
-        <p><b>Remise client (config SR) :</b> ${pct} %</p>
-        <p><b>Prix client HT :</b> ${fin.toFixed(2)} €</p>
+        <p><b>Prix client hors-taxe :</b> ${fin.toFixed(2)} €</p>
       `;
     }
 
@@ -413,7 +549,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <p><b>Découpe :</b> ${state.decoupe}</p>
       <p><b>Lamination :</b> ${state.lamination}</p>
       <p><b>Blanc de soutien :</b> ${state.blanc}</p>
-      <p><b>Œillets :</b> ${state.oeillets}</p>
+      ${oeilletsN > 0 ? `<p><b>Œillets :</b> ${oeilletsN}</p>` : ""}
       <p><b>Format :</b> ${state.largeur} × ${state.hauteur} mm</p>
       <p><b>Quantité :</b> ${state.quantite}</p>
       ${prixHtml}
