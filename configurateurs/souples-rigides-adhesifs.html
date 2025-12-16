@@ -192,14 +192,17 @@
 <!-- Script principal -->
 <script src="../js/souples-rigides-adhesifs.js"></script>
 
-<!-- ===== Bridge: écrit EXACTEMENT dans devisCourant_v1 (format attendu par index.html) ===== -->
+<!-- ===== Bridge: devisCourant_v1 + remise UNIQUEMENT sur matière (matière coût ×3,5) ===== -->
 <script>
 (function(){
   function q(sel){ return document.querySelector(sel); }
   function qa(sel){ return Array.from(document.querySelectorAll(sel)); }
 
-  const STORAGE_KEY = "devisCourant_v1"; // ✅ celui de ton index.html
+  const STORAGE_KEY = "devisCourant_v1";
   const TVA_RATE = 0.20;
+
+  // ✅ Règle métier demandée
+  const COEF_MATIERE_PUBLIC = 3.5;
 
   function genId(){
     try{ if(window.crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID(); }catch(e){}
@@ -218,8 +221,7 @@
     try{
       const p = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
       if(typeof p.discountRate === "number" && !isNaN(p.discountRate)){
-        // discountRate est un taux (0.10 = 10%)
-        return Math.max(0, Math.min(0.90, p.discountRate));
+        return Math.max(0, Math.min(0.90, p.discountRate)); // 0.10 = 10%
       }
     }catch(e){}
     return 0;
@@ -243,16 +245,27 @@
     }).filter(Boolean);
   }
 
-  // ✅ Cherche explicitement "client" / "public" dans les lignes du recap
-  function extractTotalsFromRecap(){
-    const recap = q('#recap');
-    if(!recap) return { usedHT: 0, source: "none", clientHT: null, publicHT: null };
+  // --- lecture stockage devis ---
+  function readStore(){
+    try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") || {}; }
+    catch(e){ return {}; }
+  }
+  function writeStore(st){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
+  }
 
-    const raw = (recap.innerText || recap.textContent || "").split("\n").map(s=>s.trim()).filter(Boolean);
+  // --- extraction recap ---
+  function parseRecapLines(){
+    const recap = q('#recap');
+    if(!recap) return [];
+
+    const rawLines = (recap.innerText || recap.textContent || "")
+      .split("\n").map(s=>s.trim()).filter(Boolean);
 
     const moneyRe = /(\d[\d\s]*([.,]\d+)?)\s*(?:€|eur\b)/gi;
 
-    function amountsInLine(line){
+    const out = [];
+    for(const line of rawLines){
       const nums = [];
       let m;
       while((m = moneyRe.exec(line)) !== null){
@@ -260,67 +273,168 @@
         if(n != null) nums.push(n);
       }
       moneyRe.lastIndex = 0;
-      return nums;
-    }
 
-    const clientLines = [];
-    const publicLines = [];
-    const otherLines  = [];
-
-    for(const line of raw){
-      const nums = amountsInLine(line);
       if(!nums.length) continue;
 
       const low = line.toLowerCase();
-
-      // on préfère HT (si jamais il y a TTC aussi)
       const isHT = low.includes("ht") && !low.includes("ttc");
-      const payload = { line, nums, max: Math.max(...nums), isHT };
+      const isTTC = low.includes("ttc");
+      const isTotal = /total/i.test(low);
+      const isClient = /client/i.test(low);
+      const isPublic = /public/i.test(low);
 
-      if(low.includes("client")) clientLines.push(payload);
-      else if(low.includes("public")) publicLines.push(payload);
-      else otherLines.push(payload);
+      out.push({
+        line,
+        low,
+        nums,
+        amount: Math.max(...nums),
+        isHT,
+        isTTC,
+        isTotal,
+        isClient,
+        isPublic
+      });
     }
+    return out;
+  }
 
-    function pickBest(list){
-      if(!list.length) return null;
-      // priorité aux lignes HT, puis à celles qui contiennent "total" ou "prix"
-      const ht = list.filter(x=>x.isHT);
-      const pool = ht.length ? ht : list;
-      const withTotal = pool.filter(x => /total|prix/i.test(x.line));
-      const pool2 = withTotal.length ? withTotal : pool;
-      return round2(Math.max(...pool2.map(x=>x.max)));
-    }
-
-    const clientHT = pickBest(clientLines);
-    const publicHT = pickBest(publicLines);
-
-    // fallback : plus grand montant “autre”
-    const fallbackHT = otherLines.length ? round2(Math.max(...otherLines.map(x=>x.max))) : null;
-
-    // ✅ règle finale
-    if(clientHT != null){
-      return { usedHT: clientHT, source: "client", clientHT, publicHT };
-    }
-
-    // Si pas de "client", mais une ligne "public" et une remise profil => on calcule client
+  // ✅ NOUVELLE logique : remise uniquement sur matière (matière coût ×3,5)
+  function computeNetTotalHT_MatiereOnly(){
     const dr = getDiscountRate();
-    if(publicHT != null && dr > 0){
-      return { usedHT: round2(publicHT * (1 - dr)), source: "public*remise", clientHT: null, publicHT };
+    const lines = parseRecapLines();
+
+    // on ne travaille qu’en HT
+    const htLines = lines.filter(x => x.isHT && !x.isTTC);
+    if(!htLines.length) return { ok:false, reason:"no_ht_lines" };
+
+    // infos sélectionnées (pour aider à repérer la ligne matière)
+    const matiereSel = getCheckedText('#listeMatieres').toLowerCase();
+    const varianteSel = getCheckedText('#listeVariantes').toLowerCase();
+
+    // mots-clés prestations (déjà public)
+    const KEY_PREST = [
+      "impression","lamination","lamin","découpe","decoupe","blanc","oeillet","œillet","oeillets","œillets",
+      "pose","frais","forfait"
+    ];
+
+    function scoreMaterial(lineLow){
+      let s = 0;
+      if(lineLow.includes("matiere") || lineLow.includes("matière")) s += 3;
+      if(lineLow.includes("support")) s += 1;
+
+      // match sélection
+      if(matiereSel && matiereSel.length >= 3 && lineLow.includes(matiereSel)) s += 5;
+      if(varianteSel && varianteSel.length >= 3 && lineLow.includes(varianteSel)) s += 4;
+
+      // si la ligne ressemble à un coût
+      if(lineLow.includes("coût") || lineLow.includes("cout") || lineLow.includes("achat") || lineLow.includes("interne")) s += 3;
+
+      // si la ligne ressemble à une prestation, on pénalise
+      for(const k of KEY_PREST){
+        if(lineLow.includes(k)) s -= 4;
+      }
+
+      // si c’est un total, pas une matière
+      if(/total/.test(lineLow)) s -= 10;
+      if(/client|public/.test(lineLow)) s -= 2;
+
+      return s;
     }
 
-    // sinon on prend le meilleur fallback
-    if(publicHT != null) return { usedHT: publicHT, source: "public", clientHT: null, publicHT };
-    if(fallbackHT != null) return { usedHT: fallbackHT, source: "fallback", clientHT: null, publicHT: null };
-    return { usedHT: 0, source: "none", clientHT: null, publicHT: null };
+    // 1) identifier la meilleure ligne "matière"
+    let bestMat = null;
+    let bestScore = -999;
+    for(const x of htLines){
+      const sc = scoreMaterial(x.low);
+      if(sc > bestScore){
+        bestScore = sc;
+        bestMat = x;
+      }
+    }
+
+    // Si on ne trouve pas clairement la matière, on abandonne cette méthode
+    if(!bestMat || bestScore < 3){
+      return { ok:false, reason:"material_not_found", bestScore, bestLine: bestMat?.line || null };
+    }
+
+    const matiereCostHT = round2(bestMat.amount);
+
+    // 2) prestations : toutes les lignes HT (hors totaux) qui ne sont pas la matière
+    const componentLines = htLines.filter(x => !x.isTotal); // on exclut les lignes "Total"
+    let prestationsPublicHT = 0;
+
+    for(const x of componentLines){
+      if(x === bestMat) continue;
+
+      // on évite de sommer les lignes "client/public" si elles existent
+      if(x.isClient || x.isPublic) continue;
+
+      // si la ligne est un "total" déguisé, on ignore aussi
+      if(/total/.test(x.low)) continue;
+
+      prestationsPublicHT += round2(x.amount);
+    }
+    prestationsPublicHT = round2(prestationsPublicHT);
+
+    // 3) appliquer la règle
+    const matierePublicHT = round2(matiereCostHT * COEF_MATIERE_PUBLIC);
+    const matiereClientHT = round2(matierePublicHT * (1 - dr));
+    const totalClientHT = round2(matiereClientHT + prestationsPublicHT);
+
+    return {
+      ok:true,
+      totalClientHT,
+      details:{
+        discountRate: dr,
+        matiereCostHT,
+        matierePublicHT,
+        matiereClientHT,
+        prestationsPublicHT,
+        materialLine: bestMat.line,
+        materialScore: bestScore
+      }
+    };
   }
 
-  function readStore(){
-    try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") || {}; }
-    catch(e){ return {}; }
-  }
-  function writeStore(st){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
+  // Fallback ancien mode (au cas où le recap ne permet pas la décomposition)
+  function extractTotalHTFallback_Global(){
+    const recap = q('#recap');
+    if(!recap) return { usedHT: 0, source:"none" };
+
+    const raw = (recap.innerText || recap.textContent || "").split("\n").map(s=>s.trim()).filter(Boolean);
+    const moneyRe = /(\d[\d\s]*([.,]\d+)?)\s*(?:€|eur\b)/gi;
+
+    const hits = [];
+    for(const line of raw){
+      const low = line.toLowerCase();
+      if(low.includes("ttc")) continue;
+
+      let m;
+      while((m = moneyRe.exec(line)) !== null){
+        const n = toNum(m[1]);
+        if(n != null) hits.push({ line, low, n });
+      }
+      moneyRe.lastIndex = 0;
+    }
+    if(!hits.length) return { usedHT: 0, source:"none" };
+
+    // priorité "client"
+    const client = hits.filter(x => x.low.includes("client"));
+    if(client.length){
+      const v = round2(Math.max(...client.map(x=>x.n)));
+      return { usedHT: v, source:"client" };
+    }
+
+    // sinon "public*remise" si on trouve public
+    const pub = hits.filter(x => x.low.includes("public"));
+    const dr = getDiscountRate();
+    if(pub.length && dr > 0){
+      const v = round2(Math.max(...pub.map(x=>x.n)) * (1 - dr));
+      return { usedHT: v, source:"public*remise_global" };
+    }
+
+    // sinon max
+    return { usedHT: round2(Math.max(...hits.map(x=>x.n))), source:"fallback_max" };
   }
 
   function buildLineForIndex(){
@@ -350,13 +464,26 @@
     if(w > 0 && h > 0) parts.push(`Format : ${w}×${h} mm`);
 
     const designation = parts.join(" • ") || "Supports Souples, Rigides & Adhésifs";
+    const id = genId();
 
-    const totals = extractTotalsFromRecap();
-    const totalHT = totals.usedHT;
+    // ✅ priorité à la nouvelle méthode "matière only"
+    let totalHT = 0;
+    let source = "none";
+    let debug = {};
+
+    const res = computeNetTotalHT_MatiereOnly();
+    if(res.ok){
+      totalHT = res.totalClientHT;
+      source = "matiere_only_(cout*3.5 + presta_public + remise_matiere)";
+      debug = res.details;
+    }else{
+      const fb = extractTotalHTFallback_Global();
+      totalHT = fb.usedHT;
+      source = "fallback:" + fb.source;
+      debug = { fallbackReason: res.reason, ...res };
+    }
 
     const puHT = round2(totalHT / qty);
-
-    const id = genId();
 
     return {
       id,
@@ -369,11 +496,10 @@
         configurateur: "Supports Souples, Rigides & Adhésifs",
         largeur_mm: Number.isFinite(w) ? w : null,
         hauteur_mm: Number.isFinite(h) ? h : null,
-        prix_source: totals.source,
-        clientHT_detecte: totals.clientHT,
-        publicHT_detecte: totals.publicHT,
+        prix_source: source,
         discountRate: getDiscountRate(),
-        tva: TVA_RATE
+        coef_matiere_public: COEF_MATIERE_PUBLIC,
+        debug
       }
     };
   }
@@ -418,7 +544,6 @@
   });
 })();
 </script>
-
 
 </body>
 </html>
