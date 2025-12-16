@@ -117,7 +117,26 @@
           return;
         }
 
-        localStorage.setItem('cofel_client_profile', JSON.stringify(data.profile));
+        // Sécurise discount_sr : si absent/invalide => 0 (jamais de remise par erreur)
+const profile = data.profile || {};
+let v = profile.discount_sr;
+
+if (v === undefined || v === null || v === "") {
+  profile.discount_sr = 0;
+} else {
+  if (typeof v === "string") v = v.replace(",", ".").trim();
+  v = Number(v);
+  if (!Number.isFinite(v)) {
+    profile.discount_sr = 0;
+  } else {
+    // accepte 60 ou 0.6
+    const rate = (v > 1) ? (v / 100) : v;
+    profile.discount_sr = (rate >= 0 && rate <= 0.9) ? rate : 0;
+  }
+}
+
+localStorage.setItem('cofel_client_profile', JSON.stringify(profile));
+
 
         msg.style.color = '#b7ffcf';
         msg.textContent = "Connexion réussie, redirection...";
