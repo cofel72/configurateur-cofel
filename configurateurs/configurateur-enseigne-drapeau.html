@@ -61,7 +61,7 @@
   <!-- FINITION -->
   <fieldset>
     <legend>Finition</legend>
-    <div class="radio-row">
+    <div class="radio-row" id="finitionRow">
       <label><input type="radio" name="finition" value="prelaque" checked> Prélaqué</label>
       <label><input type="radio" name="finition" value="laque"> Laqué</label>
       <label><input type="radio" name="finition" value="ajour"> Ajourage lumineux</label>
@@ -97,130 +97,278 @@ const euro = n => (isFinite(n)?n:0).toFixed(2).replace('.',',');
 const numFR = v => parseFloat(String(v).replace(',', '.')) || 0;
 const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 
+function isTruthy(v){
+  const t = norm(v).trim();
+  return t === "1" || t === "true" || t === "vrai" || t === "yes" || t === "oui";
+}
+
 /* ================= DOM ================= */
-const elForme=$('forme'), elDim=$('dimension'), elQ=$('quantite');
-const elHT=$('prixHT'), elTTC=$('prixTTC'), elHelp=$('helpFinition');
+const elForme = $('forme');
+const elDim   = $('dimension');
+const elQ     = $('quantite');
+const elHT    = $('prixHT');
+const elTTC   = $('prixTTC');
+const elHelp  = $('helpFinition');
+
+function getFinition(){
+  return document.querySelector('input[name="finition"]:checked')?.value || "prelaque";
+}
+function setFinition(value){
+  const r = document.querySelector(`input[name="finition"][value="${value}"]`);
+  if(r && !r.disabled) r.checked = true;
+}
 
 /* ================= CSV ================= */
-let ROWS=[], MAP={};
+let ROWS = [];
+let MAP  = {};
+
+function normalizeCSVText(txt){
+  // Certains exports arrivent sur 1 seule ligne : on réinsère des retours ligne avant "Enseigne drapeau,..."
+  if(!txt.includes('\n') && txt.includes('Enseigne drapeau')){
+    txt = txt.replace(/\s+(?=Enseigne drapeau[,;])/g, '\n');
+  }
+  return txt;
+}
 
 function parseCSV(txt){
-  const lines=txt.split(/\r?\n/).filter(l=>l.trim());
-  const sep = lines[0].includes(';') ? ';' : ',';
-  const heads=lines[0].split(sep).map(h=>h.trim());
-  const rows=lines.slice(1).map(l=>{
-    const c=l.split(sep);
-    const o={}; heads.forEach((h,i)=>o[h]=c[i]);
+  txt = normalizeCSVText(txt);
+
+  const lines = txt.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
+  const sep = (lines[0] || "").includes(';') ? ';' : ',';
+  const heads = (lines[0] || "").split(sep).map(h=>h.trim());
+
+  const rows = lines.slice(1).map(l=>{
+    const c = l.split(sep);
+    const o = {};
+    heads.forEach((h,i)=>o[h]= (c[i] ?? "").trim());
     return o;
   });
+
   return {heads, rows};
 }
 
 function buildMap(heads){
-  const n=heads.map(norm);
-  const find=r=>heads[n.findIndex(h=>r.test(h))];
+  const n = heads.map(norm);
+  const find = (re) => {
+    const idx = n.findIndex(h => re.test(h));
+    return idx >= 0 ? heads[idx] : null;
+  };
   return {
     FORME: find(/forme/),
-    DIM: find(/dimension/),
-    FIN: find(/finition/),
-    PRIX: find(/prix/)
+    DIM:   find(/dimension/),
+    FIN:   find(/finition/),
+    PRIX:  find(/prix/),
+    AJ:    find(/ajour|lumineux|opt_ajourage/)
   };
 }
 
 /* ================= UI ================= */
+function uniqueSorted(arr){
+  // tri simple : Ø400, Ø500... puis 400 x 400...
+  return [...new Set(arr)].sort((a,b)=>String(a).localeCompare(String(b), 'fr', {numeric:true}));
+}
+
 function populateFormes(){
-  const f=[...new Set(ROWS.map(r=>r[MAP.FORME]).filter(Boolean))];
-  elForme.innerHTML='<option value=""></option>'+f.map(v=>`<option>${v}</option>`).join('');
+  const f = uniqueSorted(ROWS.map(r=>r[MAP.FORME]).filter(Boolean));
+  elForme.innerHTML = '<option value="">(choisir)</option>' + f.map(v=>`<option>${v}</option>`).join('');
 }
 
 function populateDims(){
-  const d=[...new Set(
-    ROWS.filter(r=>!elForme.value||r[MAP.FORME]===elForme.value)
-        .map(r=>r[MAP.DIM]).filter(Boolean)
-  )];
-  elDim.innerHTML='<option value=""></option>'+d.map(v=>`<option>${v}</option>`).join('');
+  const dims = uniqueSorted(
+    ROWS
+      .filter(r => !elForme.value || r[MAP.FORME] === elForme.value)
+      .map(r => r[MAP.DIM])
+      .filter(Boolean)
+  );
+
+  const current = elDim.value;
+  elDim.innerHTML = '<option value="">(choisir)</option>' + dims.map(v=>`<option>${v}</option>`).join('');
+
+  // Si la dimension courante n'existe plus, on reset
+  if(current && !dims.includes(current)){
+    elDim.value = '';
+  }else{
+    elDim.value = current;
+  }
 }
 
-function getFinition(){
-  return document.querySelector('input[name="finition"]:checked').value;
+function finitionsDisponibles(){
+  const base = ROWS.filter(r =>
+    (!elForme.value || r[MAP.FORME] === elForme.value) &&
+    (!elDim.value   || r[MAP.DIM]   === elDim.value)
+  );
+
+  let hasPrelaque = base.some(r => norm(r[MAP.FIN]).includes('prelaque'));
+  let hasLaque    = base.some(r => norm(r[MAP.FIN]).includes('laque') && !isTruthy(r[MAP.AJ]));
+  let hasAjour    = base.some(r => isTruthy(r[MAP.AJ]) || norm(r[MAP.FIN]).includes('ajour'));
+
+  return {hasPrelaque, hasLaque, hasAjour};
+}
+
+function applyFinitionAvailability(){
+  const {hasPrelaque, hasLaque, hasAjour} = finitionsDisponibles();
+
+  const rPre = document.querySelector('input[name="finition"][value="prelaque"]');
+  const rLaq = document.querySelector('input[name="finition"][value="laque"]');
+  const rAjo = document.querySelector('input[name="finition"][value="ajour"]');
+
+  if(rPre) rPre.disabled = !hasPrelaque;
+  if(rLaq) rLaq.disabled = !hasLaque;
+  if(rAjo) rAjo.disabled = !hasAjour;
+
+  // Si la finition choisie n'est pas dispo (cas typique du "rond" en prélaqué), on bascule automatiquement
+  const cur = getFinition();
+  if((cur==='prelaque' && !hasPrelaque) || (cur==='laque' && !hasLaque) || (cur==='ajour' && !hasAjour)){
+    if(hasLaque) setFinition('laque');
+    else if(hasPrelaque) setFinition('prelaque');
+    else if(hasAjour) setFinition('ajour');
+  }
+
+  // Message d'aide
+  let msg = "";
+  if(elForme.value && norm(elForme.value).includes('rond') && !hasPrelaque){
+    msg = "ℹ️ Sur les drapeaux ronds, la finition « Prélaqué » n’est pas tarifée dans le CSV : passe en « Laqué » (ou « Ajourage lumineux » si disponible).";
+  }else if(getFinition()==='ajour'){
+    msg = "ℹ️ « Ajourage lumineux » = tarif avec option ajourage+lumineux (colonne opt_ajourage+lumineux).";
+  }else{
+    msg = "";
+  }
+  elHelp.textContent = msg;
 }
 
 /* ================= CALCUL ================= */
+function findRow(){
+  const finChoice = getFinition();
+
+  return ROWS.find(r => {
+    const okForme = r[MAP.FORME] === elForme.value;
+    const okDim   = r[MAP.DIM]   === elDim.value;
+
+    if(!okForme || !okDim) return false;
+
+    const fin = norm(r[MAP.FIN]);
+    const aj  = isTruthy(r[MAP.AJ]);
+
+    if(finChoice === 'prelaque'){
+      return fin.includes('prelaque') && !aj;
+    }
+    if(finChoice === 'laque'){
+      return fin.includes('laque') && !aj && !fin.includes('ajour');
+    }
+    // ajour
+    return aj || fin.includes('ajour') || (fin.includes('laque') && aj);
+  });
+}
+
 function compute(){
-  const row = ROWS.find(r =>
-    r[MAP.FORME]===elForme.value &&
-    r[MAP.DIM]===elDim.value &&
-    norm(r[MAP.FIN])===norm(getFinition())
-  );
+  applyFinitionAvailability();
+
+  const row = findRow();
 
   if(!row){
-    elHT.textContent='0,00';
-    elTTC.textContent='0,00';
+    elHT.textContent = '0,00';
+    elTTC.textContent = '0,00';
     return;
   }
 
-  let unit = numFR(row[MAP.PRIX]) * COEF_PUBLIC;
+  let unitPublic = numFR(row[MAP.PRIX]) * COEF_PUBLIC;
 
-  let remise=1;
+  let remise = 1;
   try{
-    const p=JSON.parse(localStorage.getItem('cofel_client_profile'));
-    if(p?.discountRate) remise=1-p.discountRate;
+    const p = JSON.parse(localStorage.getItem('cofel_client_profile'));
+    if(p?.discountRate) remise = 1 - p.discountRate;
   }catch{}
 
-  const total = unit * elQ.value * remise;
-  elHT.textContent=euro(total);
-  elTTC.textContent=euro(total*(1+TVA));
+  const qte = Math.max(1, parseFloat(elQ.value) || 1);
+  const total = unitPublic * qte * remise;
+
+  elHT.textContent  = euro(total);
+  elTTC.textContent = euro(total * (1 + TVA));
 }
 
 /* ================= EVENTS ================= */
-['change','input'].forEach(e=>{
-  document.addEventListener(e,ev=>{
-    if(ev.target===elForme){ populateDims(); }
-    compute();
-  });
+elForme.addEventListener('change', ()=>{
+  populateDims();
+  compute();
 });
+elDim.addEventListener('change', compute);
+elQ.addEventListener('input', compute);
+document.querySelectorAll('input[name="finition"]').forEach(r => r.addEventListener('change', compute));
 
-$('btnReset').onclick=()=>{
-  elForme.value='';
-  elDim.value='';
-  elQ.value=1;
+$('btnReset').onclick = ()=>{
+  elForme.value = '';
+  elDim.value   = '';
+  elQ.value     = 1;
+  // reset finition
+  const rPre = document.querySelector('input[name="finition"][value="prelaque"]');
+  if(rPre){ rPre.disabled = false; rPre.checked = true; }
+  document.querySelectorAll('input[name="finition"]').forEach(r => r.disabled = false);
+
   populateFormes();
   populateDims();
   compute();
 };
 
 /* ================= INIT ================= */
-fetch(CSV_URL)
-.then(r=>r.text())
-.then(t=>{
-  const {heads,rows}=parseCSV(t);
-  ROWS=rows;
-  MAP=buildMap(heads);
-  populateFormes();
-  populateDims();
-  compute();
-});
+fetch(CSV_URL, {cache:"no-store"})
+  .then(r=>r.text())
+  .then(t=>{
+    const {heads, rows} = parseCSV(t);
+    ROWS = rows;
+    MAP  = buildMap(heads);
+
+    // Sécurité : si une colonne manque, on évite de planter
+    if(!MAP.FORME || !MAP.DIM || !MAP.FIN || !MAP.PRIX){
+      console.error("Colonnes CSV non reconnues :", MAP, heads);
+      alert("⚠️ CSV non reconnu (colonnes). Vérifie l’en-tête du fichier.");
+      return;
+    }
+
+    populateFormes();
+    populateDims();
+    compute();
+  })
+  .catch(err=>{
+    console.error(err);
+    alert("⚠️ Impossible de charger le CSV.");
+  });
 </script>
 
 <script src="../js/devis-core.js"></script>
 <script>
-$('btnAddDevis').onclick=()=>{
-  const q=elQ.value;
-  const ht=parseFloat(elHT.textContent.replace(',','.'))||0;
+const $ = id => document.getElementById(id);
+const numFR = v => parseFloat(String(v).replace(',', '.')) || 0;
+
+$('btnAddDevis').onclick = ()=>{
+  const q = Math.max(1, parseFloat(document.getElementById('quantite').value) || 1);
+  const ht = numFR(document.getElementById('prixHT').textContent);
   if(!ht){ alert("Configuration incomplète"); return; }
 
-  const d=[
-    elForme.value,
-    elDim.value,
-    getFinition(),
-    $('potence').value?`potence ${$('potence').value} mm`:null
+  const forme = document.getElementById('forme').value;
+  const dim   = document.getElementById('dimension').value;
+  const fin   = document.querySelector('input[name="finition"]:checked')?.value || '';
+  const pot   = document.getElementById('potence').value;
+
+  const d = [
+    forme,
+    dim,
+    fin,
+    pot ? `potence ${pot} mm` : null
   ].filter(Boolean).join(' — ');
 
+  const pu = ht / q;
+
+  // Ligne "net" (pour éviter une double remise côté index)
   Devis.addLine({
-    type:"Enseigne Drapeau",
-    designation:d,
-    quantite:q,
-    pu_public_ht: ht/q
+    id: `EDR-${Date.now()}`,
+    designation: `Enseigne drapeau — ${d}`,
+    quantite: q,
+    pu_net_ht: pu,
+    total_ligne_ht: ht,
+
+    // compat éventuelle avec d'anciens affichages
+    type: "Enseigne Drapeau",
+    pu_public_ht: pu
   });
 
   alert("✅ Ajouté au devis");
