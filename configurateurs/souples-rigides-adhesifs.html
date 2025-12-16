@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
 <title>Configurateur — Supports Souples, Rigides & Adhésifs | Cofel</title>
 
-<!-- Styles communs Cofel -->
 <link rel="stylesheet" href="../styles/cofel.css">
 <link rel="stylesheet" href="../styles/cofel-components.css">
 <link rel="stylesheet" href="../styles/cofel-glass.css">
@@ -26,7 +25,6 @@
 
 <div class="wrapper">
 
-  <!-- BARRE D'ÉTAPES -->
   <div class="steps-nav" id="stepsNav">
     <div class="step-item active" data-step="1">1. Support</div>
     <div class="step-item locked" data-step="2">2. Impression</div>
@@ -40,7 +38,6 @@
     <div class="step-item locked" data-step="10">10. Récapitulatif</div>
   </div>
 
-  <!-- ÉTAPE 1 -->
   <section class="step-section active" id="step1">
     <fieldset>
       <legend>Choix du support</legend>
@@ -52,7 +49,6 @@
     <div class="nav-buttons"><button class="btn-nav" id="next1" type="button">Étape suivante ➜</button></div>
   </section>
 
-  <!-- ÉTAPE 2 -->
   <section class="step-section" id="step2">
     <fieldset>
       <legend>Impression</legend>
@@ -67,7 +63,6 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 3 -->
   <section class="step-section" id="step3">
     <fieldset>
       <legend>Matière</legend>
@@ -79,11 +74,11 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 4 -->
   <section class="step-section" id="step4">
     <fieldset>
       <legend>Variantes de la matière</legend>
       <div id="listeVariantes" class="radio-row"></div>
+      <!-- ✅ le champ "Nombre d'œillets" est injecté ici par JS si nécessaire -->
     </fieldset>
     <div class="nav-buttons">
       <button class="btn-nav" id="prev4" type="button">⬅ Précédent</button>
@@ -91,7 +86,6 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 5 -->
   <section class="step-section" id="step5">
     <fieldset>
       <legend>Type de découpe</legend>
@@ -103,7 +97,6 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 6 -->
   <section class="step-section" id="step6">
     <fieldset>
       <legend>Lamination</legend>
@@ -116,7 +109,6 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 7 -->
   <section class="step-section" id="step7">
     <fieldset>
       <legend>Blanc de soutien</legend>
@@ -129,7 +121,6 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 8 -->
   <section class="step-section" id="step8">
     <fieldset>
       <legend>Œillets (Akilux uniquement)</legend>
@@ -142,7 +133,6 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 9 -->
   <section class="step-section" id="step9">
     <fieldset>
       <legend>Format & Quantité</legend>
@@ -163,7 +153,6 @@
     </div>
   </section>
 
-  <!-- ÉTAPE 10 -->
   <section class="step-section" id="step10">
     <fieldset>
       <legend>Récapitulatif</legend>
@@ -183,25 +172,18 @@
   © Cofel — Supports Souples, Rigides & Adhésifs
 </footer>
 
-<!-- Ruleset -->
 <script src="../js/souples-rigides-adhesifs-rules.js"></script>
-
-<!-- Méthode de calcul des prix -->
 <script src="../js/methode-prix-matieres-souples-rigides-impression.js"></script>
-
-<!-- Script principal -->
 <script src="../js/souples-rigides-adhesifs.js"></script>
 
-<!-- ===== Bridge: devisCourant_v1 + remise UNIQUEMENT sur matière (matière coût ×3,5) ===== -->
+<!-- ===== Bridge: devisCourant_v1 + remise (logique actuelle) ===== -->
 <script>
 (function(){
   function q(sel){ return document.querySelector(sel); }
-  function qa(sel){ return Array.from(document.querySelectorAll(sel)); }
 
   const STORAGE_KEY = "devisCourant_v1";
   const TVA_RATE = 0.20;
 
-  // ✅ Règle métier demandée
   const COEF_MATIERE_PUBLIC = 3.5;
 
   function genId(){
@@ -221,7 +203,7 @@
     try{
       const p = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
       if(typeof p.discountRate === "number" && !isNaN(p.discountRate)){
-        return Math.max(0, Math.min(0.90, p.discountRate)); // 0.10 = 10%
+        return Math.max(0, Math.min(0.90, p.discountRate));
       }
     }catch(e){}
     return 0;
@@ -235,17 +217,24 @@
     const lab = checked.closest('label');
     return (lab ? lab.textContent : checked.value || "").trim();
   }
-  function getCheckedTexts(containerSel){
-    const root = q(containerSel);
-    if(!root) return [];
-    const checked = qa(containerSel + ' input:checked');
-    return checked.map(el=>{
-      const lab = el.closest('label');
-      return (lab ? lab.textContent : el.value || "").trim();
-    }).filter(Boolean);
+
+  // ✅ récupère le nombre d'œillets depuis :
+  // - le champ inline (Variantes) : #oeilletsInlineCount
+  // - ou l'ancien champ étape 8 : #oeilletsCount
+  function getOeilletsCount(){
+    const inline = document.getElementById("oeilletsInlineCount");
+    if(inline){
+      const v = parseInt(inline.value || "0", 10);
+      return Number.isFinite(v) ? Math.max(0, v) : 0;
+    }
+    const step8 = document.getElementById("oeilletsCount");
+    if(step8){
+      const v = parseInt(step8.value || "0", 10);
+      return Number.isFinite(v) ? Math.max(0, v) : 0;
+    }
+    return 0;
   }
 
-  // --- lecture stockage devis ---
   function readStore(){
     try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") || {}; }
     catch(e){ return {}; }
@@ -254,144 +243,8 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
   }
 
-  // --- extraction recap ---
-  function parseRecapLines(){
-    const recap = q('#recap');
-    if(!recap) return [];
-
-    const rawLines = (recap.innerText || recap.textContent || "")
-      .split("\n").map(s=>s.trim()).filter(Boolean);
-
-    const moneyRe = /(\d[\d\s]*([.,]\d+)?)\s*(?:€|eur\b)/gi;
-
-    const out = [];
-    for(const line of rawLines){
-      const nums = [];
-      let m;
-      while((m = moneyRe.exec(line)) !== null){
-        const n = toNum(m[1]);
-        if(n != null) nums.push(n);
-      }
-      moneyRe.lastIndex = 0;
-
-      if(!nums.length) continue;
-
-      const low = line.toLowerCase();
-      const isHT = low.includes("ht") && !low.includes("ttc");
-      const isTTC = low.includes("ttc");
-      const isTotal = /total/i.test(low);
-      const isClient = /client/i.test(low);
-      const isPublic = /public/i.test(low);
-
-      out.push({
-        line,
-        low,
-        nums,
-        amount: Math.max(...nums),
-        isHT,
-        isTTC,
-        isTotal,
-        isClient,
-        isPublic
-      });
-    }
-    return out;
-  }
-
-  // ✅ NOUVELLE logique : remise uniquement sur matière (matière coût ×3,5)
-  function computeNetTotalHT_MatiereOnly(){
-    const dr = getDiscountRate();
-    const lines = parseRecapLines();
-
-    // on ne travaille qu’en HT
-    const htLines = lines.filter(x => x.isHT && !x.isTTC);
-    if(!htLines.length) return { ok:false, reason:"no_ht_lines" };
-
-    // infos sélectionnées (pour aider à repérer la ligne matière)
-    const matiereSel = getCheckedText('#listeMatieres').toLowerCase();
-    const varianteSel = getCheckedText('#listeVariantes').toLowerCase();
-
-    // mots-clés prestations (déjà public)
-    const KEY_PREST = [
-      "impression","lamination","lamin","découpe","decoupe","blanc","oeillet","œillet","oeillets","œillets",
-      "pose","frais","forfait"
-    ];
-
-    function scoreMaterial(lineLow){
-      let s = 0;
-      if(lineLow.includes("matiere") || lineLow.includes("matière")) s += 3;
-      if(lineLow.includes("support")) s += 1;
-
-      // match sélection
-      if(matiereSel && matiereSel.length >= 3 && lineLow.includes(matiereSel)) s += 5;
-      if(varianteSel && varianteSel.length >= 3 && lineLow.includes(varianteSel)) s += 4;
-
-      // si la ligne ressemble à un coût
-      if(lineLow.includes("coût") || lineLow.includes("cout") || lineLow.includes("achat") || lineLow.includes("interne")) s += 3;
-
-      // si la ligne ressemble à une prestation, on pénalise
-      for(const k of KEY_PREST){
-        if(lineLow.includes(k)) s -= 4;
-      }
-
-      // si c’est un total, pas une matière
-      if(/total/.test(lineLow)) s -= 10;
-      if(/client|public/.test(lineLow)) s -= 2;
-
-      return s;
-    }
-
-    // 1) identifier la meilleure ligne "matière"
-    let bestMat = null;
-    let bestScore = -999;
-    for(const x of htLines){
-      const sc = scoreMaterial(x.low);
-      if(sc > bestScore){
-        bestScore = sc;
-        bestMat = x;
-      }
-    }
-
-    if(!bestMat || bestScore < 3){
-      return { ok:false, reason:"material_not_found", bestScore, bestLine: bestMat?.line || null };
-    }
-
-    const matiereCostHT = round2(bestMat.amount);
-
-    // 2) prestations : toutes les lignes HT (hors totaux) qui ne sont pas la matière
-    const componentLines = htLines.filter(x => !x.isTotal);
-    let prestationsPublicHT = 0;
-
-    for(const x of componentLines){
-      if(x === bestMat) continue;
-      if(x.isClient || x.isPublic) continue;
-      if(/total/.test(x.low)) continue;
-
-      prestationsPublicHT += round2(x.amount);
-    }
-    prestationsPublicHT = round2(prestationsPublicHT);
-
-    // 3) appliquer la règle
-    const matierePublicHT = round2(matiereCostHT * COEF_MATIERE_PUBLIC);
-    const matiereClientHT = round2(matierePublicHT * (1 - dr));
-    const totalClientHT = round2(matiereClientHT + prestationsPublicHT);
-
-    return {
-      ok:true,
-      totalClientHT,
-      details:{
-        discountRate: dr,
-        matiereCostHT,
-        matierePublicHT,
-        matiereClientHT,
-        prestationsPublicHT,
-        materialLine: bestMat.line,
-        materialScore: bestScore
-      }
-    };
-  }
-
-  function extractTotalHTFallback_Global(){
+  // Fallback : prend le plus grand montant "client" en HT depuis le récap
+  function extractTotalHTFromRecap(){
     const recap = q('#recap');
     if(!recap) return { usedHT: 0, source:"none" };
 
@@ -402,7 +255,6 @@
     for(const line of raw){
       const low = line.toLowerCase();
       if(low.includes("ttc")) continue;
-
       let m;
       while((m = moneyRe.exec(line)) !== null){
         const n = toNum(m[1]);
@@ -418,13 +270,6 @@
       return { usedHT: v, source:"client" };
     }
 
-    const pub = hits.filter(x => x.low.includes("public"));
-    const dr = getDiscountRate();
-    if(pub.length && dr > 0){
-      const v = round2(Math.max(...pub.map(x=>x.n)) * (1 - dr));
-      return { usedHT: v, source:"public*remise_global" };
-    }
-
     return { usedHT: round2(Math.max(...hits.map(x=>x.n))), source:"fallback_max" };
   }
 
@@ -437,7 +282,8 @@
     const decoupe = getCheckedText('#decoupeContainer');
     const lamination = getCheckedText('#laminationContainer');
     const blanc = getCheckedText('#blancContainer');
-    const oeillets = getCheckedTexts('#oeilletsContainer');
+
+    const oeilletsCount = getOeilletsCount();
 
     const w = parseInt(q('#largeur')?.value || "0", 10);
     const h = parseInt(q('#hauteur')?.value || "0", 10);
@@ -451,32 +297,18 @@
     if(decoupe) parts.push("Découpe : " + decoupe);
     if(lamination) parts.push("Lamination : " + lamination);
     if(blanc) parts.push("Blanc : " + blanc);
-    if(oeillets.length) parts.push("Œillets : " + oeillets.join(", "));
+    if(oeilletsCount > 0) parts.push("Œillets : " + oeilletsCount);
     if(w > 0 && h > 0) parts.push(`Format : ${w}×${h} mm`);
 
     const designation = parts.join(" • ") || "Supports Souples, Rigides & Adhésifs";
-    const id = genId();
+    const idLine = genId();
 
-    let totalHT = 0;
-    let source = "none";
-    let debug = {};
-
-    const res = computeNetTotalHT_MatiereOnly();
-    if(res.ok){
-      totalHT = res.totalClientHT;
-      source = "matiere_only_(cout*3.5 + presta_public + remise_matiere)";
-      debug = res.details;
-    }else{
-      const fb = extractTotalHTFallback_Global();
-      totalHT = fb.usedHT;
-      source = "fallback:" + fb.source;
-      debug = { fallbackReason: res.reason, ...res };
-    }
-
+    const fb = extractTotalHTFromRecap();
+    const totalHT = fb.usedHT;
     const puHT = round2(totalHT / qty);
 
     return {
-      id,
+      id: idLine,
       type: "configurateur",
       designation,
       quantite: qty,
@@ -486,10 +318,11 @@
         configurateur: "Supports Souples, Rigides & Adhésifs",
         largeur_mm: Number.isFinite(w) ? w : null,
         hauteur_mm: Number.isFinite(h) ? h : null,
-        prix_source: source,
+        oeillets: oeilletsCount,
+        prix_source: fb.source,
         discountRate: getDiscountRate(),
         coef_matiere_public: COEF_MATIERE_PUBLIC,
-        debug
+        tva: TVA_RATE
       }
     };
   }
@@ -513,7 +346,6 @@
 
           const msg =
             "Ligne ajoutée au devis ✅\n\n" +
-            "Source prix : " + (line.meta?.prix_source || "?") + "\n" +
             "PU HT (net) : " + line.pu_net_ht.toFixed(2).replace('.', ',') + " €\n" +
             "Total HT : " + line.total_ligne_ht.toFixed(2).replace('.', ',') + " €\n\n" +
             "Revenir au devis maintenant ?";
@@ -534,91 +366,6 @@
   });
 })();
 </script>
-
-<!-- ✅ UI RÉCAP : masquages demandés (anti-boucle) -->
-<script>
-(function(){
-  const norm = (s) => (s || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, ""); // enlève accents
-
-  let cleaning = false;
-  let pending = false;
-  let obs = null;
-
-  function cleanupRecap(){
-    const recap = document.getElementById("recap");
-    if(!recap) return;
-    if(cleaning) return;
-
-    cleaning = true;
-
-    // 🔒 stop observer pendant qu'on modifie le DOM
-    try { if (obs) obs.disconnect(); } catch(e){}
-
-    try{
-      // 1) Masquer "Œillets : 0"
-      Array.from(recap.querySelectorAll("p")).forEach(p => {
-        const t = norm(p.textContent);
-        if(t.includes("oeillet")){
-          const m = p.textContent.match(/:\s*([0-9]+)/);
-          const n = m ? parseInt(m[1], 10) : 0;
-          if(!n) p.remove();
-        }
-      });
-
-      // 2) Supprimer "Prix public" + "Remise client"
-      Array.from(recap.querySelectorAll("p")).forEach(p => {
-        const t = norm(p.textContent);
-        if(t.includes("prix public") || t.includes("remise client")){
-          p.remove();
-        }
-      });
-
-      // 3) Renommer "Prix client ..." => "Prix client hors-taxe"
-      Array.from(recap.querySelectorAll("p b")).forEach(b => {
-        const t = norm(b.textContent);
-        if(t.includes("prix client") && !t.includes("hors-taxe")){
-          b.textContent = "Prix client hors-taxe :";
-        }
-      });
-
-      // 4) Enlever le <hr> (optionnel, mais tu voulais un récap plus clean)
-      Array.from(recap.querySelectorAll("hr")).forEach(hr => hr.remove());
-
-    } finally {
-      // 🔓 relance observer (seulement quand #recap est ré-écrit)
-      try{
-        if (obs) {
-          obs.observe(recap, { childList: true }); // childList suffit (renderRecap remplace le contenu)
-        }
-      }catch(e){}
-      cleaning = false;
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    const recap = document.getElementById("recap");
-    if(!recap) return;
-
-    // observer : on déclenche 1 nettoyage par frame max
-    obs = new MutationObserver(() => {
-      if (cleaning || pending) return;
-      pending = true;
-      requestAnimationFrame(() => {
-        pending = false;
-        cleanupRecap();
-      });
-    });
-
-    // 1er nettoyage + armement
-    cleanupRecap();
-    obs.observe(recap, { childList: true });
-  });
-})();
-</script>
-
 
 </body>
 </html>
