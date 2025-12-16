@@ -360,6 +360,76 @@ try {
 
     function readStore(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }catch{ return {}; } }
     function writeStore(obj){ localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); }
+    function genId(){
+  try{
+    if (window.crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  }catch(e){}
+  return "L_" + Date.now() + "_" + Math.random().toString(16).slice(2);
+}
+function n2(x){
+  const n = Number(x);
+  return Number.isFinite(n) ? +(Math.round(n*100)/100).toFixed(2) : null;
+}
+function pickNumber(obj, keys){
+  for(const k of keys){
+    const v = n2(obj?.[k]);
+    if(v != null) return v;
+  }
+  return null;
+}
+function repairStoredLines(){
+  const st = readStore();
+  if(!st || !Array.isArray(st.lignes)) return;
+
+  let changed = false;
+
+  for(const l of st.lignes){
+    if(!l || typeof l !== "object") continue;
+
+    // id obligatoire
+    if(!l.id){
+      l.id = genId();
+      changed = true;
+    }
+
+    // quantité obligatoire
+    const q = Number(l.quantite ?? l.qte ?? l.qty ?? 1);
+    if(!Number.isFinite(q) || q <= 0){
+      l.quantite = 1;
+      changed = true;
+    } else if(l.quantite !== q){
+      l.quantite = q;
+      changed = true;
+    }
+
+    // pu_net_ht obligatoire
+    let pu = n2(l.pu_net_ht);
+    if(pu == null){
+      pu = pickNumber(l, ["pu_ht","puHT","pu","price","price_ht","unit_price_ht","prix_unitaire_ht","prix_ht"]);
+    }
+    if(pu == null){
+      const tot = pickNumber(l, ["total_ligne_ht","total_ht","totalHT","montant_ht","total"]);
+      if(tot != null && l.quantite > 0) pu = n2(tot / l.quantite);
+    }
+    if(pu != null && l.pu_net_ht !== pu){
+      l.pu_net_ht = pu;
+      changed = true;
+    }
+
+    // total_ligne_ht
+    let totL = n2(l.total_ligne_ht);
+    if(totL == null && n2(l.pu_net_ht) != null){
+      totL = n2(Number(l.pu_net_ht) * Number(l.quantite));
+    }
+    if(totL != null && l.total_ligne_ht !== totL){
+      l.total_ligne_ht = totL;
+      changed = true;
+    }
+  }
+
+  if(changed) writeStore(st);
+}
+
     function updateClientField(key, value){
       const state = readStore(); if(!state.client) state.client = {};
       state.client[key] = value; writeStore(state);
@@ -955,6 +1025,8 @@ await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf", {
 
 // 🔁 Boot devis robuste : recharge + render, et se relance à chaque retour/focus
 function bootDevis() {
+  repairStoredLines();
+
   try {
     if (window.Devis && typeof Devis.reload === "function") {
       Devis.reload();
