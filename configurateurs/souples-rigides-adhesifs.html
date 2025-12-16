@@ -352,7 +352,6 @@
       }
     }
 
-    // Si on ne trouve pas clairement la matière, on abandonne cette méthode
     if(!bestMat || bestScore < 3){
       return { ok:false, reason:"material_not_found", bestScore, bestLine: bestMat?.line || null };
     }
@@ -360,16 +359,12 @@
     const matiereCostHT = round2(bestMat.amount);
 
     // 2) prestations : toutes les lignes HT (hors totaux) qui ne sont pas la matière
-    const componentLines = htLines.filter(x => !x.isTotal); // on exclut les lignes "Total"
+    const componentLines = htLines.filter(x => !x.isTotal);
     let prestationsPublicHT = 0;
 
     for(const x of componentLines){
       if(x === bestMat) continue;
-
-      // on évite de sommer les lignes "client/public" si elles existent
       if(x.isClient || x.isPublic) continue;
-
-      // si la ligne est un "total" déguisé, on ignore aussi
       if(/total/.test(x.low)) continue;
 
       prestationsPublicHT += round2(x.amount);
@@ -396,7 +391,6 @@
     };
   }
 
-  // Fallback ancien mode (au cas où le recap ne permet pas la décomposition)
   function extractTotalHTFallback_Global(){
     const recap = q('#recap');
     if(!recap) return { usedHT: 0, source:"none" };
@@ -418,14 +412,12 @@
     }
     if(!hits.length) return { usedHT: 0, source:"none" };
 
-    // priorité "client"
     const client = hits.filter(x => x.low.includes("client"));
     if(client.length){
       const v = round2(Math.max(...client.map(x=>x.n)));
       return { usedHT: v, source:"client" };
     }
 
-    // sinon "public*remise" si on trouve public
     const pub = hits.filter(x => x.low.includes("public"));
     const dr = getDiscountRate();
     if(pub.length && dr > 0){
@@ -433,7 +425,6 @@
       return { usedHT: v, source:"public*remise_global" };
     }
 
-    // sinon max
     return { usedHT: round2(Math.max(...hits.map(x=>x.n))), source:"fallback_max" };
   }
 
@@ -466,7 +457,6 @@
     const designation = parts.join(" • ") || "Supports Souples, Rigides & Adhésifs";
     const id = genId();
 
-    // ✅ priorité à la nouvelle méthode "matière only"
     let totalHT = 0;
     let source = "none";
     let debug = {};
@@ -541,6 +531,62 @@
         if(confirm("Réinitialiser ce configurateur ?")) location.reload();
       });
     }
+  });
+})();
+</script>
+
+<!-- ✅ UI RÉCAP : masquages demandés (œillets si 0 + ne garder que prix client) -->
+<script>
+(function(){
+  const norm = (s) => (s || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, ""); // enlève accents
+
+  function cleanupRecap(){
+    const recap = document.getElementById("recap");
+    if(!recap) return;
+
+    // 1) Masquer "Œillets : 0" (ou oeillets 0)
+    Array.from(recap.querySelectorAll("p")).forEach(p => {
+      const t = norm(p.textContent);
+      if(t.includes("oeillet")){
+        // récupère le nombre après ":"
+        const m = p.textContent.match(/:\s*([0-9]+)/);
+        const n = m ? parseInt(m[1], 10) : 0;
+        if(!n) p.remove();
+      }
+    });
+
+    // 2) Supprimer "Prix public" + "Remise client"
+    Array.from(recap.querySelectorAll("p")).forEach(p => {
+      const t = norm(p.textContent);
+      if(t.includes("prix public") || t.includes("remise client")){
+        p.remove();
+      }
+    });
+
+    // 3) Renommer le libellé "Prix client HT" => "Prix client hors-taxe"
+    Array.from(recap.querySelectorAll("p b")).forEach(b => {
+      const t = norm(b.textContent);
+      if(t.includes("prix client")){
+        b.textContent = "Prix client hors-taxe :";
+      }
+    });
+
+    // 4) Enlever le <hr> (si tu veux un récap plus clean)
+    Array.from(recap.querySelectorAll("hr")).forEach(hr => hr.remove());
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const recap = document.getElementById("recap");
+    if(!recap) return;
+
+    cleanupRecap();
+
+    // observe les mises à jour (quand renderRecap ré-écrit #recap)
+    const obs = new MutationObserver(() => cleanupRecap());
+    obs.observe(recap, { childList:true, subtree:true });
   });
 })();
 </script>
