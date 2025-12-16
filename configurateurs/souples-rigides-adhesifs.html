@@ -193,7 +193,7 @@
 <!-- Script principal -->
 <script src="../js/souples-rigides-adhesifs.js"></script>
 
-<!-- ===== Bridge "Ajouter au devis" (autonome) ===== -->
+<!-- ===== Bridge "Ajouter au devis" (robuste + compatible index) ===== -->
 <script>
 (function(){
   function q(sel){ return document.querySelector(sel); }
@@ -222,72 +222,12 @@
     const recap = q('#recap');
     if(!recap) return null;
     const txt = recap.innerText || recap.textContent || "";
-    // cherche le dernier nombre suivi de €
     const re = /(\d[\d\s]*([.,]\d+)?)\s*€/g;
     let m, last = null;
-    while((m = re.exec(txt)) !== null){
-      last = m[1];
-    }
+    while((m = re.exec(txt)) !== null){ last = m[1]; }
     if(!last) return null;
     const num = parseFloat(String(last).replace(/\s+/g,'').replace(',', '.'));
     return Number.isFinite(num) ? num : null;
-  }
-
-  function detectDevisStorageKey(){
-    const prefs = [
-      "cofel_devis_lines",
-      "cofel_devis_lignes",
-      "cofel_devis",
-      "devis_lines",
-      "quote_lines",
-      "cofel_quote_lines"
-    ];
-    for(const k of prefs){
-      const v = localStorage.getItem(k);
-      if(v && (v.startsWith('[') || v.startsWith('{'))) return k;
-    }
-    // fallback si on repère une clé existante contenant "devis"
-    for(let i=0;i<localStorage.length;i++){
-      const k = localStorage.key(i);
-      if(k && k.toLowerCase().includes("devis")){
-        const v = localStorage.getItem(k);
-        if(v && v.startsWith('[')) return k;
-      }
-    }
-    return "cofel_devis_lines";
-  }
-
-  function addLineToDevis(line){
-    // 1) Si une API devis existe déjà (cas “comme les autres configurateurs”)
-    const candidates = [
-      window.cofelDevisAddLine,
-      window.addLineToDevis,
-      window.addLineToQuote
-    ];
-    for(const fn of candidates){
-      if(typeof fn === "function"){
-        fn(line);
-        return { ok:true, via:"function" };
-      }
-    }
-    if(window.cofelDevis && typeof window.cofelDevis.addLine === "function"){
-      window.cofelDevis.addLine(line);
-      return { ok:true, via:"cofelDevis.addLine" };
-    }
-
-    // 2) Fallback localStorage
-    const key = detectDevisStorageKey();
-    let arr;
-    try{
-      const raw = localStorage.getItem(key);
-      arr = raw ? JSON.parse(raw) : [];
-      if(!Array.isArray(arr)) arr = [];
-    }catch(e){
-      arr = [];
-    }
-    arr.push(line);
-    localStorage.setItem(key, JSON.stringify(arr));
-    return { ok:true, via:"localStorage", key };
   }
 
   function buildLine(){
@@ -299,8 +239,6 @@
     const decoupe = getCheckedText('#decoupeContainer');
     const lamination = getCheckedText('#laminationContainer');
     const blanc = getCheckedText('#blancContainer');
-
-    // oeillets : parfois checkboxes / radios → on prend tout ce qui est coché
     const oeillets = getCheckedTexts('#oeilletsContainer');
 
     const w = parseInt(q('#largeur')?.value || "0", 10);
@@ -323,25 +261,174 @@
     const designation = parts.join(" • ") || "Supports Souples, Rigides & Adhésifs";
 
     const line = {
-      // champs “larges” pour compatibilité
       designation,
       description: designation,
       produit: "Supports Souples, Rigides & Adhésifs",
       configurateur: "Supports Souples, Rigides & Adhésifs",
+
       qte: qty,
       qty: qty,
+      quantite: qty,
+
       unite: "u",
       unit: "u",
+
       largeur_mm: Number.isFinite(w) ? w : null,
       hauteur_mm: Number.isFinite(h) ? h : null,
+
       total_ht: totalHT,
       totalHT: totalHT,
+      montant_ht: totalHT,
+
       pu_ht: (totalHT != null ? (totalHT / qty) : null),
+      puHT: (totalHT != null ? (totalHT / qty) : null),
+      prix_unitaire_ht: (totalHT != null ? (totalHT / qty) : null),
+
       tva: 0.20,
       createdAt: new Date().toISOString()
     };
 
     return line;
+  }
+
+  function safeParseJSON(v){
+    try{ return JSON.parse(v); }catch(e){ return null; }
+  }
+
+  function looksLikeLineArray(arr){
+    if(!Array.isArray(arr)) return false;
+    if(arr.length === 0) return true;
+    const x = arr[arr.length-1];
+    return x && typeof x === "object" && (
+      "designation" in x || "description" in x || "produit" in x || "total_ht" in x || "totalHT" in x
+    );
+  }
+
+  function pushIntoValue(v, line){
+    // v peut être: Array ou Object {lines/lignes/items/...}
+    if(Array.isArray(v)){
+      v.push(line);
+      return { updated: true, out: v };
+    }
+    if(v && typeof v === "object"){
+      const props = ["lines","lignes","items","rows","articles","produits"];
+      for(const p of props){
+        if(Array.isArray(v[p])){
+          v[p].push(line);
+          return { updated: true, out: v };
+        }
+      }
+      // structure {devis:{lines:[]}}
+      if(v.devis && typeof v.devis === "object"){
+        for(const p of props){
+          if(Array.isArray(v.devis[p])){
+            v.devis[p].push(line);
+            return { updated: true, out: v };
+          }
+        }
+      }
+    }
+    return { updated: false, out: v };
+  }
+
+  function writePending(line){
+    const raw = JSON.stringify(line);
+    // clé "pont" fiable entre configurateur -> index
+    sessionStorage.setItem("cofel_pending_devis_line", raw);
+    localStorage.setItem("cofel_pending_devis_line", raw);
+  }
+
+  function addLineToAllLikelyStorages(line){
+    writePending(line);
+
+    const writtenKeys = [];
+
+    // 1) si une API devis existe déjà (certains configurateurs Cofel)
+    const candidates = [
+      window.cofelDevisAddLine,
+      window.addLineToDevis,
+      window.addLineToQuote
+    ];
+    for(const fn of candidates){
+      if(typeof fn === "function"){
+        fn(line);
+        return { via: "function", keys: writtenKeys };
+      }
+    }
+    if(window.cofelDevis && typeof window.cofelDevis.addLine === "function"){
+      window.cofelDevis.addLine(line);
+      return { via: "cofelDevis.addLine", keys: writtenKeys };
+    }
+
+    // 2) sinon on pousse dans TOUT ce qui ressemble à un stockage devis existant
+    const allKeys = Object.keys(localStorage);
+    const devisKeys = allKeys.filter(k => /devis|quote|lines|lignes/i.test(k));
+
+    for(const k of devisKeys){
+      const raw = localStorage.getItem(k);
+      const parsed = safeParseJSON(raw);
+      if(parsed == null) continue;
+
+      // array direct
+      if(looksLikeLineArray(parsed)){
+        parsed.push(line);
+        localStorage.setItem(k, JSON.stringify(parsed));
+        writtenKeys.push(k);
+        continue;
+      }
+
+      // object avec lines/lignes/items...
+      const res = pushIntoValue(parsed, line);
+      if(res.updated){
+        localStorage.setItem(k, JSON.stringify(res.out));
+        writtenKeys.push(k);
+      }
+    }
+
+    // 3) et on écrit AUSSI dans des clés “standards” (au cas où Index les attend)
+    const standardKeys = [
+      "cofel_devis_lines",
+      "cofel_devis_lignes",
+      "cofel_devis",
+      "devis_lines",
+      "quote_lines"
+    ];
+
+    for(const k of standardKeys){
+      const raw = localStorage.getItem(k);
+      const parsed = safeParseJSON(raw);
+
+      if(parsed == null){
+        // si clé absente/non JSON => on initialise en tableau
+        localStorage.setItem(k, JSON.stringify([line]));
+        writtenKeys.push(k);
+        continue;
+      }
+
+      if(Array.isArray(parsed)){
+        parsed.push(line);
+        localStorage.setItem(k, JSON.stringify(parsed));
+        writtenKeys.push(k);
+        continue;
+      }
+
+      const res = pushIntoValue(parsed, line);
+      if(res.updated){
+        localStorage.setItem(k, JSON.stringify(res.out));
+        writtenKeys.push(k);
+        continue;
+      }
+
+      // objet mais pas de tableau => on crée lines[]
+      if(parsed && typeof parsed === "object"){
+        parsed.lines = Array.isArray(parsed.lines) ? parsed.lines : [];
+        parsed.lines.push(line);
+        localStorage.setItem(k, JSON.stringify(parsed));
+        writtenKeys.push(k);
+      }
+    }
+
+    return { via: "localStorage", keys: Array.from(new Set(writtenKeys)) };
   }
 
   document.addEventListener('DOMContentLoaded', function(){
@@ -351,10 +438,15 @@
     if(addBtn){
       addBtn.addEventListener('click', function(){
         const line = buildLine();
-        const res = addLineToDevis(line);
+        const res = addLineToAllLikelyStorages(line);
 
-        // feedback simple + retour devis
-        const go = confirm("Ligne ajoutée au devis ✅\n\nVoulez-vous revenir au devis maintenant ?");
+        const msg =
+          "Ligne enregistrée ✅\n" +
+          "Méthode : " + res.via + "\n" +
+          (res.keys && res.keys.length ? ("Clés mises à jour :\n- " + res.keys.join("\n- ")) : "Clés mises à jour : (via pending / function)") +
+          "\n\nRevenir au devis maintenant ?";
+
+        const go = confirm(msg);
         if(go) location.href = "../index.html";
       });
     }
