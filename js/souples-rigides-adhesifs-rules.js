@@ -2,7 +2,7 @@
  * RULESET — Supports souples / rigides / adhésifs
  * Source de vérité unique du configurateur
  ******************************************************/
-
+ 
 const MATERIAL_RULES = {
 
 /* ---------------------------------------------------
