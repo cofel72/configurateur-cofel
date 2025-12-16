@@ -50,7 +50,7 @@
         <label><input type="radio" name="support" value="rigide"> Support rigide</label>
       </div>
     </fieldset>
-    <div class="nav-buttons"><button class="btn-nav" id="next1">Étape suivante ➜</button></div>
+    <div class="nav-buttons"><button class="btn-nav" id="next1" type="button">Étape suivante ➜</button></div>
   </section>
 
   <!-- ÉTAPE 2 -->
@@ -63,8 +63,8 @@
       </div>
     </fieldset>
     <div class="nav-buttons">
-      <button class="btn-nav" id="prev2">⬅ Précédent</button>
-      <button class="btn-nav" id="next2">Étape suivante ➜</button>
+      <button class="btn-nav" id="prev2" type="button">⬅ Précédent</button>
+      <button class="btn-nav" id="next2" type="button">Étape suivante ➜</button>
     </div>
   </section>
 
@@ -75,8 +75,8 @@
       <div id="listeMatieres" class="radio-row"></div>
     </fieldset>
     <div class="nav-buttons">
-      <button class="btn-nav" id="prev3">⬅ Précédent</button>
-      <button class="btn-nav" id="next3">Étape suivante ➜</button>
+      <button class="btn-nav" id="prev3" type="button">⬅ Précédent</button>
+      <button class="btn-nav" id="next3" type="button">Étape suivante ➜</button>
     </div>
   </section>
 
@@ -87,8 +87,8 @@
       <div id="listeVariantes" class="radio-row"></div>
     </fieldset>
     <div class="nav-buttons">
-      <button class="btn-nav" id="prev4">⬅ Précédent</button>
-      <button class="btn-nav" id="next4">Étape suivante ➜</button>
+      <button class="btn-nav" id="prev4" type="button">⬅ Précédent</button>
+      <button class="btn-nav" id="next4" type="button">Étape suivante ➜</button>
     </div>
   </section>
 
@@ -99,8 +99,8 @@
       <div id="decoupeContainer" class="radio-row"></div>
     </fieldset>
     <div class="nav-buttons">
-      <button class="btn-nav" id="prev5">⬅ Précédent</button>
-      <button class="btn-nav" id="next5">Étape suivante ➜</button>
+      <button class="btn-nav" id="prev5" type="button">⬅ Précédent</button>
+      <button class="btn-nav" id="next5" type="button">Étape suivante ➜</button>
     </div>
   </section>
 
@@ -112,8 +112,8 @@
       <p id="laminationInfo" class="hint"></p>
     </fieldset>
     <div class="nav-buttons">
-      <button class="btn-nav" id="prev6">⬅ Précédent</button>
-      <button class="btn-nav" id="next6">Étape suivante ➜</button>
+      <button class="btn-nav" id="prev6" type="button">⬅ Précédent</button>
+      <button class="btn-nav" id="next6" type="button">Étape suivante ➜</button>
     </div>
   </section>
 
@@ -125,8 +125,8 @@
       <p id="blancInfo" class="hint"></p>
     </fieldset>
     <div class="nav-buttons">
-      <button class="btn-nav" id="prev7">⬅ Précédent</button>
-      <button class="btn-nav" id="next7">Étape suivante ➜</button>
+      <button class="btn-nav" id="prev7" type="button">⬅ Précédent</button>
+      <button class="btn-nav" id="next7" type="button">Étape suivante ➜</button>
     </div>
   </section>
 
@@ -138,8 +138,8 @@
       <p id="oeilletsInfo" class="hint"></p>
     </fieldset>
     <div class="nav-buttons">
-      <button class="btn-nav" id="prev8">⬅ Précédent</button>
-      <button class="btn-nav" id="next8">Étape suivante ➜</button>
+      <button class="btn-nav" id="prev8" type="button">⬅ Précédent</button>
+      <button class="btn-nav" id="next8" type="button">Étape suivante ➜</button>
     </div>
   </section>
 
@@ -159,8 +159,8 @@
     </fieldset>
 
     <div class="nav-buttons">
-      <button class="btn-nav" id="prev9">⬅ Précédent</button>
-      <button class="btn-nav" id="next9">Étape suivante ➜</button>
+      <button class="btn-nav" id="prev9" type="button">⬅ Précédent</button>
+      <button class="btn-nav" id="next9" type="button">Étape suivante ➜</button>
     </div>
   </section>
 
@@ -172,9 +172,9 @@
     </fieldset>
 
     <div class="nav-buttons">
-      <button class="btn-nav" id="prev10">⬅ Précédent</button>
-      <button class="btn-nav" id="addToDevisBtn">➕ Ajouter au devis</button>
-      <button class="btn-nav" id="resetBtn">↺ Réinitialiser</button>
+      <button class="btn-nav" id="prev10" type="button">⬅ Précédent</button>
+      <button class="btn-nav" id="addToDevisBtn" type="button">➕ Ajouter au devis</button>
+      <button class="btn-nav" id="resetBtn" type="button">↺ Réinitialiser</button>
     </div>
   </section>
 
@@ -218,47 +218,47 @@
     }).filter(Boolean);
   }
 
+  // ✅ FIX: regex € / EUR robuste (pas de \b après €)
   function extractTotalFromRecap(){
-  const recap = q('#recap');
-  if(!recap) return null;
+    const recap = q('#recap');
+    if(!recap) return null;
 
-  // On collecte plusieurs sources de texte (au cas où le total est dans un sous-bloc)
-  const texts = [];
-  texts.push(recap.innerText || recap.textContent || "");
+    const texts = [];
+    texts.push(recap.innerText || recap.textContent || "");
 
-  recap.querySelectorAll('*').forEach(el=>{
-    const t = (el.innerText || el.textContent || "").trim();
-    if(t && t.length <= 200) texts.push(t);
-  });
+    recap.querySelectorAll('*').forEach(el=>{
+      const t = (el.innerText || el.textContent || "").trim();
+      if(t && t.length <= 250) texts.push(t);
+    });
 
-  const joined = texts.join("\n");
+    const joined = texts.join("\n");
 
-  // 1) On récupère tous les montants suivis de € ou EUR
-  const moneyRe = /(\d[\d\s]*([.,]\d+)?)\s*(€|eur)\b/gi;
-  let m;
-  const candidates = [];
-  while((m = moneyRe.exec(joined)) !== null){
-    const num = parseFloat(String(m[1]).replace(/\s+/g,'').replace(',', '.'));
-    if(Number.isFinite(num)) candidates.push(num);
-  }
-
-  // 2) Fallback : si le récap écrit "Total HT : 25,56" sans € (rare)
-  if(candidates.length === 0){
-    const totalRe = /total[^0-9]{0,20}(\d[\d\s]*([.,]\d+)?)/i;
-    const mt = joined.match(totalRe);
-    if(mt){
-      const num = parseFloat(String(mt[1]).replace(/\s+/g,'').replace(',', '.'));
+    // Montants suivis de € ou EUR
+    const moneyRe = /(\d[\d\s]*([.,]\d+)?)\s*(?:€|eur\b)/gi;
+    let m;
+    const candidates = [];
+    while((m = moneyRe.exec(joined)) !== null){
+      const num = parseFloat(String(m[1]).replace(/\s+/g,'').replace(',', '.'));
       if(Number.isFinite(num)) candidates.push(num);
     }
+
+    // Fallback si "Total HT : 25,56" sans €
+    if(candidates.length === 0){
+      const totalRe = /total[^0-9]{0,25}(\d[\d\s]*([.,]\d+)?)/i;
+      const mt = joined.match(totalRe);
+      if(mt){
+        const num = parseFloat(String(mt[1]).replace(/\s+/g,'').replace(',', '.'));
+        if(Number.isFinite(num)) candidates.push(num);
+      }
+    }
+
+    if(candidates.length === 0) return null;
+
+    const max = Math.max(...candidates);
+    return Math.round(max * 100) / 100;
   }
 
-  if(candidates.length === 0) return null;
-
-  // On prend le plus grand montant trouvé (généralement le TOTAL, pas le PU)
-  const max = Math.max(...candidates);
-  return Math.round(max * 100) / 100;
-}
-
+  // ✅ FIX: on reconstruit designation (tu l’avais perdu)
   function buildLine(){
     const support = (q('input[name="support"]:checked')?.value || "").trim();
     const impression = (q('input[name="impression"]:checked')?.value || "").trim();
@@ -274,59 +274,75 @@
     const h = parseInt(q('#hauteur')?.value || "0", 10);
     const qty = Math.max(1, parseInt(q('#quantite')?.value || "1", 10) || 1);
 
-  const totalHT = extractTotalFromRecap();
-const tvaRate = 0.20;
+    // designation lisible
+    const parts = [];
+    if(support) parts.push(support === "souple" ? "Support souple" : "Support rigide");
+    if(impression) parts.push(impression === "avec" ? "Avec impression" : "Sans impression");
+    if(matiere) parts.push(matiere);
+    if(variante) parts.push(variante);
+    if(decoupe) parts.push("Découpe : " + decoupe);
+    if(lamination) parts.push("Lamination : " + lamination);
+    if(blanc) parts.push("Blanc : " + blanc);
+    if(oeillets.length) parts.push("Œillets : " + oeillets.join(", "));
+    if(w > 0 && h > 0) parts.push(`Format : ${w}×${h} mm`);
 
-const safeTotalHT = (totalHT != null ? totalHT : 0);
-const puHT = safeTotalHT / qty;
+    const designation = parts.join(" • ") || "Supports Souples, Rigides & Adhésifs";
 
-const totalTTC = Math.round(safeTotalHT * (1 + tvaRate) * 100) / 100;
-const puTTC = Math.round((totalTTC / qty) * 100) / 100;
+    const totalHT = extractTotalFromRecap();
+    const tvaRate = 0.20;
 
-const line = {
-  designation,
-  description: designation,
-  produit: "Supports Souples, Rigides & Adhésifs",
-  configurateur: "Supports Souples, Rigides & Adhésifs",
+    const safeTotalHT = (totalHT != null ? totalHT : 0);
+    const puHT = safeTotalHT / qty;
 
-  // quantités
-  qte: qty,
-  qty: qty,
-  quantite: qty,
+    const totalTTC = Math.round(safeTotalHT * (1 + tvaRate) * 100) / 100;
+    const puTTC = Math.round((totalTTC / qty) * 100) / 100;
 
-  // unité
-  unite: "u",
-  unit: "u",
+    const line = {
+      designation,
+      description: designation,
+      produit: "Supports Souples, Rigides & Adhésifs",
+      configurateur: "Supports Souples, Rigides & Adhésifs",
 
-  // dimensions
-  largeur_mm: Number.isFinite(w) ? w : null,
-  hauteur_mm: Number.isFinite(h) ? h : null,
+      // quantités
+      qte: qty,
+      qty: qty,
+      quantite: qty,
 
-  // === PRIX HT (plein de noms possibles pour être compatible avec index) ===
-  pu_ht: Math.round(puHT * 100) / 100,
-  puHT: Math.round(puHT * 100) / 100,
-  prix_unitaire_ht: Math.round(puHT * 100) / 100,
-  unit_price_ht: Math.round(puHT * 100) / 100,
+      // unité
+      unite: "u",
+      unit: "u",
 
-  total_ht: Math.round(safeTotalHT * 100) / 100,
-  totalHT: Math.round(safeTotalHT * 100) / 100,
-  montant_ht: Math.round(safeTotalHT * 100) / 100,
-  montantHT: Math.round(safeTotalHT * 100) / 100,
-  total: Math.round(safeTotalHT * 100) / 100,
+      // dimensions
+      largeur_mm: Number.isFinite(w) ? w : null,
+      hauteur_mm: Number.isFinite(h) ? h : null,
 
-  // === PRIX TTC (au cas où index affiche en TTC) ===
-  pu_ttc: puTTC,
-  puTTC: puTTC,
-  total_ttc: totalTTC,
-  totalTTC: totalTTC,
-  montant_ttc: totalTTC,
+      // PRIX HT (synonymes)
+      pu_ht: Math.round(puHT * 100) / 100,
+      puHT: Math.round(puHT * 100) / 100,
+      prix_unitaire_ht: Math.round(puHT * 100) / 100,
+      unit_price_ht: Math.round(puHT * 100) / 100,
 
-  // TVA
-  tva: tvaRate,
+      total_ht: Math.round(safeTotalHT * 100) / 100,
+      totalHT: Math.round(safeTotalHT * 100) / 100,
+      montant_ht: Math.round(safeTotalHT * 100) / 100,
+      montantHT: Math.round(safeTotalHT * 100) / 100,
+      total: Math.round(safeTotalHT * 100) / 100,
 
-  createdAt: new Date().toISOString()
-};
+      // PRIX TTC (au cas où)
+      pu_ttc: puTTC,
+      puTTC: puTTC,
+      total_ttc: totalTTC,
+      totalTTC: totalTTC,
+      montant_ttc: totalTTC,
 
+      // TVA
+      tva: tvaRate,
+
+      // debug utile
+      _debug_totalHT_detected: totalHT,
+
+      createdAt: new Date().toISOString()
+    };
 
     return line;
   }
@@ -345,7 +361,6 @@ const line = {
   }
 
   function pushIntoValue(v, line){
-    // v peut être: Array ou Object {lines/lignes/items/...}
     if(Array.isArray(v)){
       v.push(line);
       return { updated: true, out: v };
@@ -358,7 +373,6 @@ const line = {
           return { updated: true, out: v };
         }
       }
-      // structure {devis:{lines:[]}}
       if(v.devis && typeof v.devis === "object"){
         for(const p of props){
           if(Array.isArray(v.devis[p])){
@@ -373,7 +387,6 @@ const line = {
 
   function writePending(line){
     const raw = JSON.stringify(line);
-    // clé "pont" fiable entre configurateur -> index
     sessionStorage.setItem("cofel_pending_devis_line", raw);
     localStorage.setItem("cofel_pending_devis_line", raw);
   }
@@ -383,7 +396,6 @@ const line = {
 
     const writtenKeys = [];
 
-    // 1) si une API devis existe déjà (certains configurateurs Cofel)
     const candidates = [
       window.cofelDevisAddLine,
       window.addLineToDevis,
@@ -400,7 +412,6 @@ const line = {
       return { via: "cofelDevis.addLine", keys: writtenKeys };
     }
 
-    // 2) sinon on pousse dans TOUT ce qui ressemble à un stockage devis existant
     const allKeys = Object.keys(localStorage);
     const devisKeys = allKeys.filter(k => /devis|quote|lines|lignes/i.test(k));
 
@@ -409,7 +420,6 @@ const line = {
       const parsed = safeParseJSON(raw);
       if(parsed == null) continue;
 
-      // array direct
       if(looksLikeLineArray(parsed)){
         parsed.push(line);
         localStorage.setItem(k, JSON.stringify(parsed));
@@ -417,7 +427,6 @@ const line = {
         continue;
       }
 
-      // object avec lines/lignes/items...
       const res = pushIntoValue(parsed, line);
       if(res.updated){
         localStorage.setItem(k, JSON.stringify(res.out));
@@ -425,7 +434,6 @@ const line = {
       }
     }
 
-    // 3) et on écrit AUSSI dans des clés “standards” (au cas où Index les attend)
     const standardKeys = [
       "cofel_devis_lines",
       "cofel_devis_lignes",
@@ -439,7 +447,6 @@ const line = {
       const parsed = safeParseJSON(raw);
 
       if(parsed == null){
-        // si clé absente/non JSON => on initialise en tableau
         localStorage.setItem(k, JSON.stringify([line]));
         writtenKeys.push(k);
         continue;
@@ -459,7 +466,6 @@ const line = {
         continue;
       }
 
-      // objet mais pas de tableau => on crée lines[]
       if(parsed && typeof parsed === "object"){
         parsed.lines = Array.isArray(parsed.lines) ? parsed.lines : [];
         parsed.lines.push(line);
@@ -477,17 +483,29 @@ const line = {
 
     if(addBtn){
       addBtn.addEventListener('click', function(){
-        const line = buildLine();
-        const res = addLineToAllLikelyStorages(line);
+        try{
+          const line = buildLine();
+          const res = addLineToAllLikelyStorages(line);
 
-        const msg =
-          "Ligne enregistrée ✅\n" +
-          "Méthode : " + res.via + "\n" +
-          (res.keys && res.keys.length ? ("Clés mises à jour :\n- " + res.keys.join("\n- ")) : "Clés mises à jour : (via pending / function)") +
-          "\n\nRevenir au devis maintenant ?";
+          const totalTxt = (line._debug_totalHT_detected != null)
+            ? (line._debug_totalHT_detected + " € HT détecté")
+            : "Total HT non détecté (0€ envoyé)";
 
-        const go = confirm(msg);
-        if(go) location.href = "../index.html";
+          const msg =
+            "Ligne enregistrée ✅\n" +
+            totalTxt + "\n" +
+            "Méthode : " + res.via + "\n" +
+            (res.keys && res.keys.length
+              ? ("Clés mises à jour :\n- " + res.keys.join("\n- "))
+              : "Clés mises à jour : (via pending / function)") +
+            "\n\nRevenir au devis maintenant ?";
+
+          const go = confirm(msg);
+          if(go) location.href = "../index.html";
+        }catch(err){
+          console.error("Erreur Ajouter au devis:", err);
+          alert("Erreur côté configurateur (voir console) :\n" + (err?.message || err));
+        }
       });
     }
 
