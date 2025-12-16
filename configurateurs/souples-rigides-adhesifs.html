@@ -173,6 +173,8 @@
 
     <div class="nav-buttons">
       <button class="btn-nav" id="prev10">⬅ Précédent</button>
+      <button class="btn-nav" id="addToDevisBtn">➕ Ajouter au devis</button>
+      <button class="btn-nav" id="resetBtn">↺ Réinitialiser</button>
     </div>
   </section>
 
@@ -191,6 +193,181 @@
 <!-- Script principal -->
 <script src="../js/souples-rigides-adhesifs.js"></script>
 
+<!-- ===== Bridge "Ajouter au devis" (autonome) ===== -->
+<script>
+(function(){
+  function q(sel){ return document.querySelector(sel); }
+  function qa(sel){ return Array.from(document.querySelectorAll(sel)); }
+
+  function getCheckedText(containerSel){
+    const root = q(containerSel);
+    if(!root) return "";
+    const checked = root.querySelector('input:checked');
+    if(!checked) return "";
+    const lab = checked.closest('label');
+    return (lab ? lab.textContent : checked.value || "").trim();
+  }
+
+  function getCheckedTexts(containerSel){
+    const root = q(containerSel);
+    if(!root) return [];
+    const checked = qa(containerSel + ' input:checked');
+    return checked.map(el=>{
+      const lab = el.closest('label');
+      return (lab ? lab.textContent : el.value || "").trim();
+    }).filter(Boolean);
+  }
+
+  function extractTotalFromRecap(){
+    const recap = q('#recap');
+    if(!recap) return null;
+    const txt = recap.innerText || recap.textContent || "";
+    // cherche le dernier nombre suivi de €
+    const re = /(\d[\d\s]*([.,]\d+)?)\s*€/g;
+    let m, last = null;
+    while((m = re.exec(txt)) !== null){
+      last = m[1];
+    }
+    if(!last) return null;
+    const num = parseFloat(String(last).replace(/\s+/g,'').replace(',', '.'));
+    return Number.isFinite(num) ? num : null;
+  }
+
+  function detectDevisStorageKey(){
+    const prefs = [
+      "cofel_devis_lines",
+      "cofel_devis_lignes",
+      "cofel_devis",
+      "devis_lines",
+      "quote_lines",
+      "cofel_quote_lines"
+    ];
+    for(const k of prefs){
+      const v = localStorage.getItem(k);
+      if(v && (v.startsWith('[') || v.startsWith('{'))) return k;
+    }
+    // fallback si on repère une clé existante contenant "devis"
+    for(let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if(k && k.toLowerCase().includes("devis")){
+        const v = localStorage.getItem(k);
+        if(v && v.startsWith('[')) return k;
+      }
+    }
+    return "cofel_devis_lines";
+  }
+
+  function addLineToDevis(line){
+    // 1) Si une API devis existe déjà (cas “comme les autres configurateurs”)
+    const candidates = [
+      window.cofelDevisAddLine,
+      window.addLineToDevis,
+      window.addLineToQuote
+    ];
+    for(const fn of candidates){
+      if(typeof fn === "function"){
+        fn(line);
+        return { ok:true, via:"function" };
+      }
+    }
+    if(window.cofelDevis && typeof window.cofelDevis.addLine === "function"){
+      window.cofelDevis.addLine(line);
+      return { ok:true, via:"cofelDevis.addLine" };
+    }
+
+    // 2) Fallback localStorage
+    const key = detectDevisStorageKey();
+    let arr;
+    try{
+      const raw = localStorage.getItem(key);
+      arr = raw ? JSON.parse(raw) : [];
+      if(!Array.isArray(arr)) arr = [];
+    }catch(e){
+      arr = [];
+    }
+    arr.push(line);
+    localStorage.setItem(key, JSON.stringify(arr));
+    return { ok:true, via:"localStorage", key };
+  }
+
+  function buildLine(){
+    const support = (q('input[name="support"]:checked')?.value || "").trim();
+    const impression = (q('input[name="impression"]:checked')?.value || "").trim();
+
+    const matiere = getCheckedText('#listeMatieres');
+    const variante = getCheckedText('#listeVariantes');
+    const decoupe = getCheckedText('#decoupeContainer');
+    const lamination = getCheckedText('#laminationContainer');
+    const blanc = getCheckedText('#blancContainer');
+
+    // oeillets : parfois checkboxes / radios → on prend tout ce qui est coché
+    const oeillets = getCheckedTexts('#oeilletsContainer');
+
+    const w = parseInt(q('#largeur')?.value || "0", 10);
+    const h = parseInt(q('#hauteur')?.value || "0", 10);
+    const qty = Math.max(1, parseInt(q('#quantite')?.value || "1", 10) || 1);
+
+    const totalHT = extractTotalFromRecap();
+
+    const parts = [];
+    if(support) parts.push(support === "souple" ? "Support souple" : "Support rigide");
+    if(impression) parts.push(impression === "avec" ? "Avec impression" : "Sans impression");
+    if(matiere) parts.push(matiere);
+    if(variante) parts.push(variante);
+    if(decoupe) parts.push("Découpe : " + decoupe);
+    if(lamination) parts.push("Lamination : " + lamination);
+    if(blanc) parts.push("Blanc : " + blanc);
+    if(oeillets.length) parts.push("Œillets : " + oeillets.join(", "));
+    if(w>0 && h>0) parts.push(`Format : ${w}×${h} mm`);
+
+    const designation = parts.join(" • ") || "Supports Souples, Rigides & Adhésifs";
+
+    const line = {
+      // champs “larges” pour compatibilité
+      designation,
+      description: designation,
+      produit: "Supports Souples, Rigides & Adhésifs",
+      configurateur: "Supports Souples, Rigides & Adhésifs",
+      qte: qty,
+      qty: qty,
+      unite: "u",
+      unit: "u",
+      largeur_mm: Number.isFinite(w) ? w : null,
+      hauteur_mm: Number.isFinite(h) ? h : null,
+      total_ht: totalHT,
+      totalHT: totalHT,
+      pu_ht: (totalHT != null ? (totalHT / qty) : null),
+      tva: 0.20,
+      createdAt: new Date().toISOString()
+    };
+
+    return line;
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const addBtn = q('#addToDevisBtn');
+    const resetBtn = q('#resetBtn');
+
+    if(addBtn){
+      addBtn.addEventListener('click', function(){
+        const line = buildLine();
+        const res = addLineToDevis(line);
+
+        // feedback simple + retour devis
+        const go = confirm("Ligne ajoutée au devis ✅\n\nVoulez-vous revenir au devis maintenant ?");
+        if(go) location.href = "../index.html";
+      });
+    }
+
+    if(resetBtn){
+      resetBtn.addEventListener('click', function(){
+        const ok = confirm("Réinitialiser ce configurateur ?");
+        if(ok) location.reload();
+      });
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
-
