@@ -202,15 +202,27 @@
   const TVA_RATE = 0.20;
 
   function genId(){
-    try{
-      if(window.crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID();
-    }catch(e){}
+    try{ if(window.crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID(); }catch(e){}
     return "L_" + Date.now() + "_" + Math.random().toString(16).slice(2);
   }
-
   function round2(n){
     n = Number(n);
     return Number.isFinite(n) ? Math.round(n * 100) / 100 : 0;
+  }
+  function toNum(str){
+    const n = parseFloat(String(str).replace(/\s+/g,'').replace(',', '.'));
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function getDiscountRate(){
+    try{
+      const p = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
+      if(typeof p.discountRate === "number" && !isNaN(p.discountRate)){
+        // discountRate est un taux (0.10 = 10%)
+        return Math.max(0, Math.min(0.90, p.discountRate));
+      }
+    }catch(e){}
+    return 0;
   }
 
   function getCheckedText(containerSel){
@@ -221,7 +233,6 @@
     const lab = checked.closest('label');
     return (lab ? lab.textContent : checked.value || "").trim();
   }
-
   function getCheckedTexts(containerSel){
     const root = q(containerSel);
     if(!root) return [];
@@ -232,38 +243,76 @@
     }).filter(Boolean);
   }
 
-  function extractTotalFromRecap(){
+  // ✅ Cherche explicitement "client" / "public" dans les lignes du recap
+  function extractTotalsFromRecap(){
     const recap = q('#recap');
-    if(!recap) return null;
+    if(!recap) return { usedHT: 0, source: "none", clientHT: null, publicHT: null };
 
-    const texts = [];
-    texts.push(recap.innerText || recap.textContent || "");
-    recap.querySelectorAll('*').forEach(el=>{
-      const t = (el.innerText || el.textContent || "").trim();
-      if(t && t.length <= 250) texts.push(t);
-    });
-
-    const joined = texts.join("\n");
+    const raw = (recap.innerText || recap.textContent || "").split("\n").map(s=>s.trim()).filter(Boolean);
 
     const moneyRe = /(\d[\d\s]*([.,]\d+)?)\s*(?:€|eur\b)/gi;
-    let m;
-    const candidates = [];
-    while((m = moneyRe.exec(joined)) !== null){
-      const num = parseFloat(String(m[1]).replace(/\s+/g,'').replace(',', '.'));
-      if(Number.isFinite(num)) candidates.push(num);
-    }
 
-    if(candidates.length === 0){
-      const totalRe = /total[^0-9]{0,25}(\d[\d\s]*([.,]\d+)?)/i;
-      const mt = joined.match(totalRe);
-      if(mt){
-        const num = parseFloat(String(mt[1]).replace(/\s+/g,'').replace(',', '.'));
-        if(Number.isFinite(num)) candidates.push(num);
+    function amountsInLine(line){
+      const nums = [];
+      let m;
+      while((m = moneyRe.exec(line)) !== null){
+        const n = toNum(m[1]);
+        if(n != null) nums.push(n);
       }
+      moneyRe.lastIndex = 0;
+      return nums;
     }
 
-    if(candidates.length === 0) return null;
-    return round2(Math.max(...candidates));
+    const clientLines = [];
+    const publicLines = [];
+    const otherLines  = [];
+
+    for(const line of raw){
+      const nums = amountsInLine(line);
+      if(!nums.length) continue;
+
+      const low = line.toLowerCase();
+
+      // on préfère HT (si jamais il y a TTC aussi)
+      const isHT = low.includes("ht") && !low.includes("ttc");
+      const payload = { line, nums, max: Math.max(...nums), isHT };
+
+      if(low.includes("client")) clientLines.push(payload);
+      else if(low.includes("public")) publicLines.push(payload);
+      else otherLines.push(payload);
+    }
+
+    function pickBest(list){
+      if(!list.length) return null;
+      // priorité aux lignes HT, puis à celles qui contiennent "total" ou "prix"
+      const ht = list.filter(x=>x.isHT);
+      const pool = ht.length ? ht : list;
+      const withTotal = pool.filter(x => /total|prix/i.test(x.line));
+      const pool2 = withTotal.length ? withTotal : pool;
+      return round2(Math.max(...pool2.map(x=>x.max)));
+    }
+
+    const clientHT = pickBest(clientLines);
+    const publicHT = pickBest(publicLines);
+
+    // fallback : plus grand montant “autre”
+    const fallbackHT = otherLines.length ? round2(Math.max(...otherLines.map(x=>x.max))) : null;
+
+    // ✅ règle finale
+    if(clientHT != null){
+      return { usedHT: clientHT, source: "client", clientHT, publicHT };
+    }
+
+    // Si pas de "client", mais une ligne "public" et une remise profil => on calcule client
+    const dr = getDiscountRate();
+    if(publicHT != null && dr > 0){
+      return { usedHT: round2(publicHT * (1 - dr)), source: "public*remise", clientHT: null, publicHT };
+    }
+
+    // sinon on prend le meilleur fallback
+    if(publicHT != null) return { usedHT: publicHT, source: "public", clientHT: null, publicHT };
+    if(fallbackHT != null) return { usedHT: fallbackHT, source: "fallback", clientHT: null, publicHT: null };
+    return { usedHT: 0, source: "none", clientHT: null, publicHT: null };
   }
 
   function readStore(){
@@ -302,27 +351,28 @@
 
     const designation = parts.join(" • ") || "Supports Souples, Rigides & Adhésifs";
 
-    const totalHT = extractTotalFromRecap();
-    const safeTotalHT = (totalHT != null ? totalHT : 0);
-    const puHT = safeTotalHT / qty;
+    const totals = extractTotalsFromRecap();
+    const totalHT = totals.usedHT;
+
+    const puHT = round2(totalHT / qty);
 
     const id = genId();
 
-    // ✅ FORMAT EXACT attendu par ton index.html / Devis-core
     return {
       id,
       type: "configurateur",
       designation,
       quantite: qty,
-      pu_net_ht: round2(puHT),
-      total_ligne_ht: round2(round2(puHT) * qty),
-
-      // meta (n’impacte pas le devis, mais utile)
+      pu_net_ht: puHT,
+      total_ligne_ht: round2(puHT * qty),
       meta: {
         configurateur: "Supports Souples, Rigides & Adhésifs",
         largeur_mm: Number.isFinite(w) ? w : null,
         hauteur_mm: Number.isFinite(h) ? h : null,
-        totalHT_detected: totalHT,
+        prix_source: totals.source,
+        clientHT_detecte: totals.clientHT,
+        publicHT_detecte: totals.publicHT,
+        discountRate: getDiscountRate(),
         tva: TVA_RATE
       }
     };
@@ -347,11 +397,12 @@
 
           const msg =
             "Ligne ajoutée au devis ✅\n\n" +
+            "Source prix : " + (line.meta?.prix_source || "?") + "\n" +
             "PU HT (net) : " + line.pu_net_ht.toFixed(2).replace('.', ',') + " €\n" +
             "Total HT : " + line.total_ligne_ht.toFixed(2).replace('.', ',') + " €\n\n" +
             "Revenir au devis maintenant ?";
 
-          if(confirm(msg)) location.href = "/"; // ✅ retour index
+          if(confirm(msg)) location.href = "/";
         }catch(err){
           console.error(err);
           alert("Erreur Ajouter au devis : " + (err?.message || err));
@@ -367,6 +418,7 @@
   });
 })();
 </script>
+
 
 </body>
 </html>
