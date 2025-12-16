@@ -535,7 +535,7 @@
 })();
 </script>
 
-<!-- ✅ UI RÉCAP : masquages demandés (œillets si 0 + ne garder que prix client) -->
+<!-- ✅ UI RÉCAP : masquages demandés (anti-boucle) -->
 <script>
 (function(){
   const norm = (s) => (s || "")
@@ -543,53 +543,82 @@
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, ""); // enlève accents
 
+  let cleaning = false;
+  let pending = false;
+  let obs = null;
+
   function cleanupRecap(){
     const recap = document.getElementById("recap");
     if(!recap) return;
+    if(cleaning) return;
 
-    // 1) Masquer "Œillets : 0" (ou oeillets 0)
-    Array.from(recap.querySelectorAll("p")).forEach(p => {
-      const t = norm(p.textContent);
-      if(t.includes("oeillet")){
-        // récupère le nombre après ":"
-        const m = p.textContent.match(/:\s*([0-9]+)/);
-        const n = m ? parseInt(m[1], 10) : 0;
-        if(!n) p.remove();
-      }
-    });
+    cleaning = true;
 
-    // 2) Supprimer "Prix public" + "Remise client"
-    Array.from(recap.querySelectorAll("p")).forEach(p => {
-      const t = norm(p.textContent);
-      if(t.includes("prix public") || t.includes("remise client")){
-        p.remove();
-      }
-    });
+    // 🔒 stop observer pendant qu'on modifie le DOM
+    try { if (obs) obs.disconnect(); } catch(e){}
 
-    // 3) Renommer le libellé "Prix client HT" => "Prix client hors-taxe"
-    Array.from(recap.querySelectorAll("p b")).forEach(b => {
-      const t = norm(b.textContent);
-      if(t.includes("prix client")){
-        b.textContent = "Prix client hors-taxe :";
-      }
-    });
+    try{
+      // 1) Masquer "Œillets : 0"
+      Array.from(recap.querySelectorAll("p")).forEach(p => {
+        const t = norm(p.textContent);
+        if(t.includes("oeillet")){
+          const m = p.textContent.match(/:\s*([0-9]+)/);
+          const n = m ? parseInt(m[1], 10) : 0;
+          if(!n) p.remove();
+        }
+      });
 
-    // 4) Enlever le <hr> (si tu veux un récap plus clean)
-    Array.from(recap.querySelectorAll("hr")).forEach(hr => hr.remove());
+      // 2) Supprimer "Prix public" + "Remise client"
+      Array.from(recap.querySelectorAll("p")).forEach(p => {
+        const t = norm(p.textContent);
+        if(t.includes("prix public") || t.includes("remise client")){
+          p.remove();
+        }
+      });
+
+      // 3) Renommer "Prix client ..." => "Prix client hors-taxe"
+      Array.from(recap.querySelectorAll("p b")).forEach(b => {
+        const t = norm(b.textContent);
+        if(t.includes("prix client") && !t.includes("hors-taxe")){
+          b.textContent = "Prix client hors-taxe :";
+        }
+      });
+
+      // 4) Enlever le <hr> (optionnel, mais tu voulais un récap plus clean)
+      Array.from(recap.querySelectorAll("hr")).forEach(hr => hr.remove());
+
+    } finally {
+      // 🔓 relance observer (seulement quand #recap est ré-écrit)
+      try{
+        if (obs) {
+          obs.observe(recap, { childList: true }); // childList suffit (renderRecap remplace le contenu)
+        }
+      }catch(e){}
+      cleaning = false;
+    }
   }
 
   document.addEventListener("DOMContentLoaded", () => {
     const recap = document.getElementById("recap");
     if(!recap) return;
 
-    cleanupRecap();
+    // observer : on déclenche 1 nettoyage par frame max
+    obs = new MutationObserver(() => {
+      if (cleaning || pending) return;
+      pending = true;
+      requestAnimationFrame(() => {
+        pending = false;
+        cleanupRecap();
+      });
+    });
 
-    // observe les mises à jour (quand renderRecap ré-écrit #recap)
-    const obs = new MutationObserver(() => cleanupRecap());
-    obs.observe(recap, { childList:true, subtree:true });
+    // 1er nettoyage + armement
+    cleanupRecap();
+    obs.observe(recap, { childList: true });
   });
 })();
 </script>
+
 
 </body>
 </html>
