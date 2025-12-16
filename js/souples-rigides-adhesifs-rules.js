@@ -37,13 +37,13 @@ const MATERIAL_RULES = {
         },
         "opaque_renforce": {
           label: "Opaque — colle renforcée",
-          blanc: [], 
+          blanc: [],
           decoupe: ["Format", "Complexe"],
           lamination: ["Brillante", "Mate", "Anti-dérapante"]
         },
         "opaque_standard": {
           label: "Opaque — colle standard",
-          blanc: [], 
+          blanc: [],
           decoupe: ["Format", "Complexe"],
           lamination: ["Brillante", "Mate", "Anti-graffiti"]
         }
@@ -57,11 +57,11 @@ const MATERIAL_RULES = {
           label: "Transparent",
           blanc: ["Avec blanc", "Sans blanc"],
           decoupe: ["Format", "Complexe"],
-          lamination: [] 
+          lamination: []
         },
         "opaque": {
           label: "Opaque",
-          blanc: [], 
+          blanc: [],
           decoupe: ["Format", "Complexe"],
           lamination: []
         }
@@ -182,6 +182,7 @@ const MATERIAL_RULES = {
 
 /* ---------------------------------------------------
    4 — MATIÈRES RIGIDES — SANS IMPRESSION
+   ✅ Aquilux 3,5 mm RETIRÉ ici (non disponible sans impression)
 --------------------------------------------------- */
 
   "rigide_sans": {
@@ -189,13 +190,7 @@ const MATERIAL_RULES = {
     "pvc5": { label: "PVC 5 mm", variants: null, blanc: [], decoupe: ["Format", "Complexe"], lamination: [] },
     "pvc10": { label: "PVC 10 mm", variants: null, blanc: [], decoupe: ["Format", "Complexe"], lamination: [] },
 
-    "akilux35": {
-      label: "Akilux 3,5 mm",
-      variants: null,
-      blanc: [],
-      decoupe: ["Format"],
-      lamination: []
-    },
+    // ❌ "akilux35" supprimé ici
 
     "plexi3": plexiRule("Plexi 3 mm"),
     "plexi5": plexiRule("Plexi 5 mm"),
