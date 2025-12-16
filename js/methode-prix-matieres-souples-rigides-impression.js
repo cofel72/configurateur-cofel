@@ -83,8 +83,13 @@ function loadTarifsMatieresSR() {
     COFEL_TARIFS_SR_PROMISE = fetch("../data/prix-matieres-souples-rigides-impression.json")
       .then((res) => res.json())
       .then((data) => {
-        const map = normaliserTarifs(data);
-        console.log("Tarifs matières SR chargés :", map);
+        // ✅ IMPORTANT : tes prix matières sont dans data.matieres
+        const src = (data && typeof data === "object" && data.matieres)
+          ? data.matieres
+          : data;
+
+        const map = normaliserTarifs(src);
+        console.log("Tarifs matières SR chargés (MATIERES) :", map);
         return map;
       })
       .catch((err) => {
@@ -94,6 +99,7 @@ function loadTarifsMatieresSR() {
   }
   return COFEL_TARIFS_SR_PROMISE;
 }
+
 
 // ------------------------
 // 3. OUTILS
