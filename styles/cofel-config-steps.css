@@ -1,1 +1,97 @@
+<style>
+  :root{
+    --violet:#5a2d82;
+    --violet-2:#7838a7;
+    --glass: rgba(255,255,255,.08);
+    --glass-hr: rgba(255,255,255,.14);
+    --txt:#f5f7ff;
+    --txt-dim:#e6e6ff;
+    --accent:#c9b7ff;
+    --radius:18px;
+    --blur:18px;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; color:var(--txt);
+    background: linear-gradient(135deg, var(--violet), var(--violet-2));
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
+  }
 
+  /* HEADER */
+  .cofel-header{
+    position:sticky; top:0; z-index:1000; padding:8px 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
+    border-bottom:1px solid rgba(255,255,255,.2);
+    backdrop-filter: blur(var(--blur));
+  }
+  .cofel-header .row{
+    display:flex; align-items:center; gap:12px; max-width:1200px; margin:auto;
+  }
+  .cofel-back{
+    color:white; text-decoration:none;
+    padding:8px 14px; border-radius:12px;
+    border:1px solid rgba(255,255,255,.35);
+  }
+  .cofel-brand img{height:36px; border-radius:8px;}
+
+  /* CONTAINER */
+  .wrapper{ max-width:1100px; margin:0 auto; padding:20px; }
+  h1{text-align:center; margin-bottom:10px;}
+
+  /* STEPS NAV */
+  .steps-nav{
+    display:flex; justify-content:center; gap:10px;
+    flex-wrap:wrap; padding:10px 0; margin-bottom:20px;
+  }
+  .step-item{
+    padding:6px 12px; border-radius:12px;
+    border:1px solid rgba(255,255,255,.25);
+    background:rgba(255,255,255,.08);
+    font-size:14px; cursor:pointer;
+    opacity:.45; transition:.15s;
+  }
+  .step-item.active{
+    opacity:1; border-color:white; font-weight:700; text-decoration:underline;
+  }
+  .step-item.locked{
+    cursor:not-allowed; opacity:.2;
+  }
+
+  /* SECTIONS */
+  .step-section{ display:none; }
+  .step-section.active{ display:block; }
+
+  fieldset{
+    border:1px solid rgba(255,255,255,.2);
+    border-radius:20px; padding:16px; margin:18px 0;
+    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
+    backdrop-filter: blur(var(--blur));
+    box-shadow:var(--shadow);
+  }
+  legend{ padding:0 10px; font-weight:800; }
+
+  .radio-row{
+    display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;
+  }
+  .radio-row label{
+    display:flex; align-items:center; gap:8px;
+    padding:10px 14px; border-radius:14px;
+    background: rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.24);
+    cursor:pointer; font-weight:700;
+  }
+
+  .hint{ font-size:13px; opacity:.85; margin-top:8px; }
+
+  .nav-buttons{
+    margin-top:20px; text-align:center;
+    display:flex; justify-content:center; gap:20px;
+  }
+  .btn-nav{
+    padding:10px 18px; font-weight:700; border-radius:12px;
+    border:none; cursor:pointer;
+    background:white; color:#222;
+    box-shadow:0 6px 18px rgba(0,0,0,.25);
+  }
+</style>
