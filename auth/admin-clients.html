@@ -163,14 +163,15 @@
       border-bottom:none;
     }
 
-    /* ajouter les labels automatiquement */
+    /* ajouter les labels automatiquement (8 colonnes) */
     table td:nth-child(1)::before{content:"Email : "; color:#c9b7ff;}
     table td:nth-child(2)::before{content:"Société : "; color:#c9b7ff;}
     table td:nth-child(3)::before{content:"Contact : "; color:#c9b7ff;}
     table td:nth-child(4)::before{content:"Remise : "; color:#c9b7ff;}
-    table td:nth-child(5)::before{content:"Configs : "; color:#c9b7ff;}
-    table td:nth-child(6)::before{content:"Statut : "; color:#c9b7ff;}
-    table td:nth-child(7)::before{content:"Actions : "; color:#c9b7ff;}
+    table td:nth-child(5)::before{content:"Remise SR : "; color:#c9b7ff;}
+    table td:nth-child(6)::before{content:"Configs : "; color:#c9b7ff;}
+    table td:nth-child(7)::before{content:"Statut : "; color:#c9b7ff;}
+    table td:nth-child(8)::before{content:"Actions : "; color:#c9b7ff;}
 
     /* boutons plus espacés */
     .btn-row{
@@ -189,7 +190,7 @@
   }
 
   /*******************************
-       MODALES (pas modifiées)
+       MODALES
   *******************************/
   #modalApprove,#modalCreate{
     position:fixed;
@@ -230,13 +231,11 @@
   .btn-cancel{background:rgba(255,255,255,.15);color:#fff;}
 </style>
 
-
 </head>
 
 <body>
 
 <script>
-// Vérifier que l'utilisateur connecté est l'administrateur
 /****************************************************
  * PROTECTION ADMIN — accès réservé aux FULL ADMINS
  ****************************************************/
@@ -244,22 +243,21 @@ const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}")
 
 // Emails autorisés en administration complète
 const FULL_ADMINS = [
-    "commercial@cofel72.fr"   // toi
+  "commercial@cofel72.fr"   // toi
 ];
 
 // Si l'utilisateur n'est pas un administrateur complet → accès refusé
 if (!FULL_ADMINS.includes(profile.email || "")) {
-    alert("⛔ Accès réservé à l'administrateur complet.");
-    window.location.href = "../index.html";
+  alert("⛔ Accès réservé à l'administrateur complet.");
+  window.location.href = "../index.html";
 }
-
 </script>
 
 <div class="shell">
 
   <header>
     <div class="brand">
-      <img src="../assets/logo cofel.jpg">
+      <img src="../assets/logo cofel.jpg" alt="Cofel">
       <h1>Administration des comptes clients</h1>
     </div>
 
@@ -279,21 +277,22 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
   <div id="clients" class="tab-panel active">
 
     <!-- 🔎 RECHERCHE CLIENTS -->
-  <input 
-    id="searchClient" 
-    type="text" 
-    placeholder="Rechercher (email, société, contact…)" 
-    style="
-      width:100%; 
-      padding:12px; 
-      border-radius:8px; 
-      border:1px solid rgba(255,255,255,.25); 
-      margin-bottom:14px; 
-      font-size:15px;
-      background:rgba(255,255,255,.08);
-      color:white;
-    "
-  />
+    <input
+      id="searchClient"
+      type="text"
+      placeholder="Rechercher (email, société, contact…)"
+      style="
+        width:100%;
+        padding:12px;
+        border-radius:8px;
+        border:1px solid rgba(255,255,255,.25);
+        margin-bottom:14px;
+        font-size:15px;
+        background:rgba(255,255,255,.08);
+        color:white;
+      "
+    />
+
     <div class="card">
       <div class="table-container">
         <table>
@@ -303,13 +302,14 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
               <th>Société</th>
               <th>Contact</th>
               <th>Remise</th>
+              <th>Remise SR</th>
               <th>Configs</th>
               <th>Statut</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="tbodyClients">
-            <tr><td colspan="7" class="empty">Chargement…</td></tr>
+            <tr><td colspan="8" class="empty">Chargement…</td></tr>
           </tbody>
         </table>
       </div>
@@ -350,6 +350,11 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
         <input id="approveDiscount" type="number" min="0" max="90" value="0">
       </div>
 
+      <div class="modal-field">
+        <label>Remise SR (%)</label>
+        <input id="approveDiscountSR" type="number" min="0" max="90" value="0">
+      </div>
+
       <div class="modal-actions">
         <button class="btn-modal btn-cancel" id="approveCancel">Annuler</button>
         <button class="btn-modal btn-ok" id="approveSave">Approuver</button>
@@ -382,6 +387,11 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
       <div class="modal-field">
         <label>Remise (%)</label>
         <input id="createDiscount" type="number" min="0" max="90" value="0">
+      </div>
+
+      <div class="modal-field">
+        <label>Remise SR (%)</label>
+        <input id="createDiscountSR" type="number" min="0" max="90" value="0">
       </div>
 
       <div class="modal-actions">
@@ -421,8 +431,8 @@ tabButtons.forEach(btn => {
 /* ===================== TABLEAU CLIENTS ===================== */
 
 const tbodyClients = document.getElementById("tbodyClients");
-/* ===================== RECHERCHE CLIENTS ===================== */
 
+/* ===================== RECHERCHE CLIENTS ===================== */
 document.getElementById("searchClient").addEventListener("input", function () {
   const term = this.value.toLowerCase().trim();
   const rows = document.querySelectorAll("#tbodyClients tr");
@@ -445,13 +455,13 @@ function formatDate(iso){
 }
 
 async function loadClients(){
-  tbodyClients.innerHTML = `<tr><td colspan="7" class="empty">Chargement…</td></tr>`;
+  tbodyClients.innerHTML = `<tr><td colspan="8" class="empty">Chargement…</td></tr>`;
   try{
     const r = await fetch(`${WORKER_BASE}/clients`);
     const data = await r.json();
 
     if(!data.clients || !data.clients.length){
-      tbodyClients.innerHTML = `<tr><td colspan="7" class="empty">Aucun client.</td></tr>`;
+      tbodyClients.innerHTML = `<tr><td colspan="8" class="empty">Aucun client.</td></tr>`;
       return;
     }
 
@@ -465,6 +475,7 @@ async function loadClients(){
           <td>${c.company || "—"}</td>
           <td>${c.contact_name || "—"}</td>
           <td>${formatRate(c.discount_rate)}</td>
+          <td>${formatRate(c.discount_sr)}</td>
           <td>${configs.join(", ") || "—"}</td>
           <td>${status}</td>
           <td>
@@ -477,7 +488,7 @@ async function loadClients(){
     }).join("");
 
   } catch(err){
-    tbodyClients.innerHTML = `<tr><td colspan="7" class="empty">Erreur de chargement.</td></tr>`;
+    tbodyClients.innerHTML = `<tr><td colspan="8" class="empty">Erreur de chargement.</td></tr>`;
   }
 }
 
@@ -535,7 +546,7 @@ let approvalTargetId = null;
 
 async function loadRequests(){
   reqTbody.innerHTML = `<tr><td colspan="7" class="empty">Chargement…</td></tr>`;
-  
+
   try{
     const r = await fetch(`${WORKER_BASE}/pending-requests`);
     const data = await r.json();
@@ -589,6 +600,9 @@ reqTbody.addEventListener("click", async e => {
   /* Approuver */
   if (e.target.classList.contains("btn-approve")){
     approvalTargetId = id;
+    // reset champs
+    document.getElementById("approveDiscount").value = "0";
+    document.getElementById("approveDiscountSR").value = "0";
     document.getElementById("modalApprove").style.display = "flex";
   }
 });
@@ -605,6 +619,7 @@ loadRequests();
 /* APPROBATION */
 const modalApprove = document.getElementById("modalApprove");
 const approveDiscount = document.getElementById("approveDiscount");
+const approveDiscountSR = document.getElementById("approveDiscountSR");
 const approveMsg = document.getElementById("approveMsg");
 
 document.getElementById("approveCancel").onclick = () => {
@@ -628,6 +643,12 @@ document.getElementById("approveSave").onclick = async () => {
     return;
   }
 
+  const discountSR = Number(approveDiscountSR.value || 0);
+  if (discountSR < 0 || discountSR > 90){
+    approveMsg.textContent = "Remise SR invalide.";
+    return;
+  }
+
   try{
     const res = await fetch(`${WORKER_BASE}/admin-approve`, {
       method: "POST",
@@ -635,6 +656,7 @@ document.getElementById("approveSave").onclick = async () => {
       body: JSON.stringify({
         requestId: approvalTargetId,
         discount: discount,
+        discount_sr: discountSR,
         configs: [
           "enseigne-drapeau",
           "lettre-alu-alupvc",
@@ -643,7 +665,8 @@ document.getElementById("approveSave").onclick = async () => {
           "rampe-lumineuse",
           "tole-tablette",
           "tolerie-dibond",
-          "totems"
+          "totems",
+          "souples-rigides-adhesifs"
         ]
       })
     });
@@ -672,6 +695,7 @@ const createEmail   = document.getElementById("createEmail");
 const createCompany = document.getElementById("createCompany");
 const createName    = document.getElementById("createName");
 const createDiscount= document.getElementById("createDiscount");
+const createDiscountSR= document.getElementById("createDiscountSR");
 const createMsg     = document.getElementById("createMsg");
 
 btnCreate.onclick = () => {
@@ -679,6 +703,7 @@ btnCreate.onclick = () => {
   createCompany.value = "";
   createName.value    = "";
   createDiscount.value= "0";
+  createDiscountSR.value= "0";
   createMsg.textContent = "";
   modalCreate.style.display = "flex";
 };
@@ -703,6 +728,12 @@ document.getElementById("createSave").onclick = async () => {
     return;
   }
 
+  const discountSR = Number(createDiscountSR.value || 0);
+  if (discountSR < 0 || discountSR > 90){
+    createMsg.textContent = "Remise SR incorrecte.";
+    return;
+  }
+
   try{
     const r = await fetch(`${WORKER_BASE}/client-create`, {
       method:"POST",
@@ -712,6 +743,7 @@ document.getElementById("createSave").onclick = async () => {
         company: (createCompany.value || "").trim(),
         name: (createName.value || "").trim(),
         discount,
+        discount_sr: discountSR,
         configs: [
           "enseigne-drapeau",
           "lettre-alu-alupvc",
@@ -720,7 +752,8 @@ document.getElementById("createSave").onclick = async () => {
           "rampe-lumineuse",
           "tole-tablette",
           "tolerie-dibond",
-          "totems"
+          "totems",
+          "souples-rigides-adhesifs"
         ]
       })
     });
