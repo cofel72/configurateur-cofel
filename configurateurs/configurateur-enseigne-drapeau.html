@@ -336,18 +336,15 @@ fetch(CSV_URL, {cache:"no-store"})
 
 <script src="../js/devis-core.js"></script>
 <script>
-const $ = id => document.getElementById(id);
-const numFR = v => parseFloat(String(v).replace(',', '.')) || 0;
-
 $('btnAddDevis').onclick = ()=>{
-  const q = Math.max(1, parseFloat(document.getElementById('quantite').value) || 1);
-  const ht = numFR(document.getElementById('prixHT').textContent);
+  const q = Math.max(1, parseFloat($('quantite').value) || 1);
+  const ht = numFR($('prixHT').textContent);
   if(!ht){ alert("Configuration incomplète"); return; }
 
-  const forme = document.getElementById('forme').value;
-  const dim   = document.getElementById('dimension').value;
+  const forme = $('forme').value;
+  const dim   = $('dimension').value;
   const fin   = document.querySelector('input[name="finition"]:checked')?.value || '';
-  const pot   = document.getElementById('potence').value;
+  const pot   = $('potence').value;
 
   const d = [
     forme,
@@ -358,7 +355,6 @@ $('btnAddDevis').onclick = ()=>{
 
   const pu = ht / q;
 
-  // Ligne "net" (pour éviter une double remise côté index)
   Devis.addLine({
     id: `EDR-${Date.now()}`,
     designation: `Enseigne drapeau — ${d}`,
@@ -366,7 +362,7 @@ $('btnAddDevis').onclick = ()=>{
     pu_net_ht: pu,
     total_ligne_ht: ht,
 
-    // compat éventuelle avec d'anciens affichages
+    // compat éventuelle
     type: "Enseigne Drapeau",
     pu_public_ht: pu
   });
@@ -375,5 +371,7 @@ $('btnAddDevis').onclick = ()=>{
 };
 </script>
 
+
 </body>
 </html>
+
