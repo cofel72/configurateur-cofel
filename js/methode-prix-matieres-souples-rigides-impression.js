@@ -172,29 +172,39 @@ function getTarifKeyForMaterial(state) {
  *    entre 0 et 1 (ex : 0.6 pour -60%) ou 0–100 (ex : 60).
  */
 function getClientDiscountSR() {
+  // ✅ Remise SR uniquement : pas de fallback sur la remise globale
+  // ✅ Si 0 / vide / absent / invalide / erreur => 0
   try {
     const raw = localStorage.getItem("cofel_client_profile");
     if (!raw) return 0;
+
     const profile = JSON.parse(raw);
     if (!profile) return 0;
 
-    let v = profile.discount_sr ?? 0;
-    if (typeof v === "string") v = v.replace(",", ".");
+    let v = profile.discount_sr;
+
+    // Absent / vide => 0
+    if (v === undefined || v === null || v === "") return 0;
+
+    // Normalisation "60" ou "0,6"
+    if (typeof v === "string") v = v.replace(",", ".").trim();
     v = Number(v);
+
+    // Invalide => 0
     if (!Number.isFinite(v)) return 0;
 
-    if (v > 1) {
-      // si c'est en %, ex : 60 → 0.6
-      return v / 100;
-    }
-    if (v < 0) return 0;
-    if (v > 0.9) return 0.9; // petit garde-fou
-    return v;
+    // Si > 1 => on considère un % (ex: 60 => 0.60)
+    let rate = (v > 1) ? (v / 100) : v;
+
+    // Garde-fous : si hors plage => 0
+    if (rate < 0 || rate > 0.9) return 0;
+
+    return rate;
   } catch (e) {
-    console.error("Erreur lecture remise SR :", e);
     return 0;
   }
 }
+
 
 // ------------------------
 // 4. CALCUL PRINCIPAL
