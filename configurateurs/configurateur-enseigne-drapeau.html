@@ -64,7 +64,8 @@
     <div class="radio-row" id="finitionRow">
       <label><input type="radio" name="finition" value="prelaque" checked> Prélaqué</label>
       <label><input type="radio" name="finition" value="laque"> Laqué</label>
-      <label><input type="radio" name="finition" value="ajour"> Ajourage lumineux</label>
+      <label><input type="radio" name="finition" value="ajour"> Faces Aluminium 20/10ème laquées + ajourage + PMMA 3 mm collé au dos + lumineux</label>
+
       <label><input type="radio" name="finition" value="pmma_df"> Double face PMMA lumineux</label>
     </div>
     <div id="helpFinition" class="hint"></div>
@@ -122,7 +123,7 @@ function getFinitionLabel(v = getFinition()){
   switch(v){
     case "prelaque": return "Prélaqué";
     case "laque":    return "Laqué";
-    case "ajour":    return "Ajourage lumineux";
+    case "ajour":    return "Faces Aluminium 20/10ème laquées + ajourage + PMMA 3 mm collé au dos + lumineux";
     case "pmma_df":  return "Double face PMMA lumineux";
     default:         return v || "";
   }
@@ -249,8 +250,6 @@ function applyFinitionAvailability(){
   let msg = "";
   if(elForme.value && norm(elForme.value).includes('rond') && !hasPrelaque){
     msg = "ℹ️ Sur les drapeaux ronds, la finition « Prélaqué » n’est pas tarifée dans le CSV : passe en « Laqué » (ou une finition lumineuse si disponible).";
-  }else if(getFinition()==='ajour'){
-    msg = "ℹ️ « Ajourage lumineux » = tarif avec option ajourage+lumineux (colonne opt_ajourage+lumineux).";
   }else if(getFinition()==='pmma_df'){
     msg = "ℹ️ « Double face PMMA lumineux » = tarif dédié (ligne CSV avec finition “double face PMMA lumineux”).";
   }else{
@@ -402,5 +401,6 @@ $('btnAddDevis').onclick = ()=>{
 
 </body>
 </html>
+
 
 
