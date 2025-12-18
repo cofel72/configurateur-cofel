@@ -65,6 +65,7 @@
       <label><input type="radio" name="finition" value="prelaque" checked> Prélaqué</label>
       <label><input type="radio" name="finition" value="laque"> Laqué</label>
       <label><input type="radio" name="finition" value="ajour"> Ajourage lumineux</label>
+      <label><input type="radio" name="finition" value="pmma_df"> Double face PMMA lumineux</label>
     </div>
     <div id="helpFinition" class="hint"></div>
   </fieldset>
@@ -116,6 +117,15 @@ function getFinition(){
 function setFinition(value){
   const r = document.querySelector(`input[name="finition"][value="${value}"]`);
   if(r && !r.disabled) r.checked = true;
+}
+function getFinitionLabel(v = getFinition()){
+  switch(v){
+    case "prelaque": return "Prélaqué";
+    case "laque":    return "Laqué";
+    case "ajour":    return "Ajourage lumineux";
+    case "pmma_df":  return "Double face PMMA lumineux";
+    default:         return v || "";
+  }
 }
 
 /* ================= CSV ================= */
@@ -202,39 +212,53 @@ function finitionsDisponibles(){
   let hasLaque    = base.some(r => norm(r[MAP.FIN]).includes('laque') && !isTruthy(r[MAP.AJ]));
   let hasAjour    = base.some(r => isTruthy(r[MAP.AJ]) || norm(r[MAP.FIN]).includes('ajour'));
 
-  return {hasPrelaque, hasLaque, hasAjour};
-}
+  let hasPmmaDF   = base.some(r => {
+    const fin = norm(r[MAP.FIN]);
+    return fin.includes('double') && fin.includes('face') && fin.includes('pmma');
+  });
 
+  return {hasPrelaque, hasLaque, hasAjour, hasPmmaDF};
+}
 function applyFinitionAvailability(){
-  const {hasPrelaque, hasLaque, hasAjour} = finitionsDisponibles();
+  const {hasPrelaque, hasLaque, hasAjour, hasPmmaDF} = finitionsDisponibles();
 
   const rPre = document.querySelector('input[name="finition"][value="prelaque"]');
   const rLaq = document.querySelector('input[name="finition"][value="laque"]');
   const rAjo = document.querySelector('input[name="finition"][value="ajour"]');
+  const rPmm = document.querySelector('input[name="finition"][value="pmma_df"]');
 
   if(rPre) rPre.disabled = !hasPrelaque;
   if(rLaq) rLaq.disabled = !hasLaque;
   if(rAjo) rAjo.disabled = !hasAjour;
+  if(rPmm) rPmm.disabled = !hasPmmaDF;
 
-  // Si la finition choisie n'est pas dispo (cas typique du "rond" en prélaqué), on bascule automatiquement
   const cur = getFinition();
-  if((cur==='prelaque' && !hasPrelaque) || (cur==='laque' && !hasLaque) || (cur==='ajour' && !hasAjour)){
+  const curDisabled =
+    (cur==='prelaque' && !hasPrelaque) ||
+    (cur==='laque'    && !hasLaque) ||
+    (cur==='ajour'    && !hasAjour) ||
+    (cur==='pmma_df'  && !hasPmmaDF);
+
+  if(curDisabled){
     if(hasLaque) setFinition('laque');
     else if(hasPrelaque) setFinition('prelaque');
     else if(hasAjour) setFinition('ajour');
+    else if(hasPmmaDF) setFinition('pmma_df');
   }
 
-  // Message d'aide
   let msg = "";
   if(elForme.value && norm(elForme.value).includes('rond') && !hasPrelaque){
-    msg = "ℹ️ Sur les drapeaux ronds, la finition « Prélaqué » n’est pas tarifée dans le CSV : passe en « Laqué » (ou « Ajourage lumineux » si disponible).";
+    msg = "ℹ️ Sur les drapeaux ronds, la finition « Prélaqué » n’est pas tarifée dans le CSV : passe en « Laqué » (ou une finition lumineuse si disponible).";
   }else if(getFinition()==='ajour'){
     msg = "ℹ️ « Ajourage lumineux » = tarif avec option ajourage+lumineux (colonne opt_ajourage+lumineux).";
+  }else if(getFinition()==='pmma_df'){
+    msg = "ℹ️ « Double face PMMA lumineux » = tarif dédié (ligne CSV avec finition “double face PMMA lumineux”).";
   }else{
     msg = "";
   }
   elHelp.textContent = msg;
 }
+
 
 /* ================= CALCUL ================= */
 function findRow(){
@@ -243,7 +267,6 @@ function findRow(){
   return ROWS.find(r => {
     const okForme = r[MAP.FORME] === elForme.value;
     const okDim   = r[MAP.DIM]   === elDim.value;
-
     if(!okForme || !okDim) return false;
 
     const fin = norm(r[MAP.FIN]);
@@ -255,10 +278,14 @@ function findRow(){
     if(finChoice === 'laque'){
       return fin.includes('laque') && !aj && !fin.includes('ajour');
     }
+    if(finChoice === 'pmma_df'){
+      return fin.includes('double') && fin.includes('face') && fin.includes('pmma');
+    }
     // ajour
     return aj || fin.includes('ajour') || (fin.includes('laque') && aj);
   });
 }
+
 
 function compute(){
   applyFinitionAvailability();
@@ -343,7 +370,8 @@ $('btnAddDevis').onclick = ()=>{
 
   const forme = $('forme').value;
   const dim   = $('dimension').value;
-  const fin   = document.querySelector('input[name="finition"]:checked')?.value || '';
+  const fin = getFinitionLabel();
+
   const pot   = $('potence').value;
 
   const d = [
@@ -374,4 +402,5 @@ $('btnAddDevis').onclick = ()=>{
 
 </body>
 </html>
+
 
