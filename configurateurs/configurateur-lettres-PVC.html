@@ -1,16 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1.0" />
-<title>Configurateur — Lettres PVC | Cofel</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Configurateur — Lettres PVC | Cofel</title>
 
-<link rel="stylesheet" href="../styles/cofel.css">
-<link rel="stylesheet" href="../styles/cofel-components.css">
-<link rel="stylesheet" href="../styles/cofel-glass.css">
-
+  <link rel="stylesheet" href="../styles/cofel.css">
+  <link rel="stylesheet" href="../styles/cofel-components.css">
+  <link rel="stylesheet" href="../styles/cofel-glass.css">
 </head>
-
 
 <body>
 
@@ -19,7 +17,7 @@
     <a class="cofel-back" href="../index.html">⬅ Retour accueil (Devis)</a>
     <div class="cofel-brand">
       <img src="../assets/logo cofel.jpg" alt="Cofel" />
-      <h1 class="cofel-title">Configurateur — Rampe lumineuse (PLL)</h1>
+      <h1 class="cofel-title">Configurateur — Lettres PVC</h1>
     </div>
   </div>
 </header>
@@ -75,9 +73,10 @@
 
   <!-- === LONGUEUR LISSE === -->
   <div id="blockLisse" class="notice-glass hidden" style="margin-top:10px;">
-      <label for="lisseLongueur">Longueur de la lisse (mm)</label>
-      <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 3000">
+    <label for="lisseLongueur">Longueur de la lisse (mm)</label>
+    <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 3000">
   </div>
+
   <!-- === RÉSULTATS === -->
   <div class="result">
     <p>Prix unitaire HT : <span id="prixUHT">0,00</span> €</p>
@@ -85,27 +84,26 @@
     <p>Total TTC : <span id="prixTTC">0,00</span> €</p>
   </div>
 
- <div class="cofel-actions">
-  <button id="btnAddDevis" class="cofel-fab">
-    ➕ Ajouter au devis
-  </button>
-</div>
+  <div class="cofel-actions">
+    <button id="btnAddDevis" class="cofel-fab">➕ Ajouter au devis</button>
+  </div>
 
+</div>
 
 <footer class="cofel-footer">
   © Cofel — ZA du Perquoi, 72560 Changé — SIRET …
 </footer>
 
-
+<!-- ===================== MOTEUR DE DEVIS ===================== -->
 <script src="../js/devis-core.js"></script>
 
 <script>
 /* ================================
-   CONFIG GÉNÉRALE
+   CONFIG
 ================================ */
 const TVA = 0.20;
 const COEF_PUBLIC = 2;
- 
+const LISSE_PRICE_ML = 25; // €/ml interne (même méthode que Lettre ALU)
 
 const CSV_URL =
   "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/configurateurs/Lettre%20PVC.csv";
@@ -140,7 +138,7 @@ function euro(n) {
 }
 
 /* ================================
-   CHARGEMENT CSV
+   CSV
 ================================ */
 async function loadCSV() {
   const r = await fetch(CSV_URL, { cache: "no-store" });
@@ -184,27 +182,32 @@ async function loadCSV() {
   }
 }
 
-/* ================================
-   FONCTIONS CALCUL
-================================ */
 function findRowFor(h, e) {
   const pal = BY_THICK[e];
   if (!pal) return null;
 
   let chosen = pal[pal.length - 1];
   for (const v of pal) {
-    if (v >= h) {
-      chosen = v;
-      break;
-    }
+    if (v >= h) { chosen = v; break; }
   }
-
-  return DATA.find(
-    (r) => r.epaisseur === e && r.hauteur === chosen
-  );
+  return DATA.find((r) => r.epaisseur === e && r.hauteur === chosen);
 }
 
-/* ——— RÈGLE RÉTRO ——— */
+/* ================================
+   REMISE CLIENT (auto)
+================================ */
+function getRemiseClientFactor() {
+  let remiseClient = 1;
+  try {
+    const p = JSON.parse(localStorage.getItem("cofel_client_profile"));
+    if (p && typeof p.discountRate === "number") remiseClient = 1 - p.discountRate;
+  } catch (e) {}
+  return remiseClient;
+}
+
+/* ================================
+   UI RULES
+================================ */
 function updateRetroUI() {
   const e = parseFloat($("epaisseur").value) || 0;
   const retro = $("optRetro");
@@ -220,121 +223,120 @@ function updateRetroUI() {
   }
 }
 
-/* ——— RÈGLE LISSE ——— */
 function updateLisseUI() {
-  const box = document.getElementById("blockLisse");
-  const chk = document.getElementById("optLisse");
+  const box = $("blockLisse");
+  const chk = $("optLisse");
   if (!box || !chk) return;
   box.classList.toggle("hidden", !chk.checked);
 }
 
 /* ================================
-   COMPUTE()
+   CALCUL UNIQUE (AFFICHAGE + DEVIS)
 ================================ */
-function compute() {
-  /* remise client */
-  let remiseClient = 1;
-  try {
-    const p = JSON.parse(localStorage.getItem("cofel_client_profile"));
-    if (p && typeof p.discountRate === "number")
-      remiseClient = 1 - p.discountRate;
-  } catch (e) {}
-
-  const h = parseFloat($("hauteur").value) || 0;
+function calcUnitNet(row) {
   const e = parseFloat($("epaisseur").value) || 0;
-  const q = Math.max(1, parseInt($("quantite").value) || 1);
-
   const laq = $("optLaquage").checked;
   const fix = $("optFixation").checked;
   const retro = $("optRetro").checked;
   const useLisse = $("optLisse").checked;
 
+  // Base interne (CSV)
+  let unit_interne = (row.base || 0);
+  if (laq) unit_interne += (row.laquage || 0);
+  if (fix) unit_interne += (row.fixation || 0);
+  if (retro && e >= 19) unit_interne += (row.retro || 0);
+
+  // Pose sur lisse (interne) -> puis coef public -> puis remise client (comme Lettre ALU)
+  let lmm = 0, lml = 0;
+  if (useLisse) {
+    lmm = Number($("lisseLongueur").value || 0);
+    lml = lmm / 1000;
+    if (lml > 0) unit_interne += LISSE_PRICE_ML * lml;
+  }
+
+  const unit_public = unit_interne * COEF_PUBLIC;
+  const unit_net = unit_public * getRemiseClientFactor();
+
+  return { unit_interne, unit_public, unit_net, lmm, lml };
+}
+
+/* ================================
+   COMPUTE
+================================ */
+function compute() {
+  const h = parseFloat($("hauteur").value) || 0;
+  const e = parseFloat($("epaisseur").value) || 0;
+  const q = Math.max(1, parseInt($("quantite").value) || 1);
+
   const row = findRowFor(h, e);
   if (!row) {
-    ["prixUHT", "prixHT", "prixTTC"].forEach(
-      (id) => ($(id).textContent = "0,00")
-    );
+    $("prixUHT").textContent = "0,00";
+    $("prixHT").textContent = "0,00";
+    $("prixTTC").textContent = "0,00";
     return;
   }
 
-  let base = row.base || 0;
-  if (laq) base += row.laquage || 0;
-  if (fix) base += row.fixation || 0;
-  if (retro && e >= 19) base += row.retro || 0;
+  const { unit_net } = calcUnitNet(row);
 
-  /* ——— POSE SUR LISSE ——— */
-  let lisse_interne = 0;
-  if (useLisse) {
-    const mm = Number(document.getElementById("lisseLongueur").value || 0);
-    const ml = mm / 1000;
-    if (ml > 0) lisse_interne = 25 * ml;
-  }
+  const totalHT = unit_net * q;
+  const totalTTC = totalHT * (1 + TVA);
 
-  base += lisse_interne;
-
-  // === PRIX INTERNE ===
-const unit_interne = base;
-
-// === PRIX PUBLIC AVANT REMISE ===
-const unit_public = unit_interne * COEF_PUBLIC;
-
-// === PRIX NET CLIENT ===
-const unit = unit_public * remiseClient;
-
-  const tot = unit * q;
-  const ttc = tot * (1 + TVA);
-
-  $("prixUHT").textContent = euro(unit);
-  $("prixHT").textContent = euro(tot);
-  $("prixTTC").textContent = euro(ttc);
+  $("prixUHT").textContent = euro(unit_net);
+  $("prixHT").textContent  = euro(totalHT);
+  $("prixTTC").textContent = euro(totalTTC);
 }
 
 /* ================================
    EVENTS
 ================================ */
-["input", "change"].forEach((evt) => {
-  [
-    "hauteur",
-    "epaisseur",
-    "quantite",
-    "optLaquage",
-    "optFixation",
-    "optRetro",
-    "optLisse",
-    "lisseLongueur",
-  ].forEach((id) => {
-    const el = $(id);
-    if (!el) return;
-    el.addEventListener(evt, () => {
-      updateRetroUI();
-      updateLisseUI();
-      compute();
+function bindEvents() {
+  ["input", "change"].forEach((evt) => {
+    [
+      "hauteur",
+      "epaisseur",
+      "quantite",
+      "optLaquage",
+      "optFixation",
+      "optRetro",
+      "optLisse",
+      "lisseLongueur",
+    ].forEach((id) => {
+      const el = $(id);
+      if (!el) return;
+      el.addEventListener(evt, () => {
+        updateRetroUI();
+        updateLisseUI();
+        compute();
+      });
     });
   });
-});
+}
+
 /* ================================
    INIT
 ================================ */
-loadCSV().then(() => {
-  updateRetroUI();
-  updateLisseUI();
-  compute();
-});
+loadCSV()
+  .then(() => {
+    bindEvents();
+    updateRetroUI();
+    updateLisseUI();
+    compute();
+  })
+  .catch((e) => {
+    console.error(e);
+    alert("Erreur lors du chargement du CSV Lettre PVC.");
+  });
 
 /* ================================
-   BOUTON "AJOUTER AU DEVIS"
+   AJOUT AU DEVIS
 ================================ */
-document.getElementById("btnAddDevis").addEventListener("click", () => {
+$("btnAddDevis").addEventListener("click", () => {
   try {
     if (!window.Devis) throw new Error("Module devis introuvable.");
 
-    const h = parseFloat(hauteur.value) || 0;
-    const e = parseFloat(epaisseur.value) || 0;
-    const q = Math.max(1, parseInt(quantite.value) || 1);
-    const laq = optLaquage.checked;
-    const fix = optFixation.checked;
-    const retro = optRetro.checked;
-    const useLisse = optLisse.checked;
+    const h = parseFloat($("hauteur").value) || 0;
+    const e = parseFloat($("epaisseur").value) || 0;
+    const q = Math.max(1, parseInt($("quantite").value) || 1);
 
     const row = findRowFor(h, e);
     if (!row) {
@@ -342,62 +344,35 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
       return;
     }
 
-    /* remise client */
-    let remiseClient = 1;
-    try {
-      const p = JSON.parse(localStorage.getItem("cofel_client_profile"));
-      if (p && typeof p.discountRate === "number")
-        remiseClient = 1 - p.discountRate;
-    } catch (e) {}
+    // Calcule EXACTEMENT comme l’affichage
+    const laq = $("optLaquage").checked;
+    const fix = $("optFixation").checked;
+    const retro = $("optRetro").checked;
 
-    /* prix unitaire */
-    let base = row.base || 0;
-    if (laq) base += row.laquage || 0;
-    if (fix) base += row.fixation || 0;
-    if (retro && e >= 19) base += row.retro || 0;
+    const { unit_net, lmm, lml } = calcUnitNet(row);
 
-    /* —— POSE SUR LISSE ——— */
-    let lisseTxt = "";
-    if (useLisse) {
-      const mm = Number(lisseLongueur.value || 0);
-      const ml = mm / 1000;
-      if (ml > 0) {
-        base += 25 * ml; // prix interne
-        lisseTxt = ` — Pose sur lisse — ${mm} mm (${ml.toFixed(2)} ml)`;
-      }
-    }
-
-    // === PRIX INTERNE ===
-const pu_interne = base;
-
-// === PRIX PUBLIC AVANT REMISE ===
-const pu_public = pu_interne * COEF_PUBLIC;
-
-// === PRIX NET CLIENT ===
-const pu = pu_public * remiseClient;
-
-
-    /* désignation */
     let designation = `Lettre PVC ${h} mm (ép. ${e} mm)`;
     if (laq) designation += " — Laquage";
     if (fix) designation += " — Fixation";
     if (retro && e >= 19) designation += " — Rétroéclairage";
-    if (lisseTxt) designation += lisseTxt;
+    if (lmm > 0) designation += ` — Pose sur lisse — ${lmm} mm (${lml.toFixed(2)} ml)`;
 
-    /* ajout ligne */
     Devis.addLine({
       type: "Lettre PVC",
       designation,
       quantite: q,
-      pu_public_ht: Number(pu.toFixed(2)),
+      // on envoie le PU HT net (après coef public + remise client), comme tes autres configurateurs
+      pu_public_ht: Number(unit_net.toFixed(2)),
+      // champs bonus (si ton devis-core les utilise)
+      pu_net_ht: Number(unit_net.toFixed(2)),
+      total_ligne_ht: Number((unit_net * q).toFixed(2)),
     });
 
     alert(
-      `✅ Ligne ajoutée au devis !\n${designation}\nQté : ${q}\nPU HT : ${pu.toFixed(
-        2
-      )} €`
+      `✅ Ligne ajoutée au devis !\n${designation}\nQté : ${q}\nPU HT : ${unit_net.toFixed(2)} €`
     );
   } catch (err) {
+    console.error(err);
     alert("Erreur : " + err.message);
   }
 });
@@ -405,9 +380,3 @@ const pu = pu_public * remiseClient;
 
 </body>
 </html>
-
-
-
-
-
-
