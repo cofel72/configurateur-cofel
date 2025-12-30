@@ -103,7 +103,7 @@
 ================================ */
 const TVA = 0.20;
 const COEF_PUBLIC = 2;
-const LISSE_PRICE_ML = 25; // €/ml interne (même méthode que Lettre ALU)
+const LISSE_PRICE_ML = 25; // €/ml interne
 
 const CSV_URL =
   "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/configurateurs/Lettre%20PVC.csv";
@@ -231,33 +231,51 @@ function updateLisseUI() {
 }
 
 /* ================================
-   CALCUL UNIQUE (AFFICHAGE + DEVIS)
+   CALCUL (PATCH)
+   ✅ lisse NON multipliée par quantité
 ================================ */
-function calcUnitNet(row) {
+function calcTotalsNet(row, q) {
   const e = parseFloat($("epaisseur").value) || 0;
   const laq = $("optLaquage").checked;
   const fix = $("optFixation").checked;
   const retro = $("optRetro").checked;
   const useLisse = $("optLisse").checked;
 
-  // Base interne (CSV)
-  let unit_interne = (row.base || 0);
-  if (laq) unit_interne += (row.laquage || 0);
-  if (fix) unit_interne += (row.fixation || 0);
-  if (retro && e >= 19) unit_interne += (row.retro || 0);
+  // 1) Prix interne UNITAIRE de la lettre (sans lisse)
+  let unit_interne_lettre = (row.base || 0);
+  if (laq) unit_interne_lettre += (row.laquage || 0);
+  if (fix) unit_interne_lettre += (row.fixation || 0);
+  if (retro && e >= 19) unit_interne_lettre += (row.retro || 0);
 
-  // Pose sur lisse (interne) -> puis coef public -> puis remise client (comme Lettre ALU)
-  let lmm = 0, lml = 0;
+  // 2) Prix interne TOTAL lettres
+  const total_interne_lettres = unit_interne_lettre * q;
+
+  // 3) Lisse : 1 seule fois (interne), pas multipliée par q
+  let lmm = 0, lml = 0, lisse_interne = 0;
   if (useLisse) {
     lmm = Number($("lisseLongueur").value || 0);
     lml = lmm / 1000;
-    if (lml > 0) unit_interne += LISSE_PRICE_ML * lml;
+    if (lml > 0) lisse_interne = LISSE_PRICE_ML * lml;
   }
 
-  const unit_public = unit_interne * COEF_PUBLIC;
-  const unit_net = unit_public * getRemiseClientFactor();
+  // 4) Total interne global
+  const total_interne = total_interne_lettres + lisse_interne;
 
-  return { unit_interne, unit_public, unit_net, lmm, lml };
+  // 5) Public puis remise client
+  const total_public = total_interne * COEF_PUBLIC;
+  const total_net = total_public * getRemiseClientFactor();
+
+  // 6) PU net réparti (pour affichage + devis sur 1 ligne)
+  const unit_net = q > 0 ? (total_net / q) : 0;
+
+  return {
+    unit_net,
+    total_net,
+    lmm,
+    lml,
+    unit_interne_lettre,
+    lisse_interne
+  };
 }
 
 /* ================================
@@ -276,9 +294,9 @@ function compute() {
     return;
   }
 
-  const { unit_net } = calcUnitNet(row);
+  const { unit_net, total_net } = calcTotalsNet(row, q);
 
-  const totalHT = unit_net * q;
+  const totalHT = total_net;
   const totalTTC = totalHT * (1 + TVA);
 
   $("prixUHT").textContent = euro(unit_net);
@@ -329,6 +347,7 @@ loadCSV()
 
 /* ================================
    AJOUT AU DEVIS
+   ✅ même calcul que l'affichage (PU réparti)
 ================================ */
 $("btnAddDevis").addEventListener("click", () => {
   try {
@@ -344,12 +363,11 @@ $("btnAddDevis").addEventListener("click", () => {
       return;
     }
 
-    // Calcule EXACTEMENT comme l’affichage
     const laq = $("optLaquage").checked;
     const fix = $("optFixation").checked;
     const retro = $("optRetro").checked;
 
-    const { unit_net, lmm, lml } = calcUnitNet(row);
+    const { unit_net, total_net, lmm, lml } = calcTotalsNet(row, q);
 
     let designation = `Lettre PVC ${h} mm (ép. ${e} mm)`;
     if (laq) designation += " — Laquage";
@@ -361,11 +379,9 @@ $("btnAddDevis").addEventListener("click", () => {
       type: "Lettre PVC",
       designation,
       quantite: q,
-      // on envoie le PU HT net (après coef public + remise client), comme tes autres configurateurs
       pu_public_ht: Number(unit_net.toFixed(2)),
-      // champs bonus (si ton devis-core les utilise)
       pu_net_ht: Number(unit_net.toFixed(2)),
-      total_ligne_ht: Number((unit_net * q).toFixed(2)),
+      total_ligne_ht: Number(total_net.toFixed(2)),
     });
 
     alert(
