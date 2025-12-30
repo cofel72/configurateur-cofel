@@ -16,68 +16,52 @@
   grid-template-columns:1fr;
   gap:8px;
 }
-</style>
-  <style>
-/* ================= FIX GLASS SELECT & INPUT ================= */
 
-/* Bouton du select custom */
-.cselect-toggle{
-  background: rgba(90,45,130,.45) !important;
-  color: #fff !important;
-  border: 1px solid rgba(255,255,255,.25);
+/* ✅ Sécurité : on masque les selects natifs (sinon double rendu selon CSS mutualisé) */
+.native-select{ display:none !important; }
+
+/* ✅ Harmonisation couleurs : on suit les tokens "glass" du thème mutualisé */
+.cofel-header.glass{
+  background: var(--glass, rgba(255,255,255,.12));
+  backdrop-filter: blur(var(--blur, 18px));
+  border-bottom: 1px solid var(--glass-stroke, rgba(255,255,255,.18));
 }
 
-/* Label du select */
-.cselect-label{
-  color: #fff !important;
-}
-
-/* Inputs dans les panels glass */
-.panel.glass input,
-.panel.glass select{
-  background: rgba(90,45,130,.35);
-  color: #fff;
-  border: 1px solid rgba(255,255,255,.25);
-}
-
-/* Placeholder lisible */
-.panel.glass input::placeholder{
-  color: rgba(255,255,255,.6);
-}
-</style>
-
-  <style>
-/* ===== FIX VISUELS CONFIGURATEUR ===== */
-
-.panel.glass{
-  background: var(--glass-bg, rgba(90,45,130,.25));
-}
-
+.panel.glass,
 .card.glass{
-  background: var(--glass-bg, rgba(90,45,130,.25));
+  background: var(--glass-soft, rgba(255,255,255,.06));
+  border: 1px solid var(--glass-stroke, rgba(255,255,255,.18));
 }
 
-/* Menu déroulant custom */
+/* Champs (inputs / selects / toggle custom) */
+.panel.glass input,
+.panel.glass select,
+.cselect-toggle{
+  background: rgba(255,255,255,.10);
+  color: var(--txt, #fff);
+  border: 1px solid rgba(255,255,255,.18);
+}
+
+.panel.glass input::placeholder{
+  color: rgba(255,255,255,.60);
+}
+
+/* Menu déroulant custom : cohérent (foncé neutre, pas violet forcé) */
 .cselect-menu{
-  background: #2a163d;
-  color: #fff;
-  border: 1px solid rgba(255,255,255,.15);
+  background: rgba(20, 14, 30, .96);
+  color: var(--txt, #fff);
+  border: 1px solid rgba(255,255,255,.18);
+  backdrop-filter: blur(10px);
 }
 
-.cselect-option{
-  padding: 10px 12px;
-}
-
-.cselect-option:hover{
-  background: rgba(255,255,255,.12);
-}
+.cselect-option{ padding: 10px 12px; }
+.cselect-option:hover{ background: rgba(255,255,255,.10); }
 </style>
-
 </head>
 
 <body>
 
-<header class="cofel-header">
+<header class="cofel-header glass">
   <div class="row">
     <a class="cofel-back" href="../index.html">⬅ Retour accueil (devis)</a>
     <div class="cofel-brand">
@@ -98,6 +82,7 @@
       <div class="grid">
         <div>
           <label for="famille">Type de lettre boîtier</label>
+
           <select id="famille" class="native-select">
             <option value="">— sélectionnez —</option>
           </select>
@@ -126,6 +111,7 @@
 
         <div>
           <label for="variant">Éclairage</label>
+
           <select id="variant" class="native-select">
             <option value="">— (aucun filtre) —</option>
           </select>
@@ -165,9 +151,9 @@
   </section>
 
   <!-- ================= RÉCAP ================= -->
-
   <section class="panel glass">
     <h2>🧾 Récapitulatif</h2>
+
     <div class="result">
       <p>Prix HT : <b><span id="prixHT">0,00</span> €</b></p>
       <p>Prix TTC : <b><span id="prixTTC">0,00</span> €</b></p>
@@ -178,9 +164,10 @@
     <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
       <button id="btnAddDevis" class="btn">➕ Ajouter au devis</button>
       <button id="btnReset" class="btn btn-ghost">🔄 Réinitialiser</button>
-   
+    </div>
   </section>
-  </div>
+
+</div>
 
 <footer class="cofel-footer">
   © Cofel — ZA du Perquoi, 72560 Changé — SIRET 927 659 458 00024 — TVA FR80927659458
@@ -221,15 +208,12 @@ const elTTC = $("prixTTC");
 const elOptLisse = $("optLisse");
 const elLongLisse = $("lisseLongueur");
 const elLightingInfo = document.getElementById("lightingInfo");
+
 function updateLisseUI(){
   const block = document.getElementById("lisseBlock");
   if (!block) return;
-
-  if (elOptLisse.checked) {
-    block.classList.remove("hidden");
-  } else {
-    block.classList.add("hidden");
-  }
+  if (elOptLisse.checked) block.classList.remove("hidden");
+  else block.classList.add("hidden");
 }
 
 /* ======================= UTILS ======================= */
@@ -256,7 +240,6 @@ function euro(n){
 }
 
 /* ======================= CUSTOM SELECT ======================= */
-/* — identique à la version stable — */
 const customSelects=new Map();
 
 function buildCustomFromNative(native){
@@ -277,7 +260,6 @@ function buildCustomFromNative(native){
     if(opt.selected) d.setAttribute('aria-selected','true');
 
     d.addEventListener('click',()=>{ setNativeValue(native,opt.value); closeMenu(native.id); });
-
     menu.appendChild(d);
   });
 
@@ -310,7 +292,6 @@ function openMenu(id){
   if(!api) return;
 
   const {wrap,toggle,menu} = api;
-
   wrap.setAttribute('aria-expanded','true');
 
   const r=toggle.getBoundingClientRect();
@@ -342,7 +323,6 @@ function closeMenu(id){
   if(!api) return;
 
   const {wrap,menu,__off} = api;
-
   wrap.setAttribute('aria-expanded','false');
   menu.style.display='none';
   if(menu.parentElement!==wrap) wrap.appendChild(menu);
@@ -454,50 +434,35 @@ function buildVariantUI(){
     values.map(v=>`<option value="${v}">${v}</option>`).join('');
 
   elVarHelp.textContent = values.length ? `Filtre sur « ${key} »` : '';
-
   buildCustomFromNative(elVar);
 }
 
 function buildRangesHelp(){
   if(!MAP?.hmaxKey){ elRanges.innerHTML=''; return; }
   const kmax=MAP.hmaxKey;
-  const rows=ROWS;
-  const maxVals = rows.map(r=>numFR(r[kmax])).filter(Number.isFinite);
+  const maxVals = ROWS.map(r=>numFR(r[kmax])).filter(Number.isFinite);
   if(!maxVals.length){ elRanges.innerHTML=''; return; }
   const maxH = Math.max(...maxVals);
   elRanges.innerHTML = `Hauteur maximale ${Math.round(maxH)} mm`;
 }
 
-/* Vérifie règle spéciale Dibond */
-function updateDibondRule(){
-  const isDibond = (CURRENT?.name||'').toLowerCase().includes("dibond");
-  const hasLight = !!elVar.value;
-  const node = document.getElementById("dibondRule");
-  if(node) node.style.display = (isDibond && hasLight) ? "block" : "none";
-}
+/* Info éclairage */
 function updateLightingInfo(){
   if (!elLightingInfo) return;
 
-  // reset
   elLightingInfo.classList.add("hidden");
   elLightingInfo.textContent = "";
-
-  // si pas d’éclairage sélectionné → rien
   if (!elVar.value) return;
 
   const famName = (CURRENT?.name || "").toLowerCase();
 
-  // FACE PMMA → éclairage en face avant
   if (famName.includes("pmma")) {
-    elLightingInfo.textContent =
-      "💡 Éclairage par la face avant (PMMA diffusant).";
+    elLightingInfo.textContent = "💡 Éclairage par la face avant (PMMA diffusant).";
     elLightingInfo.classList.remove("hidden");
   }
 
-  // FACE DIBOND → rétro-éclairage
   if (famName.includes("dibond")) {
-    elLightingInfo.textContent =
-      "💡 Rétro-éclairage : diffusion lumineuse par l’arrière de la lettre.";
+    elLightingInfo.textContent = "💡 Rétro-éclairage : diffusion lumineuse par l’arrière de la lettre.";
     elLightingInfo.classList.remove("hidden");
   }
 }
@@ -535,86 +500,65 @@ function findRowForHeight(H){
   }
   return best || rows[0];
 }
+
 /* ======================= COMPUTE ======================= */
-function compute(){updateLisseUI();
+function compute(){
+  updateLisseUI();
 
-  // === Mode tarif (client ou pro) ===
-
-  // Remise client automatique
   let remiseClient = 1;
   try {
     const p = JSON.parse(localStorage.getItem("cofel_client_profile"));
-    if (p && typeof p.discountRate === "number") {
-      remiseClient = 1 - p.discountRate;
-    }
+    if (p && typeof p.discountRate === "number") remiseClient = 1 - p.discountRate;
   } catch(e){}
 
   const H = Number(elH.value || 0);
   const Q = Math.max(1, Number(elQ.value || 1));
 
+  // Si un champ "variant" existe dans le CSV, on force la sélection
   if (MAP?.variantKey && !elVar.value){
     elHT.textContent="0,00";
     elTTC.textContent="0,00";
-    updateDibondRule();
+    updateLightingInfo();
     return;
   }
 
   if(!(H>0) || !ROWS.length || !MAP?.hmaxKey || !MAP?.baseKey){
     elHT.textContent="0,00";
     elTTC.textContent="0,00";
-    updateDibondRule();
     updateLightingInfo();
     return;
   }
 
-  // ====== Ligne CSV correspondante ======
   const row = findRowForHeight(H);
   const base_interne = row ? numFR(row[MAP.baseKey]) : 0;
 
-  // ============================================================
-  // 🔥 CORRECTION MAJEURE — Lisse NON multipliée par quantité
-  // ============================================================
+  // Lisse NON multipliée par quantité
   let supplement_lisse_interne = 0;
-
   if (elOptLisse && elOptLisse.checked){
     const Lmm = Number(elLongLisse.value || 0);
     if (Lmm > 0){
-      const Lml = Lmm / 1000; // mm → ml
+      const Lml = Lmm / 1000;
       supplement_lisse_interne = TARIF_LISSE_INTERNE_ML * Lml;
     }
   }
 
-  // Prix interne unitaire (lettre seule)
-  const pu_interne_lettre = base_interne;
-
-  // Prix interne total LETTRES
-  const total_interne_lettres = pu_interne_lettre * Q;
-
-  // Prix interne TOTAL = lettres + lisse NON multipliée
+  const total_interne_lettres = base_interne * Q;
   const total_interne = total_interne_lettres + supplement_lisse_interne;
 
-// === PRIX PUBLIC BRUT ===
-const total_public_brut = total_interne * COEF_PUBLIC;
+  const total_public_brut = total_interne * COEF_PUBLIC;
+  const total_net_client = total_public_brut * remiseClient;
+  const pu_public_ht = Q > 0 ? (total_net_client / Q) : 0;
 
-// === PRIX NET CLIENT (après remise) ===
-const total_net_client = total_public_brut * remiseClient;
+  elHT.textContent  = euro(total_net_client);
+  elTTC.textContent = euro(total_net_client * (1 + TVA));
 
-// === PRIX UNITAIRE POUR LE DEVIS ===
-const pu_public_ht = Q > 0 ? (total_net_client / Q) : 0;
+  window._LETTER_BOITIER_LAST = {
+    pu_public_ht : Number(pu_public_ht.toFixed(2)),
+    total_net_ht : Number(total_net_client.toFixed(2)),
+    supplement_lisse_interne : Number(supplement_lisse_interne.toFixed(2))
+  };
 
-// === AFFICHAGE ===
-elHT.textContent  = euro(total_net_client);
-elTTC.textContent = euro(total_net_client * (1 + TVA));
-
-// === EXPORT POUR AJOUT AU DEVIS ===
-window._LETTER_BOITIER_LAST = {
-  pu_public_ht : Number(pu_public_ht.toFixed(2)),
-  total_net_ht : Number(total_net_client.toFixed(2)),
-  supplement_lisse_interne : Number(supplement_lisse_interne.toFixed(2))
-};
-
-
-  updateDibondRule();
+  updateLightingInfo();
 }
 
 /* ======================= LOADERS ======================= */
@@ -637,14 +581,10 @@ async function loadFamily(f){
 
 /* ======================= INIT & BIND ======================= */
 function bind(){
-
-  // === CHANGEMENT DE FAMILLE ===
   elFam.addEventListener("change", async ()=>{
     const i = parseInt(elFam.value,10);
     if (isNaN(i)){
-      CURRENT = null;
-      ROWS = [];
-      MAP = null;
+      CURRENT = null; ROWS = []; MAP = null;
       compute();
       return;
     }
@@ -652,14 +592,12 @@ function bind(){
     CURRENT = FAMILLES[i];
     try {
       await loadFamily(CURRENT);
-      updateLightingInfo();
     } catch(e){
       console.error(e);
       alert("Erreur chargement CSV.");
     }
   });
 
-  // === CHAMPS STANDARD ===
   elQ.addEventListener("input", compute);
 
   elH.addEventListener("input", ()=>{
@@ -669,23 +607,17 @@ function bind(){
 
   elVar.addEventListener("change", ()=>{
     buildRangesHelp();
-    updateDibondRule();
-    updateLightingInfo();
     compute();
   });
 
-  // === LISSE ===
   elOptLisse.addEventListener("change", compute);
   elLongLisse.addEventListener("input", compute);
 
-  // === RESET ===
   $("btnReset").addEventListener("click", ()=>{
     elFam.value = "";
     buildCustomFromNative(elFam);
 
-    CURRENT = null;
-    ROWS = [];
-    MAP = null;
+    CURRENT = null; ROWS = []; MAP = null;
 
     elVar.innerHTML = '<option value="">— (aucun filtre) —</option>';
     buildCustomFromNative(elVar);
@@ -702,22 +634,20 @@ function bind(){
   });
 }
 
-
 (function init(){
   fillFamilles();
   bind();
   updateLisseUI();
 })();
-
 </script>
+
 <script src="../js/devis-core.js"></script>
+
 <script>
 document.getElementById("btnAddDevis").addEventListener("click", () => {
   try {
-
     if (!window.Devis) throw new Error("Moteur de devis introuvable.");
 
-    // ---- Lecture des champs ----
     const famIdx = parseInt(document.getElementById("famille").value, 10);
     if (isNaN(famIdx)) {
       alert("Choisis d'abord une famille de lettres boîtiers.");
@@ -734,7 +664,6 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
       return;
     }
 
-    // ---- Prix calculés par compute() ----
     const p = window._LETTER_BOITIER_LAST;
     if (!p) {
       alert("Erreur interne : le calcul n’a pas été trouvé.");
@@ -744,19 +673,10 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
     const optLisse = document.getElementById("optLisse").checked;
     const lisseLongueur = Number(document.getElementById("lisseLongueur").value || 0);
 
-    // ---- Désignation ----
     let designation = `${familleName} — H ${H} mm`;
     if (variant) designation += ` — Éclairage: ${variant}`;
+    if (optLisse) designation += lisseLongueur > 0 ? ` — Pose sur lisse (${lisseLongueur} mm)` : ` — Pose sur lisse`;
 
-    if (optLisse) {
-      if (lisseLongueur > 0) {
-        designation += ` — Pose sur lisse (${lisseLongueur} mm)`;
-      } else {
-        designation += ` — Pose sur lisse`;
-      }
-    }
-
-    // ---- Vérification prix affiché ----
     const total_ht_affiche = parseFloat(
       document.getElementById("prixHT").innerText.replace(",", ".")
     ) || 0;
@@ -766,20 +686,14 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
       return;
     }
 
-    // ---- Prix unitaire (pour le moteur de devis) ----
-    const pu_public_ht = p.pu_public_ht;
-
-    // ---- Ajout au devis ----
-  Devis.addLine({
-  type: "Lettres Boîtiers",
-  designation,
-  quantite: qte,
-  pu_public_ht: pu_public_ht
-});
-
+    Devis.addLine({
+      type: "Lettres Boîtiers",
+      designation,
+      quantite: qte,
+      pu_public_ht: p.pu_public_ht
+    });
 
     alert("✅ Ligne ajoutée au devis !");
-
   } catch (err) {
     console.error(err);
     alert("Erreur lors de l’ajout au devis : " + err.message);
@@ -787,21 +701,5 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
 });
 </script>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+</body>
+</html>
