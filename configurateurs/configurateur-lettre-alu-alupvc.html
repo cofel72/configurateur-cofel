@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <link rel="stylesheet" href="../styles/cofel-components.css">
+<link rel="stylesheet" href="../styles/cofel-components.css">
 <link rel="stylesheet" href="../styles/cofel-glass.css">
 
 <title>Configurateur — Lettres Alu 20/10 & Dibond 3 mm | Cofel</title>
@@ -34,7 +34,7 @@
       radial-gradient(800px 500px at 110% 10%, rgba(255,255,255,.08), transparent 60%),
       linear-gradient(135deg, var(--violet), var(--violet-2));
   }
-  
+
   /* ===================== LAYOUT / CARDS ===================== */
   .wrap{max-width:1200px;margin:26px auto;padding:0 20px 40px;}
   .panel{
@@ -54,7 +54,7 @@
   footer{color:#f3ecff;font-size:12px;text-align:center;padding:24px 10px;opacity:.9;}
 
   /* ===================== FORM CONTROLS (harmonisés) ===================== */
-  label{font-weight:700;font-size:13px;color:var(--accent);}  
+  label{font-weight:700;font-size:13px;color:var(--accent);}
   input[type="number"], select{
     width:100%; padding:12px; margin-top:6px; min-height:42px;
     border-radius:14px; outline:none; color:var(--txt);
@@ -70,12 +70,11 @@
     background: rgba(255,255,255,.16);
     box-shadow:0 0 0 4px rgba(255,255,255,.08) inset;
   }
-  /* Select natif : options violettes lisibles */
   select{ appearance:auto; }
   select option{ background:#3c1f61; color:#fff; }
   select:focus{ z-index:1001; }
 
-  /* ====== SELECT CUSTOM (look aligné aux inputs) ====== */
+  /* ====== SELECT CUSTOM ====== */
   .native-select{ position:absolute !important; opacity:0 !important; pointer-events:none !important; width:0;height:0;margin:0;padding:0;border:0; }
   .cselect{ position:relative; margin-top:6px; }
   .cselect-toggle{
@@ -104,7 +103,7 @@
     max-height:300px; overflow:auto; padding:6px;
     border-radius:14px; border:1px solid rgba(255,255,255,.22);
     box-shadow: 0 16px 40px rgba(0,0,0,.45);
-    background: #3c1f61;  /* fond violet sombre */
+    background: #3c1f61;
     display:none;
   }
   .cselect[aria-expanded="true"] .cselect-menu{ display:block; }
@@ -161,14 +160,13 @@
     transition:transform .16s, box-shadow .16s;
   }
   .btn:active{transform:translateY(1px);box-shadow:0 6px 16px rgba(0,0,0,.28);}
-  .btn-ghost{background:transparent;color:var(--txt);border:1px solid rgba(255,255,255,.24);} 
+  .btn-ghost{background:transparent;color:var(--txt);border:1px solid rgba(255,255,255,.24);}
 
   .hidden{display:none;}
 </style>
 </head>
 <body>
 
-<!-- ===================== HERO ===================== -->
 <header class="cofel-header">
   <div class="row">
     <a class="cofel-back" href="../index.html">⬅ Retour accueil (devis)</a>
@@ -182,8 +180,6 @@
   </div>
 </header>
 
-
-<!-- ===================== CONTENU ===================== -->
 <main class="wrap">
   <section class="panel" aria-label="Paramètres">
     <h2>⚙️ Paramètres</h2>
@@ -215,53 +211,50 @@
       <div>
         <label for="hauteur">Hauteur (mm)</label>
         <input type="number" id="hauteur" placeholder="Ex : 275" min="0" value="0" max="1500" />
-        
         <div id="helpRanges" class="muted">Hauteur max 1500 mm</div>
       </div>
 
       <div>
-       <div>
-  <h3 style="color:var(--accent);margin:0 0 8px;">Finition</h3>
+        <div>
+          <h3 style="color:var(--accent);margin:0 0 8px;">Finition</h3>
 
-  <div class="grid">
-  <label class="option-item">
-    <input type="radio" name="finition" id="finitionBrut" value="brut" checked />
-    <span>Brut</span>
-  </label>
+          <div class="grid">
+            <label class="option-item">
+              <input type="radio" name="finition" id="finitionBrut" value="brut" checked />
+              <span>Brut</span>
+            </label>
 
-  <label class="option-item">
-    <input type="radio" name="finition" id="finitionLaque" value="laque" />
-    <span>Laqué</span>
-  </label>
-</div>
+            <label class="option-item">
+              <input type="radio" name="finition" id="finitionLaque" value="laque" />
+              <span>Laqué</span>
+            </label>
+          </div>
+        </div>
 
-</div>
+        <div style="margin-top:14px;">
+          <h3 style="color:var(--accent);margin:0 0 8px;">Supplément</h3>
+          <div class="grid">
+            <label class="option-item">
+              <input type="checkbox" id="optFixation" />
+              <span>Fixation entretoise à clipser (taquet)</span>
+            </label>
 
-<div style="margin-top:14px;">
-  <h3 style="color:var(--accent);margin:0 0 8px;">Supplément</h3>
-<div class="grid">
-  <label class="option-item">
-    <input type="checkbox" id="optFixation" />
-    <span>Fixation entretoise à clipser (taquet)</span>
-  </label>
-  
-<label class="option-item">
-  <input type="checkbox" id="optTige" />
-  <span>Fixation tige aluminium soudée à sceller</span>
-</label>
-  
-  <label class="option-item">
-    <input type="checkbox" id="optLisse" />
-    <span>Pose sur lisse</span>
-  </label>
-</div>
+            <label class="option-item">
+              <input type="checkbox" id="optTige" />
+              <span>Fixation tige aluminium soudée à sceller</span>
+            </label>
 
+            <label class="option-item">
+              <input type="checkbox" id="optLisse" />
+              <span>Pose sur lisse</span>
+            </label>
+          </div>
 
-  <div id="lisseBlock" class="hidden" style="margin-top:8px;">
-    <label for="lisseLongueur">Longueur de la lisse (mm)</label>
-    <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 3000" />
-  </div>
-</div>
+          <div id="lisseBlock" class="hidden" style="margin-top:8px;">
+            <label for="lisseLongueur">Longueur de la lisse (mm)</label>
+            <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 3000" />
+          </div>
+        </div>
 
       </div>
     </div>
@@ -324,6 +317,17 @@ function numFR(v){
 }
 function euro(n){ return (isFinite(n)?n:0).toFixed(2).replace('.', ','); }
 
+/* ===== remise client auto ===== */
+function getRemiseClientFactor(){
+  let remiseClient = 1;
+  try{
+    const p = JSON.parse(localStorage.getItem('cofel_client_profile'));
+    if(p && typeof p.discountRate === 'number') remiseClient = 1 - p.discountRate;
+  }catch(e){}
+  return remiseClient;
+}
+
+/* ===== custom select ===== */
 const customSelects = new Map();
 function buildCustomFromNative(native){
   const wrap = document.querySelector('.cselect[data-bind="'+native.id+'"]');
@@ -396,11 +400,14 @@ function closeMenu(id){
   api.toggle.focus();
 }
 
+/* ===== CSV helpers ===== */
 function parseCSVAuto(text){
   const lines = text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(l=>l.trim()!=='');
+
   if(!lines.length) return {rawHeads:[],rows:[]};
   const first = lines[0];
   const sep = ((first.match(/;/g)||[]).length > (first.match(/,/g)||[]).length) ? ';' : ',';
+
   const parseLine = (line)=>{
     const out=[]; let cur=''; let inQ=false;
     for(let i=0;i<line.length;i++){
@@ -413,6 +420,7 @@ function parseCSVAuto(text){
     }
     out.push(cur); return out;
   };
+
   const rawHeads = parseLine(lines[0]).map(s=>s.replace(/^"+|"+$/g,'').trim());
   const rows = lines.slice(1).map(line=>{
     const cells = parseLine(line).map(s=>s.replace(/^"+|"+$/g,'').trim());
@@ -438,6 +446,7 @@ function pickRowForHeight(H){
     .filter(x=>isFinite(x.h))
     .sort((a,b)=>a.h-b.h);
   if(!pool.length) return null;
+
   let chosen=pool[0];
   for(const x of pool){
     if(H <= x.h){ chosen=x; break; }
@@ -446,6 +455,7 @@ function pickRowForHeight(H){
   return chosen.row;
 }
 
+/* ===== UI ===== */
 function updateLisseUI(){
   const block = $("lisseBlock");
   if(!block) return;
@@ -453,88 +463,104 @@ function updateLisseUI(){
 }
 function updateFixationTigeAvailability(){
   const catVal = $("categorie").value;
-
-  // le <label> qui contient la checkbox tige
   const labelTige = elTige ? elTige.closest("label") : null;
   if (!labelTige) return;
 
   if (catVal === "alu20") {
-    // autorisé
     labelTige.classList.remove("hidden");
   } else {
-    // interdit pour Dibond
-    elTige.checked = false;        // sécurité prix
+    if (elTige) elTige.checked = false;
     labelTige.classList.add("hidden");
   }
 }
 
+/* =========================================================
+   ✅ PATCH TARIF LISSE : NON multipliée par quantité
+   - Prix lettre = PU * Q
+   - Prix lisse = 1 fois
+   - Total = (PU*Q + lisse) * coef * remise
+========================================================= */
 function compute(){
-  // === Remise automatique client ===
-  let remiseClient = 1;
-  try {
-      const p = JSON.parse(localStorage.getItem('cofel_client_profile'));
-      if (p && typeof p.discountRate === 'number') remiseClient = 1 - p.discountRate;
-  } catch(e){}
+  updateFixationTigeAvailability();
+
+  const remiseClient = getRemiseClientFactor();
 
   const Hraw = Number(elH.value || 0);
-  let H = Math.min(H_MAX, Math.max(0, Hraw || 0));
-
-  const Q = Math.max(1, Number(elQ.value || 1));  // quantité
+  const H = Math.min(H_MAX, Math.max(0, Hraw || 0));
+  const Q = Math.max(1, Number(elQ.value || 1));
 
   if (H <= 0) {
     elPrixHT.textContent = '0,00';
     elPrixTTC.textContent = '0,00';
+    window._LAST = null;
     return;
   }
 
   const row = pickRowForHeight(H);
-  if(!row){ elPrixHT.textContent='0,00'; elPrixTTC.textContent='0,00'; return; }
+  if(!row){
+    elPrixHT.textContent='0,00';
+    elPrixTTC.textContent='0,00';
+    window._LAST = null;
+    return;
+  }
 
   const brut = MAP.brutKey ? numFR(row[MAP.brutKey]) : NaN;
   const laqe = MAP.laqKey  ? numFR(row[MAP.laqKey])  : NaN;
 
-  let unit_interne = 0;
-  if(elFLaque.checked && isFinite(laqe)) unit_interne = laqe;
-  else if(isFinite(brut)) unit_interne = brut;
-  else if(isFinite(laqe)) { unit_interne = laqe; elFLaque.checked=true; elFBrut.checked=false; }
+  // 1) PU interne lettre (sans lisse)
+  let unit_interne_lettre = 0;
+  if(elFLaque.checked && isFinite(laqe)) unit_interne_lettre = laqe;
+  else if(isFinite(brut)) unit_interne_lettre = brut;
+  else if(isFinite(laqe)) { unit_interne_lettre = laqe; elFLaque.checked=true; elFBrut.checked=false; }
 
-  // === Surépaisseur Dibond 4 mm (+15%) ===
-const catVal = $("categorie").value;
-if (catVal === 'dibond4') {
-  unit_interne *= 1.15;
-}
+  // Surépaisseur Dibond 4 mm (+15%)
+  const catVal = $("categorie").value;
+  if (catVal === 'dibond4') unit_interne_lettre *= 1.15;
 
- // Suppléments : fixations (taquet / tige = même prix)
-if (MAP.fixKey) {
-  const fx = numFR(row[MAP.fixKey]);
-  if (isFinite(fx)) {
-    if (elFix.checked) unit_interne += fx;                 // taquet clipsable
-    if (elTige && elTige.checked) unit_interne += fx;      // tige alu soudée à sceller
+  // Suppléments fixations (taquet / tige = même prix)
+  let fx = 0;
+  if (MAP.fixKey){
+    const v = numFR(row[MAP.fixKey]);
+    if (isFinite(v)) fx = v;
   }
-}
+  if (fx){
+    if (elFix && elFix.checked) unit_interne_lettre += fx;
+    if (elTige && elTige.checked) unit_interne_lettre += fx;
+  }
 
-
-  // Supplément : pose sur lisse (25 €/ml interne)
+  // 2) Lisse = 1 fois
+  let lmm = 0, lml = 0, lisse_interne = 0;
   if (elLisse && elLisse.checked) {
-    const lmm = Number(elLisseLongueur?.value || 0);
-    const lml = lmm / 1000;
-    if (lml > 0) {
-      unit_interne += LISSE_PRICE_ML * lml;
-    }
+    lmm = Number(elLisseLongueur?.value || 0);
+    lml = lmm / 1000;
+    if (lml > 0) lisse_interne = LISSE_PRICE_ML * lml;
   }
 
-  // === PRIX PUBLIC AVANT REMISE ===
-const unit_public_brut = unit_interne * COEF_PUBLIC;
+  // 3) Total interne global
+  const total_interne = unit_interne_lettre * Q + lisse_interne;
 
-// === PRIX NET CLIENT ===
-const unit_public = unit_public_brut * remiseClient;
+  // 4) Public puis remise
+  const total_public_brut = total_interne * COEF_PUBLIC;
+  const total_net = total_public_brut * remiseClient;
 
-  const totalHT = unit_public * Q;
-  const totalTTC = totalHT * (1+TVA);
+  const totalTTC = total_net * (1 + TVA);
 
-  elPrixHT.textContent  = euro(totalHT);
+  elPrixHT.textContent  = euro(total_net);
   elPrixTTC.textContent = euro(totalTTC);
-  updateFixationTigeAvailability();
+
+  // 5) Stockage pour ajout devis (fiable)
+  window._LAST = {
+    total_net_ht: Number(total_net.toFixed(2)),
+    pu_net_ht: Number((total_net / Q).toFixed(2)),
+    qte: Q,
+    hauteur: H,
+    catVal,
+    fin: elFLaque.checked ? 'laqué' : 'brut',
+    hasFixTaquet: !!(elFix && elFix.checked),
+    hasFixTige: !!(elTige && elTige.checked),
+    lmm,
+    lml
+  };
 }
 
 async function loadCSV(){
@@ -544,9 +570,9 @@ async function loadCSV(){
     const {rawHeads, rows} = parseCSVAuto(txt);
     HEADS=rawHeads; ROWS=rows; MAP=buildMapping(HEADS);
     if (elHelp) elHelp.textContent = "Hauteur max 1500 mm";
-   updateLisseUI();
-updateFixationTigeAvailability();
-compute();
+    updateLisseUI();
+    updateFixationTigeAvailability();
+    compute();
   }catch(e){
     console.error(e);
     alert("Erreur lors du chargement des données. Réessayez plus tard.");
@@ -554,7 +580,7 @@ compute();
 }
 
 ["input","change"].forEach(evt=>{
-    [elH, elQ, $("categorie"), elFix, elTige, elFBrut, elFLaque, elLisse, elLisseLongueur].forEach(el=>{
+  [elH, elQ, $("categorie"), elFix, elTige, elFBrut, elFLaque, elLisse, elLisseLongueur].forEach(el=>{
     if(!el) return;
     el.addEventListener(evt, ()=>{
       updateLisseUI();
@@ -562,14 +588,21 @@ compute();
     });
   });
 });
+
 $("btnReset").addEventListener("click", ()=>{
-  elH.value=''; elQ.value=1; elFix.checked=false; if(elTige) elTige.checked=false; elFBrut.checked=true; elFLaque.checked=false;
+  elH.value=''; elQ.value=1;
+  if (elFix) elFix.checked=false;
+  if (elTige) elTige.checked=false;
+  elFBrut.checked=true; elFLaque.checked=false;
+
   if (elLisse) elLisse.checked = false;
   if (elLisseLongueur) elLisseLongueur.value = '';
+
   updateLisseUI();
   if (elHelp) elHelp.textContent = "Hauteur max 1500 mm";
   compute();
 });
+
 loadCSV();
 
 buildCustomFromNative($("categorie"));
@@ -577,27 +610,41 @@ $("categorie").addEventListener("change", ()=>{
   updateFixationTigeAvailability();
   compute();
 });
-
 </script>
 
 <!-- ===================== MOTEUR DE DEVIS ===================== -->
 <script src="../js/devis-core.js"></script>
+
 <script>
 $("btnAddDevis").addEventListener("click", ()=>{
   try{
     if(!window.Devis) throw new Error("Moteur de devis introuvable.");
+
     const qte = Math.max(1, Number($("quantite").value || 1));
+
+    // On utilise le résultat du compute() (fiable)
+    if(!window._LAST || !(window._LAST.total_net_ht > 0)){
+      alert("Prix à 0 : vérifie hauteur / options.");
+      return;
+    }
+
     let hauteur = Number($("hauteur").value || 0);
     if (!isFinite(hauteur) || hauteur < 1) hauteur = 1;
     if (hauteur > 1500) { hauteur = 1500; $("hauteur").value = 1500; }
 
+    // Interdit tige sur Dibond (sécurité)
+    if ($("categorie").value !== "alu20" && elTige) elTige.checked = false;
+
+    const catVal = $("categorie").value;
+    let catTxt = 'Lettre aluminium 20/10';
+    if (catVal === 'dibond3') catTxt = 'Lettre alu/PVC 3 mm (type Dibond)';
+    if (catVal === 'dibond4') catTxt = 'Lettre alu/PVC 4 mm (type Dibond)';
+
     const fin = $("finitionLaque").checked ? 'laqué' : 'brut';
-    if ($("categorie").value !== "alu20" && elTige) {
-  elTige.checked = false;
-}
-    const fix = $("optFixation").checked
-  ? ' + fixation entretoise à clipser (taquet)'
-  : '';
+
+    const supFixTaquet = $("optFixation").checked ? ' + fixation entretoise à clipser (taquet)' : '';
+    const supFixTige   = (elTige && elTige.checked) ? ' + fixation tige alu soudée à sceller' : '';
+
     const optLisse = $("optLisse");
     const lisseMM = Number($("lisseLongueur")?.value || 0);
     const lisseML = lisseMM / 1000;
@@ -605,34 +652,28 @@ $("btnAddDevis").addEventListener("click", ()=>{
       ? ` + pose sur lisse — ${lisseMM} mm (${lisseML.toFixed(2)} ml)`
       : '';
 
-    const catVal = $("categorie").value;
-    let catTxt = 'Lettre aluminium 20/10';
-if (catVal === 'dibond3') catTxt = 'Lettre alu/PVC 3 mm (type Dibond)';
-if (catVal === 'dibond4') catTxt = 'Lettre alu/PVC 4 mm (type Dibond)';
-
-    const total_ht = parseFloat($("prixHT").innerText.replace(',','.')) || 0;
+    const total_ht = window._LAST.total_net_ht;
     const pu_public_ht = qte>0 ? (total_ht / qte) : 0;
-    const designation = `${catTxt} — H ${hauteur || 'n.c.'} mm — ${fin}${fix}${supLisseText}`;
+
+    const designation = `${catTxt} — H ${hauteur || 'n.c.'} mm — ${fin}${supFixTaquet}${supFixTige}${supLisseText}`;
 
     Devis.addLine({
       type: 'Lettres',
       designation,
       quantite: qte,
-      pu_public_ht: Number(pu_public_ht.toFixed(2))
+      pu_public_ht: Number(pu_public_ht.toFixed(2)),
+      // bonus (si ton devis-core les lit)
+      pu_net_ht: Number(pu_public_ht.toFixed(2)),
+      total_ligne_ht: Number(total_ht.toFixed(2))
     });
+
     alert(`✅ Ligne ajoutée au devis !\n${designation}\nQté : ${qte}\nPU HT : ${pu_public_ht.toFixed(2)} €`);
-  }catch(err){ console.error(err); alert('Erreur lors de l’ajout au devis : ' + err.message); }
+  }catch(err){
+    console.error(err);
+    alert('Erreur lors de l’ajout au devis : ' + err.message);
+  }
 });
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
