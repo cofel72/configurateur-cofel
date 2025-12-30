@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
 <title>Configurateur – Tôlerie & Châssis aluminium</title>
 
+<!-- ✅ CSS de base (manquait) -->
+<link rel="stylesheet" href="../styles/cofel.css" />
 <link rel="stylesheet" href="../styles/cofel-components.css" />
 <link rel="stylesheet" href="../styles/cofel-glass.css" />
 
@@ -23,7 +25,8 @@
 
 <body>
 
-<header class="cofel-header">
+<!-- ✅ Ajout de "glass" pour que ton style .cofel-header.glass s'applique -->
+<header class="cofel-header glass">
   <div class="row">
     <a class="cofel-back" href="../index.html">⬅ Retour accueil (Devis)</a>
     <div class="cofel-brand">
@@ -83,7 +86,8 @@
 
 <fieldset>
   <legend>Dimensions panneau</legend>
-  <div class="grid-dimensions">
+  <!-- ✅ si jamais grid-dimensions n'est plus défini dans tes CSS, on garde une grille sûre -->
+  <div class="grid">
     <div><label>Largeur (mm)</label><input type="number" id="largeur"></div>
     <div><label>Hauteur (mm)</label><input type="number" id="hauteur"></div>
   </div>
@@ -105,7 +109,7 @@
     <label><input type="radio" name="sectionChassis" value="50"> 50×50 mm</label>
   </div>
 
-  <div class="grid-dimensions">
+  <div class="grid">
     <div><label>Largeur extérieure (mm)</label><input type="number" id="chL"></div>
     <div><label>Hauteur extérieure (mm)</label><input type="number" id="chH"></div>
   </div>
@@ -144,7 +148,6 @@ const CHASSIS_ML = {
   50: +(CHASSIS_BASE_30 * 1.10 * 1.10).toFixed(2)
 };
 
- // €/ml interne
 const GOUSSET_PRICE = 6.5; // €/u interne
 
 const $ = id => document.getElementById(id);
@@ -154,6 +157,11 @@ function toggleUI(){
   const type = document.querySelector('input[name="typeProduit"]:checked').value;
   $('blockPanneau').style.display = type==='panneau'?'':'none';
   $('blockChassis').style.display = type==='chassis'?'':'none';
+
+  // ✅ bascule Alu / Dibond selon Famille
+  const fam = $('famille')?.value || 'alu';
+  $('blockAlu').style.display = fam==='alu' ? '' : 'none';
+  $('blockDibond').style.display = fam==='dibond' ? '' : 'none';
 }
 
 function selectedPanelKey(){
@@ -189,7 +197,12 @@ function compute(){
     $('prixHT').textContent = euro(total);
     $('prixTTC').textContent = euro(total*(1+TVA));
 
-    window._LAST = { pu_public_ht:(total/Q).toFixed(2), type:'panneau' };
+    window._LAST = {
+      pu_public_ht: (total/Q).toFixed(2),
+      quantite: Q,
+      type:'panneau',
+      designation: `Panneau ${$('famille').value==='alu'?'Alu':'Dibond'} — ${L}×${H} mm`
+    };
     return;
   }
 
@@ -211,6 +224,7 @@ function compute(){
 
   window._LAST = {
     pu_public_ht: total.toFixed(2),
+    quantite: 1,
     type:'chassis',
     designation:`Châssis alu ${section}×${section} — ${L}×${H} mm`
   };
@@ -232,7 +246,7 @@ $('btnAddDevis').addEventListener('click',()=>{
   Devis.addLine({
     type: data.type==='chassis'?'Châssis aluminium':'Tôlerie & Panneaux',
     designation: data.designation || 'Panneau',
-    quantite: 1,
+    quantite: data.quantite || 1,
     pu_public_ht: Number(data.pu_public_ht)
   });
 
@@ -242,5 +256,3 @@ $('btnAddDevis').addEventListener('click',()=>{
 
 </body>
 </html>
-
-
