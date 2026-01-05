@@ -1,0 +1,125 @@
+/* ================================
+   COFEL — Thème Apple Dark (global)
+   À inclure en DERNIER dans <head>
+================================== */
+
+:root{
+  /* On garde les noms historiques (violet etc.)
+     pour éviter de casser le CSS existant */
+  --violet:#000000;
+  --violet-2:#0b0b0b;
+
+  --txt:#ffffff;
+  --txt-dim:rgba(255,255,255,.72);
+  --accent:#ffffff;
+
+  /* “Bulles” */
+  --glass: rgba(255,255,255,.06);
+  --glass-soft: rgba(255,255,255,.04);
+  --glass-hr: rgba(255,255,255,.12);
+
+  --radius:18px;
+  --blur:18px;
+
+  --shadow: 0 12px 35px rgba(0,0,0,.55);
+}
+
+/* Fond général */
+html, body{
+  background:#000 !important;
+  color:var(--txt) !important;
+}
+
+/* Si tes anciens styles utilisent des halos/gradients via pseudo-elements */
+body::before,
+body::after{
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+/* Typo + liens */
+a{ color: var(--txt) !important; opacity:.9; }
+a:hover{ opacity:1; }
+
+/* “Bulles / cartes” (on vise large pour couvrir tes classes existantes) */
+.glass, .glass-card, .cofel-card, .cofel-panel, .panel, .card, .step, .box{
+  background: var(--glass) !important;
+  border: 1px solid var(--glass-hr) !important;
+  box-shadow: var(--shadow) !important;
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border-radius: var(--radius) !important;
+}
+
+/* Barres / séparateurs */
+hr{
+  border:0;
+  height:1px;
+  background: var(--glass-hr) !important;
+}
+.cofer-hr, .cofel-hr, .divider{
+  background: var(--glass-hr) !important;
+}
+
+/* Inputs */
+input, select, textarea{
+  background: rgba(255,255,255,.05) !important;
+  color: var(--txt) !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  border-radius: 14px;
+}
+input::placeholder, textarea::placeholder{
+  color: rgba(255,255,255,.45) !important;
+}
+
+/* Focus “Apple clean” */
+:focus-visible{
+  outline: 2px solid rgba(255,255,255,.35);
+  outline-offset: 2px;
+}
+
+/* Boutons (primaire en blanc, secondaire en gris sombre) */
+button,
+input[type="button"],
+input[type="submit"],
+.cofel-btn, .btn{
+  background:#fff !important;
+  color:#000 !important;
+  border: 1px solid rgba(255,255,255,.25) !important;
+  border-radius: 999px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.35);
+}
+
+.btn-secondary,
+.cofel-btn-secondary,
+.secondary,
+.ghost,
+.cofel-btn-ghost{
+  background: rgba(255,255,255,.08) !important;
+  color: var(--txt) !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+  box-shadow: none !important;
+}
+
+/* Header si tu utilises .cofel-header */
+.cofel-header{
+  background: rgba(0,0,0,.65) !important;
+  border-bottom: 1px solid rgba(255,255,255,.12) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Récaps / badges */
+.badge, .tag, .chip, .pill{
+  background: rgba(255,255,255,.08) !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  color: var(--txt) !important;
+}
+
+/* Tables (si tu en as) */
+table{
+  color: var(--txt) !important;
+}
+th, td{
+  border-color: rgba(255,255,255,.12) !important;
+}
