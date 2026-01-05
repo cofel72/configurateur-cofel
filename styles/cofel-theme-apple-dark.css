@@ -123,3 +123,30 @@ table{
 th, td{
   border-color: rgba(255,255,255,.12) !important;
 }
+
+/* Bouton "Retour accueil (Devis)" */
+a.cofel-back{
+  background: rgba(255,255,255,.08) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+  border-radius: 999px !important;
+  text-decoration: none !important;
+
+  padding: 10px 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+a.cofel-back:hover{
+  background: rgba(255,255,255,.12) !important;
+}
+
+a.cofel-back:active{
+  transform: translateY(1px);
+}
+
+a.cofel-back:focus-visible{
+  outline: 2px solid rgba(255,255,255,.35);
+  outline-offset: 2px;
+}
