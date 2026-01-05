@@ -234,3 +234,65 @@ input[type="checkbox"]{
 .cofel-container input[type="checkbox"]{
   accent-color: #000 !important;
 }
+/* =========================================================
+   INDEX (page devis) — Harmonisation boutons (plus de blanc)
+   Cible uniquement l'index via .hero et .panel
+========================================================= */
+
+/* Déconnexion (en haut à droite) */
+.hero .logout-btn{
+  background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06)) !important;
+  color: var(--txt) !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  box-shadow: var(--shadow) !important;
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+}
+.hero .logout-btn:hover{
+  background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08)) !important;
+}
+
+/* Tous les boutons du devis (Ajouter / Qté / Modifier / Export PDF / Vider) */
+.panel .btn{
+  background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06)) !important;
+  color: var(--txt) !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.25) !important;
+  border-radius: 999px !important; /* look plus “pill” et homogène */
+}
+.panel .btn:hover{
+  background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08)) !important;
+}
+.panel .btn:active{
+  transform: translateY(1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.28) !important;
+}
+
+/* Variante ghost (Qté / Modifier / Ajouter manuel) */
+.panel .btn.btn-ghost{
+  background: rgba(255,255,255,.06) !important;
+  color: var(--txt) !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+  box-shadow: none !important;
+}
+.panel .btn.btn-ghost:hover{
+  background: rgba(255,255,255,.10) !important;
+}
+
+/* Danger (Suppr. + Vider le devis) */
+.panel .btn.btn-danger{
+  background: rgba(255,107,107,.12) !important;
+  color: #ffe3e3 !important;
+  border: 1px solid rgba(255,107,107,.45) !important;
+  box-shadow: none !important;
+}
+.panel .btn.btn-danger:hover{
+  background: rgba(255,107,107,.18) !important;
+}
+
+/* Bouton PDF désactivé : cohérent */
+.panel .btn[disabled]{
+  opacity: .45 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+}
