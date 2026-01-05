@@ -151,3 +151,10 @@ a.cofel-back:focus-visible{
   outline: 2px solid rgba(255,255,255,.35);
   outline-offset: 2px;
 }
+
+/* ✅ Radios + checkboxes : coche noire (au lieu de violet) */
+.cofel-container input[type="radio"],
+.cofel-container input[type="checkbox"]{
+  accent-color: #000 !important;
+}
+
