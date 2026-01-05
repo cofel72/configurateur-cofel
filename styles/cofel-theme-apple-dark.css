@@ -1,43 +1,43 @@
-/* ================================
-   COFEL — Thème Apple Dark (global)
+/* =====================================
+   COFEL — Thème Apple LIGHT (global)
+   Fond blanc / texte noir / bulles gris
    À inclure en DERNIER dans <head>
-================================== */
+===================================== */
 
 :root{
-  /* On garde les noms historiques (violet etc.)
-     pour éviter de casser le CSS existant */
-  --violet:#000000;
-  --violet-2:#0b0b0b;
+  /* On garde les noms historiques pour ne rien casser */
+  --violet:#ffffff;
+  --violet-2:#f5f5f7;
 
-  --txt:#ffffff;
-  --txt-dim:rgba(255,255,255,.72);
-  --accent:#ffffff;
+  --txt:#000000;
+  --txt-dim:rgba(0,0,0,.70);
+  --accent:#000000;
 
-  /* “Bulles” */
-  --glass: rgba(255,255,255,.06);
-  --glass-soft: rgba(255,255,255,.04);
-  --glass-hr: rgba(255,255,255,.12);
+  /* “Bulles” (gris très doux) */
+  --glass: rgba(0,0,0,.04);
+  --glass-soft: rgba(0,0,0,.03);
+  --glass-hr: rgba(0,0,0,.10);
 
   --radius:18px;
   --blur:18px;
 
-  --shadow: 0 12px 35px rgba(0,0,0,.55);
+  --shadow: 0 12px 35px rgba(0,0,0,.10);
 }
 
 /* Fond général */
 html, body{
-  background:#000 !important;
+  background:#fff !important;
   color:var(--txt) !important;
 }
 
-/* Si tes anciens styles utilisent des halos/gradients via pseudo-elements */
+/* Si tes anciens styles ajoutent des halos/gradients */
 body::before,
 body::after{
   background: transparent !important;
   opacity: 0 !important;
 }
 
-/* Typo + liens */
+/* Liens */
 a{ color: var(--txt) !important; opacity:.9; }
 a:hover{ opacity:1; }
 
@@ -51,7 +51,7 @@ a:hover{ opacity:1; }
   border-radius: var(--radius) !important;
 }
 
-/* Barres / séparateurs */
+/* Séparateurs */
 hr{
   border:0;
   height:1px;
@@ -63,31 +63,38 @@ hr{
 
 /* Inputs */
 input, select, textarea{
-  background: rgba(255,255,255,.05) !important;
+  background: rgba(0,0,0,.03) !important;
   color: var(--txt) !important;
-  border: 1px solid rgba(255,255,255,.18) !important;
+  border: 1px solid rgba(0,0,0,.14) !important;
   border-radius: 14px;
 }
 input::placeholder, textarea::placeholder{
-  color: rgba(255,255,255,.45) !important;
+  color: rgba(0,0,0,.45) !important;
 }
 
-/* Focus “Apple clean” */
+/* Focus propre */
 :focus-visible{
-  outline: 2px solid rgba(255,255,255,.35);
+  outline: 2px solid rgba(0,0,0,.25);
   outline-offset: 2px;
 }
 
-/* Boutons (primaire en blanc, secondaire en gris sombre) */
+/* Boutons (primaire noir, comme Apple) */
 button,
 input[type="button"],
 input[type="submit"],
 .cofel-btn, .btn{
-  background:#fff !important;
-  color:#000 !important;
-  border: 1px solid rgba(255,255,255,.25) !important;
+  background:#000 !important;
+  color:#fff !important;
+  border: 1px solid rgba(0,0,0,.22) !important;
   border-radius: 999px;
-  box-shadow: 0 10px 25px rgba(0,0,0,.35);
+  box-shadow: 0 10px 25px rgba(0,0,0,.12);
+}
+
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover,
+.cofel-btn:hover, .btn:hover{
+  filter: brightness(1.05);
 }
 
 .btn-secondary,
@@ -95,40 +102,36 @@ input[type="submit"],
 .secondary,
 .ghost,
 .cofel-btn-ghost{
-  background: rgba(255,255,255,.08) !important;
+  background: rgba(0,0,0,.05) !important;
   color: var(--txt) !important;
-  border: 1px solid rgba(255,255,255,.16) !important;
+  border: 1px solid rgba(0,0,0,.14) !important;
   box-shadow: none !important;
 }
 
-/* Header si tu utilises .cofel-header */
+/* Header */
 .cofel-header{
-  background: rgba(0,0,0,.65) !important;
-  border-bottom: 1px solid rgba(255,255,255,.12) !important;
+  background: rgba(255,255,255,.75) !important;
+  border-bottom: 1px solid rgba(0,0,0,.10) !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
 
-/* Récaps / badges */
+/* Badges / chips */
 .badge, .tag, .chip, .pill{
-  background: rgba(255,255,255,.08) !important;
-  border: 1px solid rgba(255,255,255,.12) !important;
+  background: rgba(0,0,0,.05) !important;
+  border: 1px solid rgba(0,0,0,.10) !important;
   color: var(--txt) !important;
 }
 
-/* Tables (si tu en as) */
-table{
-  color: var(--txt) !important;
-}
-th, td{
-  border-color: rgba(255,255,255,.12) !important;
-}
+/* Tables */
+table{ color: var(--txt) !important; }
+th, td{ border-color: rgba(0,0,0,.10) !important; }
 
-/* Bouton "Retour accueil (Devis)" */
+/* Bouton "Retour accueil (Devis)" — style “Apple light” */
 a.cofel-back{
-  background: rgba(255,255,255,.08) !important;
-  color: #fff !important;
-  border: 1px solid rgba(255,255,255,.16) !important;
+  background: rgba(0,0,0,.06) !important;
+  color: #000 !important;
+  border: 1px solid rgba(0,0,0,.14) !important;
   border-radius: 999px !important;
   text-decoration: none !important;
 
@@ -139,7 +142,7 @@ a.cofel-back{
 }
 
 a.cofel-back:hover{
-  background: rgba(255,255,255,.12) !important;
+  background: rgba(0,0,0,.08) !important;
 }
 
 a.cofel-back:active{
@@ -147,6 +150,6 @@ a.cofel-back:active{
 }
 
 a.cofel-back:focus-visible{
-  outline: 2px solid rgba(255,255,255,.35);
+  outline: 2px solid rgba(0,0,0,.25);
   outline-offset: 2px;
 }
