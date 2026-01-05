@@ -9,15 +9,27 @@
   <!-- 🔒 Protection identique au portail interne -->
   <script src="./lock.js" type="module"></script>
 
+  <!-- ✅ CSS commun + thème DARK -->
+  <link rel="stylesheet" href="../styles/cofel.css" />
+  <link rel="stylesheet" href="../styles/cofel-components.css" />
+  <link rel="stylesheet" href="../styles/cofel-glass.css" />
+  <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css" />
+
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
- <style>
+<style>
   :root{
-    --cofel:#5a2d82; --cofel-2:#7838a7;
-    --glass: rgba(255,255,255,.12);
+    --txt:#f5f7ff;
+    --txt-dim: rgba(255,255,255,.68);
+    --accent: rgba(255,255,255,.82);
+    --radius:18px;
+    --blur:18px;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+
+    --glass: rgba(255,255,255,.10);
     --glass-soft: rgba(255,255,255,.06);
-    --txt:#f5f7ff; --txt-dim:#dcd6ff; --accent:#c9b7ff;
-    --radius:18px; --blur:18px; --shadow:0 10px 30px rgba(0,0,0,.35);
+    --stroke: rgba(255,255,255,.18);
+    --stroke-soft: rgba(255,255,255,.12);
   }
 
   *{box-sizing:border-box;}
@@ -26,10 +38,7 @@
   body{
     color:var(--txt);
     font-family:-apple-system,"SF Pro Text",BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-    background:
-      radial-gradient(800px 500px at 20% -10%, rgba(255,255,255,.10), transparent 60%),
-      radial-gradient(800px 500px at 110% 10%, rgba(255,255,255,.08), transparent 60%),
-      linear-gradient(135deg, var(--cofel), var(--cofel-2));
+    background:#000;                 /* ✅ plus de violet */
     padding:20px;
   }
 
@@ -41,34 +50,61 @@
 
   /* HEADER */
   header{
-    
     display:flex;
     flex-wrap:wrap;
     align-items:center;
     justify-content:space-between;
     gap:12px;
     margin-bottom:18px;
+
+    padding:14px 14px;
+    border-radius:20px;
+    background: rgba(255,255,255,.06);
+    border:1px solid var(--stroke-soft);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    box-shadow: var(--shadow);
   }
+
   .brand{
     display:flex; align-items:center; gap:12px;
     flex:1;
+    min-width:240px;
   }
-  .brand img{height:40px;}
-  h1{margin:0; font-size:20px;}
+  .brand img{height:40px; width:auto; border-radius:10px;}
+  h1{margin:0; font-size:18px; letter-spacing:.2px;}
 
   .actions{
     display:flex;
     gap:10px;
     flex-wrap:wrap;
+    justify-content:flex-end;
   }
 
+  /* ✅ Boutons (plus de blanc) */
   .btn{
-    background:#fff; color:#1a102b;
-    padding:10px 18px;
-    border:none; border-radius:999px;
-    font-size:14px;
-    font-weight:700;
-    box-shadow:0 10px 24px rgba(0,0,0,.25);
+    appearance:none;
+    border:none;
+    cursor:pointer;
+    font-weight:800;
+    color:var(--txt);
+    background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:999px;
+    padding:10px 16px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.25);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    transition: transform .16s, box-shadow .16s, background .16s, opacity .16s;
+  }
+  .btn:hover{
+    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px rgba(0,0,0,.35);
+  }
+  .btn:active{
+    transform: translateY(1px);
+    box-shadow: 0 6px 16px rgba(0,0,0,.28);
   }
 
   /* TABS */
@@ -77,29 +113,63 @@
     gap:10px;
     margin-bottom:18px;
     overflow-x:auto;
+    padding-bottom:2px;
   }
 
   .tab-btn{
-    padding:10px 20px;
+    padding:10px 18px;
     border-radius:999px;
-    border:1px solid rgba(255,255,255,.35);
-    background:rgba(0,0,0,.25);
-    color:#fff;
+    border:1px solid rgba(255,255,255,.18);
+    background: rgba(255,255,255,.06);
+    color: rgba(255,255,255,.86);
     font-size:14px;
-    font-weight:600;
+    font-weight:800;
     white-space:nowrap;
+    cursor:pointer;
+    transition: background .16s, transform .16s, box-shadow .16s, border-color .16s;
+  }
+  .tab-btn:hover{
+    background: rgba(255,255,255,.10);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(0,0,0,.22);
   }
   .tab-btn.active{
-    background:#fff;
-    color:#1a102b;
+    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
+    border-color: rgba(255,255,255,.26);
+    color:#fff;
   }
 
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+
   .card{
-    background:rgba(6,4,18,.85);
-    border:1px solid rgba(255,255,255,.22);
+    background: rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.14);
     border-radius:var(--radius);
     box-shadow:var(--shadow);
     padding:16px;
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+  }
+
+  /* Recherche */
+  #searchClient{
+    width:100%;
+    padding:12px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.18);
+    margin-bottom:14px;
+    font-size:15px;
+    background:rgba(255,255,255,.06);
+    color:var(--txt);
+    outline:none;
+    transition: border-color .18s, box-shadow .18s, background .18s;
+  }
+  #searchClient::placeholder{ color: rgba(255,255,255,.55); }
+  #searchClient:focus{
+    border-color: rgba(255,255,255,.34);
+    background: rgba(255,255,255,.08);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.14);
   }
 
   /*******************************
@@ -112,24 +182,54 @@
   th, td{
     padding:10px;
     font-size:14px;
+    vertical-align:top;
   }
   th{
-    background:rgba(0,0,0,.25);
-    color:var(--accent);
+    background: rgba(255,255,255,.06);
+    color: rgba(255,255,255,.75);
     font-size:11px;
     text-transform:uppercase;
+    letter-spacing:.35px;
+    border-bottom:1px solid rgba(255,255,255,.12);
+  }
+  tbody tr + tr td{
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+  td{ color: rgba(255,255,255,.92); }
+
+  .empty{ color: var(--txt-dim); }
+
+  /* ✅ Boutons actions ligne harmonisés */
+  .btn-row{
+    appearance:none;
+    border:none;
+    cursor:pointer;
+    font-weight:800;
+    padding:8px 10px;
+    font-size:12px;
+    border-radius:10px;
+    color:#fff;
+    background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+    border:1px solid rgba(255,255,255,.16);
+    box-shadow: 0 10px 22px rgba(0,0,0,.22);
+    transition: transform .16s, box-shadow .16s, background .16s, opacity .16s;
+    margin:2px 4px 2px 0;
+  }
+  .btn-row:hover{
+    background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(0,0,0,.32);
+  }
+  .btn-row:active{
+    transform: translateY(1px);
+    box-shadow: 0 6px 16px rgba(0,0,0,.26);
   }
 
-  .btn-row{
-    padding:6px 10px;
-    font-size:12px;
-    border-radius:8px;
-    border:none;
-  }
-  .btn-approve{background:#4caf50;color:#fff;font-weight:700;}
-  .btn-row-secondary{background:#555;color:#fff;}
-  .btn-row-reset{background:#ffca28;color:#000;font-weight:700;}
-  .btn-row-delete{background:#c62828;color:#fff;}
+  /* Variantes (reste lisible, pas flashy) */
+  .btn-approve{ border-color: rgba(140,255,190,.35); }
+  .btn-row-secondary{ border-color: rgba(255,255,255,.18); opacity:.95; }
+  .btn-row-reset{ border-color: rgba(255,220,120,.35); color:#fff; }
+  .btn-row-delete{ border-color: rgba(255,120,120,.40); color:#fff; }
 
   /*******************************
        MODE PORTRAIT iPHONE
@@ -137,22 +237,17 @@
   *******************************/
   @media(max-width:700px){
 
-    /* cacher les en-têtes */
-    thead{
-      display:none;
-    }
+    thead{ display:none; }
 
-    /* chaque ligne devient une carte */
     table tr{
       display:block;
-      background:rgba(255,255,255,0.05);
-      border:1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.12);
       margin-bottom:12px;
       padding:12px;
       border-radius:14px;
     }
 
-    /* chaque cellule = une ligne */
     table td{
       display:flex;
       justify-content:space-between;
@@ -160,34 +255,25 @@
       font-size:15px;
       border-bottom:1px solid rgba(255,255,255,0.08);
     }
-    table td:last-child{
-      border-bottom:none;
-    }
+    table td:last-child{ border-bottom:none; }
 
-    /* ajouter les labels automatiquement (8 colonnes) */
-    table td:nth-child(1)::before{content:"Email : "; color:#c9b7ff;}
-    table td:nth-child(2)::before{content:"Société : "; color:#c9b7ff;}
-    table td:nth-child(3)::before{content:"Contact : "; color:#c9b7ff;}
-    table td:nth-child(4)::before{content:"Remise : "; color:#c9b7ff;}
-    table td:nth-child(5)::before{content:"Remise SR : "; color:#c9b7ff;}
-    table td:nth-child(6)::before{content:"Configs : "; color:#c9b7ff;}
-    table td:nth-child(7)::before{content:"Statut : "; color:#c9b7ff;}
-    table td:nth-child(8)::before{content:"Actions : "; color:#c9b7ff;}
+    table td:nth-child(1)::before{content:"Email : "; color: rgba(255,255,255,.72);}
+    table td:nth-child(2)::before{content:"Société : "; color: rgba(255,255,255,.72);}
+    table td:nth-child(3)::before{content:"Contact : "; color: rgba(255,255,255,.72);}
+    table td:nth-child(4)::before{content:"Remise : "; color: rgba(255,255,255,.72);}
+    table td:nth-child(5)::before{content:"Remise SR : "; color: rgba(255,255,255,.72);}
+    table td:nth-child(6)::before{content:"Configs : "; color: rgba(255,255,255,.72);}
+    table td:nth-child(7)::before{content:"Statut : "; color: rgba(255,255,255,.72);}
+    table td:nth-child(8)::before{content:"Actions : "; color: rgba(255,255,255,.72);}
 
-    /* boutons plus espacés */
     .btn-row{
       padding:10px 14px;
       font-size:14px;
       margin:4px 2px;
     }
 
-    h1{
-      font-size:18px;
-    }
-
-    body{
-      padding:12px;
-    }
+    h1{ font-size:16px; }
+    body{ padding:12px; }
   }
 
   /*******************************
@@ -196,7 +282,7 @@
   #modalApprove,#modalCreate{
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,.6);
+    background:rgba(0,0,0,.70);
     display:none;
     align-items:center;
     justify-content:center;
@@ -204,34 +290,76 @@
     padding:20px;
   }
   .modal-card{
-    background:rgba(25,15,45,.95);
+    background: rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.16);
+    box-shadow: 0 16px 40px rgba(0,0,0,.45);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
     padding:18px;
-    border-radius:14px;
+    border-radius:16px;
     width:100%;
     max-width:420px;
   }
-  .modal-field{
-    margin-bottom:12px;
+  .modal-card h3{ margin:0 0 12px; letter-spacing:.2px; }
+
+  .modal-field{ margin-bottom:12px; }
+  .modal-field label{
+    display:block;
+    font-weight:800;
+    font-size:12px;
+    color: rgba(255,255,255,.78);
+    margin-bottom:6px;
   }
   .modal-field input,.modal-field select{
     width:100%;
     padding:12px;
     font-size:15px;
-    background:rgba(255,255,255,.08);
-    border-radius:8px;
-    border:1px solid rgba(255,255,255,.25);
+    background:rgba(255,255,255,.06);
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.18);
     color:#fff;
+    outline:none;
   }
-  .btn-modal{
-    padding:10px 18px;
-    border-radius:999px;
-    border:none;
-    font-weight:700;
+  .modal-field input:focus,.modal-field select:focus{
+    border-color: rgba(255,255,255,.34);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.14);
   }
-  .btn-ok{background:#fff;color:#1a102b;}
-  .btn-cancel{background:rgba(255,255,255,.15);color:#fff;}
-</style>
 
+  .modal-actions{
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+    margin-top:12px;
+  }
+
+  .btn-modal{
+    appearance:none;
+    border:none;
+    cursor:pointer;
+    font-weight:900;
+    padding:10px 14px;
+    border-radius:999px;
+    color:#fff;
+    background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+    border:1px solid rgba(255,255,255,.18);
+    box-shadow: 0 10px 22px rgba(0,0,0,.22);
+    transition: transform .16s, box-shadow .16s, background .16s;
+  }
+  .btn-modal:hover{
+    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(0,0,0,.32);
+  }
+  .btn-modal:active{
+    transform: translateY(1px);
+    box-shadow: 0 6px 16px rgba(0,0,0,.26);
+  }
+  .btn-cancel{
+    background: rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.14);
+  }
+
+</style>
 </head>
 
 <body>
@@ -241,13 +369,7 @@
  * PROTECTION ADMIN — accès réservé aux FULL ADMINS
  ****************************************************/
 const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
-
-// Emails autorisés en administration complète
-const FULL_ADMINS = [
-  "commercial@cofel72.fr"   // toi
-];
-
-// Si l'utilisateur n'est pas un administrateur complet → accès refusé
+const FULL_ADMINS = ["commercial@cofel72.fr"];
 if (!FULL_ADMINS.includes(profile.email || "")) {
   alert("⛔ Accès réservé à l'administrateur complet.");
   window.location.href = "../index.html";
@@ -266,15 +388,17 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
       <button id="btnCreateClient" class="btn">➕ Créer un client</button>
       <button id="btnBack" class="btn">⬅ Retour</button>
     </div>
-   </header>
+  </header>
 
   <!-- ===== MÉMO REMISES (indicatif) ===== -->
   <section class="memo-remises" style="
     margin:14px 0 18px;
     padding:14px 16px;
     border-radius:16px;
-    background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
-    border:1px solid rgba(255,255,255,.18);
+    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+    border:1px solid rgba(255,255,255,.14);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
   ">
     <h3 style="margin:0 0 8px;">📝 Mémo remises SR (indicatif)</h3>
     <ul style="margin:0; padding-left:18px; line-height:1.5;">
@@ -289,7 +413,6 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
 
   <!-- TABS -->
   <div class="tabs">
-
     <button class="tab-btn active" data-tab="clients">Clients</button>
     <button class="tab-btn" data-tab="requests">Demandes</button>
   </div>
@@ -302,16 +425,6 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
       id="searchClient"
       type="text"
       placeholder="Rechercher (email, société, contact…)"
-      style="
-        width:100%;
-        padding:12px;
-        border-radius:8px;
-        border:1px solid rgba(255,255,255,.25);
-        margin-bottom:14px;
-        font-size:15px;
-        background:rgba(255,255,255,.08);
-        color:white;
-      "
     />
 
     <div class="card">
@@ -378,10 +491,10 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
 
       <div class="modal-actions">
         <button class="btn-modal btn-cancel" id="approveCancel">Annuler</button>
-        <button class="btn-modal btn-ok" id="approveSave">Approuver</button>
+        <button class="btn-modal" id="approveSave">Approuver</button>
       </div>
 
-      <div id="approveMsg"></div>
+      <div id="approveMsg" style="margin-top:10px;"></div>
     </div>
   </div>
 
@@ -417,7 +530,7 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
 
       <div class="modal-actions">
         <button class="btn-modal btn-cancel" id="createCancel">Annuler</button>
-        <button class="btn-modal btn-ok" id="createSave">Créer</button>
+        <button class="btn-modal" id="createSave">Créer</button>
       </div>
 
       <div id="createMsg" style="margin-top:10px;"></div>
@@ -621,7 +734,6 @@ reqTbody.addEventListener("click", async e => {
   /* Approuver */
   if (e.target.classList.contains("btn-approve")){
     approvalTargetId = id;
-    // reset champs
     document.getElementById("approveDiscount").value = "0";
     document.getElementById("approveDiscountSR").value = "0";
     document.getElementById("modalApprove").style.display = "flex";
