@@ -158,3 +158,30 @@ a.cofel-back:focus-visible{
   accent-color: #000 !important;
 }
 
+/* ✅ SELECT (menus déroulants) : enlever le focus violet, harmoniser Dark */
+.cofel-container select{
+  background: rgba(255,255,255,.06) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  border-radius: 14px !important;
+}
+
+/* Focus / ouverture : on force un halo neutre (blanc/gris) */
+.cofel-container select:focus,
+.cofel-container select:focus-visible{
+  outline: none !important;
+  border-color: rgba(255,255,255,.35) !important;
+  box-shadow: 0 0 0 3px rgba(255,255,255,.16) !important;
+}
+
+/* Options (quand le navigateur le permet) */
+.cofel-container select option{
+  background: #0b0b0b !important;
+  color: #fff !important;
+}
+
+/* (Optionnel) si tes fieldset passent en violet au clic */
+.cofel-container fieldset:focus-within{
+  border-color: rgba(255,255,255,.14) !important;
+  box-shadow: none !important;
+}
