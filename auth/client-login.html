@@ -5,48 +5,108 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Connexion client — Cofel</title>
+
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- ✅ CSS commun + thème DARK -->
+  <link rel="stylesheet" href="../styles/cofel.css">
+  <link rel="stylesheet" href="../styles/cofel-components.css">
+  <link rel="stylesheet" href="../styles/cofel-glass.css">
+  <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
+
   <style>
-    :root{ --cofel:#5a2d82; --cofel-2:#7838a7; --txt:#f5f7ff; --radius:18px; --blur:18px; --shadow:0 10px 30px rgba(0,0,0,.35); }
-    *{box-sizing:border-box} html,body{height:100%}
+    /* Page login : fond dark sobre + carte glass */
+    *{box-sizing:border-box}
+    html,body{height:100%}
     body{
-      margin:0; color:var(--txt);
+      margin:0;
+      color:var(--txt, #f5f7ff);
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
-      background:
-        radial-gradient(800px 500px at 20% -10%, rgba(255,255,255,.10), transparent 60%),
-        radial-gradient(800px 500px at 110% 10%, rgba(255,255,255,.08), transparent 60%),
-        linear-gradient(135deg, var(--cofel), var(--cofel-2));
-      display:flex; align-items:center; justify-content:center; padding:24px;
+      background:#000; /* ✅ plus de violet */
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
     }
+
+    /* Card */
     .card{
       width:min(440px, 92vw);
-      background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
-      border:1px solid rgba(255,255,255,.2);
-      border-radius:20px; padding:22px; box-shadow:var(--shadow);
-      backdrop-filter: blur(var(--blur));
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:20px;
+      padding:22px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.40);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
     }
+
     .brand{display:flex; align-items:center; gap:12px; margin-bottom:10px}
     .brand img{height:42px; width:auto; border-radius:10px}
     h1{margin:0; font-size:20px}
     p{margin:6px 0 16px; opacity:.9}
-    label{font-weight:700; font-size:12px; color:#c9b7ff}
+
+    label{
+      font-weight:700;
+      font-size:12px;
+      color: rgba(255,255,255,.85); /* ✅ plus de violet */
+    }
+
     input[type="email"],
     input[type="password"]{
-      width:100%; margin-top:6px; padding:12px;
-      background: rgba(255,255,255,.08); color:var(--txt);
-      border:1px solid rgba(255,255,255,.18); border-radius:12px; outline:none;
+      width:100%;
+      margin-top:6px;
+      padding:12px;
+      background: rgba(255,255,255,.06);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:12px;
+      outline:none;
     }
-    .row{display:flex; gap:10px; align-items:center; justify-content:space-between; margin-top:14px}
+    input::placeholder{color: rgba(255,255,255,.55)}
+    input:focus{
+      border-color: rgba(255,255,255,.35);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.14);
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:14px;
+      flex-wrap:wrap;
+    }
+
+    /* ✅ Bouton harmonisé (plus blanc) */
     .btn{
-      appearance:none; border:none; cursor:pointer; font-weight:800;
-      color:#0b0b0b; background:#fff; border-radius:12px; padding:12px 16px;
-      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+      appearance:none;
+      cursor:pointer;
+      font-weight:800;
+      border-radius:999px;
+      padding:12px 16px;
+
+      color:#fff;
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow: 0 10px 24px rgba(0,0,0,.30);
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
     }
+    .btn:hover{ background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08)); }
+    .btn:active{ transform: translateY(1px); box-shadow: 0 6px 16px rgba(0,0,0,.28); }
+
+    .sub{
+      font-size:12px;
+      opacity:.9;
+      color:#fff;
+      text-decoration:underline;
+      white-space:nowrap;
+    }
+
     .msg{ color:#ffe3e3; min-height:20px; margin-top:12px; font-size:13px }
-    .sub{font-size:12px; opacity:.85; margin-top:8px}
-    a{color:#fff}
   </style>
 </head>
+
 <body>
   <main class="card">
     <div class="brand">
@@ -64,7 +124,7 @@
 
       <div class="row">
         <button class="btn" type="submit">Se connecter</button>
-        <a href="./request.html" class="sub" style="text-decoration:underline">Demander un accès</a>
+        <a href="./request.html" class="sub">Demander un accès</a>
       </div>
 
       <div id="msg" class="msg"></div>
@@ -83,7 +143,6 @@
       const project = parts.length ? parts[0] : "";
       return `/${project}/`;
     }
-
     const returnTo = getProjectBase() + "index.html";
 
     form.addEventListener('submit', async (e)=>{
@@ -118,25 +177,24 @@
         }
 
         // Sécurise discount_sr : si absent/invalide => 0 (jamais de remise par erreur)
-const profile = data.profile || {};
-let v = profile.discount_sr;
+        const profile = data.profile || {};
+        let v = profile.discount_sr;
 
-if (v === undefined || v === null || v === "") {
-  profile.discount_sr = 0;
-} else {
-  if (typeof v === "string") v = v.replace(",", ".").trim();
-  v = Number(v);
-  if (!Number.isFinite(v)) {
-    profile.discount_sr = 0;
-  } else {
-    // accepte 60 ou 0.6
-    const rate = (v > 1) ? (v / 100) : v;
-    profile.discount_sr = (rate >= 0 && rate <= 0.9) ? rate : 0;
-  }
-}
+        if (v === undefined || v === null || v === "") {
+          profile.discount_sr = 0;
+        } else {
+          if (typeof v === "string") v = v.replace(",", ".").trim();
+          v = Number(v);
+          if (!Number.isFinite(v)) {
+            profile.discount_sr = 0;
+          } else {
+            // accepte 60 ou 0.6
+            const rate = (v > 1) ? (v / 100) : v;
+            profile.discount_sr = (rate >= 0 && rate <= 0.9) ? rate : 0;
+          }
+        }
 
-localStorage.setItem('cofel_client_profile', JSON.stringify(profile));
-
+        localStorage.setItem('cofel_client_profile', JSON.stringify(profile));
 
         msg.style.color = '#b7ffcf';
         msg.textContent = "Connexion réussie, redirection...";
