@@ -5,193 +5,243 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Portail Administrateur — Devis</title>
 
+  <!-- ✅ CSS commun + thème DARK -->
+  <link rel="stylesheet" href="../styles/cofel.css" />
+  <link rel="stylesheet" href="../styles/cofel-components.css" />
+  <link rel="stylesheet" href="../styles/cofel-glass.css" />
+  <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css" />
 
- <style>
-    /* ======= THEME COMPLET IDENTIQUE AUX CONFIGURATEURS COFEL ======= */
-    :root{
-      --cofel:#5a2d82;
-      --cofel-2:#7838a7;
-      --violet:#6b39a0;
-      --violet-2:#8752c1;
-      --violet-soft:#c9b7ff;
-      --txt:#f5f7ff;
-      --txt-dim:#e6e6ff;
-      --accent:#c9b7ff;
-      --radius:20px;
-      --blur:18px;
-      --shadow:0 10px 30px rgba(0,0,0,.25);
-    }
+  <style>
+    *{box-sizing:border-box}
+    html,body{height:100%}
 
     body{
       margin:0;
-      font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto;
-      background:
-        radial-gradient(800px 500px at 20% -10%, rgba(255,255,255,.10), transparent 60%),
-        radial-gradient(800px 500px at 110% 10%, rgba(255,255,255,.08), transparent 60%),
-        linear-gradient(135deg, var(--cofel), var(--cofel-2));
-      color:var(--txt);
+      font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Arial, sans-serif;
+      background:#000;              /* ✅ plus de violet */
+      color:var(--txt,#f5f7ff);
       min-height:100vh;
     }
 
     /* ======= HEADER HERO ======= */
     header{
-      padding:28px 40px;
-      background:rgba(255,255,255,.10);
-      backdrop-filter:blur(var(--blur));
-      border-bottom:1px solid rgba(255,255,255,.18);
-      box-shadow:var(--shadow);
+      padding:22px 20px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .header-inner{
+      max-width:1250px;
+      margin:0 auto;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+    }
+
+    .header-title{
+      font-size:20px;
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      letter-spacing:.2px;
+    }
+
+    .btn-link{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      text-decoration:none;
+      padding:10px 14px;
+      border-radius:999px;
+      color:var(--txt,#fff);
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+      transition: transform .16s, box-shadow .16s, background .16s;
+    }
+    .btn-link:hover{
+      background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(0,0,0,.35);
+    }
+    .btn-link:active{
+      transform: translateY(1px);
+      box-shadow: 0 6px 16px rgba(0,0,0,.28);
     }
 
     /* ======= CONTAINER ======= */
     .container{
       max-width:1250px;
-      margin:40px auto;
-      background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
-      border-radius:var(--radius);
-      backdrop-filter:blur(var(--blur));
-      border:1px solid rgba(255,255,255,.22);
-      padding:35px;
-      box-shadow:var(--shadow);
+      margin:26px auto;
+      padding:0 20px 40px;
+    }
+
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:20px;
+      padding:18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
     }
 
     h2{
-      margin-top:0;
-      color:var(--accent);
-      font-size:26px;
-      font-weight:600;
-      margin-bottom:25px;
+      margin:0 0 14px;
+      color: rgba(255,255,255,.92);
+      font-size:20px;
+      font-weight:800;
+      letter-spacing:.2px;
     }
 
     /* ======= FILTRES ======= */
     .filters{
       display:flex;
       flex-wrap:wrap;
-      gap:18px;
-      margin-bottom:30px;
+      gap:12px;
+      margin-bottom:14px;
     }
-    .filters input, .filters select{
-      padding:12px 16px;
-      background:rgba(255,255,255,.12);
-      border:1px solid rgba(255,255,255,.22);
-      border-radius:var(--radius);
-      color:var(--txt);
-      font-size:15px;
-      backdrop-filter:blur(var(--blur));
+    .filters input,
+    .filters select{
+      padding:10px 12px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:14px;
+      color:var(--txt,#fff);
+      font-size:14px;
       outline:none;
+      min-width:200px;
     }
-    .filters input::placeholder{
-      color:var(--txt-dim);
+    .filters input::placeholder{ color: rgba(255,255,255,.55); }
+    .filters input:focus,
+    .filters select:focus{
+      border-color: rgba(255,255,255,.35);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.14);
     }
 
     /* ======= TABLE ======= */
+    .table-wrap{
+      overflow:auto;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.14);
+    }
     table{
       width:100%;
       border-collapse:collapse;
-      background:rgba(255,255,255,.06);
-      backdrop-filter:blur(var(--blur));
-      border-radius:var(--radius);
-      overflow:hidden;
+      min-width:900px;
+      background: rgba(0,0,0,.20);
     }
-    thead{
-      background:rgba(255,255,255,.10);
+    thead tr{
+      background: rgba(255,255,255,.06);
     }
     thead th{
-      padding:14px 16px;
-      color:var(--accent);
-      font-size:15px;
-      border-bottom:1px solid rgba(255,255,255,.18);
+      padding:12px 12px;
+      color: rgba(255,255,255,.78);
+      font-size:12px;
+      letter-spacing:.3px;
       text-align:left;
+      border-bottom:1px solid rgba(255,255,255,.12);
+      white-space:nowrap;
     }
     tbody td{
-      padding:14px 16px;
-      border-bottom:1px solid rgba(255,255,255,.10);
-      font-size:14px;
-      color:var(--txt);
+      padding:12px 12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      font-size:13px;
+      color: rgba(255,255,255,.92);
+      vertical-align:top;
     }
     tbody tr:hover{
-      background:rgba(255,255,255,.08);
+      background: rgba(255,255,255,.05);
     }
 
-    /* ======= BOUTON \"VOIR\" ======= */
+    /* ======= BOUTON "VOIR" ======= */
     .btn-view{
-      padding:10px 16px;
-      background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
-      border:1px solid rgba(255,255,255,.20);
-      color:var(--txt);
-      border-radius:12px;
+      padding:8px 12px;
+      border-radius:999px;
       cursor:pointer;
-      font-size:14px;
-      backdrop-filter:blur(var(--blur));
-      box-shadow:var(--shadow);
-      transition:0.2s;
+      font-weight:800;
+      font-size:13px;
+
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.18);
+      color: var(--txt,#fff);
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+      transition: transform .16s, box-shadow .16s, background .16s;
+      white-space:nowrap;
     }
     .btn-view:hover{
-      background:rgba(255,255,255,.22);
+      background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(0,0,0,.35);
+    }
+    .btn-view:active{
+      transform: translateY(1px);
+      box-shadow: 0 6px 16px rgba(0,0,0,.28);
     }
   </style>
 </head>
+
 <body>
 
 <script>
-// Vérifier que l'utilisateur connecté est l'administrateur
 /****************************************************
  * PROTECTION ADMIN — accès réservé aux FULL ADMINS
  ****************************************************/
 const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
+const FULL_ADMINS = ["commercial@cofel72.fr"];
 
-// Emails autorisés en administration complète
-const FULL_ADMINS = [
-    "commercial@cofel72.fr"   // toi
-];
-
-// Si l'utilisateur n'est pas un administrateur complet → accès refusé
 if (!FULL_ADMINS.includes(profile.email || "")) {
-    alert("⛔ Accès réservé à l'administrateur complet.");
-    window.location.href = "../index.html";
+  alert("⛔ Accès réservé à l'administrateur complet.");
+  window.location.href = "../index.html";
 }
-
 </script>
 
 <header>
-  <div style="display:flex;justify-content:space-between;align-items:center;">
-    <div style="font-size:26px;font-weight:600;display:flex;align-items:center;gap:12px;">
-      Portail Administrateur — Devis
-    </div>
-    <a href="../index.html" style="background:rgba(255,255,255,.12);padding:10px 18px;border-radius:12px;color:var(--txt);text-decoration:none;border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(var(--blur));">← Retour configurateurs</a>
+  <div class="header-inner">
+    <div class="header-title">Portail Administrateur — Devis</div>
+    <a class="btn-link" href="../index.html">← Retour configurateurs</a>
   </div>
 </header>
 
 <div class="container">
-  <h2>📄 Tous les devis</h2>
+  <div class="panel">
+    <h2>📄 Tous les devis</h2>
 
-  <div class="filters">
-    <input type="text" id="searchEmail" placeholder="Rechercher email client" />
-    <input type="text" id="searchCompany" placeholder="Rechercher société" />
-    <select id="searchProduct">
-      <option value="">Tous les produits</option>
-      <option value="tole-tablette">Tôle tablette</option>
-      <option value="rampe-lumineuse">Rampe lumineuse (PLL)</option>
-      <option value="totem">Totems</option>
-      <option value="lettres-pvc">Lettres PVC</option>
-      <option value="devis-index">Devis Index</option>
-    </select>
-    <input type="date" id="searchDate" />
+    <div class="filters">
+      <input type="text" id="searchEmail" placeholder="Rechercher email client" />
+      <input type="text" id="searchCompany" placeholder="Rechercher société" />
+      <select id="searchProduct">
+        <option value="">Tous les produits</option>
+        <option value="tole-tablette">Tôle tablette</option>
+        <option value="rampe-lumineuse">Rampe lumineuse (PLL)</option>
+        <option value="totem">Totems</option>
+        <option value="lettres-pvc">Lettres PVC</option>
+        <option value="devis-index">Devis Index</option>
+      </select>
+      <input type="date" id="searchDate" />
+    </div>
+
+    <div class="table-wrap">
+      <table id="tableQuotes">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Email</th>
+            <th>Société</th>
+            <th>Contact</th>
+            <th>Produit</th>
+            <th>Total HT</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
-
-  <table id="tableQuotes">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Email</th>
-        <th>Société</th>
-        <th>Contact</th>
-        <th>Produit</th>
-        <th>Total HT</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
 </div>
 
 <script src="./admin-quotes.js"></script>
