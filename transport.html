@@ -4,91 +4,165 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Calculateur Transport — Cofel</title>
+
+  <!-- ✅ CSS commun + thème DARK -->
+  <link rel="stylesheet" href="./styles/cofel.css" />
+  <link rel="stylesheet" href="./styles/cofel-components.css" />
+  <link rel="stylesheet" href="./styles/cofel-glass.css" />
+  <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css" />
+
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <style>
     :root{
-      --cofel:#5a2d82; --cofel-2:#7838a7; --txt:#f5f7ff; --txt-dim:#e6e6ff; --accent:#c9b7ff;
-      --glass1: rgba(255,255,255,.16); --glass2: rgba(255,255,255,.06);
-      --border: rgba(255,255,255,.2); --inputbg: rgba(255,255,255,.10); --inputbd: rgba(255,255,255,.22);
-      --radius:18px; --blur:18px; --shadow:0 10px 30px rgba(0,0,0,.35);
+      --txt:#f5f7ff;
+      --txt-dim: rgba(255,255,255,.68);
+      --accent: rgba(255,255,255,.82);
+
+      --glass1: rgba(255,255,255,.12);
+      --glass2: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.16);
+
+      --radius:18px;
+      --blur:18px;
+      --shadow:0 10px 30px rgba(0,0,0,.45);
     }
+
     *{box-sizing:border-box}
     html,body{height:100%}
+
     body{
-      margin:0; color:var(--txt);
+      margin:0;
+      color:var(--txt);
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
-      background:
-        radial-gradient(800px 500px at 20% -10%, rgba(255,255,255,.10), transparent 60%),
-        radial-gradient(800px 500px at 110% 10%, rgba(255,255,255,.08), transparent 60%),
-        linear-gradient(135deg, var(--cofel), var(--cofel-2));
+      background:#000; /* ✅ plus de violet */
     }
-    .hero{ padding:34px 20px 18px; }
+
+    .hero{ padding:22px 20px 10px; }
     .hero-inner{
       max-width:1100px; margin:0 auto;
       display:flex; align-items:center; justify-content:space-between; gap:14px;
     }
+
     .brand{
       display:flex; align-items:center; gap:12px;
-      padding:10px 14px; border-radius:14px;
-      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
-      border:1px solid var(--border); backdrop-filter: blur(var(--blur)); box-shadow: var(--shadow);
+      padding:10px 14px; border-radius:16px;
+      background: linear-gradient(180deg, var(--glass1), var(--glass2));
+      border:1px solid var(--border);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      box-shadow: var(--shadow);
     }
     .brand img{height:42px; width:auto; border-radius:10px}
     .brand h1{ margin:0; font-size:20px; letter-spacing:.2px; }
+
     .hero-actions{ display:flex; align-items:center; gap:10px; }
 
-    .wrap{ max-width:1100px; margin:20px auto 40px; padding:0 20px; }
+    .wrap{ max-width:1100px; margin:18px auto 40px; padding:0 20px; }
     .card{
-      background: linear-gradient(180deg, var(--glass1), var(--glass2));
-      border:1px solid var(--border); border-radius:20px;
-      padding:18px; box-shadow:var(--shadow); backdrop-filter: blur(var(--blur));
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:20px;
+      padding:18px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
       margin-bottom:16px;
     }
+
     h2{ margin:0 0 12px; font-size: clamp(18px, 2.4vw, 22px); letter-spacing:.2px; }
-    label{font-weight:700; font-size:12px; color:var(--accent)}
+    label{font-weight:800; font-size:12px; color:rgba(255,255,255,.78)}
     .grid{ display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 
     select{
-      width:100%; padding:12px; color:var(--txt);
-      background: rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18);
-      border-radius:12px; outline:none; backdrop-filter: blur(var(--blur)); appearance:none;
-      transition: border-color .18s ease, background .18s ease;
+      width:100%;
+      padding:12px;
+      color:var(--txt);
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:14px;
+      outline:none;
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      appearance:none;
+      transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
     }
-    select:focus{ border-color: rgba(255,255,255,.34); background: rgba(255,255,255,.12); }
-    select option{ background:#5a2d82; color:var(--txt); }
+    select:focus{
+      border-color: rgba(255,255,255,.30);
+      background: rgba(255,255,255,.08);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.12);
+    }
+    /* ✅ options non violettes */
+    select option{ background:#0b0b0b; color:#fff; }
 
     .price-box{
       display:flex; align-items:center; justify-content:space-between; gap:12px;
-      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
-      border:1px solid var(--inputbd); border-radius:16px;
-      padding:14px 16px; margin-top:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.05));
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:16px;
+      padding:14px 16px;
+      margin-top:12px;
     }
-    .price{ font-size:24px; font-weight:800; letter-spacing:.2px; }
+    .price{ font-size:24px; font-weight:900; letter-spacing:.2px; }
     .muted{ color:var(--txt-dim); font-size:12px; }
 
-    /* Message explicatif messagerie */
     .info-note{
-      margin-top:14px; font-size:13px; color:var(--txt-dim);
-      background: rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
-      border-radius:12px; padding:10px 12px;
+      margin-top:14px;
+      font-size:13px;
+      color:var(--txt-dim);
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      padding:10px 12px;
     }
 
+    /* ✅ Boutons harmonisés (plus de blanc) */
     .btn{
-      appearance:none; border:none; cursor:pointer; font-weight:800;
-      color:#0b0b0b; background:#fff; border-radius:12px; padding:10px 14px;
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      font-weight:900;
+      color:var(--txt);
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:14px;
+      padding:10px 14px;
       box-shadow: 0 10px 24px rgba(0,0,0,.25);
-      transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease, opacity .16s ease;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .btn:hover{
+      background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(0,0,0,.35);
     }
     .btn:active{ transform: translateY(1px); box-shadow: 0 6px 16px rgba(0,0,0,.28); }
-    .btn-ghost{ color:var(--txt); background: transparent; border:1px solid var(--inputbd); }
-    .btn-primary{ background:#fff; }
+    .btn[disabled]{ opacity:.45; cursor:not-allowed; box-shadow:none; transform:none; }
+
+    .btn-ghost{
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.14);
+    }
+
     .stack{ display:flex; gap:10px; flex-wrap:wrap; }
 
     .toast{
       position:fixed; right:16px; bottom:16px;
-      background:#fff; color:#222; padding:10px 12px;
-      border-radius:10px; box-shadow:0 10px 24px rgba(0,0,0,.35);
+      background: rgba(255,255,255,.10);
+      color: #fff;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow: 0 12px 30px rgba(0,0,0,.45);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
       display:none;
+      z-index:9999;
     }
     .toast.show{ display:block; }
 
@@ -98,6 +172,7 @@
     }
   </style>
 </head>
+
 <body>
   <header class="hero">
     <div class="hero-inner">
@@ -114,6 +189,7 @@
   <main class="wrap">
     <section class="card">
       <h2>🧮 Sélection</h2>
+
       <div class="grid">
         <div>
           <label for="typeSelect">Type de transport</label>
@@ -122,12 +198,14 @@
             <option value="affretement">Affrètement</option>
           </select>
         </div>
+
         <div>
           <label for="deptSelect">Département</label>
           <select id="deptSelect">
             <option value="">— Choisir un département —</option>
           </select>
         </div>
+
         <div>
           <label id="thirdLabel" for="thirdSelect">Poids (kg)</label>
           <select id="thirdSelect" disabled>
@@ -136,7 +214,6 @@
         </div>
       </div>
 
-      <!-- 🟣 Message explicatif messagerie -->
       <div class="info-note">
         Le transport par <strong>messagerie</strong> s’applique uniquement pour les colis et pour les palettes
         d’une dimension maximale de <strong>120 × 80 cm</strong>.
@@ -197,7 +274,6 @@
         return {
           departement : (r.departement || "").trim(),
           poids_kg    : (r.poids_kg || r["poids(kg)"] || "").trim(),
-          // Pour l'affrètement on lit la colonne de fourchettes de longueur
           longueur_m  : (r.longueur_m || r["longueurpalette(m)"] || "").trim(),
           prix_ht     : String((r.prix_ht || r.prix || "0")).replace(",",".")
         };
@@ -237,7 +313,6 @@
         `<option value="">— Choisir un département —</option>` +
         depts.map(d => `<option value="${d}">${d}</option>`).join("");
 
-      // Reset du 3e sélecteur & prix
       state.dept  = "";
       state.third = "";
       thirdSelect.innerHTML = `<option value="">— Choisir —</option>`;
@@ -263,7 +338,6 @@
       const rowsDept = byDept(isMess ? state.mess : state.affr, state.dept);
 
       if(isMess){
-        // MESSAGERIE : on propose les valeurs de poids
         const opts = [...new Set(
           rowsDept.map(r => r.poids_kg).filter(Boolean)
         )].sort((a,b) => parseFloat(a) - parseFloat(b));
@@ -272,7 +346,6 @@
           `<option value="">— Choisir —</option>` +
           opts.map(v => `<option value="${v}">${v}</option>`).join("");
       } else {
-        // AFFRETEMENT : fourchettes de longueur EXACTEMENT comme dans le CSV
         const opts = [...new Set(
           rowsDept.map(r => r.longueur_m).filter(Boolean)
         )];
@@ -321,7 +394,6 @@
         ? `Transport — Messagerie — Dept ${state.dept} — ${state.third} kg`
         : `Transport — Affrètement — Dept ${state.dept} — ${state.third} m`;
 
-      // Conversion "123,00 €" => 123.00
       let pu = parseFloat(
         priceEl.textContent.replace(/\s|€|,/g, ch => ch === "," ? "." : "")
       );
