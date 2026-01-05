@@ -185,3 +185,39 @@ a.cofel-back:focus-visible{
   border-color: rgba(255,255,255,.14) !important;
   box-shadow: none !important;
 }
+/* ===========================
+   PATCH — Custom Select (Lettres)
+   Enlève le menu violet (#3c1f61)
+=========================== */
+
+/* Le bouton (fermé) */
+.cselect-toggle{
+  background: rgba(255,255,255,.06) !important;
+  color:#fff !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+}
+
+/* Le menu (ouvert) */
+.cselect-menu{
+  background:#0b0b0b !important;            /* ✅ plus de violet */
+  border-color: rgba(255,255,255,.18) !important;
+  box-shadow: 0 16px 40px rgba(0,0,0,.60) !important;
+}
+
+/* Les options */
+.cselect-option{
+  background: rgba(255,255,255,.06) !important;
+  border-color: rgba(255,255,255,.14) !important;
+  color:#fff !important;
+}
+.cselect-option:hover,
+.cselect-option[aria-selected="true"]{
+  background: rgba(255,255,255,.12) !important;
+  border-color: rgba(255,255,255,.22) !important;
+}
+
+/* Au cas où un select natif serait visible ailleurs */
+select option{
+  background:#0b0b0b !important;
+  color:#fff !important;
+}
