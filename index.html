@@ -150,7 +150,11 @@
     footer{ color:#f3ecff; font-size:12px; text-align:center; padding:24px 10px; opacity:.9; }
     @media (max-width:720px){ .brand h1{display:none;} }
 
-    .toast{ position:fixed; right:16px; bottom:16px; background:#fff; color:#222; padding:10px 12px; border-radius:10px; box-shadow:0 10px 24px rgba(0,0,0,.35); display:none; z-index:99; }
+    .toast{
+      position:fixed; right:16px; bottom:16px;
+      background:#fff; color:#222; padding:10px 12px; border-radius:10px;
+      box-shadow:0 10px 24px rgba(0,0,0,.35); display:none; z-index:99;
+    }
     .toast.show{ display:block; }
   </style>
   <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
@@ -200,10 +204,9 @@
         <p class="title">Tôlerie Alu / Dibond</p><p class="hint">Au m², laqué / prélaqué</p>
       </a>
       <a class="app" href="/configurateurs/souples-rigides-adhesifs.html">
-  <p class="title">Supports souples, rigides & adhésifs</p>
-  <p class="hint">Bâche, adhésif, panneau, impression & finitions</p>
-</a>
-
+        <p class="title">Supports souples, rigides & adhésifs</p>
+        <p class="hint">Bâche, adhésif, panneau, impression & finitions</p>
+      </a>
     </section>
 
     <!-- ===================== RÉCAP + CLIENT ===================== -->
@@ -237,22 +240,26 @@
               <th class="center">Actions</th>
             </tr>
           </thead>
+
           <!-- === AJOUT MANUEL DE LIGNE === -->
-<tr>
-  <td>
-    <input type="text" id="manuDesignation" placeholder="Désignation manuelle…" style="width:100%; padding:6px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:white;">
-  </td>
-  <td>
-    <input type="number" id="manuQte" value="1" min="1" style="width:100%; padding:6px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:white; text-align:center;">
-  </td>
-  <td>
-    <input type="number" id="manuPU" value="0" min="0" step="0.01" style="width:100%; padding:6px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:white; text-align:right;">
-  </td>
-  <td class="right">—</td>
-  <td class="center">
-    <button id="btnAddManu" class="btn btn-ghost" style="padding:6px 10px;">➕ Ajouter</button>
-  </td>
-</tr>
+          <tr>
+            <td>
+              <input type="text" id="manuDesignation" placeholder="Désignation manuelle…"
+                style="width:100%; padding:6px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:white;">
+            </td>
+            <td>
+              <input type="number" id="manuQte" value="1" min="1"
+                style="width:100%; padding:6px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:white; text-align:center;">
+            </td>
+            <td>
+              <input type="number" id="manuPU" value="0" min="0" step="0.01"
+                style="width:100%; padding:6px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:white; text-align:right;">
+            </td>
+            <td class="right">—</td>
+            <td class="center">
+              <button id="btnAddManu" class="btn btn-ghost" style="padding:6px 10px;">➕ Ajouter</button>
+            </td>
+          </tr>
 
           <tbody id="bodyDevis">
             <tr><td colspan="5" style="padding:12px;color:var(--txt-dim)">Aucune ligne dans le devis.</td></tr>
@@ -304,811 +311,738 @@
   <script>
   (function(){
   /************************************************************
- * RÔLES UTILISATEURS — Administrateur complet + éditeurs devis
- ************************************************************/
+   * RÔLES UTILISATEURS — Administrateur complet + éditeurs devis
+   ************************************************************/
+  const FULL_ADMINS = [
+    "commercial@cofel72.fr"
+  ];
 
-// Email(s) administrateur(s) complet(s) :
-const FULL_ADMINS = [
-  "commercial@cofel72.fr"     // toi
-];
+  const QUOTE_EDITORS = [
+    "souvre@cofel72.fr", "secretaire@cofel72.fr" , "direction@deco72.com"
+  ];
 
-// Email(s) ayant le droit de modifier les lignes d’un devis :
-const QUOTE_EDITORS = [
-   "souvre@cofel72.fr", "secretaire@cofel72.fr" , "direction@deco72.com"
-  
-  // 👉 remplace par l’adresse à autoriser
-];
+  let isFullAdmin = false;
+  let canEditQuote = false;
 
-// Variables de rôle exploitées dans le devis
-let isFullAdmin = false;
-let canEditQuote = false;
+  try {
+    const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
+    const email = profile.email || "";
+    isFullAdmin  = FULL_ADMINS.includes(email);
+    canEditQuote = isFullAdmin || QUOTE_EDITORS.includes(email);
+  } catch (e) {
+    console.warn("Impossible de lire le profil utilisateur", e);
+  }
 
-// Lecture du profil connecté
-try {
-  const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
-  const email = profile.email || "";
+  if(!window.Devis){
+    console.error("Devis-core non chargé. Vérifiez ./js/devis-core.js");
+    return;
+  }
 
-  isFullAdmin  = FULL_ADMINS.includes(email);
-  canEditQuote = isFullAdmin || QUOTE_EDITORS.includes(email);
+  // === Webhook e-mail (GAS) — SANS pièce jointe (robuste) ===
+  const MAIL_WEBHOOK = "https://script.google.com/macros/s/AKfycbwKL-QFzzfTY-Root-3g56rDwb9uwmkwNCv25d5YE6CQBfoJnJ1x8Fz7HTBdNtANRsmpg/exec";
 
-} catch (e) {
-  console.warn("Impossible de lire le profil utilisateur", e);
-}
+  const toast = document.getElementById('toast');
+  function showToast(msg, ok=true){
+    if(!toast) return alert(msg);
+    toast.textContent = msg;
+    toast.style.background = ok ? "#d7ffd7" : "#ffe3e3";
+    toast.style.color = "#222";
+    toast.classList.add('show');
+    setTimeout(()=> toast.classList.remove('show'), 3000);
+  }
 
+  // Helpers
+  const fmt = n => (Number(n)||0).toFixed(2).replace('.', ',') + " €";
+  const STORAGE_KEY = "devisCourant_v1";
+  const TVA_RATE = 0.20;
 
-    if(!window.Devis){
-      console.error("Devis-core non chargé. Vérifiez ./js/devis-core.js");
+  function readStore(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }catch{ return {}; } }
+  function writeStore(obj){ localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); }
+
+  function genId(){
+    try{
+      if (window.crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+    }catch(e){}
+    return "L_" + Date.now() + "_" + Math.random().toString(16).slice(2);
+  }
+  function n2(x){
+    const n = Number(x);
+    return Number.isFinite(n) ? +(Math.round(n*100)/100).toFixed(2) : null;
+  }
+  function pickNumber(obj, keys){
+    for(const k of keys){
+      const v = n2(obj?.[k]);
+      if(v != null) return v;
+    }
+    return null;
+  }
+  function repairStoredLines(){
+    const st = readStore();
+    if(!st || !Array.isArray(st.lignes)) return;
+
+    let changed = false;
+
+    for(const l of st.lignes){
+      if(!l || typeof l !== "object") continue;
+
+      if(!l.id){
+        l.id = genId();
+        changed = true;
+      }
+
+      const q = Number(l.quantite ?? l.qte ?? l.qty ?? 1);
+      if(!Number.isFinite(q) || q <= 0){
+        l.quantite = 1;
+        changed = true;
+      } else if(l.quantite !== q){
+        l.quantite = q;
+        changed = true;
+      }
+
+      let pu = n2(l.pu_net_ht);
+      if(pu == null){
+        pu = pickNumber(l, ["pu_ht","puHT","pu","price","price_ht","unit_price_ht","prix_unitaire_ht","prix_ht"]);
+      }
+      if(pu == null){
+        const tot = pickNumber(l, ["total_ligne_ht","total_ht","totalHT","montant_ht","total"]);
+        if(tot != null && l.quantite > 0) pu = n2(tot / l.quantite);
+      }
+      if(pu != null && l.pu_net_ht !== pu){
+        l.pu_net_ht = pu;
+        changed = true;
+      }
+
+      let totL = n2(l.total_ligne_ht);
+      if(totL == null && n2(l.pu_net_ht) != null){
+        totL = n2(Number(l.pu_net_ht) * Number(l.quantite));
+      }
+      if(totL != null && l.total_ligne_ht !== totL){
+        l.total_ligne_ht = totL;
+        changed = true;
+      }
+    }
+
+    if(changed) writeStore(st);
+  }
+
+  function updateClientField(key, value){
+    const state = readStore(); if(!state.client) state.client = {};
+    state.client[key] = value; writeStore(state);
+  }
+  function getClient(){ const st = readStore(); return st.client || {}; }
+
+  // 👉 Totaux avec remise EXCLUANT les lignes de type "transport"
+  function totalsExcludingTransportDiscount(d){
+    const lignes = d?.lignes || [];
+    const remise = 0;
+    let sumTransport = 0, sumNon = 0;
+    for (const l of lignes){
+      const q  = Number(l.quantite)||0;
+      const pu = Number(l.pu_net_ht)||0;
+      const total = q * pu;
+      if ((l.type || "").toLowerCase() === "transport") sumTransport += total;
+      else sumNon += total;
+    }
+    const nonAfterRemise = sumNon * (1 - remise/100);
+    const total_ht  = +(nonAfterRemise + sumTransport).toFixed(2);
+    const tva       = +(total_ht * TVA_RATE).toFixed(2);
+    const total_ttc = +(total_ht + tva).toFixed(2);
+    return { total_ht, tva, total_ttc };
+  }
+
+  // DOM refs
+  const elRemise   = document.getElementById('remise-client');
+  const body       = document.getElementById('bodyDevis');
+  const elHT       = document.getElementById('totHT');
+  const elTVA      = document.getElementById('totTVA');
+  const elTTC      = document.getElementById('totTTC');
+  const elSociete  = document.getElementById('societe');
+  const elContact  = document.getElementById('contact');
+  const elChantier = document.getElementById('chantier');
+  const btnPdf     = document.getElementById('btnPdf');
+  const btnClear   = document.getElementById('btnClear');
+  const noteInfo   = document.getElementById('noteInfo');
+
+  // Validation activation export PDF
+  function validateExportEnabled(){
+    const filled = v => (v || '').trim().length > 0;
+    const ok = filled(elSociete.value) && filled(elContact.value) && filled(elChantier.value);
+    btnPdf.disabled = !ok;
+    btnPdf.title = ok ? "" : "Renseignez Entreprise, Nom & prénom et Nom du chantier pour activer l’export PDF";
+    if(noteInfo){ noteInfo.classList.toggle('hidden', ok); }
+  }
+
+  // ✅ Prefill depuis le profil client + sauvegarde devis
+  (function hydrateClient(){
+    try{
+      const rawProfile = localStorage.getItem('cofel_client_profile');
+      if (rawProfile) {
+        const profile = JSON.parse(rawProfile);
+
+        if (profile.company && !elSociete.value) elSociete.value = profile.company;
+        if (profile.contactName && !elContact.value) elContact.value = profile.contactName;
+
+        if (typeof profile.discountRate === 'number' && !isNaN(profile.discountRate)) {
+          const pct = Math.max(0, Math.min(90, Math.round(profile.discountRate * 100)));
+          if (elRemise) elRemise.value = pct;
+          Devis.setRemise(0);
+        }
+      }
+    } catch(e){
+      console.error('Erreur lecture profil client :', e);
+    }
+
+    const c = getClient();
+    if(c.societe)  elSociete.value  = c.societe;
+    if(c.contact)  elContact.value  = c.contact;
+    if(c.chantier) elChantier.value = c.chantier;
+
+    validateExportEnabled();
+  })();
+
+  [ ['societe', elSociete], ['contact', elContact], ['chantier', elChantier] ]
+    .forEach(([k,el]) => el?.addEventListener('input', () => { updateClientField(k, el.value); validateExportEnabled(); } ));
+
+  function render(){
+    const d = Devis.computeTotals();
+    const storedRemise = Number(d.remise_pct||0);
+    if(Number(elRemise?.value||0) !== storedRemise && elRemise) elRemise.value = storedRemise;
+
+    if(!d.lignes.length){
+      body.innerHTML = '<tr><td colspan="5" style="padding:12px;color:#f0edff">Aucune ligne dans le devis.</td></tr>';
+    } else {
+      body.innerHTML = d.lignes.map(l => `
+        <tr data-id="${l.id}">
+          <td>${l.designation || "-"}</td>
+          <td class="center">${l.quantite}</td>
+          <td class="right">${fmt(l.pu_net_ht)}</td>
+          <td class="right">${fmt(l.total_ligne_ht)}</td>
+          <td class="center">
+            <button class="btn btn-ghost btn-qty" style="margin-right:6px;">📝 Qté</button>
+            ${canEditQuote ? `
+              <button class="btn btn-ghost btn-edit" style="margin-right:6px;">✏️ Modifier</button>
+            ` : ""}
+            <button class="btn btn-danger btn-del">Suppr.</button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    const t = totalsExcludingTransportDiscount(d);
+    elHT.textContent  = fmt(t.total_ht);
+    elTVA.textContent = fmt(t.tva);
+    elTTC.textContent = fmt(t.total_ttc);
+  }
+
+  // === AJOUT MANUEL DE LIGNE ===
+  document.getElementById("btnAddManu").addEventListener("click", () => {
+    const designation = (document.getElementById("manuDesignation").value || "").trim();
+    const qte = Number(document.getElementById("manuQte").value || 1);
+    const pu = Number(document.getElementById("manuPU").value || 0);
+
+    if (!designation) return alert("Veuillez saisir une désignation.");
+    if (qte <= 0 || pu < 0) return alert("Valeurs invalides.");
+
+    Devis.addLine({
+      type: "manuel",
+      designation,
+      quantite: qte,
+      pu_net_ht: pu
+    });
+
+    document.getElementById("manuDesignation").value = "";
+    document.getElementById("manuQte").value = 1;
+    document.getElementById("manuPU").value = 0;
+
+    render();
+  });
+
+  body.addEventListener('click',(e)=>{
+    const tr = e.target.closest('tr[data-id]');
+    if(!tr) return;
+    const id = tr.getAttribute('data-id');
+
+    if (e.target.classList.contains('btn-edit')) {
+      if (!canEditQuote) return alert("⛔ Vous n’êtes pas autorisé à modifier une ligne.");
+
+      const l = Devis.getLine(id);
+      if (!l) return;
+
+      const newDesignation = prompt("Nouvelle désignation :", l.designation || "");
+      if (newDesignation === null) return;
+
+      const newPUraw = prompt("Nouveau PU HT :", l.pu_net_ht);
+      if (newPUraw === null) return;
+
+      const newPU = Number(newPUraw);
+      if (isNaN(newPU) || newPU < 0) return alert("❌ Prix invalide.");
+
+      Devis.updateLine(id, {
+        designation: newDesignation.trim(),
+        pu_net_ht: newPU,
+        total_ligne_ht: +(newPU * Number(l.quantite || 1)).toFixed(2)
+      });
+
+      render();
       return;
     }
 
-    // === Webhook e-mail (GAS) — SANS pièce jointe (robuste) ===
-    const MAIL_WEBHOOK = "https://script.google.com/macros/s/AKfycbwKL-QFzzfTY-Root-3g56rDwb9uwmkwNCv25d5YE6CQBfoJnJ1x8Fz7HTBdNtANRsmpg/exec";
-
-    const toast = document.getElementById('toast');
-    function showToast(msg, ok=true){
-      if(!toast) return alert(msg);
-      toast.textContent = msg;
-      toast.style.background = ok ? "#d7ffd7" : "#ffe3e3";
-      toast.style.color = "#222";
-      toast.classList.add('show');
-      setTimeout(()=> toast.classList.remove('show'), 3000);
-    }
-
-    // Helpers
-    const fmt = n => (Number(n)||0).toFixed(2).replace('.', ',') + " €";
-    const STORAGE_KEY = "devisCourant_v1";
-    const TVA_RATE = 0.20;
-
-    function readStore(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }catch{ return {}; } }
-    function writeStore(obj){ localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); }
-    function genId(){
-  try{
-    if (window.crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID();
-  }catch(e){}
-  return "L_" + Date.now() + "_" + Math.random().toString(16).slice(2);
-}
-function n2(x){
-  const n = Number(x);
-  return Number.isFinite(n) ? +(Math.round(n*100)/100).toFixed(2) : null;
-}
-function pickNumber(obj, keys){
-  for(const k of keys){
-    const v = n2(obj?.[k]);
-    if(v != null) return v;
-  }
-  return null;
-}
-function repairStoredLines(){
-  const st = readStore();
-  if(!st || !Array.isArray(st.lignes)) return;
-
-  let changed = false;
-
-  for(const l of st.lignes){
-    if(!l || typeof l !== "object") continue;
-
-    // id obligatoire
-    if(!l.id){
-      l.id = genId();
-      changed = true;
-    }
-
-    // quantité obligatoire
-    const q = Number(l.quantite ?? l.qte ?? l.qty ?? 1);
-    if(!Number.isFinite(q) || q <= 0){
-      l.quantite = 1;
-      changed = true;
-    } else if(l.quantite !== q){
-      l.quantite = q;
-      changed = true;
-    }
-
-    // pu_net_ht obligatoire
-    let pu = n2(l.pu_net_ht);
-    if(pu == null){
-      pu = pickNumber(l, ["pu_ht","puHT","pu","price","price_ht","unit_price_ht","prix_unitaire_ht","prix_ht"]);
-    }
-    if(pu == null){
-      const tot = pickNumber(l, ["total_ligne_ht","total_ht","totalHT","montant_ht","total"]);
-      if(tot != null && l.quantite > 0) pu = n2(tot / l.quantite);
-    }
-    if(pu != null && l.pu_net_ht !== pu){
-      l.pu_net_ht = pu;
-      changed = true;
-    }
-
-    // total_ligne_ht
-    let totL = n2(l.total_ligne_ht);
-    if(totL == null && n2(l.pu_net_ht) != null){
-      totL = n2(Number(l.pu_net_ht) * Number(l.quantite));
-    }
-    if(totL != null && l.total_ligne_ht !== totL){
-      l.total_ligne_ht = totL;
-      changed = true;
-    }
-  }
-
-  if(changed) writeStore(st);
-}
-
-    function updateClientField(key, value){
-      const state = readStore(); if(!state.client) state.client = {};
-      state.client[key] = value; writeStore(state);
-    }
-    function getClient(){ const st = readStore(); return st.client || {}; }
-
-    // 👉 Totaux avec remise EXCLUANT les lignes de type "transport"
-    function totalsExcludingTransportDiscount(d){
-      const lignes = d?.lignes || [];
-      const remise = 0;
-      let sumTransport = 0, sumNon = 0;
-      for (const l of lignes){
-        const q  = Number(l.quantite)||0;
-        const pu = Number(l.pu_net_ht)||0;
-        const total = q * pu;
-        if ((l.type || "").toLowerCase() === "transport") sumTransport += total;
-        else sumNon += total;
+    if(e.target.classList.contains('btn-del')){
+      if(confirm("Supprimer cette ligne du devis ?")){
+        Devis.removeLine(id); render();
       }
-      const nonAfterRemise = sumNon * (1 - remise/100);
-      const total_ht  = +(nonAfterRemise + sumTransport).toFixed(2);
-      const tva       = +(total_ht * TVA_RATE).toFixed(2);
-      const total_ttc = +(total_ht + tva).toFixed(2);
-      return { total_ht, tva, total_ttc };
     }
-
-    // DOM refs
-    const elRemise   = document.getElementById('remise-client');
-    const body       = document.getElementById('bodyDevis');
-    const elHT       = document.getElementById('totHT');
-    const elTVA      = document.getElementById('totTVA');
-    const elTTC      = document.getElementById('totTTC');
-    const elSociete  = document.getElementById('societe');
-    const elContact  = document.getElementById('contact');
-    const elChantier = document.getElementById('chantier');
-    const btnPdf     = document.getElementById('btnPdf');
-    const btnClear   = document.getElementById('btnClear');
-    const noteInfo   = document.getElementById('noteInfo');
-
-    // Validation activation export PDF
-    function validateExportEnabled(){
-      const filled = v => (v || '').trim().length > 0;
-      const ok = filled(elSociete.value) && filled(elContact.value) && filled(elChantier.value);
-      btnPdf.disabled = !ok;
-      btnPdf.title = ok ? "" : "Renseignez Entreprise, Nom & prénom et Nom du chantier pour activer l’export PDF";
-      if(noteInfo){ noteInfo.classList.toggle('hidden', ok); }
+    if(e.target.classList.contains('btn-qty')){
+      const currentQty = Number(tr.children[1].textContent||1);
+      const q = prompt("Nouvelle quantité :", currentQty);
+      if(q !== null){ Devis.updateQty(id, q); render(); }
     }
+  });
 
-    // ✅ Prefill depuis le profil client + sauvegarde devis
-    (function hydrateClient(){
-      // 1) Profil client venant de client-login.html
-      try{
-        const rawProfile = localStorage.getItem('cofel_client_profile');
-        if (rawProfile) {
-          const profile = JSON.parse(rawProfile);
-
-          // Entreprise
-          if (profile.company && !elSociete.value) {
-            elSociete.value = profile.company;
-          }
-          // Nom & prénom
-          if (profile.contactName && !elContact.value) {
-            elContact.value = profile.contactName;
-          }
-
-          // Remise : discountRate est un taux (0.5 = 50 %)
-          if (typeof profile.discountRate === 'number' && !isNaN(profile.discountRate)) {
-            const pct = Math.max(0, Math.min(90, Math.round(profile.discountRate * 100)));
-            if (elRemise) {
-              elRemise.value = pct;
-            }
-            Devis.setRemise(0);
-          }
-        }
-      } catch(e){
-        console.error('Erreur lecture profil client :', e);
-      }
-
-      // 2) Éventuelle sauvegarde d'un devis précédent
-      const c = getClient();
-      if(c.societe)  elSociete.value  = c.societe;
-      if(c.contact)  elContact.value  = c.contact;
-      if(c.chantier) elChantier.value = c.chantier;
-
+  btnClear.addEventListener('click', ()=>{
+    if(confirm("Vider entièrement le devis ?")){
+      Devis.clearAll(true);
+      render();
       validateExportEnabled();
-    })();
-
-    // Save-as-you-type + revalidate
-    [ ['societe', elSociete], ['contact', elContact], ['chantier', elChantier] ]
-      .forEach(([k,el]) => el?.addEventListener('input', () => { updateClientField(k, el.value); validateExportEnabled(); } ));
-
-    // Rendu du tableau + totaux
-    function render(){
-      const d = Devis.computeTotals();
-      const storedRemise = Number(d.remise_pct||0);
-      if(Number(elRemise?.value||0) !== storedRemise && elRemise) elRemise.value = storedRemise;
-
-      if(!d.lignes.length){
-        body.innerHTML = '<tr><td colspan="5" style="padding:12px;color:#f0edff">Aucune ligne dans le devis.</td></tr>';
-      } else {
-        body.innerHTML = d.lignes.map(l => `
-          <tr data-id="${l.id}">
-            <td>${l.designation || "-"}</td>
-            <td class="center">${l.quantite}</td>
-            <td class="right">${fmt(l.pu_net_ht)}</td>
-            <td class="right">${fmt(l.total_ligne_ht)}</td>
-            <td class="center">
-  <button class="btn btn-ghost btn-qty" style="margin-right:6px;">📝 Qté</button>
-  ${canEditQuote ? `
-    <button class="btn btn-ghost btn-edit" style="margin-right:6px;">✏️ Modifier</button>
-` : ""}
-
-  <button class="btn btn-danger btn-del">Suppr.</button>
-</td>
-
-          </tr>
-        `).join("");
-      }
-
-      // 👉 Totaux corrigés (remise hors transport)
-      const t = totalsExcludingTransportDiscount(d);
-      elHT.textContent  = fmt(t.total_ht);
-      elTVA.textContent = fmt(t.tva);
-      elTTC.textContent = fmt(t.total_ttc);
     }
-
-    // Remise (si l'utilisateur la modifie à la main)
-    
-
-    // Actions lignes
-    // === AJOUT MANUEL DE LIGNE ===
-document.getElementById("btnAddManu").addEventListener("click", () => {
-  const designation = (document.getElementById("manuDesignation").value || "").trim();
-  const qte = Number(document.getElementById("manuQte").value || 1);
-  const pu = Number(document.getElementById("manuPU").value || 0);
-
-  if (!designation) {
-    alert("Veuillez saisir une désignation.");
-    return;
-  }
-
-  if (qte <= 0 || pu < 0) {
-    alert("Valeurs invalides.");
-    return;
-  }
-
-  // Ajout dans le moteur de devis
-  Devis.addLine({
-    type: "manuel",
-    designation,
-    quantite: qte,
-    pu_net_ht: pu
   });
 
-  // Reset des champs
-  document.getElementById("manuDesignation").value = "";
-  document.getElementById("manuQte").value = 1;
-  document.getElementById("manuPU").value = 0;
+  // ===== Intégration TRANSPORT : réception depuis transport.html =====
+  function addTransportLine(payload){
+    const st = readStore();
+    if(!st.lignes) st.lignes = [];
+    const exists = st.lignes.some(l => l.id === payload.id);
+    if(!exists){
+      const q = Number(payload.quantite||1);
+      const pu = Number(payload.pu_net_ht||0);
+      st.lignes.push({
+        id: payload.id,
+        designation: payload.designation || "Transport",
+        quantite: q,
+        pu_net_ht: pu,
+        total_ligne_ht: +(q*pu).toFixed(2),
+        type: payload.type || "transport"
+      });
+      writeStore(st);
+      try{ Devis.reload && Devis.reload(); }catch{}
+      render();
+    }
+  }
+  function checkTransportInbox(){
+    const raw = localStorage.getItem('cofel_transport_add');
+    if(!raw) return;
+    try{
+      const payload = JSON.parse(raw);
+      if(payload && payload.id){ addTransportLine(payload); }
+    }catch(e){ console.warn("Transport payload invalide", e); }
+    localStorage.removeItem('cofel_transport_add');
+  }
+  checkTransportInbox();
+  window.addEventListener('storage', (ev)=>{ if(ev.key === 'cofel_transport_add' && ev.newValue){ checkTransportInbox(); } });
 
-  render();
-});
-
-    body.addEventListener('click',(e)=>{
-      const tr = e.target.closest('tr[data-id]');
-      if(!tr) return;
-      const id = tr.getAttribute('data-id');
-// === MODIFIER DESIGNATION + PU (admin) ===
-if (e.target.classList.contains('btn-edit')) {
-
-  // ----- Autorisation modification ligne (admin complet OU éditeur devis) -----
-  if (!canEditQuote) {
-    alert("⛔ Vous n’êtes pas autorisé à modifier une ligne.");
-    return;
+  // ====== CHARGEMENT LOGO (DataURL) ======
+  async function loadImageDataURL(src){
+    const resp = await fetch(src, { cache: "no-cache" });
+    if(!resp.ok) throw new Error("Logo introuvable: " + src);
+    const blob = await resp.blob();
+    return await new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(fr.result);
+      fr.onerror = reject;
+      fr.readAsDataURL(blob);
+    });
   }
 
-  const tr = e.target.closest("tr[data-id]");
-  const id = tr.getAttribute("data-id");
-  const l = Devis.getLine(id);
-  if (!l) return;
-
-  const newDesignation = prompt("Nouvelle désignation :", l.designation || "");
-  if (newDesignation === null) return;
-
-  const newPUraw = prompt("Nouveau PU HT :", l.pu_net_ht);
-  if (newPUraw === null) return;
-
-  const newPU = Number(newPUraw);
-  if (isNaN(newPU) || newPU < 0) {
-    alert("❌ Prix invalide.");
-    return;
-  }
-
-  // 🔧 MISE À JOUR COMPLÈTE DE LA LIGNE
-  Devis.updateLine(id, {
-    designation: newDesignation.trim(),
-    pu_net_ht: newPU,
-    total_ligne_ht: +(newPU * Number(l.quantite || 1)).toFixed(2)
-  });
-
-  render();
-  return;
-}
-
-
-      if(e.target.classList.contains('btn-del')){
-        if(confirm("Supprimer cette ligne du devis ?")){
-          Devis.removeLine(id); render();
-        }
-      }
-      if(e.target.classList.contains('btn-qty')){
-        const currentQty = Number(tr.children[1].textContent||1);
-        const q = prompt("Nouvelle quantité :", currentQty);
-        if(q !== null){ Devis.updateQty(id, q); render(); }
-      }
-    });
-
-    // Vider le devis
-    btnClear.addEventListener('click', ()=>{
-      if(confirm("Vider entièrement le devis ?")){
-        Devis.clearAll(true);
-        render();
-        validateExportEnabled();
-      }
-    });
-
-    // ===== Intégration TRANSPORT : réception depuis transport.html =====
-    function addTransportLine(payload){
-      const st = readStore();
-      if(!st.lignes) st.lignes = [];
-      const exists = st.lignes.some(l => l.id === payload.id);
-      if(!exists){
-        const q = Number(payload.quantite||1);
-        const pu = Number(payload.pu_net_ht||0);
-        st.lignes.push({
-          id: payload.id,
-          designation: payload.designation || "Transport",
-          quantite: q,
-          pu_net_ht: pu,
-          total_ligne_ht: +(q*pu).toFixed(2),
-          type: payload.type || "transport"
-        });
-        writeStore(st);
-        try{ Devis.reload && Devis.reload(); }catch{}
-        render();
-      }
-    }
-    function checkTransportInbox(){
-      const raw = localStorage.getItem('cofel_transport_add');
-      if(!raw) return;
-      try{
-        const payload = JSON.parse(raw);
-        if(payload && payload.id){ addTransportLine(payload); }
-      }catch(e){ console.warn("Transport payload invalide", e); }
-      localStorage.removeItem('cofel_transport_add');
-    }
-    checkTransportInbox();
-    window.addEventListener('storage', (ev)=>{ if(ev.key === 'cofel_transport_add' && ev.newValue){ checkTransportInbox(); } });
-
-    // ====== CHARGEMENT LOGO SANS RÉDUCTION (PLEINE RÉSOLUTION) ======
-    async function loadImageDataURL(src){
-      // Lit l'image telle quelle et la convertit en DataURL sans rééchantillonnage
-      const resp = await fetch(src, { cache: "no-cache" });
-      if(!resp.ok) throw new Error("Logo introuvable: " + src);
-      const blob = await resp.blob();
-      return await new Promise((resolve, reject) => {
-        const fr = new FileReader();
-        fr.onload = () => resolve(fr.result);
-        fr.onerror = reject;
-        fr.readAsDataURL(blob);
-      });
-    }
-
-    // === Envoi e-mail (silencieux côté client) =========================
-    async function sendEmail({client, devis}){
-      try{
-        const t = totalsExcludingTransportDiscount(devis);
-        const subject = `Devis Cofel — ${client?.societe||"Sans société"} — ${client?.chantier||"Sans chantier"} — ${((Number(t.total_ttc)||0).toFixed(2)).replace('.',',')} € — ${new Date().toLocaleDateString("fr-FR")}`;
-        const body = {
-          subject,
-          client,
-          devis: {
-            remise_pct: devis.remise_pct,
-            total_ht: t.total_ht,
-            tva: t.tva,
-            total_ttc: t.total_ttc,
-            lignes: (devis.lignes||[]).map(l=>({
-              designation: l.designation, quantite: l.quantite, pu_net_ht: l.pu_net_ht, total_ligne_ht: l.total_ligne_ht, type: l.type||""
-            }))
-          },
-          meta: { page: location.href, userAgent: navigator.userAgent, date: new Date().toISOString() },
-          pdf: null
-        };
-
-        const resp = await fetch(MAIL_WEBHOOK, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" }, // évite le préflight CORS
-          body: JSON.stringify(body)
-        });
-        const text = await resp.text().catch(()=>"(no text)");
-        console.log("[MAIL] status", resp.status, "body:", text);
-      }catch(err){
-        console.warn("Envoi email échoué:", err);
-      }
-    }
-
-    // ===================== EXPORT PDF =====================
-    document.getElementById("btnPdf").addEventListener("click", async () => {
-  try {
-    const { jsPDF } = window.jspdf;
-
-    // Palette couleurs Cofel
-    const COLOR_PRIMARY = [90, 45, 130];   // Violet Cofel
-    const COLOR_TEXT    = [20, 20, 20];
-    const COLOR_MUTED   = [110, 110, 110];
-    const BG_SOFT       = [245, 242, 252];
-
-    // Données devis
-    const d = Devis.computeTotals();
-    const t = totalsExcludingTransportDiscount(d);
-    const client = {
-      societe: (elSociete?.value || "").trim(),
-      contact: (elContact?.value || "").trim(),
-      chantier: (elChantier?.value || "").trim(),
-    };
-
-    // jsPDF
-    const doc = new jsPDF({ unit: "pt", format: "a4", compress: true });
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 40;
-
-    // ----- Chargement Logo haute résolution -----
-    async function loadImageDataURL(src) {
-      const resp = await fetch(src, { cache: "no-cache" });
-      const blob = await resp.blob();
-      return await new Promise((resolve) => {
-        const fr = new FileReader();
-        fr.onload = () => resolve(fr.result);
-        fr.readAsDataURL(blob);
-      });
-    }
-
-    let logoData = null;
-    try {
-      logoData = await loadImageDataURL("./assets/logo cofel.jpg");
-    } catch (e) {
-      console.warn("Logo non chargé :", e);
-    }
-
-    // ----- HEADER -----
-    const drawHeader = () => {
-      const yTop = margin;
-
-      if (logoData) {
-        const W = 180;
-        const H = Math.round(W * 0.28);
-        doc.addImage(logoData, "JPEG", margin, yTop, W, H);
-      }
-
-      doc.setFont("Helvetica", "bold");
-      doc.setFontSize(18);
-      doc.setTextColor(...COLOR_PRIMARY);
-      doc.text("DEVIS", pageWidth - margin, yTop + 6, { align: "right" });
-
-      doc.setFont("Helvetica", "normal");
-      doc.setFontSize(10);
-      doc.setTextColor(...COLOR_TEXT);
-
-      const lines = [
-        "COFEL72 — ZA du Perquoi, 72560 Changé",
-        "SIRET 927 659 458 00024 — TVA FR80927659458",
-        "Date : " + new Date().toLocaleDateString("fr-FR"),
-      ];
-
-      lines.forEach((t, i) => {
-        doc.text(t, pageWidth - margin, yTop + 26 + i * 14, { align: "right" });
-      });
-
-      // ligne violette
-      doc.setDrawColor(...COLOR_PRIMARY);
-      doc.setLineWidth(1);
-      doc.line(margin, yTop + 54, pageWidth - margin, yTop + 54);
-    };
-
-    // ----- FOOTER -----
-    const drawFooter = (pageNum, pageCount) => {
-      const y = pageHeight - margin + 12;
-      doc.setFont("Helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(...COLOR_MUTED);
-
-      doc.text(
-        "Offre valable 30 jours — Sous réserve de faisabilité et validation technique",
-        margin,
-        y
-      );
-      doc.text(`Page ${pageNum} / ${pageCount}`, pageWidth - margin, y, {
-        align: "right",
-      });
-    };
-
-    // ----- CARTOUCHE "Sous réserve" -----
-    function drawTechNotice(yStart) {
-      const boxW = pageWidth - margin * 2;
-      const boxH = 56;
-      const y = Math.min(
-        pageHeight - margin - boxH - 10,
-        yStart
-      );
-
-      doc.setFillColor(255, 247, 220);
-      doc.setDrawColor(220, 160, 0);
-      doc.roundedRect(margin, y, boxW, boxH, 8, 8, "FD");
-
-      doc.setTextColor(120, 70, 0);
-      doc.setFont("Helvetica", "bold");
-      doc.setFontSize(12.5);
-      doc.text(
-        "DEVIS SOUS RÉSERVE D'APPROBATION DE NOTRE ÉQUIPE TECHNIQUE",
-        margin + boxW / 2,
-        y + boxH / 2 + 4,
-        { align: "center", baseline: "middle" }
-      );
-
-      return y + boxH;
-    }
-
-    // ----- CARTE CLIENT -----
-    const drawClientCard = (yStart) => {
-      const CARD_H = 90;
-      const cardW = pageWidth - margin * 2;
-
-      doc.setFillColor(...BG_SOFT);
-      doc.setDrawColor(230, 230, 240);
-      doc.roundedRect(margin, yStart, cardW, CARD_H, 8, 8, "FD");
-
-      let y = yStart + 24;
-      doc.setFont("Helvetica", "bold");
-      doc.setFontSize(12);
-      doc.setTextColor(...COLOR_PRIMARY);
-      doc.text("Client", margin + 14, y);
-
-      doc.setFont("Helvetica", "normal");
-      doc.setFontSize(11);
-
-      const rows = [
-        ["Entreprise :", client.societe],
-        ["Contact :", client.contact],
-        ["Chantier :", client.chantier],
-      ];
-
-      rows.forEach((r, i) => {
-        doc.setTextColor(...COLOR_MUTED);
-        doc.text(r[0], margin + 14, y + 20 + i * 16);
-        doc.setTextColor(...COLOR_TEXT);
-        doc.text(r[1] || "-", margin + 95, y + 20 + i * 16);
-      });
-
-      return yStart + CARD_H + 18;
-    };
-
-    // ----- TOTaUX -----
-    const drawTotalsBox = (yStart) => {
-      const boxW = 220;
-      const boxH = 100;
-      const x = pageWidth - margin - boxW;
-
-      doc.setFillColor(255, 255, 255);
-      doc.setDrawColor(...COLOR_PRIMARY);
-      doc.roundedRect(x, yStart, boxW, boxH, 8, 8);
-
-      const row = (label, value, yy, bold = false) => {
-        doc.setFont("Helvetica", bold ? "bold" : "normal");
-        doc.setFontSize(11);
-        doc.setTextColor(...COLOR_TEXT);
-        doc.text(label, x + 12, yy);
-        doc.text(value, x + boxW - 12, yy, { align: "right" });
+  // === Envoi e-mail (silencieux côté client) ===
+  async function sendEmail({client, devis}){
+    try{
+      const t = totalsExcludingTransportDiscount(devis);
+      const subject = `Devis Cofel — ${client?.societe||"Sans société"} — ${client?.chantier||"Sans chantier"} — ${((Number(t.total_ttc)||0).toFixed(2)).replace('.',',')} € — ${new Date().toLocaleDateString("fr-FR")}`;
+      const body = {
+        subject,
+        client,
+        devis: {
+          remise_pct: devis.remise_pct,
+          total_ht: t.total_ht,
+          tva: t.tva,
+          total_ttc: t.total_ttc,
+          lignes: (devis.lignes||[]).map(l=>({
+            designation: l.designation, quantite: l.quantite, pu_net_ht: l.pu_net_ht, total_ligne_ht: l.total_ligne_ht, type: l.type||""
+          }))
+        },
+        meta: { page: location.href, userAgent: navigator.userAgent, date: new Date().toISOString() },
+        pdf: null
       };
 
-      row("Total HT", t.total_ht.toFixed(2) + " €", yStart + 28);
-      row("TVA 20 %", t.tva.toFixed(2) + " €", yStart + 46);
-      row("Total TTC", t.total_ttc.toFixed(2) + " €", yStart + 68, true);
-
-      return yStart + boxH;
-    };
-
-    // ----- TABLEAU -----
-    const rows = (d.lignes || []).map((l) => [
-      l.designation || "-",
-      String(l.quantite),
-      (Number(l.pu_net_ht) || 0).toFixed(2),
-      (Number(l.total_ligne_ht) || 0).toFixed(2),
-    ]);
-
-    drawHeader();
-    let cursorY = drawClientCard(margin + 90);
-
-    doc.autoTable({
-      startY: cursorY,
-      head: [["Désignation", "Qté", "PU HT", "Total HT"]],
-      body: rows,
-      styles: { font: "helvetica", fontSize: 10, cellPadding: 6 },
-      headStyles: { fillColor: COLOR_PRIMARY, textColor: [255, 255, 255] },
-      alternateRowStyles: { fillColor: [250, 248, 255] },
-      margin: { left: margin, right: margin },
-      theme: "grid",
-      didDrawPage: () => drawHeader(),
-    });
-
-    const afterTableY = doc.lastAutoTable.finalY + 16;
-    const afterTotalsY = drawTotalsBox(afterTableY);
-
-    doc.setPage(doc.internal.getNumberOfPages());
-    drawTechNotice(afterTotalsY + 20);
-
-    // FOOTER all pages
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      drawFooter(i, pageCount);
-    }
-
-    // ----- EMAIL SILENCIEUX -----
-    await sendEmail({ client, devis: d });
-
-   // ----- ENREGISTREMENT BD -----
-let profileEmail = "";
-try {
-  profileEmail = JSON.parse(
-    localStorage.getItem("cofel_client_profile") || "{}"
-  ).email;
-} catch {}
-
-// ⭐ Appel vers le Worker (URL CORRECTE AVEC LE :443)
-const logResp = await fetch(
-  "https://cofel-auth.sonveven.workers.dev/log-quote",
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      clientEmail: profileEmail,
-      clientCompany: client.societe,
-      clientName: client.contact,
-      productType: "devis-index",
-      totalHT: t.total_ht,
-      totalTTC: t.total_ttc,
-      extra: {
-        chantier: client.chantier,
-        date: new Date().toISOString(),
-        lignes: d.lignes || [],
-      },
-    }),
-  }
-);
-
-const logData = await logResp.json();
-window.lastCreatedQuoteId = logData.quoteId || null;
-
-// ----- PDF → base64 -----
-const pdfBlob = doc.output("blob");
-const pdfBase64 = await new Promise((resolve) => {
-  const fr = new FileReader();
-  fr.onloadend = () => resolve(fr.result.split(",")[1]);
-  fr.readAsDataURL(pdfBlob);
-});
-
-// ----- UPLOAD GITHUB -----
-if (!window.lastCreatedQuoteId) {
-  console.error("❌ Aucun quoteId reçu depuis /log-quote :", logData);
-  alert("Erreur interne : impossible de récupérer l'ID du devis.");
-  return;
-}
-
-await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    quoteId: window.lastCreatedQuoteId,
-    pdfBase64,
-    clientCompany: client.societe,
-    productType: "devis-index",
-    createdAt: new Date().toISOString(),
-  }),
-});
-
-
-    // ----- DOWNLOAD LOCAL -----
-    doc.save("Devis-Cofel.pdf");
-  } catch (err) {
-    alert("Erreur PDF : " + err.message);
-    console.error(err);
-  }
-});
-
-// 🔁 Boot devis robuste : recharge + render, et se relance à chaque retour/focus
-function bootDevis() {
-  repairStoredLines();
-
-  try {
-    if (window.Devis && typeof Devis.reload === "function") {
-      Devis.reload();
-    }
-  } catch (e) {
-    console.warn("Reload devis impossible", e);
-  }
-
-  render();
-}
-
-// 1) premier chargement
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", bootDevis, { once: true });
-} else {
-  bootDevis();
-}
-
-// 2) quand on revient sur la page (bfcache / back / restore)
-window.addEventListener("pageshow", bootDevis);
-
-// 3) quand l’onglet redevient actif
-window.addEventListener("focus", bootDevis);
-document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) bootDevis();
-});
-
-
-
-
-   // 🚪 Déconnexion (client + admin)
-(function setupLogout(){
-  const btn = document.getElementById("logoutBtn");
-  if (!btn) return;
-
-  btn.addEventListener("click", () => {
-    try {
-      // Profil client
-      localStorage.removeItem("cofel_client_profile");
-
-      // Tokens admin éventuels
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith("auth_token_")) {
-          localStorage.removeItem(key);
-        }
+      const resp = await fetch(MAIL_WEBHOOK, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(body)
       });
+      const text = await resp.text().catch(()=>"(no text)");
+      console.log("[MAIL] status", resp.status, "body:", text);
+    }catch(err){
+      console.warn("Envoi email échoué:", err);
+    }
+  }
+
+  // ===================== EXPORT PDF (N&B / GRIS / FOND BLANC) =====================
+  document.getElementById("btnPdf").addEventListener("click", async () => {
+    try {
+      const { jsPDF } = window.jspdf;
+
+      // ✅ Palette N&B / gris (économie d'encre)
+      const COLOR_TEXT  = [20, 20, 20];
+      const COLOR_MUTED = [110, 110, 110];
+      const COLOR_LINE  = [170, 170, 170];
+      const BORDER_SOFT = [210, 210, 210];
+      const BG_HEAD     = [235, 235, 235];
+      const BG_ALT      = [250, 250, 250];
+      const BG_NOTICE   = [245, 245, 245];
+
+      // Données devis
+      const d = Devis.computeTotals();
+      const t = totalsExcludingTransportDiscount(d);
+      const client = {
+        societe: (elSociete?.value || "").trim(),
+        contact: (elContact?.value || "").trim(),
+        chantier: (elChantier?.value || "").trim(),
+      };
+
+      const doc = new jsPDF({ unit: "pt", format: "a4", compress: true });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 40;
+
+      // Logo
+      let logoData = null;
+      try {
+        logoData = await loadImageDataURL("./assets/logo cofel.jpg");
+      } catch (e) {
+        console.warn("Logo non chargé :", e);
+      }
+
+      // ----- HEADER -----
+      const drawHeader = () => {
+        const yTop = margin;
+
+        if (logoData) {
+          const W = 180;
+          const H = Math.round(W * 0.28);
+          doc.addImage(logoData, "JPEG", margin, yTop, W, H);
+        }
+
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(18);
+        doc.setTextColor(...COLOR_TEXT);
+        doc.text("DEVIS", pageWidth - margin, yTop + 6, { align: "right" });
+
+        doc.setFont("Helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(...COLOR_TEXT);
+
+        const lines = [
+          "COFEL72 — ZA du Perquoi, 72560 Changé",
+          "SIRET 927 659 458 00024 — TVA FR80927659458",
+          "Date : " + new Date().toLocaleDateString("fr-FR"),
+        ];
+
+        lines.forEach((txt, i) => {
+          doc.text(txt, pageWidth - margin, yTop + 26 + i * 14, { align: "right" });
+        });
+
+        doc.setDrawColor(...COLOR_LINE);
+        doc.setLineWidth(1);
+        doc.line(margin, yTop + 54, pageWidth - margin, yTop + 54);
+      };
+
+      // ----- FOOTER -----
+      const drawFooter = (pageNum, pageCount) => {
+        const y = pageHeight - margin + 12;
+        doc.setFont("Helvetica", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(...COLOR_MUTED);
+
+        doc.text(
+          "Offre valable 30 jours — Sous réserve de faisabilité et validation technique",
+          margin,
+          y
+        );
+        doc.text(`Page ${pageNum} / ${pageCount}`, pageWidth - margin, y, {
+          align: "right",
+        });
+      };
+
+      // ----- CARTOUCHE "Sous réserve" (gris) -----
+      function drawTechNotice(yStart) {
+        const boxW = pageWidth - margin * 2;
+        const boxH = 56;
+        const y = Math.min(pageHeight - margin - boxH - 10, yStart);
+
+        doc.setFillColor(...BG_NOTICE);
+        doc.setDrawColor(...BORDER_SOFT);
+        doc.roundedRect(margin, y, boxW, boxH, 8, 8, "FD");
+
+        doc.setTextColor(...COLOR_TEXT);
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(12);
+        doc.text(
+          "DEVIS SOUS RÉSERVE D'APPROBATION DE NOTRE ÉQUIPE TECHNIQUE",
+          margin + boxW / 2,
+          y + boxH / 2 + 4,
+          { align: "center", baseline: "middle" }
+        );
+
+        return y + boxH;
+      }
+
+      // ----- CARTE CLIENT (blanc + bordure grise) -----
+      const drawClientCard = (yStart) => {
+        const CARD_H = 90;
+        const cardW = pageWidth - margin * 2;
+
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(...BORDER_SOFT);
+        doc.roundedRect(margin, yStart, cardW, CARD_H, 8, 8, "FD");
+
+        let y = yStart + 24;
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(12);
+        doc.setTextColor(...COLOR_TEXT);
+        doc.text("Client", margin + 14, y);
+
+        doc.setFont("Helvetica", "normal");
+        doc.setFontSize(11);
+
+        const rows = [
+          ["Entreprise :", client.societe],
+          ["Contact :", client.contact],
+          ["Chantier :", client.chantier],
+        ];
+
+        rows.forEach((r, i) => {
+          doc.setTextColor(...COLOR_MUTED);
+          doc.text(r[0], margin + 14, y + 20 + i * 16);
+          doc.setTextColor(...COLOR_TEXT);
+          doc.text(r[1] || "-", margin + 95, y + 20 + i * 16);
+        });
+
+        return yStart + CARD_H + 18;
+      };
+
+      // ----- TOTAUX (blanc + bordure grise) -----
+      const drawTotalsBox = (yStart) => {
+        const boxW = 220;
+        const boxH = 100;
+        const x = pageWidth - margin - boxW;
+
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(...COLOR_LINE);
+        doc.roundedRect(x, yStart, boxW, boxH, 8, 8, "FD");
+
+        const row = (label, value, yy, bold = false) => {
+          doc.setFont("Helvetica", bold ? "bold" : "normal");
+          doc.setFontSize(11);
+          doc.setTextColor(...COLOR_TEXT);
+          doc.text(label, x + 12, yy);
+          doc.text(value, x + boxW - 12, yy, { align: "right" });
+        };
+
+        row("Total HT", t.total_ht.toFixed(2) + " €", yStart + 28);
+        row("TVA 20 %", t.tva.toFixed(2) + " €", yStart + 46);
+        row("Total TTC", t.total_ttc.toFixed(2) + " €", yStart + 68, true);
+
+        return yStart + boxH;
+      };
+
+      // ----- TABLEAU -----
+      const rows = (d.lignes || []).map((l) => [
+        l.designation || "-",
+        String(l.quantite),
+        (Number(l.pu_net_ht) || 0).toFixed(2),
+        (Number(l.total_ligne_ht) || 0).toFixed(2),
+      ]);
+
+      drawHeader();
+      let cursorY = drawClientCard(margin + 90);
+
+      doc.autoTable({
+        startY: cursorY,
+        head: [["Désignation", "Qté", "PU HT", "Total HT"]],
+        body: rows,
+
+        styles: {
+          font: "helvetica",
+          fontSize: 10,
+          cellPadding: 6,
+          textColor: COLOR_TEXT,
+          lineColor: BORDER_SOFT,
+          lineWidth: 0.5
+        },
+
+        headStyles: {
+          fillColor: BG_HEAD,
+          textColor: COLOR_TEXT,
+          lineColor: BORDER_SOFT,
+          lineWidth: 0.6,
+          fontStyle: "bold"
+        },
+
+        alternateRowStyles: { fillColor: BG_ALT },
+
+        margin: { left: margin, right: margin },
+        theme: "grid",
+        didDrawPage: () => drawHeader(),
+      });
+
+      const afterTableY = doc.lastAutoTable.finalY + 16;
+      const afterTotalsY = drawTotalsBox(afterTableY);
+
+      doc.setPage(doc.internal.getNumberOfPages());
+      drawTechNotice(afterTotalsY + 20);
+
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        drawFooter(i, pageCount);
+      }
+
+      // ----- EMAIL SILENCIEUX -----
+      await sendEmail({ client, devis: d });
+
+      // ----- ENREGISTREMENT BD -----
+      let profileEmail = "";
+      try {
+        profileEmail = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}").email;
+      } catch {}
+
+      const logResp = await fetch("https://cofel-auth.sonveven.workers.dev/log-quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientEmail: profileEmail,
+          clientCompany: client.societe,
+          clientName: client.contact,
+          productType: "devis-index",
+          totalHT: t.total_ht,
+          totalTTC: t.total_ttc,
+          extra: {
+            chantier: client.chantier,
+            date: new Date().toISOString(),
+            lignes: d.lignes || [],
+          },
+        }),
+      });
+
+      const logData = await logResp.json();
+      window.lastCreatedQuoteId = logData.quoteId || null;
+
+      // ----- PDF → base64 -----
+      const pdfBlob = doc.output("blob");
+      const pdfBase64 = await new Promise((resolve) => {
+        const fr = new FileReader();
+        fr.onloadend = () => resolve(fr.result.split(",")[1]);
+        fr.readAsDataURL(pdfBlob);
+      });
+
+      // ----- UPLOAD GITHUB -----
+      if (!window.lastCreatedQuoteId) {
+        console.error("❌ Aucun quoteId reçu depuis /log-quote :", logData);
+        alert("Erreur interne : impossible de récupérer l'ID du devis.");
+        return;
+      }
+
+      await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          quoteId: window.lastCreatedQuoteId,
+          pdfBase64,
+          clientCompany: client.societe,
+          productType: "devis-index",
+          createdAt: new Date().toISOString(),
+        }),
+      });
+
+      // ----- DOWNLOAD LOCAL -----
+      doc.save("Devis-Cofel.pdf");
+    } catch (err) {
+      alert("Erreur PDF : " + err.message);
+      console.error(err);
+    }
+  });
+
+  // 🔁 Boot devis robuste : recharge + render, et se relance à chaque retour/focus
+  function bootDevis() {
+    repairStoredLines();
+
+    try {
+      if (window.Devis && typeof Devis.reload === "function") {
+        Devis.reload();
+      }
     } catch (e) {
-      console.error("Erreur nettoyage stockage lors de la déconnexion", e);
+      console.warn("Reload devis impossible", e);
     }
 
-    // 🔁 Redirection simple (Cloudflare OK)
-    location.href = "/auth/client-login.html";
-  });
-})();
+    render();
+  }
 
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootDevis, { once: true });
+  } else {
+    bootDevis();
+  }
+
+  window.addEventListener("pageshow", bootDevis);
+  window.addEventListener("focus", bootDevis);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) bootDevis();
+  });
+
+  // 🚪 Déconnexion (client + admin)
+  (function setupLogout(){
+    const btn = document.getElementById("logoutBtn");
+    if (!btn) return;
+
+    btn.addEventListener("click", () => {
+      try {
+        localStorage.removeItem("cofel_client_profile");
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith("auth_token_")) localStorage.removeItem(key);
+        });
+      } catch (e) {
+        console.error("Erreur nettoyage stockage lors de la déconnexion", e);
+      }
+      location.href = "/auth/client-login.html";
+    });
+  })();
 
   })();
   </script>
-  <!-- Lien Admin (invisible par défaut) -->
-<div id="admin-links" style="
-    display:none;
-    position:fixed;
-    top:12px;
-    right:12px;
-    z-index:9999;
-    background:#5a2d82;
-    color:white;
-    padding:8px 15px;
-    border-radius:12px;
-    font-size:14px;
-">
-    <a href="/auth/admin-clients.html" style="color:white; text-decoration:none; margin-right:10px;">👤 Admin Clients</a>
-    <a href="/auth/admin-quotes.html" style="color:white; text-decoration:none;">📄 Admin Devis</a>
-</div>
 
-<script>
-// Afficher le lien Admin seulement pour l'administrateur
-const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
-if (profile.email === "commercial@cofel72.fr") {
-    document.getElementById("admin-links").style.display = "block";
-}
-</script>
+  <!-- Lien Admin (invisible par défaut) -->
+  <div id="admin-links" style="
+      display:none;
+      position:fixed;
+      top:12px;
+      right:12px;
+      z-index:9999;
+      background:#5a2d82;
+      color:white;
+      padding:8px 15px;
+      border-radius:12px;
+      font-size:14px;
+  ">
+      <a href="/auth/admin-clients.html" style="color:white; text-decoration:none; margin-right:10px;">👤 Admin Clients</a>
+      <a href="/auth/admin-quotes.html" style="color:white; text-decoration:none;">📄 Admin Devis</a>
+  </div>
+
+  <script>
+    // Afficher le lien Admin seulement pour l'administrateur
+    const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
+    if (profile.email === "commercial@cofel72.fr") {
+      document.getElementById("admin-links").style.display = "block";
+    }
+  </script>
 </body>
 </html>
