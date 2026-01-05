@@ -221,3 +221,16 @@ select option{
   background:#0b0b0b !important;
   color:#fff !important;
 }
+/* ✅ Accent noir pour radios + checkboxes (tous configurateurs) */
+input[type="radio"],
+input[type="checkbox"]{
+  accent-color: #000 !important;
+}
+
+/* (Optionnel) si tu veux limiter aux pages Cofel */
+.wrap input[type="radio"],
+.wrap input[type="checkbox"],
+.cofel-container input[type="radio"],
+.cofel-container input[type="checkbox"]{
+  accent-color: #000 !important;
+}
