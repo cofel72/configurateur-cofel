@@ -22,7 +22,7 @@
 // ------------------------
 
 // ⚠ À AJUSTER : prix d'impression au m² (HT) — déjà en prix public
-const PRIX_IMPRESSION_M2 = 0; // € / m² (mets ta valeur ici)
+const PRIX_IMPRESSION_M2 = 3; // € / m² (mets ta valeur ici)
 
 // Découpe — déjà en prix public
 const PRIX_DECOUPE_FORMAT_M2       = 3;   // € / m²
