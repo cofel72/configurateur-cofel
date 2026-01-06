@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <base href="/" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Configurateurs Cofel</title> 
+  <title>Configurateurs Cofel</title>
 
   <!-- 🔒 Protection par mot de passe -->
   <script src="./auth/lock.js" type="module"></script>
@@ -28,6 +28,8 @@
         linear-gradient(135deg, var(--cofel), var(--cofel-2));
       position:relative; overflow-x:hidden;
     }
+
+    .hidden{ display:none !important; }
 
     /* ===================== HEADER / HERO (nouvelle version) ===================== */
     .hero{
@@ -348,7 +350,7 @@
     toast.style.background = ok ? "#d7ffd7" : "#ffe3e3";
     toast.style.color = "#222";
     toast.classList.add('show');
-    setTimeout(()=> toast.classList.remove('show'), 3000);
+    setTimeout(()=> toast.classList.remove('show'), 3200);
   }
 
   // Helpers
@@ -686,6 +688,151 @@
     }
   }
 
+  /* ============================================================
+     EXPORT CSV EBP (ADMIN) — Télécharge PDF + CSV depuis Index
+     - Séparateur : ;
+     - Décimales : , (FR)
+     - 1 ligne CSV = 1 ligne de devis
+     - ClientCode forcé : 411CONFIGURATEUR (ton client "tampon")
+     ============================================================ */
+
+  const EBP_CLIENT_CODE = "411CONFIGURATEUR";
+  const EBP_TVA_TAUX = 20.00;
+
+  // Mapping EXACT basé sur ton devis EBP (AR00002 .. AR00010)
+  const EBP_ARTICLE_MAP = {
+    "TOLE_TABLETTE": "AR00002",
+    "RAMPE_LUMINEUSE": "AR00003",
+    "ENSEIGNE_DRAPEAU": "AR00004",
+    "TOTEM": "AR00005",
+    "LETTRE_PVC": "AR00006",
+    "LETTRE_ALU_ALUPVC": "AR00007",
+    "LETTRE_BOITIER": "AR00008",
+    "TOLERIE_ALU_DIBOND": "AR00009",
+    "SUPPORTS_SRA": "AR00010"
+  };
+
+  // Si une ligne n'est pas reconnue, on met un fallback (existant) pour garantir l'import EBP
+  // 👉 Si tu préfères, tu peux créer un article "DIVERS" et le mettre ici.
+  const EBP_FALLBACK_ARTICLE = "AR00010";
+
+  function pad2(n){ return String(n).padStart(2,"0"); }
+  function formatDateFR(d){
+    return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()}`;
+  }
+  function formatNumberFR(n, decimals=2){
+    const x = Number(n || 0);
+    return x.toFixed(decimals).replace(".", ",");
+  }
+  function csvEscape(v){
+    const s = String(v ?? "");
+    if (/[;"\r\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+    return s;
+  }
+  function downloadTextFile(filename, content, mime="text/csv;charset=utf-8"){
+    // BOM UTF-8 pour Windows/Excel
+    const blob = new Blob(["\ufeff" + content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+  function makeDocRef(){
+    // On tente d'utiliser quoteId si dispo, sinon un identifiant basé sur date/heure
+    const qid = (window.lastCreatedQuoteId || "").toString().trim();
+    if (qid) return `CFG-${qid}`;
+    const d = new Date();
+    return `CFG-${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}-${pad2(d.getHours())}${pad2(d.getMinutes())}${pad2(d.getSeconds())}`;
+  }
+
+  function guessArticleCodeFromLine(line){
+    // 1) Si un configurateur a déjà posé un code, on le respecte
+    const direct = (line.articleCode || line.code_article || line.codeArticle || "").toString().trim();
+    if (direct) return direct;
+
+    // 2) Si la ligne a un identifiant de configurateur
+    const key = (line.configId || line.source_config || line.source || line.origin || "").toString().trim().toUpperCase();
+    if (key && EBP_ARTICLE_MAP[key]) return EBP_ARTICLE_MAP[key];
+
+    // 3) Heuristique via désignation
+    const t = (line.designation || "").toString().toUpperCase();
+
+    if (t.includes("TOLE TABLETTE") || t.includes("TÔLE TABLETTE")) return EBP_ARTICLE_MAP.TOLE_TABLETTE;
+    if (t.includes("RAMPE LUMINEUSE")) return EBP_ARTICLE_MAP.RAMPE_LUMINEUSE;
+    if (t.includes("ENSEIGNE DRAPEAU")) return EBP_ARTICLE_MAP.ENSEIGNE_DRAPEAU;
+    if (t.includes("TOTEM")) return EBP_ARTICLE_MAP.TOTEM;
+
+    // Lettres
+    if (t.includes("LETTRE") && t.includes("PVC") && !t.includes("ALU")) return EBP_ARTICLE_MAP.LETTRE_PVC;
+    if (t.includes("LETTRE") && (t.includes("ALU") || t.includes("ALU/PVC") || t.includes("ALU PVC"))) return EBP_ARTICLE_MAP.LETTRE_ALU_ALUPVC;
+    if (t.includes("BOITIER") || t.includes("BOÎTIER")) return EBP_ARTICLE_MAP.LETTRE_BOITIER;
+
+    // Tôlerie / Dibond
+    if (t.includes("TOLERIE") || t.includes("TÔLERIE") || t.includes("DIBOND")) return EBP_ARTICLE_MAP.TOLERIE_ALU_DIBOND;
+
+    // Supports SR
+    if (t.includes("SUPPORT") || t.includes("ADHESIF") || t.includes("ADHÉSIF") || t.includes("RIGIDE") || t.includes("SOUPLE")) return EBP_ARTICLE_MAP.SUPPORTS_SRA;
+
+    // Transport / manuel : fallback (pour que l'import EBP ne casse pas)
+    return EBP_FALLBACK_ARTICLE;
+  }
+
+  function buildEbpCsv({devis, client, docRef, docDate}){
+    const header = [
+      "DocType","DocRef","DocDate",
+      "ClientCode","ClientSociete","ClientContact","ClientChantier",
+      "LineNo","ArticleCode","Designation",
+      "Quantite","PU_HT","TVA_Taux"
+    ];
+    const rows = [header.join(";")];
+
+    let lineNo = 0;
+    for(const l of (devis?.lignes || [])){
+      const qty = Number(l.quantite ?? 0);
+      if (!Number.isFinite(qty) || qty <= 0) continue;
+
+      lineNo++;
+      const pu = Number(l.pu_net_ht ?? 0);
+      const designation = (l.designation || "Ligne configurateur").toString().trim();
+      const articleCode = guessArticleCodeFromLine(l);
+      const tva = Number(l.tva_taux ?? l.tva ?? EBP_TVA_TAUX);
+
+      const row = [
+        "DEVIS",
+        docRef,
+        docDate,
+        EBP_CLIENT_CODE,
+        client?.societe || "",
+        client?.contact || "",
+        client?.chantier || "",
+        String(lineNo),
+        articleCode,
+        designation,
+        formatNumberFR(qty, 2),
+        formatNumberFR(pu, 2),
+        formatNumberFR(tva, 2)
+      ].map(csvEscape).join(";");
+
+      rows.push(row);
+    }
+
+    return rows.join("\r\n");
+  }
+
+  function exportEbpCsvDownload({devis, client, docRef}){
+    if(!isFullAdmin) return; // ✅ seulement la session admin
+    const docDate = formatDateFR(new Date());
+    const ref = docRef || makeDocRef();
+    const csv = buildEbpCsv({ devis, client, docRef: ref, docDate });
+    const filename = `Devis-Cofel-EBP_${ref}.csv`;
+    downloadTextFile(filename, csv);
+    showToast("CSV EBP téléchargé ✔", true);
+  }
+
   // ===================== EXPORT PDF (N&B / GRIS / FOND BLANC) =====================
   document.getElementById("btnPdf").addEventListener("click", async () => {
     try {
@@ -910,62 +1057,68 @@
       // ----- EMAIL SILENCIEUX -----
       await sendEmail({ client, devis: d });
 
-      // ----- ENREGISTREMENT BD -----
+      // ----- ENREGISTREMENT BD + UPLOAD (ne doit pas empêcher le download) -----
       let profileEmail = "";
       try {
         profileEmail = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}").email;
       } catch {}
 
-      const logResp = await fetch("https://cofel-auth.sonveven.workers.dev/log-quote", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clientEmail: profileEmail,
-          clientCompany: client.societe,
-          clientName: client.contact,
-          productType: "devis-index",
-          totalHT: t.total_ht,
-          totalTTC: t.total_ttc,
-          extra: {
-            chantier: client.chantier,
-            date: new Date().toISOString(),
-            lignes: d.lignes || [],
-          },
-        }),
-      });
+      try{
+        const logResp = await fetch("https://cofel-auth.sonveven.workers.dev/log-quote", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            clientEmail: profileEmail,
+            clientCompany: client.societe,
+            clientName: client.contact,
+            productType: "devis-index",
+            totalHT: t.total_ht,
+            totalTTC: t.total_ttc,
+            extra: {
+              chantier: client.chantier,
+              date: new Date().toISOString(),
+              lignes: d.lignes || [],
+            },
+          }),
+        });
 
-      const logData = await logResp.json();
-      window.lastCreatedQuoteId = logData.quoteId || null;
+        const logData = await logResp.json().catch(()=> ({}));
+        window.lastCreatedQuoteId = logData.quoteId || null;
 
-      // ----- PDF → base64 -----
-      const pdfBlob = doc.output("blob");
-      const pdfBase64 = await new Promise((resolve) => {
-        const fr = new FileReader();
-        fr.onloadend = () => resolve(fr.result.split(",")[1]);
-        fr.readAsDataURL(pdfBlob);
-      });
+        // PDF → base64 (pour upload)
+        const pdfBlob = doc.output("blob");
+        const pdfBase64 = await new Promise((resolve) => {
+          const fr = new FileReader();
+          fr.onloadend = () => resolve(fr.result.split(",")[1]);
+          fr.readAsDataURL(pdfBlob);
+        });
 
-      // ----- UPLOAD GITHUB -----
-      if (!window.lastCreatedQuoteId) {
-        console.error("❌ Aucun quoteId reçu depuis /log-quote :", logData);
-        alert("Erreur interne : impossible de récupérer l'ID du devis.");
-        return;
+        if (window.lastCreatedQuoteId) {
+          await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              quoteId: window.lastCreatedQuoteId,
+              pdfBase64,
+              clientCompany: client.societe,
+              productType: "devis-index",
+              createdAt: new Date().toISOString(),
+            }),
+          });
+        } else {
+          console.warn("⚠️ quoteId manquant : upload PDF ignoré.");
+        }
+      }catch(e){
+        console.warn("⚠️ Log/Upload échoué (download conservé) :", e);
       }
 
-      await fetch("https://cofel-auth.sonveven.workers.dev/upload-pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          quoteId: window.lastCreatedQuoteId,
-          pdfBase64,
-          clientCompany: client.societe,
-          productType: "devis-index",
-          createdAt: new Date().toISOString(),
-        }),
-      });
-
-      // ----- DOWNLOAD LOCAL -----
+      // ----- DOWNLOAD LOCAL : PDF + CSV (CSV seulement admin) -----
       doc.save("Devis-Cofel.pdf");
+
+      // CSV EBP (admin seulement)
+      const docRef = makeDocRef();
+      exportEbpCsvDownload({ devis: d, client, docRef });
+
     } catch (err) {
       alert("Erreur PDF : " + err.message);
       console.error(err);
