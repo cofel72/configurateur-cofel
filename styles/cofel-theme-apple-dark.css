@@ -28,19 +28,10 @@
 /* Fond général — Option 2 (dégradé + halos) */
 body{
   background:
-    repeating-linear-gradient(
-      135deg,
-      rgba(255,255,255,.02) 0px,
-      rgba(255,255,255,.02) 2px,
-      rgba(0,0,0,0) 6px,
-      rgba(0,0,0,0) 12px
-    ),
-    radial-gradient(900px 600px at 22% 8%, rgba(255,255,255,.07), transparent 60%),
-    linear-gradient(135deg, #070708 0%, #17171b 50%, #0a0a0c 100%);
+    radial-gradient(900px 700px at 50% 25%, rgba(255,255,255,.10), transparent 60%),
+    radial-gradient(1200px 900px at 50% 120%, rgba(0,0,0,.70), transparent 55%),
+    linear-gradient(135deg, #070708 0%, #141418 50%, #09090b 100%);
 }
-
-
-
 /* Si tes anciens styles utilisent des halos/gradients via pseudo-elements */
 body::before,
 body::after{
