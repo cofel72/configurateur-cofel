@@ -300,6 +300,47 @@
       <input type="number" id="quantite" value="1" min="1"/>
     </fieldset>
 
+    <!-- ===== AJOURAGE / REMPLISSAGE (comme Tôle Tablette, x2 faces) ===== -->
+    <fieldset>
+      <legend>Ajourage / Remplissage</legend>
+
+      <label class="opt-row" style="padding:0;border:none">
+        <span><input type="checkbox" id="optAjourTotem" /> Ajourage des faces du Totem</span>
+      </label>
+
+      <div id="blockAjourTotem" class="hidden" style="margin-top:8px">
+        <div class="grid">
+          <div>
+            <label for="ajourLargeurTotem">Ajourage – largeur (mm)</label>
+            <input type="number" id="ajourLargeurTotem" min="0" placeholder="Ex : 800" />
+
+            <label for="ajourHauteurTotem" style="margin-top:10px">Ajourage – hauteur (mm)</label>
+            <input type="number" id="ajourHauteurTotem" min="0" placeholder="Ex : 300" />
+
+            <label for="pmmaSurfaceTotem" style="margin-top:10px">Surface ajourée (auto)</label>
+            <input id="pmmaSurfaceTotem" disabled value="0.000 m²" />
+
+            <div class="hint">
+              Surface ajourée = (largeur × hauteur) / 1 000 000 • Facturation <b>2 faces</b> • <b>min 1 m²</b> (puis au m²)
+            </div>
+          </div>
+
+          <div>
+            <label for="pmmaSelTotem">Type de PMMA</label>
+            <select id="pmmaSelTotem"><option value="">(aucun)</option></select>
+
+            <label class="radio-row" style="padding:0;border:none;margin-top:14px">
+              <span><input type="checkbox" id="optLEDTotem" /> Éclairage LED (utilise surface ajourée)</span>
+            </label>
+
+            <div class="muted" style="margin-top:6px;opacity:.85">
+              (Tarifs PMMA/LED identiques à Tôle Tablette, appliqués sur <b>2 faces</b>)
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
     <!-- ===== Résultats ===== -->
     <div class="result">
       <p>Prix HT : <span id="prixHT">0,00</span> €</p>
@@ -357,6 +398,14 @@ const URL_OPTIONS = "https://raw.githubusercontent.com/stevens-cofel/configurate
 const TVA = 0.20;
 const RAL_PRICE_PUBLIC_M2 = 112; // ✅ déjà prix PUBLIC (x2 inclus)
 
+/* ===== AJOURAGE (mêmes prix que Tôle Tablette, x2 faces) ===== */
+const TOTEM_FACES = 2;
+const AJOURAGE_PRICE_M2 = 99.0; // interne, identique Tôle Tablette
+const TT_CSV_URL_FOR_AJOUR = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/toles_tabelette";
+
+let PMMA_CATALOG_TOTEM = [];      // [{label, priceM2}]
+let LED_PRICE_M2_TOTEM = NaN;     // €/m² interne, depuis le même CSV
+
 /* ------- STATE ------- */
 let RAW_TARIFFS = []; let RAW_OPTIONS = [];
 let RAW_HEADERS_T = []; let RAW_HEADERS_O = [];
@@ -380,6 +429,15 @@ const elTTC  = document.getElementById('prixTTC');
 const elMsg  = document.getElementById('msg');
 const elOptRAL = document.getElementById('optRAL');
 const elLevage = document.getElementById('levageMsg');
+
+// --- Ajourage DOM
+const elOptAjourTotem = document.getElementById('optAjourTotem');
+const elBlockAjourTotem = document.getElementById('blockAjourTotem');
+const elAjourLT = document.getElementById('ajourLargeurTotem');
+const elAjourHT = document.getElementById('ajourHauteurTotem');
+const elPMMASurfaceTotem = document.getElementById('pmmaSurfaceTotem');
+const elPMMASelTotem = document.getElementById('pmmaSelTotem');
+const elLEDTotem = document.getElementById('optLEDTotem');
 
 /* ------- HELPERS ------- */
 function num(v){
@@ -461,6 +519,99 @@ function isActive(v){
   const s = String(v||'').trim().toLowerCase();
   if(s === '') return true; // vide = actif par défaut
   return ['true','1','oui','vrai','yes','y','x'].includes(s);
+}
+
+/* ===== AJOURAGE helpers ===== */
+function areaM2FromMM(wMM, hMM){
+  const w = Math.max(0, Number(wMM || 0));
+  const h = Math.max(0, Number(hMM || 0));
+  return (w * h) / 1000000;
+}
+function numFR(v){
+  const s = String(v == null ? '' : v)
+    .replace(/€/g,'')
+    .replace(/[\u00A0\u202F]/g,'')
+    .replace(/\s/g,'')
+    .replace(',', '.');
+  const m = s.match(/-?\d+(\.\d+)?/);
+  return m ? parseFloat(m[0]) : NaN;
+}
+function normTT(s){
+  return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+function toggleAjourTotem(){
+  if(!elBlockAjourTotem) return;
+  elBlockAjourTotem.classList.toggle('hidden', !(elOptAjourTotem && elOptAjourTotem.checked));
+}
+
+/* Récupération PMMA + LED depuis le CSV de Tôle Tablette */
+async function loadTTPricesForAjour(){
+  try{
+    const r = await fetch(TT_CSV_URL_FOR_AJOUR, { cache: 'no-store' });
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const txt = await r.text();
+
+    const parsed = parseCSVAuto(txt);
+    const rows = parsed.rows || [];
+    const heads = parsed.heads || [];
+
+    // colonne tarif m²
+    const kTarifM2 =
+      heads.find(k => /tarifm2/.test(k)) ||
+      heads.find(k => /tarif.*m2/.test(k)) ||
+      heads.find(k => /tarif_m2/.test(k)) ||
+      heads.find(k => /tarif/.test(k)) ||
+      null;
+
+    // colonnes texte pour "bag"
+    const kEtape = heads.find(k => /nometape|etape/.test(k)) || null;
+    const kProd  = heads.find(k => /produit/.test(k)) || null;
+    const kTitre = heads.find(k => /titre/.test(k)) || null;
+    const kComm  = heads.find(k => /comment/.test(k)) || null;
+
+    if(!kTarifM2){
+      console.warn('[AJOUR TOTEM] Colonne tarif m² introuvable dans le CSV Tôle Tablette.');
+      return;
+    }
+
+    // PMMA catalog
+    const pmmaMap = new Map();
+    rows.forEach(row=>{
+      const bag = normTT([kEtape&&row[kEtape], kProd&&row[kProd], kTitre&&row[kTitre], kComm&&row[kComm]].filter(Boolean).join(' '));
+      if(!bag.includes('pmma')) return;
+
+      const label = String((kEtape && row[kEtape]) || (kProd && row[kProd]) || (kTitre && row[kTitre]) || 'PMMA').trim();
+      const priceM2 = numFR(row[kTarifM2]);
+      if(label && isFinite(priceM2)) pmmaMap.set(label, priceM2);
+    });
+
+    PMMA_CATALOG_TOTEM = [...pmmaMap.entries()].map(([label, priceM2])=>({label, priceM2}));
+
+    // LED price m2
+    LED_PRICE_M2_TOTEM = NaN;
+    for(const row of rows){
+      const bag = normTT([kEtape&&row[kEtape], kProd&&row[kProd], kTitre&&row[kTitre], kComm&&row[kComm]].filter(Boolean).join(' '));
+      if(!/(led|eclair|éclair|eclairage|éclairage)/.test(bag)) continue;
+      const v = numFR(row[kTarifM2]);
+      if(isFinite(v)){ LED_PRICE_M2_TOTEM = v; break; }
+    }
+
+    // inject select PMMA
+    if(elPMMASelTotem){
+      const cur = elPMMASelTotem.value;
+      elPMMASelTotem.innerHTML = '<option value="">(aucun)</option>';
+      PMMA_CATALOG_TOTEM.forEach(item=>{
+        const o = document.createElement('option');
+        o.value = item.label;
+        o.textContent = item.label;
+        o.dataset.price = String(item.priceM2);
+        elPMMASelTotem.appendChild(o);
+      });
+      if(cur) elPMMASelTotem.value = cur;
+    }
+  }catch(e){
+    console.warn('[AJOUR TOTEM] Impossible de charger le CSV Tôle Tablette:', e);
+  }
 }
 
 /* ==========================
@@ -889,11 +1040,37 @@ function compute(){
   const opt_interne  = priceOptionsSum();
   const qte  = Math.max(1, parseInt(elQte.value||'1',10));
 
+  // === AJOURAGE / PMMA / LED (interne puis coef public) ===
+  let ajourage_interne = 0, pmma_interne = 0, led_interne = 0;
+
+  if(elOptAjourTotem && elOptAjourTotem.checked){
+    const sPerFace = areaM2FromMM(elAjourLT?.value, elAjourHT?.value);
+    if(elPMMASurfaceTotem) elPMMASurfaceTotem.value = (sPerFace.toFixed(3) + ' m²');
+
+    // ✅ Ajourage : minimum facturé = 1 m² (comme Tôle Tablette), puis x2 faces
+    const factureM2 = Math.max(1, sPerFace);
+    ajourage_interne = AJOURAGE_PRICE_M2 * factureM2 * TOTEM_FACES;
+
+    // PMMA : surface réelle x2 faces
+    const sel = elPMMASelTotem?.options?.[elPMMASelTotem.selectedIndex];
+    const pmmaM2 = sel && sel.dataset.price ? Number(sel.dataset.price) : NaN;
+    if(isFinite(pmmaM2) && sPerFace > 0){
+      pmma_interne = pmmaM2 * sPerFace * TOTEM_FACES;
+    }
+
+    // LED : surface réelle x2 faces
+    if(elLEDTotem && elLEDTotem.checked && isFinite(LED_PRICE_M2_TOTEM) && sPerFace > 0){
+      led_interne = LED_PRICE_M2_TOTEM * sPerFace * TOTEM_FACES;
+    }
+  } else {
+    if(elPMMASurfaceTotem) elPMMASurfaceTotem.value = "0.000 m²";
+  }
+
   // === COEF TARIF PUBLIC COFEL ===
   const COEF_PUBLIC = 2;
 
   // === BASE INTERNE ===
-  const unit_interne = base_interne + opt_interne;
+  const unit_interne = base_interne + opt_interne + ajourage_interne + pmma_interne + led_interne;
 
   // === PRIX PUBLIC AVANT REMISE ===
   const unit_public_base = unit_interne * COEF_PUBLIC;
@@ -983,6 +1160,19 @@ async function loadAll(){
     elOptRAL.addEventListener('change', compute);
     document.getElementById('optPieds').addEventListener('change', compute);
 
+    // --- Ajourage events ---
+    if(elOptAjourTotem){
+      elOptAjourTotem.addEventListener('change', function(){
+        toggleAjourTotem();
+        compute();
+      });
+    }
+    [elAjourLT, elAjourHT, elPMMASelTotem, elLEDTotem].forEach(function(el){
+      if(!el) return;
+      el.addEventListener('input', function(){ compute(); });
+      el.addEventListener('change', function(){ compute(); });
+    });
+
     // --- Synchronisation Pré-laquage <-> RAL ---
     elOptRAL.addEventListener('change', function(){
       const pre = document.getElementById('optPreLaque');
@@ -1004,7 +1194,10 @@ async function loadAll(){
     console.error(e);
   }
 }
+
 initRalModal();
+toggleAjourTotem();
+loadTTPricesForAjour(); // PMMA + LED depuis Tôle Tablette
 loadAll();
 
 /* ====== TESTS LÉGERS (console) ====== */
@@ -1024,9 +1217,11 @@ loadAll();
 </script>
 
 <script src="../js/devis-core.js"></script>
+
 <script>
 (function(){
   const btn = document.getElementById('btnAddDevis'); if(!btn) return;
+
   function parseHTPublic(){
     const t = (document.getElementById('prixHT').innerText || '0').trim();
     return Number(t.replace(/\s/g,'').replace(',', '.')) || 0;
@@ -1035,25 +1230,49 @@ loadAll();
     const cbs = Array.prototype.slice.call(document.querySelectorAll('#optionsBox input[name="opt"]:checked'));
     return cbs.map(function(cb){ return cb.value; });
   }
+
   btn.addEventListener('click', function(){
     try{
       if(!window.Devis) throw new Error('Moteur de devis introuvable.');
+
       const typeFace = document.getElementById('type').value || '';
       const H = document.getElementById('hauteur').value || '';
       const L = document.getElementById('largeur').value || '';
       const qte = Math.max(1, parseInt(document.getElementById('quantite').value||'1',10));
       if(!typeFace || !H || !L){ alert('Merci de sélectionner le type de face, la hauteur et la largeur.'); return; }
-      const total_ht_public = parseHTPublic(); if(total_ht_public <= 0){ alert('Le total est à 0, vérifie la configuration.'); return; }
+
+      const total_ht_public = parseHTPublic();
+      if(total_ht_public <= 0){ alert('Le total est à 0, vérifie la configuration.'); return; }
+
       const pu_public_ht = Number((total_ht_public / qte).toFixed(2));
 
       const opts = selectedOptionsList();
+
       const ralChecked = document.getElementById('optRAL') && document.getElementById('optRAL').checked;
       if(ralChecked) opts.push('Laquage au RAL');
+
+      // ✅ Ajourage Totem dans la désignation
+      const ajOn = document.getElementById('optAjourTotem') && document.getElementById('optAjourTotem').checked;
+      if(ajOn){
+        const ajL = Number(document.getElementById('ajourLargeurTotem')?.value || 0);
+        const ajH = Number(document.getElementById('ajourHauteurTotem')?.value || 0);
+        const s = (ajL>0 && ajH>0) ? ((ajL*ajH)/1000000) : 0;
+
+        let label = `Ajourage des faces du Totem (${s.toFixed(3)} m²/face, min 1 m²)`;
+
+        const pmma = document.getElementById('pmmaSelTotem')?.value || '';
+        if(pmma) label += ` + PMMA (${pmma})`;
+
+        if(document.getElementById('optLEDTotem')?.checked) label += ' + LED';
+
+        opts.push(label);
+      }
 
       const parts = ['Totem', typeFace, 'H ' + H + ' mm × L ' + L + ' mm', opts.length ? 'Options: ' + opts.join(', ') : null];
       const designation = parts.filter(Boolean).join(' — ');
 
       Devis.addLine({ type: 'Totem', designation: designation, quantite: qte, pu_public_ht: pu_public_ht });
+
       alert('✅ Ligne ajoutée au devis !\n' + designation + '\nQté : ' + qte + '\nPU HT : ' + pu_public_ht.toFixed(2) + ' €');
     }catch(err){
       console.error(err);
@@ -1064,4 +1283,3 @@ loadAll();
 </script>
 </body>
 </html>
-
