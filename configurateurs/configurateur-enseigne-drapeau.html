@@ -303,6 +303,10 @@ const TVA = 0.20;
 const COEF_PUBLIC = 2;
 const CSV_URL = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/Enseigne%20drapeaux.csv";
 
+/* ✅ AJOUT DIMENSIONS 700 (auto) : +102 € PUBLIC par rapport à 600, donc + (102/COEF_PUBLIC) sur le prix CSV */
+const DELTA_PUBLIC_700_FROM_600 = 102;
+const DELTA_CSV_700_FROM_600 = DELTA_PUBLIC_700_FROM_600 / COEF_PUBLIC;
+
 /* ================= UTILS ================= */
 const $ = id => document.getElementById(id);
 const euro = n => (isFinite(n)?n:0).toFixed(2).replace('.',',');
@@ -572,6 +576,85 @@ function buildMap(heads){
   };
 }
 
+/* ✅ Injection automatique des tailles 700 à partir des lignes 600 (+102€ public) */
+function injectSize700From600(){
+  if(!MAP?.FORME || !MAP?.DIM || !MAP?.FIN || !MAP?.PRIX) return;
+
+  const hasKey = (forme, dim, fin, aj) => {
+    const key = `${forme}||${dim}||${fin}||${String(aj ?? "")}`;
+    return existing.has(key);
+  };
+
+  const existing = new Set(
+    ROWS.map(r => `${r[MAP.FORME]}||${r[MAP.DIM]}||${r[MAP.FIN]}||${String(r[MAP.AJ] ?? "")}`)
+  );
+
+  function isSquareDim600(dim){
+    const m = String(dim||"").match(/(\d+)\s*[x×]\s*(\d+)/i);
+    if(!m) return false;
+    return Number(m[1]) === 600 && Number(m[2]) === 600;
+  }
+  function isRoundDim600(dim, formeNorm){
+    // Rond : pas de x/×, contient 600 (Ø600 / diam 600 / 600)
+    const s = String(dim||"");
+    if(/[x×]/i.test(s)) return false;
+    const nums = (s.match(/\d+/g) || []).map(Number);
+    if(!nums.length) return false;
+    const has600 = nums.includes(600);
+    if(!has600) return false;
+    // si forme indique rond, on accepte même "600"
+    if(formeNorm.includes("rond")) return true;
+    // sinon, on exige un marqueur rond
+    const ns = norm(s);
+    return ns.includes("ø") || ns.includes("diam");
+  }
+  function makeDim700(dim){
+    return String(dim||"").replace(/600/g, "700");
+  }
+
+  const added = [];
+
+  ROWS.forEach(r => {
+    const forme = r[MAP.FORME];
+    const dim   = r[MAP.DIM];
+    if(!forme || !dim) return;
+
+    const fN = norm(forme);
+
+    const isCarre = fN.includes("carre");
+    const isRond  = fN.includes("rond");
+
+    if(!isCarre && !isRond) return;
+
+    // On clone uniquement les lignes 600 pour créer 700
+    const ok600 = isCarre ? isSquareDim600(dim) : isRoundDim600(dim, fN);
+    if(!ok600) return;
+
+    const dim700 = makeDim700(dim);
+    if(!dim700 || dim700 === dim) return;
+
+    // si une ligne 700 identique (forme+dim+fin+aj) existe déjà, on ne duplique pas
+    const fin = r[MAP.FIN];
+    const aj  = r[MAP.AJ];
+
+    if(hasKey(forme, dim700, fin, aj)) return;
+
+    const clone = Object.assign({}, r);
+    clone[MAP.DIM] = dim700;
+
+    const oldP = numFR(r[MAP.PRIX]);
+    const newP = oldP + DELTA_CSV_700_FROM_600; // +51 si coef=2 => +102 public
+    clone[MAP.PRIX] = newP.toFixed(2).replace(".", ",");
+
+    added.push(clone);
+    existing.add(`${forme}||${dim700}||${fin}||${String(aj ?? "")}`);
+  });
+
+  if(added.length){
+    ROWS = ROWS.concat(added);
+  }
+}
+
 /* ================= UI ================= */
 function uniqueSorted(arr){
   // tri simple : Ø400, Ø500... puis 400 x 400...
@@ -755,6 +838,9 @@ fetch(CSV_URL, {cache:"no-store"})
       return;
     }
 
+    // ✅ Ajoute automatiquement Carré 700x700 et Rond Ø700 (ou équivalent) à partir des lignes 600
+    injectSize700From600();
+
     populateFormes();
     populateDims();
     compute();
@@ -805,4 +891,3 @@ $('btnAddDevis').onclick = ()=>{
 
 </body>
 </html>
-
