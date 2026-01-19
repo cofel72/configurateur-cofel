@@ -8,7 +8,174 @@
 <link rel="stylesheet" href="../styles/cofel.css">
 <link rel="stylesheet" href="../styles/cofel-components.css">
 <link rel="stylesheet" href="../styles/cofel-glass.css">
-  <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
+<link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
+
+<style>
+  /* sécurité si .hidden n'existe pas dans tes CSS */
+  .hidden{ display:none !important; }
+
+  /* Bouton RAL (style “pastille” comme Tôle Tablette) */
+  .ral-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border:1px solid var(--glass-hr, rgba(255,255,255,.18));
+    border-radius:14px;
+    background:var(--glass, rgba(255,255,255,.06));
+    color:var(--txt, #fff);
+    user-select:none;
+    white-space:nowrap;
+    cursor:pointer;
+  }
+  .ral-btn:hover{ filter:brightness(1.12); }
+  .ral-btn:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+    filter:none;
+  }
+
+  /* Modal */
+  html.ral-lock, body.ral-lock{ overflow:hidden; }
+
+  .ral-modal{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:14px;
+  }
+  .ral-backdrop{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.65);
+    backdrop-filter: blur(10px);
+  }
+  .ral-card{
+    position:relative;
+    width:min(980px, calc(100vw - 24px));
+    max-height:calc(100vh - 24px);
+    overflow:hidden;
+    border-radius:18px;
+    border:1px solid var(--glass-hr, rgba(255,255,255,.18));
+    background:rgba(18,18,18,.86);
+    box-shadow: 0 12px 35px rgba(0,0,0,.55);
+    display:flex;
+    flex-direction:column;
+  }
+  .ral-head{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    padding:14px 14px 10px;
+    border-bottom:1px solid var(--glass-hr, rgba(255,255,255,.12));
+  }
+  .ral-title{
+    font-weight:700;
+    font-size:16px;
+    line-height:1.2;
+  }
+  .ral-sub{
+    margin-top:4px;
+    font-size:13px;
+    color:var(--txt-dim, rgba(255,255,255,.72));
+  }
+  .ral-close{
+    background:transparent;
+    border:1px solid var(--glass-hr, rgba(255,255,255,.18));
+    border-radius:12px;
+    color:var(--txt, #fff);
+    padding:8px 10px;
+    cursor:pointer;
+  }
+
+  .ral-toolbar{
+    display:flex;
+    gap:10px;
+    padding:12px 14px;
+    align-items:center;
+    border-bottom:1px solid var(--glass-hr, rgba(255,255,255,.12));
+    flex-wrap:wrap;
+  }
+  .ral-tabs{
+    display:flex;
+    gap:8px;
+  }
+  .ral-tab{
+    padding:8px 10px;
+    border-radius:12px;
+    border:1px solid var(--glass-hr, rgba(255,255,255,.18));
+    background:transparent;
+    color:var(--txt, #fff);
+    cursor:pointer;
+  }
+  .ral-tab.is-active{
+    background:rgba(255,255,255,.08);
+  }
+  .ral-search{
+    flex:1;
+    min-width:220px;
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid var(--glass-hr, rgba(255,255,255,.18));
+    background:rgba(255,255,255,.06);
+    color:var(--txt, #fff);
+    outline:none;
+  }
+
+  .ral-content{
+    padding:14px;
+    overflow:auto;
+  }
+  .ral-group{
+    margin-bottom:14px;
+    padding:12px;
+    border-radius:16px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.08);
+  }
+  .ral-group h3{
+    margin:0 0 10px 0;
+    font-size:14px;
+    color:var(--txt, #fff);
+  }
+  .ral-grid{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .ral-chip{
+    padding:8px 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.06);
+    color:var(--txt, #fff);
+    cursor:pointer;
+  }
+  .ral-chip:hover{ filter:brightness(1.12); }
+
+  .ral-empty{
+    padding:16px;
+    color:var(--txt-dim, rgba(255,255,255,.72));
+  }
+
+  .ral-foot{
+    padding:10px 14px 14px;
+    border-top:1px solid var(--glass-hr, rgba(255,255,255,.12));
+  }
+  .ral-toast{
+    font-size:13px;
+    color:var(--txt, #fff);
+    min-height:18px;
+    margin-bottom:6px;
+  }
+  .ral-note{
+    font-size:12px;
+    color:var(--txt-dim, rgba(255,255,255,.72));
+  }
+</style>
 
 </head>
 
@@ -63,14 +230,25 @@
   <!-- FINITION -->
   <fieldset>
     <legend>Finition</legend>
-    <div class="radio-row" id="finitionRow">
-      <label><input type="radio" name="finition" value="prelaque" checked> Prélaqué</label>
-      <label><input type="radio" name="finition" value="laque"> Laqué</label>
-      <label><input type="radio" name="finition" value="ajour"> Faces Aluminium 20/10ème laquées + ajourage + PMMA 3 mm collé au dos + lumineux</label>
 
-      <label><input type="radio" name="finition" value="pmma_df"> Double face PMMA lumineux</label>
+    <div class="grid">
+      <div>
+        <div class="radio-row" id="finitionRow">
+          <label><input type="radio" name="finition" value="prelaque" checked> Prélaqué</label>
+          <label><input type="radio" name="finition" value="laque"> Laqué</label>
+          <label><input type="radio" name="finition" value="ajour"> Faces Aluminium 20/10ème laquées + ajourage + PMMA 3 mm collé au dos + lumineux</label>
+          <label><input type="radio" name="finition" value="pmma_df"> Double face PMMA lumineux</label>
+        </div>
+        <div id="helpFinition" class="hint"></div>
+      </div>
+
+      <!-- ✅ Bouton RAL (comme Tôle Tablette) -->
+      <div style="display:flex;justify-content:flex-end;align-items:flex-start;">
+        <button type="button" id="btnRal" class="ral-btn" aria-haspopup="dialog">
+          🎨 RAL disponibles (pré-laquée)
+        </button>
+      </div>
     </div>
-    <div id="helpFinition" class="hint"></div>
   </fieldset>
 
   <!-- RÉSULTAT -->
@@ -88,6 +266,36 @@
 <footer class="cofel-footer">
 © Cofel — ZA du Perquoi, 72560 Changé — SIRET 927 659 458 00024 — TVA FR80927659458
 </footer>
+
+<!-- ✅ POPUP RAL (identique à Tôle Tablette) -->
+<div id="ralModal" class="ral-modal hidden" role="dialog" aria-modal="true" aria-labelledby="ralTitle">
+  <div class="ral-backdrop" data-close="1"></div>
+
+  <div class="ral-card">
+    <div class="ral-head">
+      <div>
+        <div id="ralTitle" class="ral-title">RAL disponibles — Tôle aluminium 15/10 pré-laquée</div>
+        <div class="ral-sub">Format 3000 × 1500 • Satiné / Brillante • Clique un RAL pour le copier</div>
+      </div>
+      <button type="button" id="ralClose" class="ral-close" aria-label="Fermer">✕</button>
+    </div>
+
+    <div class="ral-toolbar">
+      <div class="ral-tabs" role="tablist" aria-label="Finition">
+        <button type="button" class="ral-tab is-active" data-finish="satine" role="tab" aria-selected="true">Satiné</button>
+        <button type="button" class="ral-tab" data-finish="brillante" role="tab" aria-selected="false">Brillante</button>
+      </div>
+      <input id="ralSearch" class="ral-search" type="text" placeholder="Rechercher : 7016, gris, noir, bleu…" />
+    </div>
+
+    <div id="ralContent" class="ral-content"></div>
+
+    <div class="ral-foot">
+      <div id="ralToast" class="ral-toast" aria-live="polite"></div>
+      <div class="ral-note">Référence indicative : valider la teinte finale avec un nuancier officiel RAL / échantillon matière.</div>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ================= CONFIG ================= */
@@ -129,6 +337,195 @@ function getFinitionLabel(v = getFinition()){
     case "pmma_df":  return "Double face PMMA lumineux";
     default:         return v || "";
   }
+}
+
+/* ==========================
+   POPUP RAL (identique à Tôle Tablette)
+   ========================== */
+const RAL_DATA = {
+  satine: {
+    "Blanc cassé": ["1013"],
+    "Blanc": ["9001","9002","9003","9018"],
+    "Noir": ["9004","9005","9011"],
+    "Gris": ["7001","7003","7004","7005","7006","7010","7011","7012","7013","7015","7016","7021","7022","7023","7024","7030","7031","7032","7033","7035","7036","7037","7038","7039","7040","7042","7043","7044","7046","7047"],
+    "Brun": ["1247","8003","8004","8011","8012","8014","8016","8017","8019","8022","8025","8028"],
+    "Vert": ["6005","6006","6019","6021"],
+    "Ivoire": ["1014","1015"],
+    "Beige": ["1001","1019"],
+    "Rouge": ["3003","3004","3009","3011","3012"],
+    "Bleu": ["5003","5008","5009","5014"]
+  },
+  brillante: {
+    "Blanc": ["9001","9002","9003"],
+    "Noir": ["9005"],
+    "Gris": ["7001","7005","7006","7010","7011","7012","7015","7016","7021","7022","7024","7030","7031","7032","7035","7036","7037","7038","7039","7040","7042","7043","7047"],
+    "Brun": ["8011","8014","8017","8019"],
+    "Vert": ["6005","6021"],
+    "Ivoire": ["1013","1015"],
+    "Galet": ["9660"],
+    "Jaune": ["1023"],
+    "Rouge": ["3002","3003","3004","3020"],
+    "Bleu": ["5002","5010","5017"]
+  }
+};
+
+let ralFinish = "satine";
+let ralToastTimer = null;
+
+function setRalToast(msg){
+  const el = document.getElementById("ralToast");
+  if(!el) return;
+  el.textContent = msg || "";
+  clearTimeout(ralToastTimer);
+  if(msg){
+    ralToastTimer = setTimeout(()=>{ el.textContent=""; }, 1200);
+  }
+}
+
+function renderRal(){
+  const cont = document.getElementById("ralContent");
+  if(!cont) return;
+
+  const q = norm((document.getElementById("ralSearch")?.value || "").trim());
+  cont.innerHTML = "";
+
+  const groups = RAL_DATA[ralFinish] || {};
+  let any = false;
+
+  Object.entries(groups).forEach(([family, codes])=>{
+    const famNorm = norm(family);
+    const filtered = codes.filter(code=>{
+      if(!q) return true;
+      const codeStr = String(code);
+      return famNorm.includes(q) || codeStr.includes(q) || (`ral ${codeStr}`).includes(q);
+    });
+
+    if(!filtered.length) return;
+    any = true;
+
+    const sec = document.createElement("section");
+    sec.className = "ral-group";
+    sec.innerHTML = `<h3>${family}</h3>`;
+
+    const grid = document.createElement("div");
+    grid.className = "ral-grid";
+
+    filtered.forEach(code=>{
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "ral-chip";
+      b.dataset.code = String(code);
+      b.textContent = `RAL ${code}`;
+      grid.appendChild(b);
+    });
+
+    sec.appendChild(grid);
+    cont.appendChild(sec);
+  });
+
+  if(!any){
+    cont.innerHTML = `<div class="ral-empty">Aucun résultat pour cette recherche.</div>`;
+  }
+}
+
+function openRalModal(){
+  const modal = document.getElementById("ralModal");
+  if(!modal) return;
+  modal.classList.remove("hidden");
+  document.documentElement.classList.add("ral-lock");
+  document.body.classList.add("ral-lock");
+
+  const s = document.getElementById("ralSearch");
+  if(s){ s.value = ""; }
+
+  renderRal();
+  setRalToast("");
+  setTimeout(()=>{ document.getElementById("ralSearch")?.focus(); }, 50);
+}
+
+function closeRalModal(){
+  const modal = document.getElementById("ralModal");
+  if(!modal) return;
+  modal.classList.add("hidden");
+  document.documentElement.classList.remove("ral-lock");
+  document.body.classList.remove("ral-lock");
+  setRalToast("");
+}
+
+function updateRalBtn(){
+  const btn = document.getElementById("btnRal");
+  if(!btn) return;
+
+  const fin = getFinition();
+  const rPre = document.querySelector('input[name="finition"][value="prelaque"]');
+  const preAvailable = rPre ? !rPre.disabled : true;
+
+  const enabled = (fin === "prelaque") && preAvailable;
+  btn.disabled = !enabled;
+  btn.title = enabled
+    ? "Voir les RAL disponibles en tôle pré-laquée"
+    : "Disponible uniquement si la finition sélectionnée est : Prélaqué";
+}
+
+function initRalModal(){
+  const btn = document.getElementById("btnRal");
+  const modal = document.getElementById("ralModal");
+  const closeBtn = document.getElementById("ralClose");
+
+  if(btn){
+    btn.addEventListener("click", ()=>{
+      if(btn.disabled) return;
+      openRalModal();
+    });
+  }
+
+  if(closeBtn) closeBtn.addEventListener("click", closeRalModal);
+
+  if(modal){
+    modal.addEventListener("click", (e)=>{
+      const t = e.target;
+      if(t && t.dataset && t.dataset.close === "1") closeRalModal();
+    });
+  }
+
+  document.addEventListener("keydown", (e)=>{
+    if(e.key === "Escape"){
+      const m = document.getElementById("ralModal");
+      if(m && !m.classList.contains("hidden")) closeRalModal();
+    }
+  });
+
+  // Tabs
+  document.querySelectorAll(".ral-tab").forEach(tab=>{
+    tab.addEventListener("click", ()=>{
+      document.querySelectorAll(".ral-tab").forEach(x=>{
+        x.classList.remove("is-active");
+        x.setAttribute("aria-selected","false");
+      });
+      tab.classList.add("is-active");
+      tab.setAttribute("aria-selected","true");
+      ralFinish = tab.dataset.finish || "satine";
+      renderRal();
+    });
+  });
+
+  // Search
+  document.getElementById("ralSearch")?.addEventListener("input", renderRal);
+
+  // Click chip => copie
+  document.getElementById("ralContent")?.addEventListener("click", async (e)=>{
+    const chip = e.target?.closest?.(".ral-chip");
+    if(!chip) return;
+    const txt = chip.textContent || "";
+    try{
+      await navigator.clipboard.writeText(txt);
+      setRalToast(`✅ ${txt} copié`);
+    }catch(err){
+      window.prompt("Copie ce RAL :", txt);
+    }
+  });
+
+  updateRalBtn();
 }
 
 /* ================= CSV ================= */
@@ -222,6 +619,7 @@ function finitionsDisponibles(){
 
   return {hasPrelaque, hasLaque, hasAjour, hasPmmaDF};
 }
+
 function applyFinitionAvailability(){
   const {hasPrelaque, hasLaque, hasAjour, hasPmmaDF} = finitionsDisponibles();
 
@@ -258,8 +656,9 @@ function applyFinitionAvailability(){
     msg = "";
   }
   elHelp.textContent = msg;
-}
 
+  updateRalBtn();
+}
 
 /* ================= CALCUL ================= */
 function findRow(){
@@ -287,7 +686,6 @@ function findRow(){
   });
 }
 
-
 function compute(){
   applyFinitionAvailability();
 
@@ -312,6 +710,8 @@ function compute(){
 
   elHT.textContent  = euro(total);
   elTTC.textContent = euro(total * (1 + TVA));
+
+  updateRalBtn();
 }
 
 /* ================= EVENTS ================= */
@@ -327,6 +727,7 @@ $('btnReset').onclick = ()=>{
   elForme.value = '';
   elDim.value   = '';
   elQ.value     = 1;
+
   // reset finition
   const rPre = document.querySelector('input[name="finition"][value="prelaque"]');
   if(rPre){ rPre.disabled = false; rPre.checked = true; }
@@ -338,6 +739,8 @@ $('btnReset').onclick = ()=>{
 };
 
 /* ================= INIT ================= */
+initRalModal();
+
 fetch(CSV_URL, {cache:"no-store"})
   .then(r=>r.text())
   .then(t=>{
@@ -400,10 +803,5 @@ $('btnAddDevis').onclick = ()=>{
 };
 </script>
 
-
 </body>
 </html>
-
-
-
-
