@@ -312,28 +312,30 @@
   <!-- Script principal -->
   <script>
   (function(){
-  /************************************************************
-   * RÔLES UTILISATEURS — Administrateur complet + éditeurs devis
-   ************************************************************/
-  const FULL_ADMINS = [
-    "commercial@cofel72.fr"
-  ];
+/************************************************************
+ * RÔLES UTILISATEURS — Admin complet + édition devis (TOUS)
+ ************************************************************/
+const FULL_ADMINS = [
+  "commercial@cofel72.fr"
+];
 
-  const QUOTE_EDITORS = [
-    "souvre@cofel72.fr", "secretaire@cofel72.fr" , "direction@deco72.com", "adv@deco72.com"
-  ];
+let isFullAdmin = false;
+let canEditQuote = true; // ✅ tous les utilisateurs peuvent modifier
 
-  let isFullAdmin = false;
-  let canEditQuote = false;
+try {
+  const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
+  const email = (profile.email || "").trim().toLowerCase();
 
-  try {
-    const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
-    const email = profile.email || "";
-    isFullAdmin  = FULL_ADMINS.includes(email);
-    canEditQuote = isFullAdmin || QUOTE_EDITORS.includes(email);
-  } catch (e) {
-    console.warn("Impossible de lire le profil utilisateur", e);
-  }
+  // Admin uniquement (pour les fonctions sensibles comme CSV EBP, liens admin, etc.)
+  isFullAdmin = FULL_ADMINS.map(e=>e.toLowerCase()).includes(email);
+
+  // Option “propre” : autoriser l’édition seulement si on a bien un email (utilisateur connecté)
+  canEditQuote = !!email; // ✅ tous les connectés
+} catch (e) {
+  console.warn("Impossible de lire le profil utilisateur", e);
+  canEditQuote = false;
+}
+
 
   if(!window.Devis){
     console.error("Devis-core non chargé. Vérifiez ./js/devis-core.js");
