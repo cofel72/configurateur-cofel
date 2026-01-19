@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="../styles/cofel-components.css">
 <link rel="stylesheet" href="../styles/cofel-glass.css">
 <link rel="stylesheet" href="../styles/cofel-config-steps.css">
-  <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
+<link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
 
 </head>
 
@@ -177,6 +177,63 @@
 <script src="../js/souples-rigides-adhesifs-rules.js"></script>
 <script src="../js/methode-prix-matieres-souples-rigides-impression.js"></script>
 <script src="../js/souples-rigides-adhesifs.js"></script>
+
+<!-- ✅ PATCH AFFICHAGE : "Plexi" => "PMMA" (visuel uniquement, valeurs/prix inchangés) -->
+<script>
+(function(){
+  function isRigideSelected(){
+    const s = document.querySelector('input[name="support"]:checked');
+    return !!(s && s.value === 'rigide');
+  }
+
+  function patchOneLabel(lab){
+    const input = lab.querySelector('input');
+    if(!input) return;
+
+    // Récupère le texte visible du label (sans l'input)
+    const clone = lab.cloneNode(true);
+    const i2 = clone.querySelector('input');
+    if(i2) i2.remove();
+    const txt = (clone.textContent || '').replace(/\s+/g,' ').trim();
+
+    // On remplace uniquement si ça commence par "Plexi"
+    if(!/^plexi\b/i.test(txt)) return;
+
+    const newTxt = txt.replace(/^plexi\b/i, 'PMMA');
+
+    // Important : on ne touche PAS à input.value => corrélation tarifs / prix conservée
+    lab.innerHTML = '';
+    lab.appendChild(input);
+    lab.appendChild(document.createTextNode(' ' + newTxt));
+  }
+
+  function patchMatieres(){
+    if(!isRigideSelected()) return;
+    const root = document.getElementById('listeMatieres');
+    if(!root) return;
+    root.querySelectorAll('label').forEach(patchOneLabel);
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const root = document.getElementById('listeMatieres');
+    if(!root) return;
+
+    // Patch immédiat (au cas où)
+    patchMatieres();
+
+    // Patch à chaque rerender (le JS reconstruit souvent la liste)
+    const obs = new MutationObserver(function(){ patchMatieres(); });
+    obs.observe(root, { childList:true, subtree:true });
+
+    // Patch quand support/impression change (sécurité)
+    document.querySelectorAll('input[name="support"], input[name="impression"]').forEach(function(el){
+      el.addEventListener('change', function(){
+        setTimeout(patchMatieres, 0);
+      });
+    });
+  });
+})();
+</script>
 
 <!-- ===== Bridge: devisCourant_v1 + remise (logique actuelle) ===== -->
 <script>
