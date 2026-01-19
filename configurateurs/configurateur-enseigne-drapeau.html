@@ -732,7 +732,7 @@ function applyFinitionAvailability(){
 
   let msg = "";
   if(elForme.value && norm(elForme.value).includes('rond') && !hasPrelaque){
-    msg = "ℹ️ Sur les drapeaux ronds, la finition « Prélaqué » n’est pas tarifée dans le CSV : passe en « Laqué » (ou une finition lumineuse si disponible).";
+    
   }else if(getFinition()==='pmma_df'){
     msg = "ℹ️ « Double face PMMA lumineux » = tarif dédié (ligne CSV avec finition “double face PMMA lumineux”).";
   }else{
@@ -891,3 +891,4 @@ $('btnAddDevis').onclick = ()=>{
 
 </body>
 </html>
+
