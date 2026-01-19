@@ -9,9 +9,175 @@
 <link rel="stylesheet" href="../styles/cofel.css">
 <link rel="stylesheet" href="../styles/cofel-components.css">
 <link rel="stylesheet" href="../styles/cofel-glass.css">
-
-
 <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
+
+<style>
+  /* sécurité si .hidden n'existe pas dans tes CSS */
+  .hidden{ display:none !important; }
+
+  /* Bouton RAL (style “pastille”) */
+  .ral-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border:1px solid var(--glass-hr, rgba(255,255,255,.18));
+    border-radius:14px;
+    background:var(--glass, rgba(255,255,255,.06));
+    color:var(--txt, #fff);
+    text-decoration:none;
+    user-select:none;
+    white-space:nowrap;
+    cursor:pointer;
+  }
+  .ral-btn:hover{ filter:brightness(1.12); }
+  .ral-btn:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+    filter:none;
+  }
+
+  /* Modal */
+  html.ral-lock, body.ral-lock{ overflow:hidden; }
+
+  .ral-modal{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:14px;
+  }
+  .ral-backdrop{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.65);
+    backdrop-filter: blur(10px);
+  }
+  .ral-card{
+    position:relative;
+    width:min(980px, calc(100vw - 24px));
+    max-height:calc(100vh - 24px);
+    overflow:hidden;
+    border-radius:18px;
+    border:1px solid var(--glass-hr, rgba(255,255,255,.18));
+    background:rgba(18,18,18,.86);
+    box-shadow: 0 12px 35px rgba(0,0,0,.55);
+    display:flex;
+    flex-direction:column;
+  }
+  .ral-head{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    padding:14px 14px 10px;
+    border-bottom:1px solid var(--glass-hr, rgba(255,255,255,.12));
+  }
+  .ral-title{
+    font-weight:700;
+    font-size:16px;
+    line-height:1.2;
+  }
+  .ral-sub{
+    margin-top:4px;
+    font-size:13px;
+    color:var(--txt-dim, rgba(255,255,255,.72));
+  }
+  .ral-close{
+    background:transparent;
+    border:1px solid var(--glass-hr, rgba(255,255,255,.18));
+    border-radius:12px;
+    color:var(--txt, #fff);
+    padding:8px 10px;
+    cursor:pointer;
+  }
+
+  .ral-toolbar{
+    display:flex;
+    gap:10px;
+    padding:12px 14px;
+    align-items:center;
+    border-bottom:1px solid var(--glass-hr, rgba(255,255,255,.12));
+    flex-wrap:wrap;
+  }
+  .ral-tabs{
+    display:flex;
+    gap:8px;
+  }
+  .ral-tab{
+    padding:8px 10px;
+    border-radius:12px;
+    border:1px solid var(--glass-hr, rgba(255,255,255,.18));
+    background:transparent;
+    color:var(--txt, #fff);
+    cursor:pointer;
+  }
+  .ral-tab.is-active{
+    background:rgba(255,255,255,.08);
+  }
+  .ral-search{
+    flex:1;
+    min-width:220px;
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid var(--glass-hr, rgba(255,255,255,.18));
+    background:rgba(255,255,255,.06);
+    color:var(--txt, #fff);
+    outline:none;
+  }
+
+  .ral-content{
+    padding:14px;
+    overflow:auto;
+  }
+  .ral-group{
+    margin-bottom:14px;
+    padding:12px;
+    border-radius:16px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.08);
+  }
+  .ral-group h3{
+    margin:0 0 10px 0;
+    font-size:14px;
+    color:var(--txt, #fff);
+  }
+  .ral-grid{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .ral-chip{
+    padding:8px 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.06);
+    color:var(--txt, #fff);
+    cursor:pointer;
+  }
+  .ral-chip:hover{ filter:brightness(1.12); }
+
+  .ral-empty{
+    padding:16px;
+    color:var(--txt-dim, rgba(255,255,255,.72));
+  }
+
+  .ral-foot{
+    padding:10px 14px 14px;
+    border-top:1px solid var(--glass-hr, rgba(255,255,255,.12));
+  }
+  .ral-toast{
+    font-size:13px;
+    color:var(--txt, #fff);
+    min-height:18px;
+    margin-bottom:6px;
+  }
+  .ral-note{
+    font-size:12px;
+    color:var(--txt-dim, rgba(255,255,255,.72));
+  }
+</style>
 
 </head>
 <body>
@@ -84,7 +250,13 @@
           <label><input type="radio" name="matiere" value="laque"> Alu 20/10 <b>laqué</b></label>
         </div>
       </div>
-      <div></div>
+
+      <!-- ✅ Bouton RAL + popup (désactivé si pas “prélaqué”) -->
+      <div style="display:flex;justify-content:flex-end;align-items:flex-start;">
+        <button type="button" id="btnRal" class="ral-btn" aria-haspopup="dialog">
+          🎨 RAL disponibles (pré-laquée)
+        </button>
+      </div>
     </div>
   </fieldset>
 
@@ -131,23 +303,23 @@
   <fieldset>
     <legend>Fixation de la tôle tablette (choix exclusif)</legend>
     <div class="radio-row">
-  <label><input type="radio" name="fixation" value="aucune" checked> Aucune</label>
-  <label><input type="radio" name="fixation" value="boite"> Boîte à chaussure</label>
-  <label>
-  <input type="radio" name="fixation" value="chassis30">
-  Châssis tube aluminium 30×30
-</label>
-<label>
-  <input type="radio" name="fixation" value="chassis40">
-  Châssis tube aluminium 40×40
-</label>
-<label>
-  <input type="radio" name="fixation" value="chassis50">
-  Châssis tube aluminium 50×50
-</label>
-  <label><input type="radio" name="fixation" value="corniere"> Cornière</label>
-  <label><input type="radio" name="fixation" value="lisse"> Pose sur lisse</label>
-</div>
+      <label><input type="radio" name="fixation" value="aucune" checked> Aucune</label>
+      <label><input type="radio" name="fixation" value="boite"> Boîte à chaussure</label>
+      <label>
+        <input type="radio" name="fixation" value="chassis30">
+        Châssis tube aluminium 30×30
+      </label>
+      <label>
+        <input type="radio" name="fixation" value="chassis40">
+        Châssis tube aluminium 40×40
+      </label>
+      <label>
+        <input type="radio" name="fixation" value="chassis50">
+        Châssis tube aluminium 50×50
+      </label>
+      <label><input type="radio" name="fixation" value="corniere"> Cornière</label>
+      <label><input type="radio" name="fixation" value="lisse"> Pose sur lisse</label>
+    </div>
 
     <div id="fixBoite" class="hidden">
       <div class="radio-row" style="margin-top:8px">
@@ -171,12 +343,11 @@
     <div id="fixCorniere" class="hidden">
       <div class="hint">Longueur = périmètre (2×(L+H)).</div>
     </div>
-    <div id="fixLisse" class="hidden" style="margin-top:8px">
-  <label for="lisseLongueur">Longueur de la lisse (mm)</label>
-  <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 3000" />
 
-  
-</div>
+    <div id="fixLisse" class="hidden" style="margin-top:8px">
+      <label for="lisseLongueur">Longueur de la lisse (mm)</label>
+      <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 3000" />
+    </div>
 
   </fieldset>
 
@@ -191,6 +362,36 @@
 <footer class="cofel-footer">
   © Cofel — ZA du Perquoi, 72560 Changé — SIRET 927 659 458 00024 — TVA FR80927659458
 </footer>
+
+<!-- ✅ POPUP RAL -->
+<div id="ralModal" class="ral-modal hidden" role="dialog" aria-modal="true" aria-labelledby="ralTitle">
+  <div class="ral-backdrop" data-close="1"></div>
+
+  <div class="ral-card">
+    <div class="ral-head">
+      <div>
+        <div id="ralTitle" class="ral-title">RAL disponibles — Tôle aluminium 15/10 pré-laquée</div>
+        <div class="ral-sub">Format 3000 × 1500 • Satiné / Brillante • Clique un RAL pour le copier</div>
+      </div>
+      <button type="button" id="ralClose" class="ral-close" aria-label="Fermer">✕</button>
+    </div>
+
+    <div class="ral-toolbar">
+      <div class="ral-tabs" role="tablist" aria-label="Finition">
+        <button type="button" class="ral-tab is-active" data-finish="satine" role="tab" aria-selected="true">Satiné</button>
+        <button type="button" class="ral-tab" data-finish="brillante" role="tab" aria-selected="false">Brillante</button>
+      </div>
+      <input id="ralSearch" class="ral-search" type="text" placeholder="Rechercher : 7016, gris, noir, bleu…" />
+    </div>
+
+    <div id="ralContent" class="ral-content"></div>
+
+    <div class="ral-foot">
+      <div id="ralToast" class="ral-toast" aria-live="polite"></div>
+      <div class="ral-note">Référence indicative : valider la teinte finale avec un nuancier officiel RAL / échantillon matière.</div>
+    </div>
+  </div>
+</div>
 
 <!-- ======= LOGIQUE ======= -->
 <script>
@@ -238,6 +439,17 @@ const elGoussetPrixU=$('goussetPrixU');
 
 const elUHT=$('prixUHT'), elHT=$('prixHT'), elTTC=$('prixTTC');
 
+/* ✅ Robustesse : on crée aussi les alias utilisés plus bas (évite de dépendre des “globals” des id) */
+const quantite = elQ;
+const largeur  = elL;
+const hauteur  = elH;
+const plis     = elP;
+const ajourLargeur = elAjourL;
+const ajourHauteur = elAjourH;
+const optAjour = elOptAjour;
+const pmmaSel  = elPMMA;
+const optLED   = elLED;
+const goussetPrixU = elGoussetPrixU;
 
 /*** UTILS ***/
 function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
@@ -253,6 +465,190 @@ function euro(n){return (isFinite(n)?n:0).toFixed(2).replace('.', ',');}
 function areaM2(Lmm,Hmm){return (Math.max(0,Number(Lmm||0))*Math.max(0,Number(Hmm||0)))/1e6;}
 function perimeterMeters(Lmm,Hmm){return 2*((Lmm/1000)+(Hmm/1000));}
 
+/* ==========================
+   POPUP RAL (d'après TON PDF)
+   ========================== */
+const RAL_DATA = {
+  satine: {
+    "Blanc cassé": ["1013"],
+    "Blanc": ["9001","9002","9003","9018"],
+    "Noir": ["9004","9005","9011"],
+    "Gris": ["7001","7003","7004","7005","7006","7010","7011","7012","7013","7015","7016","7021","7022","7023","7024","7030","7031","7032","7033","7035","7036","7037","7038","7039","7040","7042","7043","7044","7046","7047"],
+    "Brun": ["1247","8003","8004","8011","8012","8014","8016","8017","8019","8022","8025","8028"],
+    "Vert": ["6005","6006","6019","6021"],
+    "Ivoire": ["1014","1015"],
+    "Beige": ["1001","1019"],
+    "Rouge": ["3003","3004","3009","3011","3012"],
+    "Bleu": ["5003","5008","5009","5014"]
+  },
+  brillante: {
+    "Blanc": ["9001","9002","9003"],
+    "Noir": ["9005"],
+    "Gris": ["7001","7005","7006","7010","7011","7012","7015","7016","7021","7022","7024","7030","7031","7032","7035","7036","7037","7038","7039","7040","7042","7043","7047"],
+    "Brun": ["8011","8014","8017","8019"],
+    "Vert": ["6005","6021"],
+    "Ivoire": ["1013","1015"],
+    "Galet": ["9660"],
+    "Jaune": ["1023"],
+    "Rouge": ["3002","3003","3004","3020"],
+    "Bleu": ["5002","5010","5017"]
+  }
+};
+
+let ralFinish = "satine";
+let ralToastTimer = null;
+
+function setRalToast(msg){
+  const el = document.getElementById("ralToast");
+  if(!el) return;
+  el.textContent = msg || "";
+  clearTimeout(ralToastTimer);
+  if(msg){
+    ralToastTimer = setTimeout(()=>{ el.textContent=""; }, 1200);
+  }
+}
+
+function renderRal(){
+  const cont = document.getElementById("ralContent");
+  if(!cont) return;
+
+  const q = norm((document.getElementById("ralSearch")?.value || "").trim());
+  cont.innerHTML = "";
+
+  const groups = RAL_DATA[ralFinish] || {};
+  let any = false;
+
+  Object.entries(groups).forEach(([family, codes])=>{
+    const famNorm = norm(family);
+    const filtered = codes.filter(code=>{
+      if(!q) return true;
+      const codeStr = String(code);
+      return famNorm.includes(q) || codeStr.includes(q) || (`ral ${codeStr}`).includes(q);
+    });
+
+    if(!filtered.length) return;
+    any = true;
+
+    const sec = document.createElement("section");
+    sec.className = "ral-group";
+    sec.innerHTML = `<h3>${family}</h3>`;
+
+    const grid = document.createElement("div");
+    grid.className = "ral-grid";
+
+    filtered.forEach(code=>{
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "ral-chip";
+      b.dataset.code = String(code);
+      b.textContent = `RAL ${code}`;
+      grid.appendChild(b);
+    });
+
+    sec.appendChild(grid);
+    cont.appendChild(sec);
+  });
+
+  if(!any){
+    cont.innerHTML = `<div class="ral-empty">Aucun résultat pour cette recherche.</div>`;
+  }
+}
+
+function openRalModal(){
+  const modal = document.getElementById("ralModal");
+  if(!modal) return;
+  modal.classList.remove("hidden");
+  document.documentElement.classList.add("ral-lock");
+  document.body.classList.add("ral-lock");
+
+  const s = document.getElementById("ralSearch");
+  if(s){ s.value = ""; }
+
+  renderRal();
+  setRalToast("");
+  setTimeout(()=>{ document.getElementById("ralSearch")?.focus(); }, 50);
+}
+
+function closeRalModal(){
+  const modal = document.getElementById("ralModal");
+  if(!modal) return;
+  modal.classList.add("hidden");
+  document.documentElement.classList.remove("ral-lock");
+  document.body.classList.remove("ral-lock");
+  setRalToast("");
+}
+
+function updateRalBtn(){
+  const btn = document.getElementById("btnRal");
+  if(!btn) return;
+  const mat = (document.querySelector('input[name="matiere"]:checked')||{}).value || "prelaque";
+  const enabled = (mat === "prelaque");
+  btn.disabled = !enabled;
+  btn.title = enabled
+    ? "Voir les RAL disponibles en tôle pré-laquée"
+    : "Disponible uniquement si la matière sélectionnée est : Prélaqué";
+}
+
+function initRalModal(){
+  const btn = document.getElementById("btnRal");
+  const modal = document.getElementById("ralModal");
+  const closeBtn = document.getElementById("ralClose");
+
+  if(btn){
+    btn.addEventListener("click", ()=>{
+      if(btn.disabled) return;
+      openRalModal();
+    });
+  }
+
+  if(closeBtn) closeBtn.addEventListener("click", closeRalModal);
+
+  if(modal){
+    modal.addEventListener("click", (e)=>{
+      const t = e.target;
+      if(t && t.dataset && t.dataset.close === "1") closeRalModal();
+    });
+  }
+
+  document.addEventListener("keydown", (e)=>{
+    if(e.key === "Escape"){
+      const m = document.getElementById("ralModal");
+      if(m && !m.classList.contains("hidden")) closeRalModal();
+    }
+  });
+
+  // Tabs
+  document.querySelectorAll(".ral-tab").forEach(tab=>{
+    tab.addEventListener("click", ()=>{
+      document.querySelectorAll(".ral-tab").forEach(x=>{
+        x.classList.remove("is-active");
+        x.setAttribute("aria-selected","false");
+      });
+      tab.classList.add("is-active");
+      tab.setAttribute("aria-selected","true");
+      ralFinish = tab.dataset.finish || "satine";
+      renderRal();
+    });
+  });
+
+  // Search
+  document.getElementById("ralSearch")?.addEventListener("input", renderRal);
+
+  // Click chip => copie
+  document.getElementById("ralContent")?.addEventListener("click", async (e)=>{
+    const chip = e.target?.closest?.(".ral-chip");
+    if(!chip) return;
+    const txt = chip.textContent || "";
+    try{
+      await navigator.clipboard.writeText(txt);
+      setRalToast(`✅ ${txt} copié`);
+    }catch(err){
+      window.prompt("Copie ce RAL :", txt);
+    }
+  });
+
+  updateRalBtn();
+}
 
 /*** SURFACE AVEC PLIS (tôle complète) ***/
 function currentSurface(){
@@ -270,10 +666,8 @@ function currentSurface(){
   return A;
 }
 
-
 /*** PERIMETRE ***/
 function currentPerimeter(){ return perimeterMeters(elL.value, elH.value); }
-
 
 /*** CSV PARSER + MAPPING ***/
 function parseCSVAuto(text){
@@ -325,7 +719,6 @@ function buildMapping(heads){
   };
 }
 
-
 async function loadCSV(){
   try{
     const r = await fetch(CSV_URL, {cache:'no-store'});
@@ -374,7 +767,6 @@ function autoFindPrice(keywordRe, type='m2'){
   return NaN;
 }
 
-
 /*** CALCUL COMPLET ***/
 function compute(){
 
@@ -416,12 +808,11 @@ function compute(){
     }
 
     // Surface ajourée réelle (sert pour PMMA/LED)
-pmmaSurf = areaM2(ajL, ajH); // m² ajourés
+    pmmaSurf = areaM2(ajL, ajH); // m² ajourés
 
-// ✅ Ajourage : minimum facturé = 1 m² (99€), puis 99€/m² au-delà
-const ajourageFactureM2 = Math.max(1, pmmaSurf);
-ajourage_interne = AJOURAGE_PRICE_M2 * ajourageFactureM2;
-
+    // ✅ Ajourage : minimum facturé = 1 m² (99€), puis 99€/m² au-delà
+    const ajourageFactureM2 = Math.max(1, pmmaSurf);
+    ajourage_interne = AJOURAGE_PRICE_M2 * ajourageFactureM2;
 
     const selectedPMMA = elPMMA.options[elPMMA.selectedIndex];
     let pmmaM2 = selectedPMMA && selectedPMMA.dataset.price ? Number(selectedPMMA.dataset.price) : NaN;
@@ -446,25 +837,25 @@ ajourage_interne = AJOURAGE_PRICE_M2 * ajourageFactureM2;
     fix_interne = boiteM2 * A;
 
   }else if(
-  fixVal === 'chassis30' ||
-  fixVal === 'chassis40' ||
-  fixVal === 'chassis50'
-){
+    fixVal === 'chassis30' ||
+    fixVal === 'chassis40' ||
+    fixVal === 'chassis50'
+  ){
 
- const section =
-  fixVal === 'chassis30' ? 30 :
-  fixVal === 'chassis40' ? 40 : 50;
+    const section =
+      fixVal === 'chassis30' ? 30 :
+      fixVal === 'chassis40' ? 40 : 50;
 
-const chLinCost = CHASSIS_PRICE_ML[section] * P;
+    const chLinCost = CHASSIS_PRICE_ML[section] * P;
 
-  nbGoussets = Math.max(4, Math.ceil(4 + 4 * A));
-  let gusU = autoFindPrice(/gousset/,'u');
-  if(!isFinite(gusU)) gusU = Number(elGoussetPrixU?.value||0);
+    nbGoussets = Math.max(4, Math.ceil(4 + 4 * A));
+    let gusU = autoFindPrice(/gousset/,'u');
+    if(!isFinite(gusU)) gusU = Number(elGoussetPrixU?.value||0);
 
-  const gusCost = (isFinite(gusU)?gusU:0) * nbGoussets;
+    const gusCost = (isFinite(gusU)?gusU:0) * nbGoussets;
 
-  fix_interne = chLinCost + gusCost;
-}
+    fix_interne = chLinCost + gusCost;
+  }
 
   else if(fixVal==='corniere'){
     fix_interne = CORNIERE_PRICE_ML * P;
@@ -473,21 +864,20 @@ const chLinCost = CHASSIS_PRICE_ML[section] * P;
     const lisseML = lisseMM / 1000;   // conversion mm → mètres
 
     if (lisseML > 0) {
-        fix_interne = LISSE_PRICE_ML * lisseML;  // prix interne
+      fix_interne = LISSE_PRICE_ML * lisseML;  // prix interne
     }
-}
-
+  }
 
   const unitHT_interne = base_interne_majoré + ajourage_interne + pmma_interne + led_interne + fix_interne;
 
   // === Coefficient tarif public Cofel ===
-const COEF_PUBLIC = 2;
+  const COEF_PUBLIC = 2;
 
-// === Prix public avant remise ===
-const unitHT_public_base = unitHT_interne * COEF_PUBLIC;
+  // === Prix public avant remise ===
+  const unitHT_public_base = unitHT_interne * COEF_PUBLIC;
 
-// === Prix net client ===
-const unitHT_public = unitHT_public_base * remiseClient;
+  // === Prix net client ===
+  const unitHT_public = unitHT_public_base * remiseClient;
 
   const totalHT_public = unitHT_public * Q;
   const totalTTC_public = totalHT_public * (1+TVA);
@@ -495,8 +885,9 @@ const unitHT_public = unitHT_public_base * remiseClient;
   elUHT.textContent = euro(unitHT_public);
   elHT.textContent  = euro(totalHT_public);
   elTTC.textContent = euro(totalTTC_public);
-}
 
+  updateRalBtn();
+}
 
 /*** UI TOGGLES ***/
 function toggleBlocks(){
@@ -504,15 +895,15 @@ function toggleBlocks(){
   const fixVal = (document.querySelector('input[name="fixation"]:checked')||{}).value || 'aucune';
   elFixBoite.classList.toggle('hidden', fixVal!=='boite');
   elFixChassis.classList.toggle(
-  'hidden',
-  !(fixVal === 'chassis30' || fixVal === 'chassis40' || fixVal === 'chassis50')
-);
+    'hidden',
+    !(fixVal === 'chassis30' || fixVal === 'chassis40' || fixVal === 'chassis50')
+  );
   elFixCorniere.classList.toggle('hidden', fixVal!=='corniere');
   const elFixLisse = document.getElementById('fixLisse');
-elFixLisse.classList.toggle('hidden', fixVal!=='lisse');
+  elFixLisse.classList.toggle('hidden', fixVal!=='lisse');
 
+  updateRalBtn();
 }
-
 
 /*** EVENTS ***/
 ['input','change'].forEach(evt=>{
@@ -524,8 +915,8 @@ elFixLisse.classList.toggle('hidden', fixVal!=='lisse');
     optAjour, pmmaSel,
     optLED, ...fixRadios, goussetPrixU,
     ...document.querySelectorAll('input[name="boiteMat"]')
-]
-.forEach(el=>{
+ ]
+ .forEach(el=>{
     if(!el || !el.addEventListener) return;
     el.addEventListener(evt, ()=>{
       toggleBlocks();
@@ -534,8 +925,8 @@ elFixLisse.classList.toggle('hidden', fixVal!=='lisse');
   });
 });
 
-
 /*** INIT ***/
+initRalModal();
 loadCSV();
 toggleBlocks();
 compute();
@@ -554,12 +945,13 @@ compute();
     const txt = document.getElementById('prixHT').innerText.trim();
     return Number(txt.replace(/\s/g,'').replace(',', '.')) || 0;
   }
-// Traduction matière pour désignation
-const MAT_LABELS = {
-  brut: "Tôle aluminium 20/10 brut",
-  prelaque: "Tôle aluminium 20/10 prélaquée",
-  laque: "Tôle aluminium 20/10 laquée"
-};
+
+  // Traduction matière pour désignation
+  const MAT_LABELS = {
+    brut: "Tôle aluminium 20/10 brut",
+    prelaque: "Tôle aluminium 20/10 prélaquée",
+    laque: "Tôle aluminium 20/10 laquée"
+  };
 
   btn.addEventListener('click', () => {
     try{
@@ -585,9 +977,10 @@ const MAT_LABELS = {
       const led = document.getElementById('optLED').checked;
 
       const fixVal = (document.querySelector('input[name="fixation"]:checked')||{}).value || 'aucune';
+
       // Pose sur lisse
-const lisseMM = Number(document.getElementById("lisseLongueur")?.value || 0);
-const lisseML = lisseMM / 1000;
+      const lisseMM = Number(document.getElementById("lisseLongueur")?.value || 0);
+      const lisseML = lisseMM / 1000;
 
       const boiteMat = (document.querySelector('input[name="boiteMat"]:checked')||{}).value || '';
       const gusU = document.getElementById('goussetPrixU')?.value || '';
@@ -601,7 +994,6 @@ const lisseML = lisseMM / 1000;
         `L ${Lmm} × H ${Hmm} mm`,
         `Plis : ${Pmm} mm`,
         MAT_LABELS[mat] || "Tôle aluminium 20/10"
-
       ];
 
       if (ajour){
@@ -615,23 +1007,21 @@ const lisseML = lisseMM / 1000;
       if (fixVal==='boite'){
         parts.push(`Fixation: boîte${boiteMat? ' ('+boiteMat+')':''}`);
       }else if(fixVal.startsWith('chassis')){
-  const size =
-    fixVal === 'chassis30' ? '30×30' :
-    fixVal === 'chassis40' ? '40×40' :
-    '50×50';
+        const size =
+          fixVal === 'chassis30' ? '30×30' :
+          fixVal === 'chassis40' ? '40×40' :
+          '50×50';
 
-  parts.push(
-    `Fixation: châssis tube aluminium ${size}${gusU ? ' · gousset ' + gusU + ' €/u' : ''}`
-  );
-}
+        parts.push(
+          `Fixation: châssis tube aluminium ${size}${gusU ? ' · gousset ' + gusU + ' €/u' : ''}`
+        );
+      }
       else if(fixVal==='corniere'){
         parts.push(`Fixation: cornière`);
-        } else if(fixVal === 'lisse') {
-    parts.push(`Fixation: pose sur lisse — ${lisseMM} mm (${lisseML.toFixed(2)} ml)`);
-
+      } else if(fixVal === 'lisse') {
+        parts.push(`Fixation: pose sur lisse — ${lisseMM} mm (${lisseML.toFixed(2)} ml)`);
       }else{
         parts.push(`Fixation: aucune`);
-        
       }
 
       const designation = parts.join(' — ');
@@ -655,16 +1045,3 @@ const lisseML = lisseMM / 1000;
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
