@@ -122,7 +122,7 @@
     padding:10px 12px;
     border-radius:12px;
     border:1px solid var(--glass-hr, rgba(255,255,255,.18));
-    background:rgba(255,255,255,.06);
+    background:rgba(255,255,255,.06));
     color:var(--txt, #fff);
     outline:none;
   }
@@ -344,9 +344,19 @@
       <div class="hint">Longueur = périmètre (2×(L+H)).</div>
     </div>
 
+    <!-- ✅ MODIF : longueur + nombre de lisses -->
     <div id="fixLisse" class="hidden" style="margin-top:8px">
-      <label for="lisseLongueur">Longueur de la lisse (mm)</label>
-      <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 3000" />
+      <div class="grid">
+        <div>
+          <label for="lisseLongueur">Longueur d’une lisse (mm)</label>
+          <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 10000" />
+        </div>
+        <div>
+          <label for="lisseNb">Nombre de lisses</label>
+          <input type="number" id="lisseNb" min="1" value="1" />
+        </div>
+      </div>
+      <div class="hint">Ex : 2 listes de 10 m → Longueur 10000 mm + Nombre 2.</div>
     </div>
 
   </fieldset>
@@ -861,10 +871,13 @@ function compute(){
     fix_interne = CORNIERE_PRICE_ML * P;
   } else if (fixVal === 'lisse') {
     const lisseMM = Number(document.getElementById("lisseLongueur")?.value || 0);
-    const lisseML = lisseMM / 1000;   // conversion mm → mètres
+    const lisseNb = Math.max(1, Number(document.getElementById("lisseNb")?.value || 1));
 
-    if (lisseML > 0) {
-      fix_interne = LISSE_PRICE_ML * lisseML;  // prix interne
+    const lisseMLUnit = lisseMM / 1000;              // mm → m
+    const lisseMLTotal = lisseMLUnit * lisseNb;      // total ml facturé
+
+    if (lisseMLTotal > 0) {
+      fix_interne = LISSE_PRICE_ML * lisseMLTotal;   // prix interne
     }
   }
 
@@ -910,7 +923,8 @@ function toggleBlocks(){
  [
     quantite, largeur, hauteur, plis,
     ajourLargeur, ajourHauteur,
-    document.getElementById('lisseLongueur'), // ✅ AJOUT ESSENTIEL
+    document.getElementById('lisseLongueur'),
+    document.getElementById('lisseNb'),           // ✅ AJOUT : nb de lisses
     ...document.querySelectorAll('input[name="matiere"]'),
     optAjour, pmmaSel,
     optLED, ...fixRadios, goussetPrixU,
@@ -980,7 +994,9 @@ compute();
 
       // Pose sur lisse
       const lisseMM = Number(document.getElementById("lisseLongueur")?.value || 0);
-      const lisseML = lisseMM / 1000;
+      const lisseNb = Math.max(1, Number(document.getElementById("lisseNb")?.value || 1));
+      const lisseMLUnit = lisseMM / 1000;
+      const lisseMLTotal = lisseMLUnit * lisseNb;
 
       const boiteMat = (document.querySelector('input[name="boiteMat"]:checked')||{}).value || '';
       const gusU = document.getElementById('goussetPrixU')?.value || '';
@@ -1019,7 +1035,7 @@ compute();
       else if(fixVal==='corniere'){
         parts.push(`Fixation: cornière`);
       } else if(fixVal === 'lisse') {
-        parts.push(`Fixation: pose sur lisse — ${lisseMM} mm (${lisseML.toFixed(2)} ml)`);
+        parts.push(`Fixation: pose sur lisse — ${lisseNb} × ${lisseMM} mm (${lisseMLTotal.toFixed(2)} ml)`);
       }else{
         parts.push(`Fixation: aucune`);
       }
@@ -1045,4 +1061,3 @@ compute();
 
 </body>
 </html>
-
