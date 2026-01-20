@@ -74,9 +74,21 @@
   </fieldset>
 
   <!-- === LONGUEUR LISSE === -->
+  <!-- ✅ MODIF : longueur + nombre de lisses -->
   <div id="blockLisse" class="notice-glass hidden" style="margin-top:10px;">
-    <label for="lisseLongueur">Longueur de la lisse (mm)</label>
-    <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 3000">
+    <div class="grid">
+      <div>
+        <label for="lisseLongueur">Longueur d’une lisse (mm)</label>
+        <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 10000">
+      </div>
+      <div>
+        <label for="lisseNb">Nombre de lisses</label>
+        <input type="number" id="lisseNb" min="1" value="1">
+      </div>
+    </div>
+    <div class="hint" style="color:var(--txt-dim);margin-top:6px;font-size:13px;">
+      Exemple : 2 listes de 10 m → Longueur 10000 mm + Nombre 2.
+    </div>
   </div>
 
   <!-- === RÉSULTATS === -->
@@ -235,6 +247,7 @@ function updateLisseUI() {
 /* ================================
    CALCUL (PATCH)
    ✅ lisse NON multipliée par quantité
+   ✅ ajout "nombre de lisses"
 ================================ */
 function calcTotalsNet(row, q) {
   const e = parseFloat($("epaisseur").value) || 0;
@@ -253,11 +266,15 @@ function calcTotalsNet(row, q) {
   const total_interne_lettres = unit_interne_lettre * q;
 
   // 3) Lisse : 1 seule fois (interne), pas multipliée par q
-  let lmm = 0, lml = 0, lisse_interne = 0;
+  // ✅ mais multipliée par le nombre de lisses
+  let lmm = 0, lmlUnit = 0, lmlTotal = 0, lisseNb = 1, lisse_interne = 0;
   if (useLisse) {
     lmm = Number($("lisseLongueur").value || 0);
-    lml = lmm / 1000;
-    if (lml > 0) lisse_interne = LISSE_PRICE_ML * lml;
+    lisseNb = Math.max(1, parseInt($("lisseNb")?.value || 1, 10));
+    lmlUnit = lmm / 1000;
+    lmlTotal = lmlUnit * lisseNb;
+
+    if (lmlTotal > 0) lisse_interne = LISSE_PRICE_ML * lmlTotal;
   }
 
   // 4) Total interne global
@@ -274,7 +291,9 @@ function calcTotalsNet(row, q) {
     unit_net,
     total_net,
     lmm,
-    lml,
+    lmlUnit,
+    lmlTotal,
+    lisseNb,
     unit_interne_lettre,
     lisse_interne
   };
@@ -320,6 +339,7 @@ function bindEvents() {
       "optRetro",
       "optLisse",
       "lisseLongueur",
+      "lisseNb", // ✅ AJOUT
     ].forEach((id) => {
       const el = $(id);
       if (!el) return;
@@ -369,13 +389,13 @@ $("btnAddDevis").addEventListener("click", () => {
     const fix = $("optFixation").checked;
     const retro = $("optRetro").checked;
 
-    const { unit_net, total_net, lmm, lml } = calcTotalsNet(row, q);
+    const { unit_net, total_net, lmm, lmlTotal, lisseNb } = calcTotalsNet(row, q);
 
     let designation = `Lettre PVC ${h} mm (ép. ${e} mm)`;
     if (laq) designation += " — Laquage";
     if (fix) designation += " — Fixation";
     if (retro && e >= 19) designation += " — Rétroéclairage";
-    if (lmm > 0) designation += ` — Pose sur lisse — ${lmm} mm (${lml.toFixed(2)} ml)`;
+    if (lmm > 0) designation += ` — Pose sur lisse — ${lisseNb} × ${lmm} mm (${lmlTotal.toFixed(2)} ml)`;
 
     Devis.addLine({
       type: "Lettre PVC",
@@ -398,4 +418,3 @@ $("btnAddDevis").addEventListener("click", () => {
 
 </body>
 </html>
-
