@@ -54,13 +54,13 @@ document.addEventListener("DOMContentLoaded", () => {
     return Array.isArray(v) ? v : [];
   }
 
-  // ✅ Pour Aquilux : on saisit les œillets dans l'étape Variantes => on ne montre pas l'étape 8
+  // ✅ Pour Panneau alvéolaire 3,5 mm : on saisit les œillets dans l'étape Variantes => on ne montre pas l'étape 8
   function shouldShowOeilletsStep(){
     try{
       const vr = getVariantRule();
       const rule = vr || getRule();
       if(!rule || !rule.oeillets) return false;
-      if(vr) return false; // oeillets gérés dans Variantes (Aquilux)
+      if(vr) return false; // oeillets gérés dans Variantes (Panneau alvéolaire 3,5 mm)
       return true;
     }catch(e){
       return false;
@@ -395,7 +395,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if(blancList.length === 0){
         state.blanc = "Non disponible";
 
-        // oeillets étape 8 uniquement si réellement nécessaire (pas Aquilux)
+        // oeillets étape 8 uniquement si réellement nécessaire (pas Panneau alvéolaire 3,5 mm)
         if(shouldShowOeilletsStep()){
           populateOeillets();
           goTo(8);
@@ -468,7 +468,7 @@ document.addEventListener("DOMContentLoaded", () => {
       populateOeillets();
       goTo(8);
     } else {
-      // ✅ Aquilux : pas d’étape œillets, déjà saisi en Variantes
+      // ✅ Panneau alvéolaire 3,5 mm : pas d’étape œillets, déjà saisi en Variantes
       goTo(9);
     }
   };
