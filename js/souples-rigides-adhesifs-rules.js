@@ -147,24 +147,13 @@ const MATERIAL_RULES = {
     },
 
     "akilux35": {
-      label: "Akilux 3,5 mm",
-      variants: {
-        "avec_oeillets": {
-          label: "Avec œillets",
-          oeillets: true,
-          blanc: [],
-          decoupe: ["Format"],
-          lamination: []
-        },
-        "sans_oeillets": {
-          label: "Sans œillets",
-          oeillets: false,
-          blanc: [],
-          decoupe: ["Format"],
-          lamination: []
-        }
-      }
-    },
+  label: "Panneau alvéolaire 3,5 mm",
+  variants: {
+    "avec_oeillets": { label: "Avec œillets", oeillets:true, blanc: [], decoupe:["Format"], lamination:[] },
+    "sans_oeillets": { label: "Sans œillets", oeillets:false, blanc: [], decoupe:["Format"], lamination:[] }
+  }
+},
+
 
     "plexi3": plexiRule("Plexi 3 mm"),
     "plexi5": plexiRule("Plexi 5 mm"),
