@@ -164,9 +164,9 @@
 
   .hidden{display:none;}
 </style>
-  <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
-
+<link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
 </head>
+
 <body>
 
 <header class="cofel-header">
@@ -252,9 +252,19 @@
             </label>
           </div>
 
+          <!-- ✅ MODIF : longueur + nombre de lisses -->
           <div id="lisseBlock" class="hidden" style="margin-top:8px;">
-            <label for="lisseLongueur">Longueur de la lisse (mm)</label>
-            <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 3000" />
+            <div class="grid">
+              <div>
+                <label for="lisseLongueur">Longueur d’une lisse (mm)</label>
+                <input type="number" id="lisseLongueur" min="0" placeholder="Ex : 10000" />
+              </div>
+              <div>
+                <label for="lisseNb">Nombre de lisses</label>
+                <input type="number" id="lisseNb" min="1" value="1" />
+              </div>
+            </div>
+            <div class="muted">Ex : 2 lisses de 10 m → Longueur 10000 mm + Nombre 2.</div>
           </div>
         </div>
 
@@ -301,6 +311,7 @@ const elPrixTTC = $("prixTTC");
 const elHelp = $("helpRanges");
 const elLisse = $("optLisse");
 const elLisseLongueur = $("lisseLongueur");
+const elLisseNb = $("lisseNb"); // ✅ AJOUT
 const elTige = $("optTige");
 
 function normKey(k){
@@ -478,8 +489,9 @@ function updateFixationTigeAvailability(){
 
 /* =========================================================
    ✅ PATCH TARIF LISSE : NON multipliée par quantité
+   ✅ + NOMBRE DE LISSES
    - Prix lettre = PU * Q
-   - Prix lisse = 1 fois
+   - Prix lisse = 1 fois, mais * nb lisses
    - Total = (PU*Q + lisse) * coef * remise
 ========================================================= */
 function compute(){
@@ -530,12 +542,14 @@ function compute(){
     if (elTige && elTige.checked) unit_interne_lettre += fx;
   }
 
-  // 2) Lisse = 1 fois
-  let lmm = 0, lml = 0, lisse_interne = 0;
+  // 2) Lisse = 1 fois, mais multipliée par nb lisses
+  let lmm = 0, lmlUnit = 0, lmlTotal = 0, lisseNb = 1, lisse_interne = 0;
   if (elLisse && elLisse.checked) {
     lmm = Number(elLisseLongueur?.value || 0);
-    lml = lmm / 1000;
-    if (lml > 0) lisse_interne = LISSE_PRICE_ML * lml;
+    lisseNb = Math.max(1, parseInt(elLisseNb?.value || 1, 10));
+    lmlUnit = lmm / 1000;
+    lmlTotal = lmlUnit * lisseNb;
+    if (lmlTotal > 0) lisse_interne = LISSE_PRICE_ML * lmlTotal;
   }
 
   // 3) Total interne global
@@ -561,7 +575,9 @@ function compute(){
     hasFixTaquet: !!(elFix && elFix.checked),
     hasFixTige: !!(elTige && elTige.checked),
     lmm,
-    lml
+    lmlUnit,
+    lmlTotal,
+    lisseNb
   };
 }
 
@@ -582,7 +598,11 @@ async function loadCSV(){
 }
 
 ["input","change"].forEach(evt=>{
-  [elH, elQ, $("categorie"), elFix, elTige, elFBrut, elFLaque, elLisse, elLisseLongueur].forEach(el=>{
+  [
+    elH, elQ, $("categorie"),
+    elFix, elTige, elFBrut, elFLaque,
+    elLisse, elLisseLongueur, elLisseNb // ✅ AJOUT
+  ].forEach(el=>{
     if(!el) return;
     el.addEventListener(evt, ()=>{
       updateLisseUI();
@@ -599,6 +619,7 @@ $("btnReset").addEventListener("click", ()=>{
 
   if (elLisse) elLisse.checked = false;
   if (elLisseLongueur) elLisseLongueur.value = '';
+  if (elLisseNb) elLisseNb.value = 1;
 
   updateLisseUI();
   if (elHelp) elHelp.textContent = "Hauteur max 1500 mm";
@@ -649,9 +670,11 @@ $("btnAddDevis").addEventListener("click", ()=>{
 
     const optLisse = $("optLisse");
     const lisseMM = Number($("lisseLongueur")?.value || 0);
-    const lisseML = lisseMM / 1000;
+    const lisseNb = Math.max(1, parseInt($("lisseNb")?.value || 1, 10));
+    const lisseML = (lisseMM / 1000) * lisseNb;
+
     const supLisseText = (optLisse && optLisse.checked && lisseMM > 0)
-      ? ` + pose sur lisse — ${lisseMM} mm (${lisseML.toFixed(2)} ml)`
+      ? ` + pose sur lisse — ${lisseNb} × ${lisseMM} mm (${lisseML.toFixed(2)} ml)`
       : '';
 
     const total_ht = window._LAST.total_net_ht;
@@ -679,4 +702,3 @@ $("btnAddDevis").addEventListener("click", ()=>{
 
 </body>
 </html>
-
