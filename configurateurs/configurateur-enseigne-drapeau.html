@@ -318,6 +318,18 @@ function isTruthy(v){
   return t === "1" || t === "true" || t === "vrai" || t === "yes" || t === "oui";
 }
 
+/* ✅ FIX : éviter que "prelaque" soit pris pour "laque" (car "prelaque" contient "laque") */
+function finKey(v){
+  return norm(v).replace(/[^a-z0-9]+/g,''); // pré-laqué / pre laque / etc. => "prelaque"
+}
+function isPrelaque(v){
+  return finKey(v).includes('prelaque');
+}
+function isLaque(v){
+  const k = finKey(v);
+  return k.includes('laque') && !k.includes('prelaque');
+}
+
 /* ================= DOM ================= */
 const elForme = $('forme');
 const elDim   = $('dimension');
@@ -580,14 +592,14 @@ function buildMap(heads){
 function injectSize700From600(){
   if(!MAP?.FORME || !MAP?.DIM || !MAP?.FIN || !MAP?.PRIX) return;
 
+  const existing = new Set(
+    ROWS.map(r => `${r[MAP.FORME]}||${r[MAP.DIM]}||${r[MAP.FIN]}||${String(r[MAP.AJ] ?? "")}`)
+  );
+
   const hasKey = (forme, dim, fin, aj) => {
     const key = `${forme}||${dim}||${fin}||${String(aj ?? "")}`;
     return existing.has(key);
   };
-
-  const existing = new Set(
-    ROWS.map(r => `${r[MAP.FORME]}||${r[MAP.DIM]}||${r[MAP.FIN]}||${String(r[MAP.AJ] ?? "")}`)
-  );
 
   function isSquareDim600(dim){
     const m = String(dim||"").match(/(\d+)\s*[x×]\s*(\d+)/i);
@@ -691,8 +703,9 @@ function finitionsDisponibles(){
     (!elDim.value   || r[MAP.DIM]   === elDim.value)
   );
 
-  let hasPrelaque = base.some(r => norm(r[MAP.FIN]).includes('prelaque'));
-  let hasLaque    = base.some(r => norm(r[MAP.FIN]).includes('laque') && !isTruthy(r[MAP.AJ]));
+  // ✅ FIX : détection robuste (évite "prelaque" => "laque")
+  let hasPrelaque = base.some(r => isPrelaque(r[MAP.FIN]) && !isTruthy(r[MAP.AJ]));
+  let hasLaque    = base.some(r => isLaque(r[MAP.FIN])    && !isTruthy(r[MAP.AJ]));
   let hasAjour    = base.some(r => isTruthy(r[MAP.AJ]) || norm(r[MAP.FIN]).includes('ajour'));
 
   let hasPmmaDF   = base.some(r => {
@@ -732,7 +745,7 @@ function applyFinitionAvailability(){
 
   let msg = "";
   if(elForme.value && norm(elForme.value).includes('rond') && !hasPrelaque){
-    
+
   }else if(getFinition()==='pmma_df'){
     msg = "ℹ️ « Double face PMMA lumineux » = tarif dédié (ligne CSV avec finition “double face PMMA lumineux”).";
   }else{
@@ -756,16 +769,18 @@ function findRow(){
     const aj  = isTruthy(r[MAP.AJ]);
 
     if(finChoice === 'prelaque'){
-      return fin.includes('prelaque') && !aj;
+      // ✅ FIX : uniquement "prélaqué"
+      return isPrelaque(r[MAP.FIN]) && !aj;
     }
     if(finChoice === 'laque'){
-      return fin.includes('laque') && !aj && !fin.includes('ajour');
+      // ✅ FIX : uniquement "laqué" (pas "prélaqué")
+      return isLaque(r[MAP.FIN]) && !aj && !fin.includes('ajour');
     }
     if(finChoice === 'pmma_df'){
       return fin.includes('double') && fin.includes('face') && fin.includes('pmma');
     }
     // ajour
-    return aj || fin.includes('ajour') || (fin.includes('laque') && aj);
+    return aj || fin.includes('ajour') || (isLaque(r[MAP.FIN]) && aj);
   });
 }
 
@@ -891,4 +906,3 @@ $('btnAddDevis').onclick = ()=>{
 
 </body>
 </html>
-
