@@ -232,7 +232,7 @@ html.ral-lock, body.ral-lock{ overflow:hidden; }
   </div>
 </fieldset>
 
-<!-- ✅ ALU + Bouton RAL à droite du bloc (comme les autres configurateurs) -->
+<!-- ✅ ALU + Bouton RAL à droite -->
 <fieldset id="blockAlu">
   <legend>Aluminium</legend>
 
@@ -292,7 +292,31 @@ html.ral-lock, body.ral-lock{ overflow:hidden; }
     <div><label>Hauteur extérieure (mm)</label><input type="number" id="chH"></div>
   </div>
 
-  <p class="muted">Calcul identique au configurateur Tôle Tablette</p>
+  <!-- ✅ AJOUT : TRAVERSE SUPPLÉMENTAIRE -->
+  <div style="margin-top:10px">
+    <label class="radio-row" style="padding:0;border:none">
+      <span><input type="checkbox" id="optTraverse"> Traverse supplémentaire</span>
+    </label>
+
+    <div id="traverseBlock" class="hidden" style="margin-top:10px">
+      <div class="grid">
+        <div>
+          <label for="traverseLongueur">Longueur d’une traverse (mm)</label>
+          <input type="number" id="traverseLongueur" min="0" placeholder="Ex : 1200">
+        </div>
+        <div>
+          <label for="traverseQte">Quantité de traverses</label>
+          <input type="number" id="traverseQte" min="1" value="1">
+        </div>
+      </div>
+      <div class="muted" style="margin-top:6px">
+        Prix au ml identique à la section choisie (30/40/50).<br>
+        ⚠️ Chaque traverse ajoute <b>2 goussets</b>.
+      </div>
+    </div>
+  </div>
+
+  <p class="muted">Calcul identique au configurateur Tôle Tablette (périmètre + goussets), + options ci-dessus.</p>
 </fieldset>
 
 </div>
@@ -485,7 +509,6 @@ function updateRalBtn(){
   const typeProd = document.querySelector('input[name="typeProduit"]:checked')?.value || 'panneau';
   const fam = document.getElementById('famille')?.value || 'alu';
 
-  // Actif uniquement si : type panneau + famille alu + radio "prélaqué" sélectionné
   let enabled = false;
   if(typeProd === 'panneau' && fam === 'alu'){
     const mat = document.querySelector('input[name="matAlu"]:checked')?.value || '';
@@ -526,7 +549,6 @@ function initRalModal(){
     }
   });
 
-  // Tabs
   document.querySelectorAll(".ral-tab").forEach(tab=>{
     tab.addEventListener("click", ()=>{
       document.querySelectorAll(".ral-tab").forEach(x=>{
@@ -540,10 +562,8 @@ function initRalModal(){
     });
   });
 
-  // Search
   document.getElementById("ralSearch")?.addEventListener("input", renderRal);
 
-  // Click chip => copie
   document.getElementById("ralContent")?.addEventListener("click", async (e)=>{
     const chip = e.target?.closest?.(".ral-chip");
     if(!chip) return;
@@ -559,17 +579,28 @@ function initRalModal(){
   updateRalBtn();
 }
 
+/* ===== UI helpers ===== */
+function updateTraverseUI(){
+  const type = document.querySelector('input[name="typeProduit"]:checked')?.value || 'panneau';
+  const opt = document.getElementById('optTraverse');
+  const block = document.getElementById('traverseBlock');
+  if(!opt || !block) return;
+
+  const show = (type === 'chassis') && opt.checked;
+  block.classList.toggle('hidden', !show);
+}
+
 function toggleUI(){
   const type = document.querySelector('input[name="typeProduit"]:checked').value;
   $('blockPanneau').style.display = type==='panneau'?'':'none';
   $('blockChassis').style.display = type==='chassis'?'':'none';
 
-  // ✅ bascule Alu / Dibond selon Famille
   const fam = $('famille')?.value || 'alu';
   $('blockAlu').style.display = fam==='alu' ? '' : 'none';
   $('blockDibond').style.display = fam==='dibond' ? '' : 'none';
 
   updateRalBtn();
+  updateTraverseUI();
 }
 
 function selectedPanelKey(){
@@ -597,7 +628,7 @@ function compute(){
     const surf = (L*H)/1e6;
     $('surface').value = surf.toFixed(3).replace('.',',')+' m²';
 
-    if(surf<=0){ $('prixHT').textContent='0,00'; $('prixTTC').textContent='0,00'; return; }
+    if(surf<=0){ $('prixHT').textContent='0,00'; $('prixTTC').textContent='0,00'; window._LAST=null; return; }
 
     const pu = PRICE_PANEL[selectedPanelKey()] * surf;
     const total = pu * COEF_PUBLIC * remise * Q;
@@ -606,7 +637,7 @@ function compute(){
     $('prixTTC').textContent = euro(total*(1+TVA));
 
     window._LAST = {
-      pu_public_ht: (total/Q).toFixed(2),
+      pu_public_ht: Number((total/Q).toFixed(2)),
       quantite: Q,
       type:'panneau',
       designation: `Panneau ${$('famille').value==='alu'?'Alu':'Dibond'} — ${L}×${H} mm`
@@ -617,30 +648,81 @@ function compute(){
   /* ===== CHÂSSIS ===== */
   const L = Number($('chL').value||0);
   const H = Number($('chH').value||0);
-  if(L<=0 || H<=0){ $('prixHT').textContent='0,00'; $('prixTTC').textContent='0,00'; return; }
+  if(L<=0 || H<=0){ $('prixHT').textContent='0,00'; $('prixTTC').textContent='0,00'; window._LAST=null; return; }
 
-  const section = document.querySelector('input[name="sectionChassis"]:checked').value;
+  const section = Number(document.querySelector('input[name="sectionChassis"]:checked').value || 30);
   const perimetre_ml = ((L+H)*2)/1000;
   const surface_m2 = (L*H)/1e6;
 
-  const goussets = Math.max(4, Math.ceil(surface_m2)*4);
-  const interne = perimetre_ml*CHASSIS_ML[section] + goussets*GOUSSET_PRICE;
+  // Goussets de base : min 4 puis +4 par m² (arrondi sup)
+  const goussets_base = Math.max(4, Math.ceil(surface_m2) * 4);
+
+  // ✅ Traverses : coût au ml + +2 goussets par traverse
+  const optTraverse = document.getElementById('optTraverse');
+  const trLen = Number(document.getElementById('traverseLongueur')?.value || 0);
+  const trQty = Math.max(1, parseInt(document.getElementById('traverseQte')?.value || 1, 10));
+
+  let traverses_ml_total = 0;
+  let traverses_interne = 0;
+  let goussets_extra = 0;
+
+  if(optTraverse && optTraverse.checked && trLen > 0){
+    traverses_ml_total = (trLen / 1000) * trQty;
+    traverses_interne = traverses_ml_total * (CHASSIS_ML[section] || 0);
+
+    // ✅ RÈGLE OUBLIÉE : +2 goussets par traverse
+    goussets_extra = 2 * trQty;
+  }
+
+  const goussets_total = goussets_base + goussets_extra;
+
+  const interne =
+    perimetre_ml * (CHASSIS_ML[section] || 0) +
+    goussets_total * GOUSSET_PRICE +
+    traverses_interne;
+
   const total = interne * COEF_PUBLIC * remise;
 
   $('prixHT').textContent = euro(total);
   $('prixTTC').textContent = euro(total*(1+TVA));
 
+  const traverseTxt = (optTraverse && optTraverse.checked && trLen > 0)
+    ? ` — Traverses: ${trQty} × ${trLen} mm (${traverses_ml_total.toFixed(2)} ml) +${goussets_extra} goussets`
+    : '';
+
   window._LAST = {
-    pu_public_ht: total.toFixed(2),
+    pu_public_ht: Number(total.toFixed(2)),
     quantite: 1,
     type:'chassis',
-    designation:`Châssis alu ${section}×${section} — ${L}×${H} mm`
+    designation:`Châssis alu ${section}×${section} — ${L}×${H} mm${traverseTxt}`,
+    _debug: {
+      goussets_base,
+      goussets_extra,
+      goussets_total,
+      traverses_ml_total: Number(traverses_ml_total.toFixed(3)),
+      traverses_interne: Number(traverses_interne.toFixed(2))
+    }
   };
 }
 
 initRalModal();
-document.addEventListener('input', compute);
-document.addEventListener('change', compute);
+
+/* Events */
+document.addEventListener('input', (e)=>{
+  const id = e.target?.id || '';
+  if(id === 'optTraverse' || id === 'traverseLongueur' || id === 'traverseQte'){
+    updateTraverseUI();
+  }
+  compute();
+});
+document.addEventListener('change', (e)=>{
+  const id = e.target?.id || '';
+  if(id === 'optTraverse' || id === 'traverseLongueur' || id === 'traverseQte'){
+    updateTraverseUI();
+  }
+  compute();
+});
+
 compute();
 </script>
 
@@ -665,4 +747,3 @@ $('btnAddDevis').addEventListener('click',()=>{
 
 </body>
 </html>
-
