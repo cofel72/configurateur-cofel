@@ -122,7 +122,7 @@
     padding:10px 12px;
     border-radius:12px;
     border:1px solid var(--glass-hr, rgba(255,255,255,.18));
-    background:rgba(255,255,255,.06));
+    background:rgba(255,255,255,.06);
     color:var(--txt, #fff);
     outline:none;
   }
@@ -151,7 +151,7 @@
   .ral-chip{
     padding:8px 10px;
     border-radius:999px;
-    border:1px solid rgba(255,255,255,.18);
+    border:1px solid rgba(255,255,255,.18));
     background:rgba(255,255,255,.06);
     color:var(--txt, #fff);
     cursor:pointer;
@@ -330,10 +330,33 @@
     </div>
 
     <div id="fixChassis" class="hidden">
-      <div class="hint hidden" style="margin-top:8px">
+      <div class="hint" style="margin-top:8px">
         Linéaire châssis = <b>périmètre</b> (2×(L+H)).<br />
-        Goussets = minimum 4, puis +4 par m² (arrondi à l’entier sup.).
+        Goussets = minimum 4, puis +4 par m² (arrondi à l’entier sup.).<br />
+        ✅ Traverse(s) : prix au ml de la section choisie, + <b>2 goussets par traverse</b>.
       </div>
+
+      <!-- ✅ AJOUT : TRAVERSE SUPPLÉMENTAIRE -->
+      <div style="margin-top:10px">
+        <label class="radio-row" style="padding:0;border:none">
+          <span><input type="checkbox" id="optTraverse" /> Traverse supplémentaire</span>
+        </label>
+
+        <div id="traverseBlock" class="hidden" style="margin-top:10px">
+          <div class="grid">
+            <div>
+              <label for="traverseLongueur">Longueur d’une traverse (mm)</label>
+              <input type="number" id="traverseLongueur" min="0" placeholder="Ex : 1200" />
+            </div>
+            <div>
+              <label for="traverseQte">Quantité de traverses</label>
+              <input type="number" id="traverseQte" min="1" value="1" />
+            </div>
+          </div>
+          <div class="hint">Chaque traverse ajoute <b>2 goussets</b>.</div>
+        </div>
+      </div>
+
       <div class="hidden" style="margin-top:8px">
         <label for="goussetPrixU">Gousset €/u</label>
         <input type="number" id="goussetPrixU" placeholder="€/u (auto/manuel)" min="0" step="0.01" />
@@ -344,7 +367,7 @@
       <div class="hint">Longueur = périmètre (2×(L+H)).</div>
     </div>
 
-    <!-- ✅ MODIF : longueur + nombre de lisses -->
+    <!-- ✅ longueur + nombre de lisses -->
     <div id="fixLisse" class="hidden" style="margin-top:8px">
       <div class="grid">
         <div>
@@ -356,7 +379,7 @@
           <input type="number" id="lisseNb" min="1" value="1" />
         </div>
       </div>
-      <div class="hint">Ex : 2 listes de 10 m → Longueur 10000 mm + Nombre 2.</div>
+      <div class="hint">Ex : 2 lisses de 10 m → Longueur 10000 mm + Nombre 2.</div>
     </div>
 
   </fieldset>
@@ -447,9 +470,14 @@ const fixRadios=[...document.querySelectorAll('input[name="fixation"]')];
 const elFixBoite=$('fixBoite'), elFixChassis=$('fixChassis'), elFixCorniere=$('fixCorniere');
 const elGoussetPrixU=$('goussetPrixU');
 
+const elOptTraverse = $('optTraverse');
+const elTraverseBlock = $('traverseBlock');
+const elTraverseLen = $('traverseLongueur');
+const elTraverseQte = $('traverseQte');
+
 const elUHT=$('prixUHT'), elHT=$('prixHT'), elTTC=$('prixTTC');
 
-/* ✅ Robustesse : on crée aussi les alias utilisés plus bas (évite de dépendre des “globals” des id) */
+/* ✅ Robustesse : aliases */
 const quantite = elQ;
 const largeur  = elL;
 const hauteur  = elH;
@@ -476,7 +504,7 @@ function areaM2(Lmm,Hmm){return (Math.max(0,Number(Lmm||0))*Math.max(0,Number(Hm
 function perimeterMeters(Lmm,Hmm){return 2*((Lmm/1000)+(Hmm/1000));}
 
 /* ==========================
-   POPUP RAL (d'après TON PDF)
+   POPUP RAL
    ========================== */
 const RAL_DATA = {
   satine: {
@@ -627,7 +655,6 @@ function initRalModal(){
     }
   });
 
-  // Tabs
   document.querySelectorAll(".ral-tab").forEach(tab=>{
     tab.addEventListener("click", ()=>{
       document.querySelectorAll(".ral-tab").forEach(x=>{
@@ -641,10 +668,8 @@ function initRalModal(){
     });
   });
 
-  // Search
   document.getElementById("ralSearch")?.addEventListener("input", renderRal);
 
-  // Click chip => copie
   document.getElementById("ralContent")?.addEventListener("click", async (e)=>{
     const chip = e.target?.closest?.(".ral-chip");
     if(!chip) return;
@@ -666,12 +691,10 @@ function currentSurface(){
   const H = Number(elH.value || 0);
   const P = Number(elP.value || 0); // plis en mm
 
-  // développé = largeur + 2 plis ; hauteur + 2 plis
   const Ldev = L + (2 * P);
   const Hdev = H + (2 * P);
 
   const A = areaM2(Ldev, Hdev);
-
   elSurf.value = `${A.toFixed(3)} m²`;
   return A;
 }
@@ -777,6 +800,21 @@ function autoFindPrice(keywordRe, type='m2'){
   return NaN;
 }
 
+/*** UI helpers ***/
+function updateTraverseUI(){
+  const fixVal = (document.querySelector('input[name="fixation"]:checked')||{}).value || 'aucune';
+  const isChassis = (fixVal === 'chassis30' || fixVal === 'chassis40' || fixVal === 'chassis50');
+
+  if(!elTraverseBlock || !elOptTraverse) return;
+
+  if(!isChassis){
+    elOptTraverse.checked = false;
+    elTraverseBlock.classList.add('hidden');
+    return;
+  }
+  elTraverseBlock.classList.toggle('hidden', !elOptTraverse.checked);
+}
+
 /*** CALCUL COMPLET ***/
 function compute(){
 
@@ -817,9 +855,6 @@ function compute(){
       elPMMASurface.value = pmmaSurf.toFixed(3) + ' m²';
     }
 
-    // Surface ajourée réelle (sert pour PMMA/LED)
-    pmmaSurf = areaM2(ajL, ajH); // m² ajourés
-
     // ✅ Ajourage : minimum facturé = 1 m² (99€), puis 99€/m² au-delà
     const ajourageFactureM2 = Math.max(1, pmmaSurf);
     ajourage_interne = AJOURAGE_PRICE_M2 * ajourageFactureM2;
@@ -851,6 +886,7 @@ function compute(){
     fixVal === 'chassis40' ||
     fixVal === 'chassis50'
   ){
+    updateTraverseUI();
 
     const section =
       fixVal === 'chassis30' ? 30 :
@@ -858,38 +894,61 @@ function compute(){
 
     const chLinCost = CHASSIS_PRICE_ML[section] * P;
 
-    nbGoussets = Math.max(4, Math.ceil(4 + 4 * A));
+    // Base goussets
+    const baseGoussets = Math.max(4, Math.ceil(4 + 4 * A));
+
+    // ✅ Traverses : coût au ml + +2 goussets par traverse
+    let traverses_ml_total = 0;
+    let traverses_cost = 0;
+    let goussets_extra = 0;
+
+    if(elOptTraverse && elOptTraverse.checked){
+      const tLen = Math.max(0, Number(elTraverseLen?.value || 0));
+      const tQty = Math.max(1, parseInt(elTraverseQte?.value || 1, 10));
+      if(tLen > 0){
+        traverses_ml_total = (tLen/1000) * tQty;
+        traverses_cost = traverses_ml_total * (CHASSIS_PRICE_ML[section] || 0);
+        goussets_extra = 2 * tQty;
+      }
+    }
+
+    nbGoussets = baseGoussets + goussets_extra;
+
     let gusU = autoFindPrice(/gousset/,'u');
     if(!isFinite(gusU)) gusU = Number(elGoussetPrixU?.value||0);
-
     const gusCost = (isFinite(gusU)?gusU:0) * nbGoussets;
 
-    fix_interne = chLinCost + gusCost;
-  }
+    fix_interne = chLinCost + traverses_cost + gusCost;
 
-  else if(fixVal==='corniere'){
+    // Stock debug (facultatif)
+    window._CHASSIS_DEBUG = {
+      section,
+      perimetre_ml: Number(P.toFixed(3)),
+      baseGoussets,
+      goussets_extra,
+      nbGoussets,
+      traverses_ml_total: Number(traverses_ml_total.toFixed(3)),
+      traverses_cost: Number(traverses_cost.toFixed(2))
+    };
+
+  } else if(fixVal==='corniere'){
     fix_interne = CORNIERE_PRICE_ML * P;
   } else if (fixVal === 'lisse') {
     const lisseMM = Number(document.getElementById("lisseLongueur")?.value || 0);
     const lisseNb = Math.max(1, Number(document.getElementById("lisseNb")?.value || 1));
 
-    const lisseMLUnit = lisseMM / 1000;              // mm → m
-    const lisseMLTotal = lisseMLUnit * lisseNb;      // total ml facturé
+    const lisseMLUnit = lisseMM / 1000;
+    const lisseMLTotal = lisseMLUnit * lisseNb;
 
     if (lisseMLTotal > 0) {
-      fix_interne = LISSE_PRICE_ML * lisseMLTotal;   // prix interne
+      fix_interne = LISSE_PRICE_ML * lisseMLTotal;
     }
   }
 
   const unitHT_interne = base_interne_majoré + ajourage_interne + pmma_interne + led_interne + fix_interne;
 
-  // === Coefficient tarif public Cofel ===
   const COEF_PUBLIC = 2;
-
-  // === Prix public avant remise ===
   const unitHT_public_base = unitHT_interne * COEF_PUBLIC;
-
-  // === Prix net client ===
   const unitHT_public = unitHT_public_base * remiseClient;
 
   const totalHT_public = unitHT_public * Q;
@@ -915,6 +974,7 @@ function toggleBlocks(){
   const elFixLisse = document.getElementById('fixLisse');
   elFixLisse.classList.toggle('hidden', fixVal!=='lisse');
 
+  updateTraverseUI();
   updateRalBtn();
 }
 
@@ -924,7 +984,8 @@ function toggleBlocks(){
     quantite, largeur, hauteur, plis,
     ajourLargeur, ajourHauteur,
     document.getElementById('lisseLongueur'),
-    document.getElementById('lisseNb'),           // ✅ AJOUT : nb de lisses
+    document.getElementById('lisseNb'),
+    elOptTraverse, elTraverseLen, elTraverseQte,
     ...document.querySelectorAll('input[name="matiere"]'),
     optAjour, pmmaSel,
     optLED, ...fixRadios, goussetPrixU,
@@ -960,7 +1021,6 @@ compute();
     return Number(txt.replace(/\s/g,'').replace(',', '.')) || 0;
   }
 
-  // Traduction matière pour désignation
   const MAT_LABELS = {
     brut: "Tôle aluminium 20/10 brut",
     prelaque: "Tôle aluminium 20/10 prélaquée",
@@ -1001,6 +1061,13 @@ compute();
       const boiteMat = (document.querySelector('input[name="boiteMat"]:checked')||{}).value || '';
       const gusU = document.getElementById('goussetPrixU')?.value || '';
 
+      // ✅ Traverses (châssis)
+      const optTraverse = document.getElementById('optTraverse')?.checked;
+      const trLen = Math.max(0, Number(document.getElementById('traverseLongueur')?.value || 0));
+      const trQty = Math.max(1, parseInt(document.getElementById('traverseQte')?.value || 1, 10));
+      const trMLTotal = (trLen>0) ? ((trLen/1000) * trQty) : 0;
+      const trGoussets = (optTraverse && trLen>0) ? (2 * trQty) : 0;
+
       const total_ht_public = parseTotalHTPublic();
       if (total_ht_public <= 0){ alert("Le prix est à 0, vérifie les paramètres."); return; }
       const pu_public_ht = qte>0 ? (total_ht_public / qte) : 0;
@@ -1028,9 +1095,12 @@ compute();
           fixVal === 'chassis40' ? '40×40' :
           '50×50';
 
-        parts.push(
-          `Fixation: châssis tube aluminium ${size}${gusU ? ' · gousset ' + gusU + ' €/u' : ''}`
-        );
+        let trTxt = '';
+        if(optTraverse && trLen>0){
+          trTxt = ` + traverses ${trQty}×${trLen} mm (${trMLTotal.toFixed(2)} ml) +${trGoussets} goussets`;
+        }
+
+        parts.push(`Fixation: châssis tube aluminium ${size}${gusU ? ' · gousset ' + gusU + ' €/u' : ''}${trTxt}`);
       }
       else if(fixVal==='corniere'){
         parts.push(`Fixation: cornière`);
@@ -1046,7 +1116,9 @@ compute();
         type: 'Tôle Tablette',
         designation,
         quantite: qte,
-        pu_public_ht: Number(pu_public_ht.toFixed(2))
+        pu_public_ht: Number(pu_public_ht.toFixed(2)),
+        pu_net_ht: Number(pu_public_ht.toFixed(2)),
+        total_ligne_ht: Number(total_ht_public.toFixed(2))
       });
 
       alert(`✅ Ligne ajoutée au devis !\n${designation}\nQté : ${qte}\nPU HT : ${pu_public_ht.toFixed(2)} €`);
