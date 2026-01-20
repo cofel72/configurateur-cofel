@@ -57,7 +57,7 @@
 .cselect-option{ padding: 10px 12px; }
 .cselect-option:hover{ background: rgba(255,255,255,.10); }
 </style>
-  <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
+<link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
 
 </head>
 
@@ -142,9 +142,19 @@
             </label>
           </div>
 
+          <!-- ✅ MODIF : longueur + nombre de lisses -->
           <div id="lisseBlock" class="hidden" style="margin-top:10px">
-            <label for="lisseLongueur">Longueur de la lisse (mm)</label>
-            <input type="number" id="lisseLongueur" placeholder="Ex : 3000">
+            <div class="grid">
+              <div>
+                <label for="lisseLongueur">Longueur d’une lisse (mm)</label>
+                <input type="number" id="lisseLongueur" placeholder="Ex : 10000">
+              </div>
+              <div>
+                <label for="lisseNb">Nombre de lisses</label>
+                <input type="number" id="lisseNb" min="1" value="1">
+              </div>
+            </div>
+            <div class="help">Ex : 2 lisses de 10 m → Longueur 10000 mm + Nombre 2.</div>
           </div>
         </div>
       </div>
@@ -209,6 +219,7 @@ const elHT  = $("prixHT");
 const elTTC = $("prixTTC");
 const elOptLisse = $("optLisse");
 const elLongLisse = $("lisseLongueur");
+const elNbLisse = $("lisseNb"); // ✅ AJOUT
 const elLightingInfo = document.getElementById("lightingInfo");
 
 function updateLisseUI(){
@@ -534,13 +545,16 @@ function compute(){
   const row = findRowForHeight(H);
   const base_interne = row ? numFR(row[MAP.baseKey]) : 0;
 
-  // Lisse NON multipliée par quantité
+  // ✅ Lisse NON multipliée par quantité, mais multipliée par nb lisses
   let supplement_lisse_interne = 0;
+  let Lmm = 0, nbL = 1, LmlUnit = 0, LmlTotal = 0;
   if (elOptLisse && elOptLisse.checked){
-    const Lmm = Number(elLongLisse.value || 0);
+    Lmm = Number(elLongLisse.value || 0);
+    nbL = Math.max(1, parseInt(elNbLisse?.value || 1, 10));
     if (Lmm > 0){
-      const Lml = Lmm / 1000;
-      supplement_lisse_interne = TARIF_LISSE_INTERNE_ML * Lml;
+      LmlUnit = Lmm / 1000;
+      LmlTotal = LmlUnit * nbL;
+      supplement_lisse_interne = TARIF_LISSE_INTERNE_ML * LmlTotal;
     }
   }
 
@@ -557,7 +571,10 @@ function compute(){
   window._LETTER_BOITIER_LAST = {
     pu_public_ht : Number(pu_public_ht.toFixed(2)),
     total_net_ht : Number(total_net_client.toFixed(2)),
-    supplement_lisse_interne : Number(supplement_lisse_interne.toFixed(2))
+    supplement_lisse_interne : Number(supplement_lisse_interne.toFixed(2)),
+    lmm: Lmm,
+    nbLisse: nbL,
+    lmlTotal: LmlTotal
   };
 
   updateLightingInfo();
@@ -614,6 +631,7 @@ function bind(){
 
   elOptLisse.addEventListener("change", compute);
   elLongLisse.addEventListener("input", compute);
+  elNbLisse.addEventListener("input", compute); // ✅ AJOUT
 
   $("btnReset").addEventListener("click", ()=>{
     elFam.value = "";
@@ -630,6 +648,7 @@ function bind(){
 
     elOptLisse.checked = false;
     elLongLisse.value = "";
+    if (elNbLisse) elNbLisse.value = 1;
     updateLisseUI();
 
     compute();
@@ -674,10 +693,16 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
 
     const optLisse = document.getElementById("optLisse").checked;
     const lisseLongueur = Number(document.getElementById("lisseLongueur").value || 0);
+    const lisseNb = Math.max(1, parseInt(document.getElementById("lisseNb")?.value || 1, 10));
+    const lisseML = (lisseLongueur / 1000) * lisseNb;
 
     let designation = `${familleName} — H ${H} mm`;
     if (variant) designation += ` — Éclairage: ${variant}`;
-    if (optLisse) designation += lisseLongueur > 0 ? ` — Pose sur lisse (${lisseLongueur} mm)` : ` — Pose sur lisse`;
+    if (optLisse){
+      designation += (lisseLongueur > 0)
+        ? ` — Pose sur lisse — ${lisseNb} × ${lisseLongueur} mm (${lisseML.toFixed(2)} ml)`
+        : ` — Pose sur lisse`;
+    }
 
     const total_ht_affiche = parseFloat(
       document.getElementById("prixHT").innerText.replace(",", ".")
@@ -692,7 +717,9 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
       type: "Lettres Boîtiers",
       designation,
       quantite: qte,
-      pu_public_ht: p.pu_public_ht
+      pu_public_ht: p.pu_public_ht,
+      pu_net_ht: Number(p.pu_public_ht.toFixed(2)),
+      total_ligne_ht: Number(p.total_net_ht.toFixed(2))
     });
 
     alert("✅ Ligne ajoutée au devis !");
@@ -705,4 +732,3 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
 
 </body>
 </html>
-
