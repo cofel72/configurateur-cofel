@@ -14,7 +14,7 @@
   /* sécurité si .hidden n'existe pas dans tes CSS */
   .hidden{ display:none !important; }
 
-  /* Bouton RAL (style “pastille” comme Tôle Tablette) */
+  /* Bouton (style “pastille” comme tes autres configurateurs) */
   .ral-btn{
     display:inline-flex;
     align-items:center;
@@ -35,7 +35,9 @@
     filter:none;
   }
 
-  /* Modal */
+  /* =========================
+     POPUP RAL (identique aux autres configurateurs)
+     ========================= */
   html.ral-lock, body.ral-lock{ overflow:hidden; }
 
   .ral-modal{
@@ -175,6 +177,103 @@
     font-size:12px;
     color:var(--txt-dim, rgba(255,255,255,.72));
   }
+
+  /* =========================
+     MODAL MASSIF BÉTON (tableau seul)
+     ========================= */
+  html.massif-lock, body.massif-lock{ overflow:hidden; }
+  .massif-modal{
+    position:fixed; inset:0; z-index:9998; /* un cran sous RAL si jamais */
+    display:flex; align-items:center; justify-content:center;
+    padding:14px;
+  }
+  .massif-backdrop{
+    position:absolute; inset:0;
+    background:rgba(0,0,0,.65);
+    backdrop-filter: blur(10px);
+  }
+  .massif-card{
+    position:relative;
+    width:min(980px, calc(100vw - 24px));
+    max-height:calc(100vh - 24px);
+    overflow:hidden;
+    border-radius:18px;
+    border:1px solid var(--glass-hr, rgba(255,255,255,.18));
+    background:rgba(18,18,18,.86);
+    box-shadow: 0 12px 35px rgba(0,0,0,.55);
+    display:flex;
+    flex-direction:column;
+  }
+  .massif-head{
+    display:flex; justify-content:space-between; gap:12px;
+    padding:14px 14px 10px;
+    border-bottom:1px solid var(--glass-hr, rgba(255,255,255,.12));
+  }
+  .massif-title{ font-weight:700; font-size:16px; line-height:1.2; }
+  .massif-sub{ margin-top:4px; font-size:13px; color:var(--txt-dim, rgba(255,255,255,.72)); }
+  .massif-close{
+    background:transparent;
+    border:1px solid var(--glass-hr, rgba(255,255,255,.18));
+    border-radius:12px;
+    color:var(--txt, #fff);
+    padding:8px 10px;
+    cursor:pointer;
+  }
+  .massif-body{ padding:14px; overflow:auto; }
+
+  .massif-table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    overflow:hidden;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.04);
+  }
+  .massif-table th,
+  .massif-table td{
+    padding:10px 10px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+    border-right:1px solid rgba(255,255,255,.08);
+    font-size:13px;
+    color:var(--txt,#fff);
+    vertical-align:middle;
+    text-align:center;
+    white-space:nowrap;
+  }
+  .massif-table th{
+    font-weight:700;
+    background:rgba(255,255,255,.06);
+  }
+  .massif-table th:first-child,
+  .massif-table td:first-child{
+    text-align:left;
+    font-weight:700;
+  }
+  .massif-table tr:last-child td{ border-bottom:none; }
+  .massif-table th:last-child,
+  .massif-table td:last-child{ border-right:none; }
+
+  .massif-highlight{
+    outline:2px solid rgba(255,255,255,.35);
+    background:rgba(255,255,255,.10) !important;
+    font-weight:800;
+  }
+
+  .massif-foot{
+    padding:10px 14px 14px;
+    border-top:1px solid var(--glass-hr, rgba(255,255,255,.12));
+  }
+  .massif-info{
+    font-size:13px;
+    color:var(--txt,#fff);
+    min-height:18px;
+    margin-bottom:6px;
+  }
+  .massif-note{
+    font-size:12px;
+    color:var(--txt-dim, rgba(255,255,255,.72));
+  }
 </style>
 
 </head>
@@ -269,7 +368,7 @@
       </div>
 
       <!-- ====== OPTIONS FIXES ====== -->
-      <div class="opt-row" id="fixedOptions" style="display:flex;gap:20px;flex-wrap:wrap">
+      <div class="opt-row" id="fixedOptions" style="display:flex;gap:20px;flex-wrap:wrap;align-items:center">
 
         <!-- Pré-laquage (toujours inclus, donc décoché mais grisé) -->
         <label style="display:flex;align-items:center;gap:6px;margin:0;opacity:.7">
@@ -288,6 +387,11 @@
           <input type="checkbox" id="optPieds" disabled />
           <span>Laquage pieds du totem</span>
         </label>
+
+        <!-- ✅ Bouton préconisations massif béton -->
+        <button type="button" id="btnMassif" class="ral-btn" aria-haspopup="dialog">
+          🏗️ Préconisations massif béton
+        </button>
 
         <!-- ✅ Bouton “RAL disponibles” (pré-laqué) -->
         <button type="button" id="btnRal" class="ral-btn" style="margin-left:auto" aria-haspopup="dialog">
@@ -361,6 +465,30 @@
   © Cofel — ZA du Perquoi, 72560 Changé — SIRET 927 659 458 00024 — TVA FR80927659458
 </footer>
 
+<!-- ===== MODAL MASSIF BETON (tableau seul) ===== -->
+<div id="massifModal" class="massif-modal hidden" role="dialog" aria-modal="true" aria-labelledby="massifTitle">
+  <div class="massif-backdrop" data-close="1"></div>
+
+  <div class="massif-card">
+    <div class="massif-head">
+      <div>
+        <div id="massifTitle" class="massif-title">Préconisations massif béton — Totem</div>
+        <div class="massif-sub">Tableau uniquement (basé sur ton Excel)</div>
+      </div>
+      <button type="button" id="massifClose" class="massif-close" aria-label="Fermer">✕</button>
+    </div>
+
+    <div class="massif-body">
+      <div id="massifTableWrap"></div>
+    </div>
+
+    <div class="massif-foot">
+      <div id="massifInfo" class="massif-info"></div>
+      <div class="massif-note">Valeurs indicatives : valider le dimensionnement final selon contraintes chantier, vent, sol, scellement, etc.</div>
+    </div>
+  </div>
+</div>
+
 <!-- ✅ POPUP RAL (identique aux autres configurateurs) -->
 <div id="ralModal" class="ral-modal hidden" role="dialog" aria-modal="true" aria-labelledby="ralTitle">
   <div class="ral-backdrop" data-close="1"></div>
@@ -401,6 +529,9 @@ const RAL_PRICE_PUBLIC_M2 = 112; // ✅ déjà prix PUBLIC (x2 inclus)
 /* ===== AJOURAGE (mêmes prix que Tôle Tablette, x2 faces) ===== */
 const TOTEM_FACES = 2;
 const AJOURAGE_PRICE_M2 = 99.0; // interne, identique Tôle Tablette
+
+// ⚠️ IMPORTANT : garde ton URL telle quelle si elle fonctionne déjà chez toi.
+// Si PMMA/LED ne se chargent pas, c'est très souvent ici (URL/nom du CSV).
 const TT_CSV_URL_FOR_AJOUR = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/toles_tabelette";
 
 let PMMA_CATALOG_TOTEM = [];      // [{label, priceM2}]
@@ -615,6 +746,78 @@ async function loadTTPricesForAjour(){
 }
 
 /* ==========================
+   MASSIF BETON (données = ton Excel)
+   ========================== */
+const MASSIF = {
+  headers: ["DIMENSION TOTEM","600","800","1000","1200","1400"],
+  rows: [
+    ["1500","1100X800X500","1400X800X500","1600X800X500","1800X800X500","2000X800X500"],
+    ["2000","1100X800X500","1400X800X500","1600X800X500","1800X800X500","2000X800X500"],
+    ["2500","1100X800X600","1400X800X600","1600X800X600","1800X800X600","2000X800X600"],
+    ["3000","1100X800X600","1400X800X600","1600X800X600","1800X800X600","2000X800X600"],
+    ["3500","1300X1000X600","1500X1000X600","1800X1000X600","2000X1000X600","2200X1000X600"],
+    ["4000","1300X1000X600","1500X1000X600","1800X1000X600","2000X1000X600","2200X1000X600"],
+    ["4500","1300X1000X600","1500X1000X600","1800X1000X800","2000X1000X600","2200X1000X600"],
+    ["5000","1300X1000X800","1500X1000X800","1800X1000X800","2000X1000X800","2200X1000X800"],
+    ["6000","1300X1000X800","1500X1000X800","1800X1000X800","2000X1000X1000","2200X1000X1000"]
+  ]
+};
+
+function renderMassifTable(){
+  const wrap = document.getElementById('massifTableWrap');
+  if(!wrap) return;
+
+  const selH = String(document.getElementById('hauteur')?.value || '').trim();
+  const selL = String(document.getElementById('largeur')?.value || '').trim();
+
+  const hIndex = MASSIF.rows.findIndex(r => String(r[0]) === selH);
+  const lIndex = MASSIF.headers.findIndex(h => String(h) === selL);
+
+  let html = '<table class="massif-table"><thead><tr>';
+  MASSIF.headers.forEach(h => { html += `<th>${h}</th>`; });
+  html += '</tr></thead><tbody>';
+
+  MASSIF.rows.forEach((r, ri) => {
+    html += '<tr>';
+    r.forEach((cell, ci) => {
+      const isHit = (ri === hIndex && ci === lIndex);
+      const cls = isHit ? 'massif-highlight' : '';
+      html += `<td class="${cls}">${cell}</td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+
+  const info = document.getElementById('massifInfo');
+  if(info){
+    if(selH && selL && hIndex >= 0 && lIndex >= 0){
+      const reco = MASSIF.rows[hIndex][lIndex] || '';
+      info.textContent = `Sélection actuelle : H ${selH} mm × L ${selL} mm — Massif conseillé : ${reco}`;
+    }else{
+      info.textContent = 'Astuce : sélectionne une Hauteur + une Largeur dans le configurateur pour surligner la case correspondante.';
+    }
+  }
+}
+
+function openMassif(){
+  const modal = document.getElementById('massifModal');
+  if(!modal) return;
+  renderMassifTable();
+  modal.classList.remove('hidden');
+  document.documentElement.classList.add('massif-lock');
+  document.body.classList.add('massif-lock');
+}
+function closeMassif(){
+  const modal = document.getElementById('massifModal');
+  if(!modal) return;
+  modal.classList.add('hidden');
+  document.documentElement.classList.remove('massif-lock');
+  document.body.classList.remove('massif-lock');
+}
+
+/* ==========================
    POPUP RAL (identique aux autres)
    ========================== */
 const RAL_DATA = {
@@ -765,13 +968,6 @@ function initRalModal(){
       if(t && t.dataset && t.dataset.close === "1") closeRalModal();
     });
   }
-
-  document.addEventListener("keydown", (e)=>{
-    if(e.key === "Escape"){
-      const m = document.getElementById("ralModal");
-      if(m && !m.classList.contains("hidden")) closeRalModal();
-    }
-  });
 
   // Tabs
   document.querySelectorAll(".ral-tab").forEach(tab=>{
@@ -1153,9 +1349,31 @@ async function loadAll(){
       else alert('Merci de sélectionner les 5 colonnes OPTIONS.');
     };
 
-    elType.addEventListener('change', function(){ populateHL(); renderOptionsCheckboxes(); compute(); });
-    elH.addEventListener('change',   function(){ renderOptionsCheckboxes(); updateRALState(); updateLevageNote(); compute(); });
-    elL.addEventListener('change',   function(){ updateRALState(); compute(); });
+    elType.addEventListener('change', function(){
+      populateHL();
+      renderOptionsCheckboxes();
+      compute();
+      // si le modal massif est ouvert, on met à jour le surlignage
+      const mm = document.getElementById('massifModal');
+      if(mm && !mm.classList.contains('hidden')) renderMassifTable();
+    });
+
+    elH.addEventListener('change', function(){
+      renderOptionsCheckboxes();
+      updateRALState();
+      updateLevageNote();
+      compute();
+      const mm = document.getElementById('massifModal');
+      if(mm && !mm.classList.contains('hidden')) renderMassifTable();
+    });
+
+    elL.addEventListener('change', function(){
+      updateRALState();
+      compute();
+      const mm = document.getElementById('massifModal');
+      if(mm && !mm.classList.contains('hidden')) renderMassifTable();
+    });
+
     elQte.addEventListener('input', compute);
     elOptRAL.addEventListener('change', compute);
     document.getElementById('optPieds').addEventListener('change', compute);
@@ -1183,6 +1401,20 @@ async function loadAll(){
       }
       updateRalBtn();
       compute();
+    });
+
+    // --- Bouton massif béton ---
+    const btnMassif = document.getElementById('btnMassif');
+    const closeBtn  = document.getElementById('massifClose');
+    const modal     = document.getElementById('massifModal');
+    btnMassif?.addEventListener('click', openMassif);
+    closeBtn?.addEventListener('click', closeMassif);
+    modal?.addEventListener('click', (e)=>{ if(e.target?.dataset?.close === "1") closeMassif(); });
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape'){
+        const m=document.getElementById('massifModal');
+        if(m && !m.classList.contains('hidden')) closeMassif();
+      }
     });
 
     elMsg.textContent = 'Données chargées.\nEn-têtes TARIFS : ' + RAW_HEADERS_T.join(' | ') + '\nEn-têtes OPTIONS : ' + RAW_HEADERS_O.join(' | ');
