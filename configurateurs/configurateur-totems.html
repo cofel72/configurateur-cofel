@@ -11,9 +11,10 @@
 <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
 
 <style>
-  .hidden{display:none!important;}
+  /* sécurité si .hidden n'existe pas dans tes CSS */
+  .hidden{ display:none !important; }
 
-  /* Bouton type “pastille” (comme tes autres configurateurs) */
+  /* Bouton RAL (style “pastille” comme Tôle Tablette) */
   .ral-btn{
     display:inline-flex;
     align-items:center;
@@ -28,21 +29,31 @@
     cursor:pointer;
   }
   .ral-btn:hover{ filter:brightness(1.12); }
-  .ral-btn:disabled{ opacity:.45; cursor:not-allowed; filter:none; }
+  .ral-btn:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+    filter:none;
+  }
 
   /* Modal */
-  html.massif-lock, body.massif-lock{ overflow:hidden; }
-  .massif-modal{
-    position:fixed; inset:0; z-index:9999;
-    display:flex; align-items:center; justify-content:center;
+  html.ral-lock, body.ral-lock{ overflow:hidden; }
+
+  .ral-modal{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
     padding:14px;
   }
-  .massif-backdrop{
-    position:absolute; inset:0;
+  .ral-backdrop{
+    position:absolute;
+    inset:0;
     background:rgba(0,0,0,.65);
     backdrop-filter: blur(10px);
   }
-  .massif-card{
+  .ral-card{
     position:relative;
     width:min(980px, calc(100vw - 24px));
     max-height:calc(100vh - 24px);
@@ -54,14 +65,24 @@
     display:flex;
     flex-direction:column;
   }
-  .massif-head{
-    display:flex; justify-content:space-between; gap:12px;
+  .ral-head{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
     padding:14px 14px 10px;
     border-bottom:1px solid var(--glass-hr, rgba(255,255,255,.12));
   }
-  .massif-title{ font-weight:700; font-size:16px; line-height:1.2; }
-  .massif-sub{ margin-top:4px; font-size:13px; color:var(--txt-dim, rgba(255,255,255,.72)); }
-  .massif-close{
+  .ral-title{
+    font-weight:700;
+    font-size:16px;
+    line-height:1.2;
+  }
+  .ral-sub{
+    margin-top:4px;
+    font-size:13px;
+    color:var(--txt-dim, rgba(255,255,255,.72));
+  }
+  .ral-close{
     background:transparent;
     border:1px solid var(--glass-hr, rgba(255,255,255,.18));
     border-radius:12px;
@@ -69,62 +90,88 @@
     padding:8px 10px;
     cursor:pointer;
   }
-  .massif-body{
+
+  .ral-toolbar{
+    display:flex;
+    gap:10px;
+    padding:12px 14px;
+    align-items:center;
+    border-bottom:1px solid var(--glass-hr, rgba(255,255,255,.12));
+    flex-wrap:wrap;
+  }
+  .ral-tabs{
+    display:flex;
+    gap:8px;
+  }
+  .ral-tab{
+    padding:8px 10px;
+    border-radius:12px;
+    border:1px solid var(--glass-hr, rgba(255,255,255,.18));
+    background:transparent;
+    color:var(--txt, #fff);
+    cursor:pointer;
+  }
+  .ral-tab.is-active{
+    background:rgba(255,255,255,.08);
+  }
+  .ral-search{
+    flex:1;
+    min-width:220px;
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid var(--glass-hr, rgba(255,255,255,.18));
+    background:rgba(255,255,255,.06);
+    color:var(--txt, #fff);
+    outline:none;
+  }
+
+  .ral-content{
     padding:14px;
     overflow:auto;
   }
-
-  /* Tableau */
-  .massif-table{
-    width:100%;
-    border-collapse:separate;
-    border-spacing:0;
-    overflow:hidden;
+  .ral-group{
+    margin-bottom:14px;
+    padding:12px;
     border-radius:16px;
-    border:1px solid rgba(255,255,255,.12);
     background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.08);
   }
-  .massif-table th,
-  .massif-table td{
-    padding:10px 10px;
-    border-bottom:1px solid rgba(255,255,255,.08);
-    border-right:1px solid rgba(255,255,255,.08);
-    font-size:13px;
-    color:var(--txt,#fff);
-    vertical-align:middle;
-    text-align:center;
-    white-space:nowrap;
+  .ral-group h3{
+    margin:0 0 10px 0;
+    font-size:14px;
+    color:var(--txt, #fff);
   }
-  .massif-table th{
-    font-weight:700;
+  .ral-grid{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .ral-chip{
+    padding:8px 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.18);
     background:rgba(255,255,255,.06);
+    color:var(--txt, #fff);
+    cursor:pointer;
   }
-  .massif-table th:first-child,
-  .massif-table td:first-child{
-    text-align:left;
-    font-weight:700;
-  }
-  .massif-table tr:last-child td{ border-bottom:none; }
-  .massif-table th:last-child,
-  .massif-table td:last-child{ border-right:none; }
+  .ral-chip:hover{ filter:brightness(1.12); }
 
-  .massif-highlight{
-    outline:2px solid rgba(255,255,255,.35);
-    background:rgba(255,255,255,.10) !important;
-    font-weight:800;
+  .ral-empty{
+    padding:16px;
+    color:var(--txt-dim, rgba(255,255,255,.72));
   }
 
-  .massif-foot{
+  .ral-foot{
     padding:10px 14px 14px;
     border-top:1px solid var(--glass-hr, rgba(255,255,255,.12));
   }
-  .massif-info{
+  .ral-toast{
     font-size:13px;
-    color:var(--txt,#fff);
+    color:var(--txt, #fff);
     min-height:18px;
     margin-bottom:6px;
   }
-  .massif-note{
+  .ral-note{
     font-size:12px;
     color:var(--txt-dim, rgba(255,255,255,.72));
   }
@@ -132,7 +179,6 @@
 
 </head>
 <body>
-
 <header class="cofel-header">
   <div class="row">
     <a class="cofel-back" href="../index.html">⬅ Retour accueil (devis)</a>
@@ -208,6 +254,7 @@
         <div>
           <label for="hauteur">Hauteur (mm)</label>
           <select id="hauteur"><option value="">— sélectionnez —</option></select>
+          <!-- ✅ Note anneau de levage -->
           <div id="levageMsg" class="muted" style="display:none;margin-top:6px">ℹ️ Pour H ≥ 3500 mm : un anneau de levage est inclus.</div>
         </div>
         <div>
@@ -224,30 +271,74 @@
       <!-- ====== OPTIONS FIXES ====== -->
       <div class="opt-row" id="fixedOptions" style="display:flex;gap:20px;flex-wrap:wrap">
 
+        <!-- Pré-laquage (toujours inclus, donc décoché mais grisé) -->
         <label style="display:flex;align-items:center;gap:6px;margin:0;opacity:.7">
           <input type="checkbox" id="optPreLaque" checked disabled />
           <span>Pré-laquage (inclus)</span>
         </label>
 
+        <!-- Laquage RAL -->
         <label style="display:flex;align-items:center;gap:6px;margin:0">
           <input type="checkbox" id="optRAL" disabled />
           <span>Laquage RAL</span>
         </label>
 
+        <!-- Laquage des pieds -->
         <label style="display:flex;align-items:center;gap:6px;margin:0">
           <input type="checkbox" id="optPieds" disabled />
           <span>Laquage pieds du totem</span>
         </label>
 
-        <!-- ✅ Nouveau bouton : préconisations massif béton -->
-        <button type="button" id="btnMassif" class="ral-btn">
-          🏗️ Préconisations massif béton
+        <!-- ✅ Bouton “RAL disponibles” (pré-laqué) -->
+        <button type="button" id="btnRal" class="ral-btn" style="margin-left:auto" aria-haspopup="dialog">
+          🎨 RAL disponibles (pré-laqué)
         </button>
 
       </div>
 
       <label for="quantite">Quantité</label>
       <input type="number" id="quantite" value="1" min="1"/>
+    </fieldset>
+
+    <!-- ===== AJOURAGE / REMPLISSAGE (comme Tôle Tablette, x2 faces) ===== -->
+    <fieldset>
+      <legend>Ajourage / Remplissage</legend>
+
+      <label class="opt-row" style="padding:0;border:none">
+        <span><input type="checkbox" id="optAjourTotem" /> Ajourage des faces du Totem</span>
+      </label>
+
+      <div id="blockAjourTotem" class="hidden" style="margin-top:8px">
+        <div class="grid">
+          <div>
+            <label for="ajourLargeurTotem">Ajourage – largeur (mm)</label>
+            <input type="number" id="ajourLargeurTotem" min="0" placeholder="Ex : 800" />
+
+            <label for="ajourHauteurTotem" style="margin-top:10px">Ajourage – hauteur (mm)</label>
+            <input type="number" id="ajourHauteurTotem" min="0" placeholder="Ex : 300" />
+
+            <label for="pmmaSurfaceTotem" style="margin-top:10px">Surface ajourée (auto)</label>
+            <input id="pmmaSurfaceTotem" disabled value="0.000 m²" />
+
+            <div class="hint">
+              Surface ajourée = (largeur × hauteur) / 1 000 000 • Facturation <b>2 faces</b> • <b>min 1 m²</b> (puis au m²)
+            </div>
+          </div>
+
+          <div>
+            <label for="pmmaSelTotem">Type de PMMA</label>
+            <select id="pmmaSelTotem"><option value="">(aucun)</option></select>
+
+            <label class="radio-row" style="padding:0;border:none;margin-top:14px">
+              <span><input type="checkbox" id="optLEDTotem" /> Éclairage LED (utilise surface ajourée)</span>
+            </label>
+
+            <div class="muted" style="margin-top:6px;opacity:.85">
+              (Tarifs PMMA/LED identiques à Tôle Tablette, appliqués sur <b>2 faces</b>)
+            </div>
+          </div>
+        </div>
+      </div>
     </fieldset>
 
     <!-- ===== Résultats ===== -->
@@ -257,7 +348,9 @@
     </div>
 
     <div class="cofel-actions">
-      <button id="btnAddDevis" class="cofel-fab">➕ Ajouter au devis</button>
+      <button id="btnAddDevis" class="cofel-fab">
+        ➕ Ajouter au devis
+      </button>
     </div>
 
     <div id="msg" class="muted"></div>
@@ -268,26 +361,32 @@
   © Cofel — ZA du Perquoi, 72560 Changé — SIRET 927 659 458 00024 — TVA FR80927659458
 </footer>
 
-<!-- ===== MODAL MASSIF BETON (tableau seul) ===== -->
-<div id="massifModal" class="massif-modal hidden" role="dialog" aria-modal="true" aria-labelledby="massifTitle">
-  <div class="massif-backdrop" data-close="1"></div>
+<!-- ✅ POPUP RAL (identique aux autres configurateurs) -->
+<div id="ralModal" class="ral-modal hidden" role="dialog" aria-modal="true" aria-labelledby="ralTitle">
+  <div class="ral-backdrop" data-close="1"></div>
 
-  <div class="massif-card">
-    <div class="massif-head">
+  <div class="ral-card">
+    <div class="ral-head">
       <div>
-        <div id="massifTitle" class="massif-title">Préconisations massif béton — Totem</div>
-        <div class="massif-sub">Tableau uniquement (basé sur ton Excel)</div>
+        <div id="ralTitle" class="ral-title">RAL disponibles — Tôle aluminium 15/10 pré-laquée</div>
+        <div class="ral-sub">Format 3000 × 1500 • Satiné / Brillante • Clique un RAL pour le copier</div>
       </div>
-      <button type="button" id="massifClose" class="massif-close" aria-label="Fermer">✕</button>
+      <button type="button" id="ralClose" class="ral-close" aria-label="Fermer">✕</button>
     </div>
 
-    <div class="massif-body">
-      <div id="massifTableWrap"></div>
+    <div class="ral-toolbar">
+      <div class="ral-tabs" role="tablist" aria-label="Finition">
+        <button type="button" class="ral-tab is-active" data-finish="satine" role="tab" aria-selected="true">Satiné</button>
+        <button type="button" class="ral-tab" data-finish="brillante" role="tab" aria-selected="false">Brillante</button>
+      </div>
+      <input id="ralSearch" class="ral-search" type="text" placeholder="Rechercher : 7016, gris, noir, bleu…" />
     </div>
 
-    <div class="massif-foot">
-      <div id="massifInfo" class="massif-info"></div>
-      <div class="massif-note">Valeurs indicatives : valider le dimensionnement final selon contraintes chantier, vent, sol, scellement, etc.</div>
+    <div id="ralContent" class="ral-content"></div>
+
+    <div class="ral-foot">
+      <div id="ralToast" class="ral-toast" aria-live="polite"></div>
+      <div class="ral-note">Référence indicative : valider la teinte finale avec un nuancier officiel RAL / échantillon matière.</div>
     </div>
   </div>
 </div>
@@ -298,6 +397,14 @@ const URL_TARIFS  = "https://raw.githubusercontent.com/stevens-cofel/configurate
 const URL_OPTIONS = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/option%20platine%20et%20panier%20de%20crosses%20(1).csv";
 const TVA = 0.20;
 const RAL_PRICE_PUBLIC_M2 = 112; // ✅ déjà prix PUBLIC (x2 inclus)
+
+/* ===== AJOURAGE (mêmes prix que Tôle Tablette, x2 faces) ===== */
+const TOTEM_FACES = 2;
+const AJOURAGE_PRICE_M2 = 99.0; // interne, identique Tôle Tablette
+const TT_CSV_URL_FOR_AJOUR = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/toles_tabelette";
+
+let PMMA_CATALOG_TOTEM = [];      // [{label, priceM2}]
+let LED_PRICE_M2_TOTEM = NaN;     // €/m² interne, depuis le même CSV
 
 /* ------- STATE ------- */
 let RAW_TARIFFS = []; let RAW_OPTIONS = [];
@@ -322,6 +429,15 @@ const elTTC  = document.getElementById('prixTTC');
 const elMsg  = document.getElementById('msg');
 const elOptRAL = document.getElementById('optRAL');
 const elLevage = document.getElementById('levageMsg');
+
+// --- Ajourage DOM
+const elOptAjourTotem = document.getElementById('optAjourTotem');
+const elBlockAjourTotem = document.getElementById('blockAjourTotem');
+const elAjourLT = document.getElementById('ajourLargeurTotem');
+const elAjourHT = document.getElementById('ajourHauteurTotem');
+const elPMMASurfaceTotem = document.getElementById('pmmaSurfaceTotem');
+const elPMMASelTotem = document.getElementById('pmmaSelTotem');
+const elLEDTotem = document.getElementById('optLEDTotem');
 
 /* ------- HELPERS ------- */
 function num(v){
@@ -403,6 +519,291 @@ function isActive(v){
   const s = String(v||'').trim().toLowerCase();
   if(s === '') return true; // vide = actif par défaut
   return ['true','1','oui','vrai','yes','y','x'].includes(s);
+}
+
+/* ===== AJOURAGE helpers ===== */
+function areaM2FromMM(wMM, hMM){
+  const w = Math.max(0, Number(wMM || 0));
+  const h = Math.max(0, Number(hMM || 0));
+  return (w * h) / 1000000;
+}
+function numFR(v){
+  const s = String(v == null ? '' : v)
+    .replace(/€/g,'')
+    .replace(/[\u00A0\u202F]/g,'')
+    .replace(/\s/g,'')
+    .replace(',', '.');
+  const m = s.match(/-?\d+(\.\d+)?/);
+  return m ? parseFloat(m[0]) : NaN;
+}
+function normTT(s){
+  return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+function toggleAjourTotem(){
+  if(!elBlockAjourTotem) return;
+  elBlockAjourTotem.classList.toggle('hidden', !(elOptAjourTotem && elOptAjourTotem.checked));
+}
+
+/* Récupération PMMA + LED depuis le CSV de Tôle Tablette */
+async function loadTTPricesForAjour(){
+  try{
+    const r = await fetch(TT_CSV_URL_FOR_AJOUR, { cache: 'no-store' });
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const txt = await r.text();
+
+    const parsed = parseCSVAuto(txt);
+    const rows = parsed.rows || [];
+    const heads = parsed.heads || [];
+
+    // colonne tarif m²
+    const kTarifM2 =
+      heads.find(k => /tarifm2/.test(k)) ||
+      heads.find(k => /tarif.*m2/.test(k)) ||
+      heads.find(k => /tarif_m2/.test(k)) ||
+      heads.find(k => /tarif/.test(k)) ||
+      null;
+
+    // colonnes texte pour "bag"
+    const kEtape = heads.find(k => /nometape|etape/.test(k)) || null;
+    const kProd  = heads.find(k => /produit/.test(k)) || null;
+    const kTitre = heads.find(k => /titre/.test(k)) || null;
+    const kComm  = heads.find(k => /comment/.test(k)) || null;
+
+    if(!kTarifM2){
+      console.warn('[AJOUR TOTEM] Colonne tarif m² introuvable dans le CSV Tôle Tablette.');
+      return;
+    }
+
+    // PMMA catalog
+    const pmmaMap = new Map();
+    rows.forEach(row=>{
+      const bag = normTT([kEtape&&row[kEtape], kProd&&row[kProd], kTitre&&row[kTitre], kComm&&row[kComm]].filter(Boolean).join(' '));
+      if(!bag.includes('pmma')) return;
+
+      const label = String((kEtape && row[kEtape]) || (kProd && row[kProd]) || (kTitre && row[kTitre]) || 'PMMA').trim();
+      const priceM2 = numFR(row[kTarifM2]);
+      if(label && isFinite(priceM2)) pmmaMap.set(label, priceM2);
+    });
+
+    PMMA_CATALOG_TOTEM = [...pmmaMap.entries()].map(([label, priceM2])=>({label, priceM2}));
+
+    // LED price m2
+    LED_PRICE_M2_TOTEM = NaN;
+    for(const row of rows){
+      const bag = normTT([kEtape&&row[kEtape], kProd&&row[kProd], kTitre&&row[kTitre], kComm&&row[kComm]].filter(Boolean).join(' '));
+      if(!/(led|eclair|éclair|eclairage|éclairage)/.test(bag)) continue;
+      const v = numFR(row[kTarifM2]);
+      if(isFinite(v)){ LED_PRICE_M2_TOTEM = v; break; }
+    }
+
+    // inject select PMMA
+    if(elPMMASelTotem){
+      const cur = elPMMASelTotem.value;
+      elPMMASelTotem.innerHTML = '<option value="">(aucun)</option>';
+      PMMA_CATALOG_TOTEM.forEach(item=>{
+        const o = document.createElement('option');
+        o.value = item.label;
+        o.textContent = item.label;
+        o.dataset.price = String(item.priceM2);
+        elPMMASelTotem.appendChild(o);
+      });
+      if(cur) elPMMASelTotem.value = cur;
+    }
+  }catch(e){
+    console.warn('[AJOUR TOTEM] Impossible de charger le CSV Tôle Tablette:', e);
+  }
+}
+
+/* ==========================
+   POPUP RAL (identique aux autres)
+   ========================== */
+const RAL_DATA = {
+  satine: {
+    "Blanc cassé": ["1013"],
+    "Blanc": ["9001","9002","9003","9018"],
+    "Noir": ["9004","9005","9011"],
+    "Gris": ["7001","7003","7004","7005","7006","7010","7011","7012","7013","7015","7016","7021","7022","7023","7024","7030","7031","7032","7033","7035","7036","7037","7038","7039","7040","7042","7043","7044","7046","7047"],
+    "Brun": ["1247","8003","8004","8011","8012","8014","8016","8017","8019","8022","8025","8028"],
+    "Vert": ["6005","6006","6019","6021"],
+    "Ivoire": ["1014","1015"],
+    "Beige": ["1001","1019"],
+    "Rouge": ["3003","3004","3009","3011","3012"],
+    "Bleu": ["5003","5008","5009","5014"]
+  },
+  brillante: {
+    "Blanc": ["9001","9002","9003"],
+    "Noir": ["9005"],
+    "Gris": ["7001","7005","7006","7010","7011","7012","7015","7016","7021","7022","7024","7030","7031","7032","7035","7036","7037","7038","7039","7040","7042","7043","7047"],
+    "Brun": ["8011","8014","8017","8019"],
+    "Vert": ["6005","6021"],
+    "Ivoire": ["1013","1015"],
+    "Galet": ["9660"],
+    "Jaune": ["1023"],
+    "Rouge": ["3002","3003","3004","3020"],
+    "Bleu": ["5002","5010","5017"]
+  }
+};
+
+let ralFinish = "satine";
+let ralToastTimer = null;
+
+function ralNorm(s){
+  return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+function setRalToast(msg){
+  const el = document.getElementById("ralToast");
+  if(!el) return;
+  el.textContent = msg || "";
+  clearTimeout(ralToastTimer);
+  if(msg){
+    ralToastTimer = setTimeout(()=>{ el.textContent=""; }, 1200);
+  }
+}
+
+function renderRal(){
+  const cont = document.getElementById("ralContent");
+  if(!cont) return;
+
+  const q = ralNorm((document.getElementById("ralSearch")?.value || "").trim());
+  cont.innerHTML = "";
+
+  const groups = RAL_DATA[ralFinish] || {};
+  let any = false;
+
+  Object.entries(groups).forEach(([family, codes])=>{
+    const famNorm = ralNorm(family);
+    const filtered = codes.filter(code=>{
+      if(!q) return true;
+      const codeStr = String(code);
+      return famNorm.includes(q) || codeStr.includes(q) || (`ral ${codeStr}`).includes(q);
+    });
+
+    if(!filtered.length) return;
+    any = true;
+
+    const sec = document.createElement("section");
+    sec.className = "ral-group";
+    sec.innerHTML = `<h3>${family}</h3>`;
+
+    const grid = document.createElement("div");
+    grid.className = "ral-grid";
+
+    filtered.forEach(code=>{
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "ral-chip";
+      b.dataset.code = String(code);
+      b.textContent = `RAL ${code}`;
+      grid.appendChild(b);
+    });
+
+    sec.appendChild(grid);
+    cont.appendChild(sec);
+  });
+
+  if(!any){
+    cont.innerHTML = `<div class="ral-empty">Aucun résultat pour cette recherche.</div>`;
+  }
+}
+
+function openRalModal(){
+  const modal = document.getElementById("ralModal");
+  if(!modal) return;
+  modal.classList.remove("hidden");
+  document.documentElement.classList.add("ral-lock");
+  document.body.classList.add("ral-lock");
+
+  const s = document.getElementById("ralSearch");
+  if(s){ s.value = ""; }
+
+  renderRal();
+  setRalToast("");
+  setTimeout(()=>{ document.getElementById("ralSearch")?.focus(); }, 50);
+}
+
+function closeRalModal(){
+  const modal = document.getElementById("ralModal");
+  if(!modal) return;
+  modal.classList.add("hidden");
+  document.documentElement.classList.remove("ral-lock");
+  document.body.classList.remove("ral-lock");
+  setRalToast("");
+}
+
+function updateRalBtn(){
+  const btn = document.getElementById("btnRal");
+  if(!btn) return;
+
+  // Sur Totem : bouton actif uniquement quand on est en “pré-laquage” (donc Laquage RAL NON coché)
+  const pre = document.getElementById('optPreLaque');
+  const enabled = !!(pre && pre.checked && !(elOptRAL && elOptRAL.checked));
+
+  btn.disabled = !enabled;
+  btn.title = enabled
+    ? "Voir les RAL disponibles en tôle pré-laquée"
+    : "Disponible uniquement quand le pré-laquage est actif (Laquage RAL décoché).";
+}
+
+function initRalModal(){
+  const btn = document.getElementById("btnRal");
+  const modal = document.getElementById("ralModal");
+  const closeBtn = document.getElementById("ralClose");
+
+  if(btn){
+    btn.addEventListener("click", ()=>{
+      if(btn.disabled) return;
+      openRalModal();
+    });
+  }
+
+  if(closeBtn) closeBtn.addEventListener("click", closeRalModal);
+
+  if(modal){
+    modal.addEventListener("click", (e)=>{
+      const t = e.target;
+      if(t && t.dataset && t.dataset.close === "1") closeRalModal();
+    });
+  }
+
+  document.addEventListener("keydown", (e)=>{
+    if(e.key === "Escape"){
+      const m = document.getElementById("ralModal");
+      if(m && !m.classList.contains("hidden")) closeRalModal();
+    }
+  });
+
+  // Tabs
+  document.querySelectorAll(".ral-tab").forEach(tab=>{
+    tab.addEventListener("click", ()=>{
+      document.querySelectorAll(".ral-tab").forEach(x=>{
+        x.classList.remove("is-active");
+        x.setAttribute("aria-selected","false");
+      });
+      tab.classList.add("is-active");
+      tab.setAttribute("aria-selected","true");
+      ralFinish = tab.dataset.finish || "satine";
+      renderRal();
+    });
+  });
+
+  // Search
+  document.getElementById("ralSearch")?.addEventListener("input", renderRal);
+
+  // Click chip => copie
+  document.getElementById("ralContent")?.addEventListener("click", async (e)=>{
+    const chip = e.target?.closest?.(".ral-chip");
+    if(!chip) return;
+    const txt = chip.textContent || "";
+    try{
+      await navigator.clipboard.writeText(txt);
+      setRalToast(`✅ ${txt} copié`);
+    }catch(err){
+      window.prompt("Copie ce RAL :", txt);
+    }
+  });
+
+  updateRalBtn();
 }
 
 /* ------- AUTO-MAPPING ------- */
@@ -594,12 +995,16 @@ function area2FacesM2(){
 function updateRALState(){
   const enabled = !!(num(elH.value) && num(elL.value));
 
+  // --- Laquage RAL ---
   elOptRAL.disabled = !enabled;
   if(!enabled) elOptRAL.checked = false;
 
+  // --- Laquage pieds ---
   const elPieds = document.getElementById('optPieds');
   elPieds.disabled = !enabled;
   if(!enabled) elPieds.checked = false;
+
+  updateRalBtn();
 }
 
 /* ------- CALCUL ------- */
@@ -635,17 +1040,49 @@ function compute(){
   const opt_interne  = priceOptionsSum();
   const qte  = Math.max(1, parseInt(elQte.value||'1',10));
 
+  // === AJOURAGE / PMMA / LED (interne puis coef public) ===
+  let ajourage_interne = 0, pmma_interne = 0, led_interne = 0;
+
+  if(elOptAjourTotem && elOptAjourTotem.checked){
+    const sPerFace = areaM2FromMM(elAjourLT?.value, elAjourHT?.value);
+    if(elPMMASurfaceTotem) elPMMASurfaceTotem.value = (sPerFace.toFixed(3) + ' m²');
+
+    // ✅ Ajourage : minimum facturé = 1 m² (comme Tôle Tablette), puis x2 faces
+    const factureM2 = Math.max(1, sPerFace);
+    ajourage_interne = AJOURAGE_PRICE_M2 * factureM2 * TOTEM_FACES;
+
+    // PMMA : surface réelle x2 faces
+    const sel = elPMMASelTotem?.options?.[elPMMASelTotem.selectedIndex];
+    const pmmaM2 = sel && sel.dataset.price ? Number(sel.dataset.price) : NaN;
+    if(isFinite(pmmaM2) && sPerFace > 0){
+      pmma_interne = pmmaM2 * sPerFace * TOTEM_FACES;
+    }
+
+    // LED : surface réelle x2 faces
+    if(elLEDTotem && elLEDTotem.checked && isFinite(LED_PRICE_M2_TOTEM) && sPerFace > 0){
+      led_interne = LED_PRICE_M2_TOTEM * sPerFace * TOTEM_FACES;
+    }
+  } else {
+    if(elPMMASurfaceTotem) elPMMASurfaceTotem.value = "0.000 m²";
+  }
+
+  // === COEF TARIF PUBLIC COFEL ===
   const COEF_PUBLIC = 2;
 
-  const unit_interne = base_interne + opt_interne;
+  // === BASE INTERNE ===
+  const unit_interne = base_interne + opt_interne + ajourage_interne + pmma_interne + led_interne;
+
+  // === PRIX PUBLIC AVANT REMISE ===
   const unit_public_base = unit_interne * COEF_PUBLIC;
 
+  // === OPTIONS DÉJÀ EN PUBLIC ===
   const ral_public_unit = elOptRAL.checked
     ? (area2FacesM2() * RAL_PRICE_PUBLIC_M2)
     : 0;
 
   const pieds_public_unit = document.getElementById('optPieds').checked ? 35 : 0;
 
+  // === PRIX NET CLIENT ===
   const unit_public_total =
     (unit_public_base + ral_public_unit + pieds_public_unit) * remiseClient;
 
@@ -654,75 +1091,8 @@ function compute(){
 
   elHT.textContent  = totalHT_pub.toFixed(2).replace('.', ',');
   elTTC.textContent = totalTTC_pub.toFixed(2).replace('.', ',');
-}
 
-/* ------- MASSIF BETON (données = ton Excel) ------- */
-const MASSIF = {
-  headers: ["DIMENSION TOTEM","600","800","1000","1200","1400"],
-  rows: [
-    ["1500","1100X800X500","1400X800X500","1600X800X500","1800X800X500","2000X800X500"],
-    ["2000","1100X800X500","1400X800X500","1600X800X500","1800X800X500","2000X800X500"],
-    ["2500","1100X800X600","1400X800X600","1600X800X600","1800X800X600","2000X800X600"],
-    ["3000","1100X800X600","1400X800X600","1600X800X600","1800X800X600","2000X800X600"],
-    ["3500","1300X1000X600","1500X1000X600","1800X1000X600","2000X1000X600","2200X1000X600"],
-    ["4000","1300X1000X600","1500X1000X600","1800X1000X600","2000X1000X600","2200X1000X600"],
-    ["4500","1300X1000X600","1500X1000X600","1800X1000X800","2000X1000X600","2200X1000X600"],
-    ["5000","1300X1000X800","1500X1000X800","1800X1000X800","2000X1000X800","2200X1000X800"],
-    ["6000","1300X1000X800","1500X1000X800","1800X1000X800","2000X1000X1000","2200X1000X1000"]
-  ]
-};
-function renderMassifTable(){
-  const wrap = document.getElementById('massifTableWrap');
-  if(!wrap) return;
-
-  const selH = String(document.getElementById('hauteur')?.value || '').trim();
-  const selL = String(document.getElementById('largeur')?.value || '').trim();
-
-  const hIndex = MASSIF.rows.findIndex(r => String(r[0]) === selH);
-  const lIndex = MASSIF.headers.findIndex(h => String(h) === selL);
-
-  let html = '<table class="massif-table"><thead><tr>';
-  MASSIF.headers.forEach(h => { html += `<th>${h}</th>`; });
-  html += '</tr></thead><tbody>';
-
-  MASSIF.rows.forEach((r, ri) => {
-    html += '<tr>';
-    r.forEach((cell, ci) => {
-      const isHit = (ri === hIndex && ci === lIndex);
-      const cls = isHit ? 'massif-highlight' : '';
-      html += `<td class="${cls}">${cell}</td>`;
-    });
-    html += '</tr>';
-  });
-
-  html += '</tbody></table>';
-  wrap.innerHTML = html;
-
-  const info = document.getElementById('massifInfo');
-  if(info){
-    if(selH && selL && hIndex >= 0 && lIndex >= 0){
-      const reco = MASSIF.rows[hIndex][lIndex] || '';
-      info.textContent = `Sélection actuelle : H ${selH} mm × L ${selL} mm — Massif conseillé : ${reco}`;
-    }else{
-      info.textContent = 'Astuce : sélectionne une Hauteur + une Largeur dans le configurateur pour surligner la case correspondante.';
-    }
-  }
-}
-
-function openMassif(){
-  const modal = document.getElementById('massifModal');
-  if(!modal) return;
-  renderMassifTable();
-  modal.classList.remove('hidden');
-  document.documentElement.classList.add('massif-lock');
-  document.body.classList.add('massif-lock');
-}
-function closeMassif(){
-  const modal = document.getElementById('massifModal');
-  if(!modal) return;
-  modal.classList.add('hidden');
-  document.documentElement.classList.remove('massif-lock');
-  document.body.classList.remove('massif-lock');
+  updateRalBtn();
 }
 
 /* ------- CHARGEMENT ------- */
@@ -790,31 +1160,44 @@ async function loadAll(){
     elOptRAL.addEventListener('change', compute);
     document.getElementById('optPieds').addEventListener('change', compute);
 
+    // --- Ajourage events ---
+    if(elOptAjourTotem){
+      elOptAjourTotem.addEventListener('change', function(){
+        toggleAjourTotem();
+        compute();
+      });
+    }
+    [elAjourLT, elAjourHT, elPMMASelTotem, elLEDTotem].forEach(function(el){
+      if(!el) return;
+      el.addEventListener('input', function(){ compute(); });
+      el.addEventListener('change', function(){ compute(); });
+    });
+
     // --- Synchronisation Pré-laquage <-> RAL ---
     elOptRAL.addEventListener('change', function(){
       const pre = document.getElementById('optPreLaque');
-      if (elOptRAL.checked) pre.checked = false;
-      else pre.checked = true;
+      if (elOptRAL.checked) {
+        pre.checked = false;   // si RAL → on retire pré-laquage
+      } else {
+        pre.checked = true;    // si RAL décoché → pré-laquage revient
+      }
+      updateRalBtn();
       compute();
     });
-
-    // --- Bouton massif béton ---
-    const btnMassif = document.getElementById('btnMassif');
-    const closeBtn  = document.getElementById('massifClose');
-    const modal     = document.getElementById('massifModal');
-    btnMassif?.addEventListener('click', openMassif);
-    closeBtn?.addEventListener('click', closeMassif);
-    modal?.addEventListener('click', (e)=>{ if(e.target?.dataset?.close === "1") closeMassif(); });
-    document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ const m=document.getElementById('massifModal'); if(m && !m.classList.contains('hidden')) closeMassif(); } });
 
     elMsg.textContent = 'Données chargées.\nEn-têtes TARIFS : ' + RAW_HEADERS_T.join(' | ') + '\nEn-têtes OPTIONS : ' + RAW_HEADERS_O.join(' | ');
 
     if(okT && okO){ populateHL(); renderOptionsCheckboxes(); compute(); }
+    updateRalBtn();
   }catch(e){
     elMsg.textContent = 'Erreur de chargement : ' + e.message;
     console.error(e);
   }
 }
+
+initRalModal();
+toggleAjourTotem();
+loadTTPricesForAjour(); // PMMA + LED depuis Tôle Tablette
 loadAll();
 
 /* ====== TESTS LÉGERS (console) ====== */
@@ -834,9 +1217,11 @@ loadAll();
 </script>
 
 <script src="../js/devis-core.js"></script>
+
 <script>
 (function(){
   const btn = document.getElementById('btnAddDevis'); if(!btn) return;
+
   function parseHTPublic(){
     const t = (document.getElementById('prixHT').innerText || '0').trim();
     return Number(t.replace(/\s/g,'').replace(',', '.')) || 0;
@@ -845,25 +1230,49 @@ loadAll();
     const cbs = Array.prototype.slice.call(document.querySelectorAll('#optionsBox input[name="opt"]:checked'));
     return cbs.map(function(cb){ return cb.value; });
   }
+
   btn.addEventListener('click', function(){
     try{
       if(!window.Devis) throw new Error('Moteur de devis introuvable.');
+
       const typeFace = document.getElementById('type').value || '';
       const H = document.getElementById('hauteur').value || '';
       const L = document.getElementById('largeur').value || '';
       const qte = Math.max(1, parseInt(document.getElementById('quantite').value||'1',10));
       if(!typeFace || !H || !L){ alert('Merci de sélectionner le type de face, la hauteur et la largeur.'); return; }
-      const total_ht_public = parseHTPublic(); if(total_ht_public <= 0){ alert('Le total est à 0, vérifie la configuration.'); return; }
+
+      const total_ht_public = parseHTPublic();
+      if(total_ht_public <= 0){ alert('Le total est à 0, vérifie la configuration.'); return; }
+
       const pu_public_ht = Number((total_ht_public / qte).toFixed(2));
 
       const opts = selectedOptionsList();
+
       const ralChecked = document.getElementById('optRAL') && document.getElementById('optRAL').checked;
       if(ralChecked) opts.push('Laquage au RAL');
+
+      // ✅ Ajourage Totem dans la désignation
+      const ajOn = document.getElementById('optAjourTotem') && document.getElementById('optAjourTotem').checked;
+      if(ajOn){
+        const ajL = Number(document.getElementById('ajourLargeurTotem')?.value || 0);
+        const ajH = Number(document.getElementById('ajourHauteurTotem')?.value || 0);
+        const s = (ajL>0 && ajH>0) ? ((ajL*ajH)/1000000) : 0;
+
+        let label = `Ajourage des faces du Totem (${s.toFixed(3)} m²/face, min 1 m²)`;
+
+        const pmma = document.getElementById('pmmaSelTotem')?.value || '';
+        if(pmma) label += ` + PMMA (${pmma})`;
+
+        if(document.getElementById('optLEDTotem')?.checked) label += ' + LED';
+
+        opts.push(label);
+      }
 
       const parts = ['Totem', typeFace, 'H ' + H + ' mm × L ' + L + ' mm', opts.length ? 'Options: ' + opts.join(', ') : null];
       const designation = parts.filter(Boolean).join(' — ');
 
       Devis.addLine({ type: 'Totem', designation: designation, quantite: qte, pu_public_ht: pu_public_ht });
+
       alert('✅ Ligne ajoutée au devis !\n' + designation + '\nQté : ' + qte + '\nPU HT : ' + pu_public_ht.toFixed(2) + ' €');
     }catch(err){
       console.error(err);
@@ -874,4 +1283,3 @@ loadAll();
 </script>
 </body>
 </html>
-
