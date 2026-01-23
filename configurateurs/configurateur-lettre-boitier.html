@@ -190,6 +190,17 @@
 const TVA = 0.20;
 const COEF_PUBLIC = 2;
 
+/**
+ * ✅ OPTION B — correction globale des tarifs issus du CSV
+ * Ton CSV a été rempli avec une logique "-30%" (donc 70% du prix initial),
+ * mais tu veux finalement être à "50% du prix initial".
+ * => facteur = 0.50 / 0.70 = 0.714285714
+ *
+ * ⚠️ Si au contraire ton CSV représente "30% du prix initial" (0.30×),
+ * alors mets plutôt : 0.50 / 0.30 = 1.666666667
+ */
+const COEF_CORRECTION_CSV = 0.714285714;
+
 /* Supplément lisse (INTERNE) — NON multiplié par quantité */
 const TARIF_LISSE_INTERNE_ML = 25; // €/ml
 
@@ -543,7 +554,10 @@ function compute(){
   }
 
   const row = findRowForHeight(H);
-  const base_interne = row ? numFR(row[MAP.baseKey]) : 0;
+
+  // ✅ Prix unitaire interne issu du CSV (corrigé par COEF_CORRECTION_CSV)
+  const base_interne_raw = row ? numFR(row[MAP.baseKey]) : 0;
+  const base_interne = base_interne_raw * COEF_CORRECTION_CSV;
 
   // ✅ Lisse NON multipliée par quantité, mais multipliée par nb lisses
   let supplement_lisse_interne = 0;
@@ -563,6 +577,7 @@ function compute(){
 
   const total_public_brut = total_interne * COEF_PUBLIC;
   const total_net_client = total_public_brut * remiseClient;
+
   const pu_public_ht = Q > 0 ? (total_net_client / Q) : 0;
 
   elHT.textContent  = euro(total_net_client);
@@ -732,4 +747,3 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
 
 </body>
 </html>
-
