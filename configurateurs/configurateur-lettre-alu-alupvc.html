@@ -340,6 +340,22 @@ function getRemiseClientFactor(){
   return remiseClient;
 }
 
+/* ================================
+   ✅ REMISE SÉRIE (quantité)
+   - S'applique uniquement sur les LETTRES (pas sur la lisse)
+   - Ajuste les paliers selon ta politique commerciale
+================================ */
+function getRemiseSerieFactor(q){
+  q = Math.max(1, parseInt(q, 10) || 1);
+  // facteur = 1 - remise
+  if (q >= 50) return 0.75; // -25%
+  if (q >= 20) return 0.80; // -20%
+  if (q >= 10) return 0.85; // -15%
+  if (q >= 6)  return 0.90; // -10%
+  if (q >= 3)  return 0.95; // -5%
+  return 1.00;             // 0%
+}
+
 /* ===== custom select ===== */
 const customSelects = new Map();
 function buildCustomFromNative(native){
@@ -490,9 +506,10 @@ function updateFixationTigeAvailability(){
 /* =========================================================
    ✅ PATCH TARIF LISSE : NON multipliée par quantité
    ✅ + NOMBRE DE LISSES
-   - Prix lettre = PU * Q
-   - Prix lisse = 1 fois, mais * nb lisses
-   - Total = (PU*Q + lisse) * coef * remise
+   ✅ + REMISE SÉRIE PAR QUANTITÉ SUR LES LETTRES UNIQUEMENT
+   - Prix lettre = (PU * Q) * remise_série
+   - Prix lisse = 1 fois, mais * nb lisses (sans remise série)
+   - Total = (lettres + lisse) * coef * remise client
 ========================================================= */
 function compute(){
   updateFixationTigeAvailability();
@@ -501,7 +518,7 @@ function compute(){
 
   const Hraw = Number(elH.value || 0);
   const H = Math.min(H_MAX, Math.max(0, Hraw || 0));
-  const Q = Math.max(1, Number(elQ.value || 1));
+  const Q = Math.max(1, parseInt(elQ.value || 1, 10) || 1);
 
   if (H <= 0) {
     elPrixHT.textContent = '0,00';
@@ -542,7 +559,7 @@ function compute(){
     if (elTige && elTige.checked) unit_interne_lettre += fx;
   }
 
-  // 2) Lisse = 1 fois, mais multipliée par nb lisses
+  // 2) Lisse = 1 fois, mais multipliée par nb lisses (sans remise série)
   let lmm = 0, lmlUnit = 0, lmlTotal = 0, lisseNb = 1, lisse_interne = 0;
   if (elLisse && elLisse.checked) {
     lmm = Number(elLisseLongueur?.value || 0);
@@ -552,10 +569,15 @@ function compute(){
     if (lmlTotal > 0) lisse_interne = LISSE_PRICE_ML * lmlTotal;
   }
 
-  // 3) Total interne global
-  const total_interne = unit_interne_lettre * Q + lisse_interne;
+  // 3) Total lettres interne + remise série (lettres uniquement)
+  const total_interne_lettres = unit_interne_lettre * Q;
+  const serieFactor = getRemiseSerieFactor(Q);
+  const total_interne_lettres_serie = total_interne_lettres * serieFactor;
 
-  // 4) Public puis remise
+  // 4) Total interne global
+  const total_interne = total_interne_lettres_serie + lisse_interne;
+
+  // 5) Public puis remise
   const total_public_brut = total_interne * COEF_PUBLIC;
   const total_net = total_public_brut * remiseClient;
 
@@ -564,7 +586,7 @@ function compute(){
   elPrixHT.textContent  = euro(total_net);
   elPrixTTC.textContent = euro(totalTTC);
 
-  // 5) Stockage pour ajout devis (fiable)
+  // 6) Stockage pour ajout devis (fiable)
   window._LAST = {
     total_net_ht: Number(total_net.toFixed(2)),
     pu_net_ht: Number((total_net / Q).toFixed(2)),
@@ -577,7 +599,11 @@ function compute(){
     lmm,
     lmlUnit,
     lmlTotal,
-    lisseNb
+    lisseNb,
+    // infos utiles si besoin (debug)
+    serieFactor,
+    total_interne_lettres,
+    total_interne_lettres_serie
   };
 }
 
@@ -643,7 +669,7 @@ $("btnAddDevis").addEventListener("click", ()=>{
   try{
     if(!window.Devis) throw new Error("Moteur de devis introuvable.");
 
-    const qte = Math.max(1, Number($("quantite").value || 1));
+    const qte = Math.max(1, parseInt($("quantite").value || 1, 10) || 1);
 
     // On utilise le résultat du compute() (fiable)
     if(!window._LAST || !(window._LAST.total_net_ht > 0)){
@@ -702,4 +728,3 @@ $("btnAddDevis").addEventListener("click", ()=>{
 
 </body>
 </html>
-
