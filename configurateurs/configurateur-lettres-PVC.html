@@ -220,6 +220,21 @@ function getRemiseClientFactor() {
 }
 
 /* ================================
+   REMISE SÉRIE (quantité)
+   ✅ s'applique uniquement sur les LETTRES (pas sur la lisse)
+   Ajuste les paliers ci-dessous selon ta politique commerciale.
+================================ */
+function getRemiseSerieFactor(q){
+  // facteur = 1 - remise
+  if (q >= 50) return 0.75; // -25%
+  if (q >= 20) return 0.80; // -20%
+  if (q >= 10) return 0.85; // -15%
+  if (q >= 6)  return 0.90; // -10%
+  if (q >= 3)  return 0.95; // -5%
+  return 1.00;             // 0%
+}
+
+/* ================================
    UI RULES
 ================================ */
 function updateRetroUI() {
@@ -248,6 +263,7 @@ function updateLisseUI() {
    CALCUL (PATCH)
    ✅ lisse NON multipliée par quantité
    ✅ ajout "nombre de lisses"
+   ✅ remise série par quantité sur les LETTRES uniquement
 ================================ */
 function calcTotalsNet(row, q) {
   const e = parseFloat($("epaisseur").value) || 0;
@@ -262,8 +278,12 @@ function calcTotalsNet(row, q) {
   if (fix) unit_interne_lettre += (row.fixation || 0);
   if (retro && e >= 19) unit_interne_lettre += (row.retro || 0);
 
-  // 2) Prix interne TOTAL lettres
+  // 2) Prix interne TOTAL lettres (avant remise série)
   const total_interne_lettres = unit_interne_lettre * q;
+
+  // ✅ Remise série selon quantité (s'applique sur les lettres uniquement)
+  const serieFactor = getRemiseSerieFactor(q);
+  const total_interne_lettres_serie = total_interne_lettres * serieFactor;
 
   // 3) Lisse : 1 seule fois (interne), pas multipliée par q
   // ✅ mais multipliée par le nombre de lisses
@@ -278,7 +298,7 @@ function calcTotalsNet(row, q) {
   }
 
   // 4) Total interne global
-  const total_interne = total_interne_lettres + lisse_interne;
+  const total_interne = total_interne_lettres_serie + lisse_interne;
 
   // 5) Public puis remise client
   const total_public = total_interne * COEF_PUBLIC;
@@ -295,7 +315,11 @@ function calcTotalsNet(row, q) {
     lmlTotal,
     lisseNb,
     unit_interne_lettre,
-    lisse_interne
+    lisse_interne,
+    // infos utiles (debug/affichage éventuel)
+    serieFactor,
+    total_interne_lettres,
+    total_interne_lettres_serie
   };
 }
 
@@ -418,4 +442,3 @@ $("btnAddDevis").addEventListener("click", () => {
 
 </body>
 </html>
-
