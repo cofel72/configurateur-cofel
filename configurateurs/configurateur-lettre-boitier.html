@@ -263,6 +263,21 @@ function euro(n){
   return (isFinite(n)?n:0).toFixed(2).replace('.',',');
 }
 
+/* =====================================================
+   ✅ REMISE SÉRIE (quantité) — "moins agressive"
+   Règle demandée :
+   - 1 à 4 : 0%
+   - 5 à 10 : -5%
+   - 11+ : -10%
+   ⚠️ S'applique uniquement sur les LETTRES (pas sur la lisse)
+===================================================== */
+function getRemiseSerieFactor(q){
+  q = Math.max(1, parseInt(q, 10) || 1);
+  if (q >= 11) return 0.90; // -10%
+  if (q >= 5)  return 0.95; // -5%
+  return 1.00;             // 0%
+}
+
 /* ======================= CUSTOM SELECT ======================= */
 const customSelects=new Map();
 
@@ -536,7 +551,7 @@ function compute(){
   } catch(e){}
 
   const H = Number(elH.value || 0);
-  const Q = Math.max(1, Number(elQ.value || 1));
+  const Q = Math.max(1, parseInt(elQ.value || 1, 10) || 1);
 
   // Si un champ "variant" existe dans le CSV, on force la sélection
   if (MAP?.variantKey && !elVar.value){
@@ -572,8 +587,16 @@ function compute(){
     }
   }
 
+  /* =============================
+     ✅ REMISE SÉRIE SUR LES LETTRES
+     - On applique le facteur sur (base_interne * Q)
+     - La lisse reste hors remise série
+  ============================== */
   const total_interne_lettres = base_interne * Q;
-  const total_interne = total_interne_lettres + supplement_lisse_interne;
+  const serieFactor = getRemiseSerieFactor(Q);
+  const total_interne_lettres_serie = total_interne_lettres * serieFactor;
+
+  const total_interne = total_interne_lettres_serie + supplement_lisse_interne;
 
   const total_public_brut = total_interne * COEF_PUBLIC;
   const total_net_client = total_public_brut * remiseClient;
@@ -589,7 +612,11 @@ function compute(){
     supplement_lisse_interne : Number(supplement_lisse_interne.toFixed(2)),
     lmm: Lmm,
     nbLisse: nbL,
-    lmlTotal: LmlTotal
+    lmlTotal: LmlTotal,
+    // debug éventuel
+    serieFactor,
+    total_interne_lettres,
+    total_interne_lettres_serie
   };
 
   updateLightingInfo();
@@ -691,7 +718,7 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
     }
 
     const familleName = (FAMILLES[famIdx] || {}).name || "Lettres boîtiers";
-    const qte = Math.max(1, Number(document.getElementById("quantite").value || 1));
+    const qte = Math.max(1, parseInt(document.getElementById("quantite").value || 1, 10) || 1);
     const H   = Number(document.getElementById("hauteur").value || 0);
     const variant = document.getElementById("variant").value;
 
