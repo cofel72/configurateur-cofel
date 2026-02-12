@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Portail Administrateur — Devis</title>
 
-
   <!-- ✅ CSS commun + thème DARK -->
   <link rel="stylesheet" href="../styles/cofel.css" />
   <link rel="stylesheet" href="../styles/cofel-components.css" />
@@ -24,7 +23,6 @@
       min-height:100vh;
     }
 
-    /* ======= HEADER HERO ======= */
     header{
       padding:22px 20px;
       border-bottom:1px solid rgba(255,255,255,.12);
@@ -74,7 +72,6 @@
       box-shadow: 0 6px 16px rgba(0,0,0,.28);
     }
 
-    /* Bouton (style pill) */
     .btn-pill{
       display:inline-flex;
       align-items:center;
@@ -105,7 +102,6 @@
       box-shadow: 0 6px 16px rgba(0,0,0,.28);
     }
 
-    /* ======= CONTAINER ======= */
     .container{
       max-width:1250px;
       margin:26px auto;
@@ -139,7 +135,6 @@
       letter-spacing:.2px;
     }
 
-    /* ======= FILTRES ======= */
     .filters{
       display:flex;
       flex-wrap:wrap;
@@ -164,7 +159,6 @@
       box-shadow: 0 0 0 3px rgba(255,255,255,.14);
     }
 
-    /* ======= TABLE ======= */
     .table-wrap{
       overflow:auto;
       border-radius:16px;
@@ -176,9 +170,7 @@
       min-width:900px;
       background: rgba(0,0,0,.20);
     }
-    thead tr{
-      background: rgba(255,255,255,.06);
-    }
+    thead tr{ background: rgba(255,255,255,.06); }
     thead th{
       padding:12px 12px;
       color: rgba(255,255,255,.78);
@@ -195,18 +187,14 @@
       color: rgba(255,255,255,.92);
       vertical-align:top;
     }
-    tbody tr:hover{
-      background: rgba(255,255,255,.05);
-    }
+    tbody tr:hover{ background: rgba(255,255,255,.05); }
 
-    /* ======= BOUTON "VOIR" ======= */
     .btn-view{
       padding:8px 12px;
       border-radius:999px;
       cursor:pointer;
       font-weight:800;
       font-size:13px;
-
       background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
       border:1px solid rgba(255,255,255,.18);
       color: var(--txt,#fff);
@@ -259,6 +247,7 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
     <div class="filters">
       <input type="text" id="searchEmail" placeholder="Rechercher email client" />
       <input type="text" id="searchCompany" placeholder="Rechercher société" />
+
       <select id="searchProduct">
         <option value="">Tous les produits</option>
         <option value="tole-tablette">Tôle tablette</option>
@@ -268,9 +257,20 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
         <option value="devis-index">Devis Index</option>
       </select>
 
-      <input type="date" id="searchDate" />
+      <!-- ✅ NOUVEAU : presets période -->
+      <select id="datePreset">
+        <option value="">Période : personnalisée</option>
+        <option value="month_current">Mois en cours</option>
+        <option value="month_prev">Mois précédent</option>
+        <option value="rolling_3m">3 derniers mois (glissants)</option>
+        <option value="rolling_30d">30 derniers jours</option>
+      </select>
 
-      <!-- ✅ NOUVEAU : filtres montant -->
+      <!-- ✅ NOUVEAU : période du / au -->
+      <input type="date" id="dateFrom" />
+      <input type="date" id="dateTo" />
+
+      <!-- Montants -->
       <input type="number" id="searchMinAmount" placeholder="Montant min HT" step="0.01" min="0" />
       <input type="number" id="searchMaxAmount" placeholder="Montant max HT" step="0.01" min="0" />
     </div>
