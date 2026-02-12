@@ -18,7 +18,7 @@
     body{
       margin:0;
       font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Arial, sans-serif;
-      background:#000;              /* ✅ plus de violet */
+      background:#000;
       color:var(--txt,#f5f7ff);
       min-height:100vh;
     }
@@ -73,6 +73,37 @@
       box-shadow: 0 6px 16px rgba(0,0,0,.28);
     }
 
+    /* Bouton (style pill) */
+    .btn-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:13px;
+      font-family:inherit;
+      color:var(--txt,#fff);
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+      transition: transform .16s, box-shadow .16s, background .16s;
+      appearance:none;
+      -webkit-appearance:none;
+      outline:none;
+      white-space:nowrap;
+    }
+    .btn-pill:hover{
+      background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(0,0,0,.35);
+    }
+    .btn-pill:active{
+      transform: translateY(1px);
+      box-shadow: 0 6px 16px rgba(0,0,0,.28);
+    }
+
     /* ======= CONTAINER ======= */
     .container{
       max-width:1250px;
@@ -90,8 +121,17 @@
       -webkit-backdrop-filter: blur(18px);
     }
 
+    .panel-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+
     h2{
-      margin:0 0 14px;
+      margin:0;
       color: rgba(255,255,255,.92);
       font-size:20px;
       font-weight:800;
@@ -209,7 +249,11 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
 
 <div class="container">
   <div class="panel">
-    <h2>📄 Tous les devis</h2>
+
+    <div class="panel-top">
+      <h2>📄 Tous les devis</h2>
+      <button id="btnExportXlsx" class="btn-pill" type="button">⬇️ Export Excel</button>
+    </div>
 
     <div class="filters">
       <input type="text" id="searchEmail" placeholder="Rechercher email client" />
@@ -222,7 +266,12 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
         <option value="lettres-pvc">Lettres PVC</option>
         <option value="devis-index">Devis Index</option>
       </select>
+
       <input type="date" id="searchDate" />
+
+      <!-- ✅ NOUVEAU : filtres montant -->
+      <input type="number" id="searchMinAmount" placeholder="Montant min HT" step="0.01" min="0" />
+      <input type="number" id="searchMaxAmount" placeholder="Montant max HT" step="0.01" min="0" />
     </div>
 
     <div class="table-wrap">
@@ -241,9 +290,14 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
         <tbody></tbody>
       </table>
     </div>
+
   </div>
 </div>
 
+<!-- ✅ Librairie Excel (SheetJS) -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.19.3/dist/xlsx.full.min.js"></script>
+
+<!-- Ton script -->
 <script src="./admin-quotes.js"></script>
 </body>
 </html>
