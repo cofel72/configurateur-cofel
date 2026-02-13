@@ -44,7 +44,7 @@
       display:flex; align-items:center; gap:12px;
     }
     .brand-lite img{
-  height: clamp(52px, 6vw, 72px);
+  height: clamp(68px, 7.8vw, 72px);
   width:auto;
   object-fit:contain;
   border-radius:8px;
@@ -881,7 +881,7 @@ try {
 
   let logoH = 0;
   if (logoData) {
-    const W = 240;                 // ✅ plus grand (avant 180)
+    const W = 312;                 // ✅ plus grand (avant 180)
     const H = Math.round(W * 0.28); // si ton logo est très “rectangulaire”, ça reste OK
     logoH = H;
     doc.addImage(logoData, "PNG", margin, yTop, W, H);
