@@ -167,7 +167,7 @@
   <header class="hero">
     <div class="hero-inner">
       <div class="brand-lite">
-        <img src="./assets/logo cofel.jpg" alt="Cofel" />
+        <img src="./assets/ESO-rect1.png" alt="ESO" />
         <h1>Configurateurs Cofel</h1>
       </div>
       <button id="logoutBtn" class="logout-btn" title="Se déconnecter">🚪 Se déconnecter</button>
@@ -866,7 +866,7 @@ try {
       // Logo
       let logoData = null;
       try {
-        logoData = await loadImageDataURL("./assets/logo cofel.jpg");
+        logoData = await loadImageDataURL("./assets/ESO-rect1.png");
       } catch (e) {
         console.warn("Logo non chargé :", e);
       }
@@ -878,7 +878,7 @@ try {
         if (logoData) {
           const W = 180;
           const H = Math.round(W * 0.28);
-          doc.addImage(logoData, "JPEG", margin, yTop, W, H);
+          doc.addImage(logoData, "PNG", margin, yTop, W, H);
         }
 
         doc.setFont("Helvetica", "bold");
