@@ -44,8 +44,12 @@
       display:flex; align-items:center; gap:12px;
     }
     .brand-lite img{
-      height:42px; width:auto; object-fit:contain; border-radius:8px;
-    }
+  height: clamp(52px, 6vw, 72px);
+  width:auto;
+  object-fit:contain;
+  border-radius:8px;
+}
+
     .brand-lite h1{
       font-size: clamp(18px, 2.4vw, 22px); margin:0; letter-spacing:.2px; font-weight:700;
     }
@@ -872,38 +876,42 @@ try {
       }
 
       // ----- HEADER -----
-      const drawHeader = () => {
-        const yTop = margin;
+     const drawHeader = () => {
+  const yTop = margin;
 
-        if (logoData) {
-          const W = 180;
-          const H = Math.round(W * 0.28);
-          doc.addImage(logoData, "PNG", margin, yTop, W, H);
-        }
+  let logoH = 0;
+  if (logoData) {
+    const W = 240;                 // ✅ plus grand (avant 180)
+    const H = Math.round(W * 0.28); // si ton logo est très “rectangulaire”, ça reste OK
+    logoH = H;
+    doc.addImage(logoData, "PNG", margin, yTop, W, H);
+  }
 
-        doc.setFont("Helvetica", "bold");
-        doc.setFontSize(18);
-        doc.setTextColor(...COLOR_TEXT);
-        doc.text("DEVIS", pageWidth - margin, yTop + 6, { align: "right" });
+  doc.setFont("Helvetica", "bold");
+  doc.setFontSize(18);
+  doc.setTextColor(...COLOR_TEXT);
+  doc.text("DEVIS", pageWidth - margin, yTop + 6, { align: "right" });
 
-        doc.setFont("Helvetica", "normal");
-        doc.setFontSize(10);
-        doc.setTextColor(...COLOR_TEXT);
+  doc.setFont("Helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(...COLOR_TEXT);
 
-        const lines = [
-          "COFEL72 — ZA du Perquoi, 72560 Changé",
-          "SIRET 927 659 458 00024 — TVA FR80927659458",
-          "Date : " + new Date().toLocaleDateString("fr-FR"),
-        ];
+  const lines = [
+    "COFEL72 — ZA du Perquoi, 72560 Changé",
+    "SIRET 927 659 458 00024 — TVA FR80927659458",
+    "Date : " + new Date().toLocaleDateString("fr-FR"),
+  ];
 
-        lines.forEach((txt, i) => {
-          doc.text(txt, pageWidth - margin, yTop + 26 + i * 14, { align: "right" });
-        });
+  lines.forEach((txt, i) => {
+    doc.text(txt, pageWidth - margin, yTop + 26 + i * 14, { align: "right" });
+  });
 
-        doc.setDrawColor(...COLOR_LINE);
-        doc.setLineWidth(1);
-        doc.line(margin, yTop + 54, pageWidth - margin, yTop + 54);
-      };
+  // ✅ ligne placée assez bas si le logo est plus haut
+  const yLine = yTop + Math.max(54, logoH + 10);
+  doc.setDrawColor(...COLOR_LINE);
+  doc.setLineWidth(1);
+  doc.line(margin, yLine, pageWidth - margin, yLine);
+};
 
       // ----- FOOTER -----
       const drawFooter = (pageNum, pageCount) => {
