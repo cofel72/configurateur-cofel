@@ -932,26 +932,26 @@ try {
 
       // ----- CARTOUCHE "Sous réserve" (gris) -----
       function drawTechNotice(yStart) {
-        const boxW = pageWidth - margin * 2;
-        const boxH = 56;
-        const y = Math.min(pageHeight - margin - boxH - 10, yStart);
+  const boxW = pageWidth - margin * 2;
+  const boxH = 56;
+  const y = yStart;
 
-        doc.setFillColor(...BG_NOTICE);
-        doc.setDrawColor(...BORDER_SOFT);
-        doc.roundedRect(margin, y, boxW, boxH, 8, 8, "FD");
+  doc.setFillColor(...BG_NOTICE);
+  doc.setDrawColor(...BORDER_SOFT);
+  doc.roundedRect(margin, y, boxW, boxH, 8, 8, "FD");
 
-        doc.setTextColor(...COLOR_TEXT);
-        doc.setFont("Helvetica", "bold");
-        doc.setFontSize(12);
-        doc.text(
-          "DEVIS SOUS RÉSERVE D'APPROBATION DE NOTRE ÉQUIPE TECHNIQUE",
-          margin + boxW / 2,
-          y + boxH / 2 + 4,
-          { align: "center", baseline: "middle" }
-        );
+  doc.setTextColor(...COLOR_TEXT);
+  doc.setFont("Helvetica", "bold");
+  doc.setFontSize(12);
+  doc.text(
+    "DEVIS SOUS RÉSERVE D'APPROBATION DE NOTRE ÉQUIPE TECHNIQUE",
+    margin + boxW / 2,
+    y + boxH / 2 + 4,
+    { align: "center", baseline: "middle" }
+  );
 
-        return y + boxH;
-      }
+  return y + boxH;
+}
 
       // ----- CARTE CLIENT (blanc + bordure grise) -----
       const drawClientCard = (yStart) => {
@@ -1052,11 +1052,27 @@ try {
         didDrawPage: () => drawHeader(),
       });
 
-      const afterTableY = doc.lastAutoTable.finalY + 16;
-      const afterTotalsY = drawTotalsBox(afterTableY);
+      const TOTALS_BOX_H = 100;
+const NOTICE_BOX_H = 56;
+const GAP_BETWEEN_BOXES = 20;
+const FOOTER_RESERVED = 40;
 
-      doc.setPage(doc.internal.getNumberOfPages());
-      drawTechNotice(afterTotalsY + 20);
+doc.setPage(doc.internal.getNumberOfPages());
+
+let blockStartY = doc.lastAutoTable.finalY + 16;
+
+// zone maxi dispo avant le footer
+const maxY = pageHeight - margin - FOOTER_RESERVED;
+
+// Si les totaux + l'encadré technique ne tiennent pas, on crée une nouvelle page
+if (blockStartY + TOTALS_BOX_H + GAP_BETWEEN_BOXES + NOTICE_BOX_H > maxY) {
+  doc.addPage();
+  drawHeader();
+  blockStartY = margin + 90;
+}
+
+const afterTotalsY = drawTotalsBox(blockStartY);
+drawTechNotice(afterTotalsY + GAP_BETWEEN_BOXES);
 
       const pageCount = doc.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
