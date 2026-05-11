@@ -240,6 +240,25 @@
             <option value="">— Choisir —</option>
           </select>
         </div>
+        <div id="realWeightWrap" style="display:none;">
+  <label for="realWeightInput">Poids réel à facturer (kg)</label>
+  <input
+    id="realWeightInput"
+    type="number"
+    min="100"
+    step="1"
+    placeholder="Ex : 250"
+    style="
+      width:100%;
+      padding:12px;
+      color:var(--txt);
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:14px;
+      outline:none;
+    "
+  />
+</div>
       </div>
 
       <div class="info-note">
@@ -263,221 +282,324 @@
   <div id="toast" class="toast">Ajouté au devis ! Retournez à l’accueil pour le voir.</div>
 
   <script>
-    // ================== CONFIG CSV ==================
-    const CSV_MESSAGERIE_URL  = "./data/transport_messagerie.csv";
-    const CSV_AFFRETEMENT_URL = "./data/transport_affretement.csv";
+  // ================== CONFIG CSV ==================
+  const CSV_MESSAGERIE_URL  = "./data/transport_messagerie.csv";
+  const CSV_AFFRETEMENT_URL = "./data/transport_affretement.csv";
 
-    const fmtEUR  = n => (Number(n || 0))
-      .toFixed(2)
-      .replace('.', ',') + " €";
+  function toNumberFR(v){
+    return Number(
+      String(v || "0")
+        .replace(/\u00A0/g, "")
+        .replace(/\s/g, "")
+        .replace("€", "")
+        .replace(",", ".")
+        .replace(/[^\d.-]/g, "")
+    );
+  }
 
-    const stripBOM = s => s.replace(/^\uFEFF/, "");
+  const fmtEUR = n => toNumberFR(n)
+    .toFixed(2)
+    .replace('.', ',') + " €";
 
-    async function loadCSV(url){
-      const res  = await fetch(url, { cache: "no-store" });
-      let text   = await res.text();
-      text       = stripBOM(text);
+  const stripBOM = s => s.replace(/^\uFEFF/, "");
 
-      const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
-      if(!lines.length) return [];
+  async function loadCSV(url){
+    const res  = await fetch(url, { cache: "no-store" });
+    let text   = await res.text();
+    text       = stripBOM(text);
 
-      // Détection ; ou ,
-      const sep = (lines[0].match(/;/g) || []).length > (lines[0].match(/,/g) || []).length
-        ? ";"
-        : ",";
+    const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+    if(!lines.length) return [];
 
-      const split = l => l.split(sep).map(c => c.replace(/^"(.*)"$/,"$1").trim());
+    const sep = (lines[0].match(/;/g) || []).length > (lines[0].match(/,/g) || []).length
+      ? ";"
+      : ",";
 
-      const headers = split(lines[0]).map(h =>
-        h.toLowerCase()
-         .replace(/\s+/g,'')
-         .replace("département","departement")
-      );
+    const split = l => l.split(sep).map(c => c.replace(/^"(.*)"$/,"$1").trim());
 
-      return lines.slice(1).map(l => {
-        const c = split(l);
-        const r = {};
-        headers.forEach((h,i) => r[h] = c[i]);
+    const headers = split(lines[0]).map(h =>
+      h.toLowerCase()
+       .replace(/\s+/g,'')
+       .replace("département","departement")
+    );
 
-        return {
-          departement : (r.departement || "").trim(),
-          poids_kg    : (r.poids_kg || r["poids(kg)"] || "").trim(),
-          longueur_m  : (r.longueur_m || r["longueurpalette(m)"] || "").trim(),
-          prix_ht     : String((r.prix_ht || r.prix || "0")).replace(",",".")
-        };
-      });
+    return lines.slice(1).map(l => {
+      const c = split(l);
+      const r = {};
+      headers.forEach((h,i) => r[h] = c[i]);
+
+      return {
+        departement : (r.departement || "").trim(),
+
+        poids_kg : (
+          r.poids_kg ||
+          r["poids(kg)"] ||
+          r.poidskg ||
+          ""
+        ).trim(),
+
+        longueur_m : (
+          r.longueur_m ||
+          r["longueurpalette(m)"] ||
+          r.longueurm ||
+          ""
+        ).trim(),
+
+        prix_ht : String(
+          r.prix_ht ||
+          r.prixht ||
+          r.prix ||
+          "0"
+        )
+        .replace(/\u00A0/g, "")
+        .replace(/\s/g, "")
+        .replace("€", "")
+        .replace(",", ".")
+      };
+    });
+  }
+
+  // ================== ETAT & RACCOURCIS DOM ==================
+  const state = {
+    type : "messagerie",
+    dept : "",
+    third: "",
+    mess : [],
+    affr : []
+  };
+
+  const $           = id => document.getElementById(id);
+  const typeSelect  = $("typeSelect");
+  const deptSelect  = $("deptSelect");
+  const thirdSelect = $("thirdSelect");
+  const thirdLabel  = $("thirdLabel");
+  const ctx         = $("currentContext");
+  const priceEl     = $("priceValue");
+  const resetBtn    = $("resetBtn");
+  const addBtn      = $("addBtn");
+  const toast       = $("toast");
+
+  const realWeightWrap  = $("realWeightWrap");
+  const realWeightInput = $("realWeightInput");
+
+  const byDept = (rows, d) => rows.filter(r => r.departement === d);
+
+  // ================== TARIF AUX 100 KG ==================
+  function getRangeStart(label){
+    const match = String(label || "").match(/(\d+)/);
+    return match ? Number(match[1]) : 0;
+  }
+
+  function isTarifAux100Kg(label){
+    return getRangeStart(label) >= 100;
+  }
+
+  function getCalculatedPrice(selected){
+    const basePrice = toNumberFR(selected.prix_ht);
+
+    if(state.type !== "messagerie"){
+      return basePrice;
     }
 
-    // ================== ETAT & RACCourcis DOM ==================
-    const state = {
-      type : "messagerie",
-      dept : "",
-      third: "",
-      mess : [],
-      affr : []
-    };
+    if(!isTarifAux100Kg(state.third)){
+      return basePrice;
+    }
 
-    const $          = id => document.getElementById(id);
-    const typeSelect = $("typeSelect");
-    const deptSelect = $("deptSelect");
-    const thirdSelect= $("thirdSelect");
-    const thirdLabel = $("thirdLabel");
-    const ctx        = $("currentContext");
-    const priceEl    = $("priceValue");
-    const resetBtn   = $("resetBtn");
-    const addBtn     = $("addBtn");
-    const toast      = $("toast");
+    const realWeight = Number(realWeightInput.value || 0);
 
-    const byDept = (rows, d) => rows.filter(r => r.departement === d);
+    if(!realWeight || realWeight < 100){
+      return null;
+    }
 
-    // ================== RENDERS ==================
-    function renderDepartments(){
-      const rows = state.type === "messagerie" ? state.mess : state.affr;
-      const depts = Array.from(new Set(rows.map(r => r.departement)))
-        .filter(Boolean)
-        .sort((a,b) => a.localeCompare(b, "fr"));
+    return basePrice * (realWeight / 100);
+  }
 
-      deptSelect.innerHTML =
-        `<option value="">— Choisir un département —</option>` +
-        depts.map(d => `<option value="${d}">${d}</option>`).join("");
+  // ================== RENDERS ==================
+  function renderDepartments(){
+    const rows = state.type === "messagerie" ? state.mess : state.affr;
 
-      state.dept  = "";
-      state.third = "";
+    const depts = Array.from(new Set(rows.map(r => r.departement)))
+      .filter(Boolean)
+      .sort((a,b) => a.localeCompare(b, "fr"));
+
+    deptSelect.innerHTML =
+      `<option value="">— Choisir un département —</option>` +
+      depts.map(d => `<option value="${d}">${d}</option>`).join("");
+
+    state.dept  = "";
+    state.third = "";
+
+    thirdSelect.innerHTML = `<option value="">— Choisir —</option>`;
+    thirdSelect.disabled  = true;
+
+    realWeightInput.value = "";
+    realWeightWrap.style.display = "none";
+
+    addBtn.disabled = true;
+    renderPrice();
+  }
+
+  function renderThirdSelector(){
+    const isMess = state.type === "messagerie";
+
+    thirdLabel.textContent = isMess ? "Poids (kg)" : "Longueur palette (m)";
+    thirdSelect.disabled   = !state.dept;
+
+    realWeightInput.value = "";
+    realWeightWrap.style.display = "none";
+
+    if(!state.dept){
       thirdSelect.innerHTML = `<option value="">— Choisir —</option>`;
-      thirdSelect.disabled  = true;
-      addBtn.disabled       = true;
-      renderPrice();
-    }
-
-    function renderThirdSelector(){
-      const isMess = state.type === "messagerie";
-
-      thirdLabel.textContent = isMess ? "Poids (kg)" : "Longueur palette (m)";
-      thirdSelect.disabled   = !state.dept;
-
-      if(!state.dept){
-        thirdSelect.innerHTML = `<option value="">— Choisir —</option>`;
-        state.third = "";
-        addBtn.disabled = true;
-        renderPrice();
-        return;
-      }
-
-      const rowsDept = byDept(isMess ? state.mess : state.affr, state.dept);
-
-      if(isMess){
-        const opts = [...new Set(
-          rowsDept.map(r => r.poids_kg).filter(Boolean)
-        )].sort((a,b) => parseFloat(a) - parseFloat(b));
-
-        thirdSelect.innerHTML =
-          `<option value="">— Choisir —</option>` +
-          opts.map(v => `<option value="${v}">${v}</option>`).join("");
-      } else {
-        const opts = [...new Set(
-          rowsDept.map(r => r.longueur_m).filter(Boolean)
-        )];
-
-        thirdSelect.innerHTML =
-          `<option value="">— Choisir —</option>` +
-          opts.map(v => `<option value="${v}">${v}</option>`).join("");
-      }
-
       state.third = "";
       addBtn.disabled = true;
       renderPrice();
+      return;
     }
 
-    function renderPrice(){
-      if(!state.dept || !state.third){
-        ctx.textContent   = "Sélection en attente…";
-        priceEl.textContent = "—";
-        addBtn.disabled   = true;
-        return;
-      }
+    const rowsDept = byDept(isMess ? state.mess : state.affr, state.dept);
 
-      const isMess = state.type === "messagerie";
-      const rows   = byDept(isMess ? state.mess : state.affr, state.dept);
-      const key    = isMess ? "poids_kg" : "longueur_m";
+    if(isMess){
+      const opts = [...new Set(
+        rowsDept.map(r => r.poids_kg).filter(Boolean)
+      )].sort((a,b) => parseFloat(a) - parseFloat(b));
 
-      const selected = rows.find(r => (r[key] || "").trim() === state.third.trim());
+      thirdSelect.innerHTML =
+        `<option value="">— Choisir —</option>` +
+        opts.map(v => `<option value="${v}">${v}</option>`).join("");
+    } else {
+      const opts = [...new Set(
+        rowsDept.map(r => r.longueur_m).filter(Boolean)
+      )];
 
-      if(!selected){
-        ctx.textContent   = "Aucune ligne trouvée";
-        priceEl.textContent = "—";
-        addBtn.disabled   = true;
-        return;
-      }
-
-      ctx.textContent = `${isMess ? "Messagerie" : "Affrètement"} • Dept ${state.dept} • ` +
-                        `${isMess ? "Poids" : "Longueur"} : ${state.third}`;
-      priceEl.textContent = fmtEUR(selected.prix_ht);
-      addBtn.disabled = false;
+      thirdSelect.innerHTML =
+        `<option value="">— Choisir —</option>` +
+        opts.map(v => `<option value="${v}">${v}</option>`).join("");
     }
 
-    // ================== AJOUT AU DEVIS ==================
-    function addToDevis(){
-      const isMess = state.type === "messagerie";
-      const label = isMess
-        ? `Transport — Messagerie — Dept ${state.dept} — ${state.third} kg`
-        : `Transport — Affrètement — Dept ${state.dept} — ${state.third} m`;
+    state.third = "";
+    addBtn.disabled = true;
+    renderPrice();
+  }
 
-      let pu = parseFloat(
-        priceEl.textContent.replace(/\s|€|,/g, ch => ch === "," ? "." : "")
-      );
-      if(isNaN(pu)) pu = 0;
-
-      const payload = {
-        id         : "tr_" + Date.now(),
-        designation: label,
-        quantite   : 1,
-        pu_net_ht  : pu,
-        type       : "transport",
-        ts         : Date.now()
-      };
-
-      try{
-        localStorage.setItem("cofel_transport_add", JSON.stringify(payload));
-        toast.classList.add("show");
-        setTimeout(() => toast.classList.remove("show"), 2500);
-      }catch(e){
-        alert("Impossible d’ajouter au devis (localStorage).");
-        console.error(e);
-      }
+  function renderPrice(){
+    if(!state.dept || !state.third){
+      ctx.textContent = "Sélection en attente…";
+      priceEl.textContent = "—";
+      addBtn.disabled = true;
+      realWeightWrap.style.display = "none";
+      return;
     }
 
-    // ================== EVENTS ==================
-    typeSelect.onchange = () => {
-      state.type = typeSelect.value;
-      renderDepartments();
+    const isMess = state.type === "messagerie";
+    const rows   = byDept(isMess ? state.mess : state.affr, state.dept);
+    const key    = isMess ? "poids_kg" : "longueur_m";
+
+    const selected = rows.find(r => (r[key] || "").trim() === state.third.trim());
+
+    if(!selected){
+      ctx.textContent = "Aucune ligne trouvée";
+      priceEl.textContent = "—";
+      addBtn.disabled = true;
+      realWeightWrap.style.display = "none";
+      return;
+    }
+
+    const needsRealWeight = isMess && isTarifAux100Kg(state.third);
+
+    realWeightWrap.style.display = needsRealWeight ? "block" : "none";
+
+    const calculatedPrice = getCalculatedPrice(selected);
+
+    if(needsRealWeight && calculatedPrice === null){
+      ctx.textContent = `Messagerie • Dept ${state.dept} • Poids : ${state.third}`;
+      priceEl.textContent = "Saisir le poids réel";
+      addBtn.disabled = true;
+      return;
+    }
+
+    ctx.textContent = `${isMess ? "Messagerie" : "Affrètement"} • Dept ${state.dept} • ` +
+                      `${isMess ? "Poids" : "Longueur"} : ${state.third}` +
+                      (needsRealWeight ? ` • ${realWeightInput.value} kg réel` : "");
+
+    priceEl.textContent = fmtEUR(calculatedPrice);
+    addBtn.disabled = false;
+  }
+
+  // ================== AJOUT AU DEVIS ==================
+  function addToDevis(){
+    const isMess = state.type === "messagerie";
+
+    const label = isMess
+      ? `Transport — Messagerie — Dept ${state.dept} — ${state.third}` +
+        (isTarifAux100Kg(state.third) ? ` — ${realWeightInput.value} kg réel` : "")
+      : `Transport — Affrètement — Dept ${state.dept} — ${state.third} m`;
+
+    const pu = toNumberFR(priceEl.textContent);
+
+    if(isNaN(pu) || pu <= 0){
+      alert("Prix invalide. Vérifie la sélection transport.");
+      return;
+    }
+
+    const payload = {
+      id             : "tr_" + Date.now(),
+      designation    : label,
+      quantite       : 1,
+      pu_net_ht      : pu,
+      total_ligne_ht : pu,
+      type           : "transport",
+      ts             : Date.now()
     };
 
-    deptSelect.onchange = () => {
-      state.dept = deptSelect.value;
-      renderThirdSelector();
-    };
+    try{
+      localStorage.setItem("cofel_transport_add", JSON.stringify(payload));
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2500);
+    }catch(e){
+      alert("Impossible d’ajouter au devis (localStorage).");
+      console.error(e);
+    }
+  }
 
-    thirdSelect.onchange = () => {
-      state.third = thirdSelect.value;
-      renderPrice();
-    };
+  // ================== EVENTS ==================
+  typeSelect.onchange = () => {
+    state.type = typeSelect.value;
+    renderDepartments();
+  };
 
-    resetBtn.onclick = () => {
-      typeSelect.value = "messagerie";
-      state.type  = "messagerie";
-      state.dept  = "";
-      state.third = "";
-      renderDepartments();
-    };
+  deptSelect.onchange = () => {
+    state.dept = deptSelect.value;
+    renderThirdSelector();
+  };
 
-    addBtn.onclick = addToDevis;
+  thirdSelect.onchange = () => {
+    state.third = thirdSelect.value;
+    realWeightInput.value = "";
+    renderPrice();
+  };
 
-    // ================== INIT ==================
-    (async () => {
-      state.mess = await loadCSV(CSV_MESSAGERIE_URL);
-      state.affr = await loadCSV(CSV_AFFRETEMENT_URL);
-      renderDepartments();
-    })();
-  </script>
+  realWeightInput.oninput = () => {
+    renderPrice();
+  };
+
+  resetBtn.onclick = () => {
+    typeSelect.value = "messagerie";
+    state.type  = "messagerie";
+    state.dept  = "";
+    state.third = "";
+    realWeightInput.value = "";
+    realWeightWrap.style.display = "none";
+    renderDepartments();
+  };
+
+  addBtn.onclick = addToDevis;
+
+  // ================== INIT ==================
+  (async () => {
+    state.mess = await loadCSV(CSV_MESSAGERIE_URL);
+    state.affr = await loadCSV(CSV_AFFRETEMENT_URL);
+    renderDepartments();
+  })();
+</script>
 </body>
 </html>
