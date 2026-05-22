@@ -303,6 +303,14 @@ const TVA = 0.20;
 const COEF_PUBLIC = 2;
 const CSV_URL = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/Enseigne%20drapeaux.csv";
 
+/* ✅ PATCH TARIF AJOURAGE
+   Nouvelle règle :
+   Faces Aluminium 20/10ème laquées + ajourage + PMMA 3 mm collé au dos + lumineux
+   = tarif du drapeau Double face PMMA lumineux correspondant + 15 %
+*/
+const AJOUR_PMMA_SURCHARGE_RATE = 0.15;
+const AJOUR_PMMA_MULTIPLIER = 1 + AJOUR_PMMA_SURCHARGE_RATE;
+
 /* ✅ AJOUT DIMENSIONS 700 (auto) : +102 € PUBLIC par rapport à 600, donc + (102/COEF_PUBLIC) sur le prix CSV */
 const DELTA_PUBLIC_700_FROM_600 = 102;
 const DELTA_CSV_700_FROM_600 = DELTA_PUBLIC_700_FROM_600 / COEF_PUBLIC;
@@ -328,6 +336,10 @@ function isPrelaque(v){
 function isLaque(v){
   const k = finKey(v);
   return k.includes('laque') && !k.includes('prelaque');
+}
+function isPmmaDoubleFace(v){
+  const fin = norm(v);
+  return fin.includes('double') && fin.includes('face') && fin.includes('pmma');
 }
 
 /* ================= DOM ================= */
@@ -697,6 +709,15 @@ function populateDims(){
   }
 }
 
+function findPmmaDfRow(){
+  return ROWS.find(r => {
+    const okForme = r[MAP.FORME] === elForme.value;
+    const okDim   = r[MAP.DIM]   === elDim.value;
+    if(!okForme || !okDim) return false;
+    return isPmmaDoubleFace(r[MAP.FIN]);
+  });
+}
+
 function finitionsDisponibles(){
   const base = ROWS.filter(r =>
     (!elForme.value || r[MAP.FORME] === elForme.value) &&
@@ -704,14 +725,14 @@ function finitionsDisponibles(){
   );
 
   // ✅ FIX : détection robuste (évite "prelaque" => "laque")
-  let hasPrelaque = base.some(r => isPrelaque(r[MAP.FIN]) && !isTruthy(r[MAP.AJ]));
-  let hasLaque    = base.some(r => isLaque(r[MAP.FIN])    && !isTruthy(r[MAP.AJ]));
-  let hasAjour    = base.some(r => isTruthy(r[MAP.AJ]) || norm(r[MAP.FIN]).includes('ajour'));
+  const hasPrelaque = base.some(r => isPrelaque(r[MAP.FIN]) && !isTruthy(r[MAP.AJ]));
+  const hasLaque    = base.some(r => isLaque(r[MAP.FIN])    && !isTruthy(r[MAP.AJ]));
 
-  let hasPmmaDF   = base.some(r => {
-    const fin = norm(r[MAP.FIN]);
-    return fin.includes('double') && fin.includes('face') && fin.includes('pmma');
-  });
+  const hasPmmaDF   = base.some(r => isPmmaDoubleFace(r[MAP.FIN]));
+
+  // ✅ PATCH : l'option ajourée dépend maintenant de l'existence d'un tarif PMMA DF,
+  // car son prix = PMMA DF + 15 %.
+  const hasAjour    = hasPmmaDF;
 
   return {hasPrelaque, hasLaque, hasAjour, hasPmmaDF};
 }
@@ -739,15 +760,15 @@ function applyFinitionAvailability(){
   if(curDisabled){
     if(hasLaque) setFinition('laque');
     else if(hasPrelaque) setFinition('prelaque');
-    else if(hasAjour) setFinition('ajour');
     else if(hasPmmaDF) setFinition('pmma_df');
+    else if(hasAjour) setFinition('ajour');
   }
 
   let msg = "";
-  if(elForme.value && norm(elForme.value).includes('rond') && !hasPrelaque){
-
+  if(getFinition()==='ajour'){
+    msg = "ℹ️ Tarif ajourage lumineux = tarif Double face PMMA lumineux correspondant + 15 %.";
   }else if(getFinition()==='pmma_df'){
-    msg = "ℹ️ « Double face PMMA lumineux » = tarif dédié (ligne CSV avec finition “double face PMMA lumineux”).";
+    msg = "ℹ️ « Double face PMMA lumineux » = tarif dédié depuis la ligne CSV correspondante.";
   }else{
     msg = "";
   }
@@ -769,40 +790,88 @@ function findRow(){
     const aj  = isTruthy(r[MAP.AJ]);
 
     if(finChoice === 'prelaque'){
-      // ✅ FIX : uniquement "prélaqué"
+      // ✅ uniquement "prélaqué"
       return isPrelaque(r[MAP.FIN]) && !aj;
     }
     if(finChoice === 'laque'){
-      // ✅ FIX : uniquement "laqué" (pas "prélaqué")
+      // ✅ uniquement "laqué" (pas "prélaqué" et pas ligne ajourée historique)
       return isLaque(r[MAP.FIN]) && !aj && !fin.includes('ajour');
     }
     if(finChoice === 'pmma_df'){
-      return fin.includes('double') && fin.includes('face') && fin.includes('pmma');
+      return isPmmaDoubleFace(r[MAP.FIN]);
     }
-    // ajour
-    return aj || fin.includes('ajour') || (isLaque(r[MAP.FIN]) && aj);
+
+    // Pour l'ajourage, on ne prend plus les anciennes lignes CSV "Vrai".
+    // Le calcul est fait dans getPricingInfo() sur la base PMMA DF + 15 %.
+    return false;
   });
+}
+
+function getPricingInfo(){
+  const finChoice = getFinition();
+
+  if(finChoice === 'ajour'){
+    const pmmaRow = findPmmaDfRow();
+    if(!pmmaRow) return null;
+
+    return {
+      row: pmmaRow,
+      multiplier: AJOUR_PMMA_MULTIPLIER,
+      pricingMode: 'pmma_df_plus_15'
+    };
+  }
+
+  const row = findRow();
+  if(!row) return null;
+
+  return {
+    row,
+    multiplier: 1,
+    pricingMode: 'csv_direct'
+  };
+}
+
+function getClientDiscountFactor(){
+  let remise = 1;
+
+  try{
+    const p = JSON.parse(localStorage.getItem('cofel_client_profile') || 'null');
+
+    // Compatibilité avec l'ancien champ discountRate
+    if(p?.discountRate){
+      remise = 1 - Number(p.discountRate);
+    }
+
+    // Compatibilité si tu ajoutes plus tard une remise spécifique
+    if(p?.discount_enseigne_drapeau !== undefined && p?.discount_enseigne_drapeau !== null && p?.discount_enseigne_drapeau !== ""){
+      const v = Number(String(p.discount_enseigne_drapeau).replace(',', '.'));
+      if(Number.isFinite(v)){
+        const rate = v > 1 ? v / 100 : v;
+        remise = 1 - rate;
+      }
+    }
+  }catch(e){
+    console.warn("Remise client non lisible :", e);
+  }
+
+  if(!Number.isFinite(remise) || remise <= 0 || remise > 1) remise = 1;
+  return remise;
 }
 
 function compute(){
   applyFinitionAvailability();
 
-  const row = findRow();
+  const pricing = getPricingInfo();
 
-  if(!row){
+  if(!pricing){
     elHT.textContent = '0,00';
     elTTC.textContent = '0,00';
     return;
   }
 
-  let unitPublic = numFR(row[MAP.PRIX]) * COEF_PUBLIC;
+  let unitPublic = numFR(pricing.row[MAP.PRIX]) * pricing.multiplier * COEF_PUBLIC;
 
-  let remise = 1;
-  try{
-    const p = JSON.parse(localStorage.getItem('cofel_client_profile'));
-    if(p?.discountRate) remise = 1 - p.discountRate;
-  }catch{}
-
+  const remise = getClientDiscountFactor();
   const qte = Math.max(1, parseFloat(elQ.value) || 1);
   const total = unitPublic * qte * remise;
 
@@ -853,7 +922,7 @@ fetch(CSV_URL, {cache:"no-store"})
       return;
     }
 
-    // ✅ Ajoute automatiquement Carré 700x700 et Rond Ø700 (ou équivalent) à partir des lignes 600
+    // ✅ Ajoute automatiquement Carré 700x700 et Rond Ø700 à partir des lignes 600
     injectSize700From600();
 
     populateFormes();
@@ -906,4 +975,3 @@ $('btnAddDevis').onclick = ()=>{
 
 </body>
 </html>
-
