@@ -208,15 +208,114 @@
     // URL de ton Worker :
     const WORKER_BASE = 'https://cofel-auth.sonveven.workers.dev';
 
-    function getProjectBase() {
-      const parts = location.pathname.split("/").filter(Boolean);
-      const project = parts.length ? parts[0] : "";
-      return `/${project}/`;
-    }
-    const returnTo = getProjectBase() + "index.html";
+    const CLIENT_KEY = "cofel_client_profile";
 
-    form.addEventListener('submit', async (e)=>{
+    // Durée de validité d'une session client : 24 h
+    const CLIENT_SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+    function getSafeReturnUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const rawReturn = params.get("return");
+
+      if (!rawReturn) {
+        return "/index.html";
+      }
+
+      try {
+        const url = new URL(rawReturn, window.location.origin);
+
+        // Sécurité : on autorise uniquement le retour sur le même site.
+        if (url.origin !== window.location.origin) {
+          return "/index.html";
+        }
+
+        return url.href;
+      } catch (e) {
+        return "/index.html";
+      }
+    }
+
+    function showSessionMessageIfNeeded() {
+      const params = new URLSearchParams(window.location.search);
+      const reason = params.get("reason");
+
+      if (reason === "expired") {
+        msg.style.color = "#ffe3e3";
+        msg.textContent = "Votre session a expiré. Merci de vous reconnecter pour actualiser vos tarifs.";
+      }
+    }
+
+    function normalizeDiscountValue(value) {
+      if (value === undefined || value === null || value === "") {
+        return 0;
+      }
+
+      let v = value;
+
+      if (typeof v === "string") {
+        v = v.replace(",", ".").trim();
+      }
+
+      v = Number(v);
+
+      if (!Number.isFinite(v)) {
+        return 0;
+      }
+
+      // Accepte 60 ou 0.6
+      const rate = v > 1 ? v / 100 : v;
+
+      // Sécurité : on bloque les valeurs incohérentes.
+      // Ici maximum 90 % de remise.
+      if (rate < 0 || rate > 0.9) {
+        return 0;
+      }
+
+      return rate;
+    }
+
+    function normalizeDiscountFields(profile) {
+      if (!profile || typeof profile !== "object") {
+        profile = {};
+      }
+
+      // Ton champ actuel principal
+      profile.discount_sr = normalizeDiscountValue(profile.discount_sr);
+
+      // Tous les champs discount_xxx sont normalisés automatiquement.
+      Object.keys(profile).forEach((key) => {
+        if (key.startsWith("discount_")) {
+          profile[key] = normalizeDiscountValue(profile[key]);
+        }
+      });
+
+      // Compatibilité avec les configurateurs qui utilisent encore discountRate
+      if (profile.discountRate !== undefined) {
+        profile.discountRate = normalizeDiscountValue(profile.discountRate);
+      }
+
+      return profile;
+    }
+
+    function saveClientProfile(profile, email) {
+      const now = Date.now();
+
+      if (!profile.email) {
+        profile.email = email;
+      }
+
+      profile._cofel_login_at = now;
+      profile._cofel_expires_at = now + CLIENT_SESSION_MAX_AGE_MS;
+      profile._cofel_last_refresh_at = new Date(now).toISOString();
+
+      localStorage.setItem(CLIENT_KEY, JSON.stringify(profile));
+    }
+
+    showSessionMessageIfNeeded();
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
       msg.style.color = '#ffe3e3';
       msg.textContent = '';
 
@@ -228,10 +327,10 @@
         return;
       }
 
-      try{
+      try {
         const res = await fetch(`${WORKER_BASE}/client-login`, {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
         });
 
@@ -241,36 +340,26 @@
         }
 
         const data = await res.json();
+
         if (!data.ok) {
           msg.textContent = "Connexion refusée.";
           return;
         }
 
-        // Sécurise discount_sr : si absent/invalide => 0 (jamais de remise par erreur)
-        const profile = data.profile || {};
-        let v = profile.discount_sr;
+        const profile = normalizeDiscountFields(data.profile || {});
 
-        if (v === undefined || v === null || v === "") {
-          profile.discount_sr = 0;
-        } else {
-          if (typeof v === "string") v = v.replace(",", ".").trim();
-          v = Number(v);
-          if (!Number.isFinite(v)) {
-            profile.discount_sr = 0;
-          } else {
-            // accepte 60 ou 0.6
-            const rate = (v > 1) ? (v / 100) : v;
-            profile.discount_sr = (rate >= 0 && rate <= 0.9) ? rate : 0;
-          }
-        }
-
-        localStorage.setItem('cofel_client_profile', JSON.stringify(profile));
+        saveClientProfile(profile, email);
 
         msg.style.color = '#b7ffcf';
-        msg.textContent = "Connexion réussie, redirection...";
+        msg.textContent = "Connexion réussie, tarifs actualisés...";
 
-        setTimeout(()=>{ location.href = returnTo; }, 600);
-      }catch(ex){
+        const returnTo = getSafeReturnUrl();
+
+        setTimeout(() => {
+          location.href = returnTo;
+        }, 600);
+
+      } catch (ex) {
         console.error(ex);
         msg.textContent = "Erreur réseau, réessayez.";
       }
