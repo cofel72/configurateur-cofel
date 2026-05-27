@@ -1086,8 +1086,12 @@ compute();
       }
 
       if (fixVal==='boite'){
-        parts.push(`Fixation: boîte${boiteMat? ' ('+boiteMat+')':''}`);
-      }else if(fixVal.startsWith('chassis')){
+  const libelleBoite = boiteMat === 'laque'
+    ? 'Fixation : boîte à chaussure laquée'
+    : 'Fixation : boîte à chaussure brute';
+
+  parts.push(libelleBoite);
+}else if(fixVal.startsWith('chassis')){
         const size =
           fixVal === 'chassis30' ? '30×30' :
           fixVal === 'chassis40' ? '40×40' :
