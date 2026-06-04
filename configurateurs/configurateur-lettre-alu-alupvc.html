@@ -245,7 +245,7 @@
 
             <label class="option-item hidden" id="tigeOption">
               <input type="checkbox" id="optTige" />
-              <span>Fixation tige filetée à sceller</span>
+              <span>Tige 6 mm aluminium soudée à sceller</span>
             </label>
 
             <label class="option-item">
@@ -729,7 +729,7 @@ $("btnAddDevis").addEventListener("click", ()=>{
 
     const supFixTaquet = $("optFixation").checked ? ' + fixation entretoise à clipser (taquet)' : '';
     const supFixTige = (catVal === "alu30" && elTige && elTige.checked)
-      ? ' + fixation tige filetée à sceller'
+      ? ' + tige 6 mm aluminium soudée à sceller'
       : '';
 
     const optLisse = $("optLisse");
