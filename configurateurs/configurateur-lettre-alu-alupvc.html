@@ -243,6 +243,11 @@
               <span>Fixation entretoise à clipser (taquet)</span>
             </label>
 
+            <label class="option-item hidden" id="tigeOption">
+              <input type="checkbox" id="optTige" />
+              <span>Fixation tige filetée à sceller</span>
+            </label>
+
             <label class="option-item">
               <input type="checkbox" id="optLisse" />
               <span>Pose sur lisse</span>
@@ -302,6 +307,8 @@ const $ = id => document.getElementById(id);
 const elH = $("hauteur");
 const elQ = $("quantite");
 const elFix = $("optFixation");
+const elTige = $("optTige");
+const elTigeOption = $("tigeOption");
 const elFBrut = $("finitionBrut");
 const elFLaque = $("finitionLaque");
 const elPrixHT = $("prixHT");
@@ -490,15 +497,31 @@ function updateLisseUI(){
   block.classList.toggle("hidden", !elLisse.checked);
 }
 
+function updateTigeUI(){
+  const catVal = $("categorie").value;
+  const allowed = catVal === "alu30";
+
+  if(!elTigeOption || !elTige) return;
+
+  elTigeOption.classList.toggle("hidden", !allowed);
+
+  if(!allowed){
+    elTige.checked = false;
+  }
+}
+
 /* =========================================================
    ✅ PATCH TARIF LISSE : NON multipliée par quantité
    ✅ + NOMBRE DE LISSES
    ✅ + REMISE SÉRIE PAR QUANTITÉ SUR LES LETTRES UNIQUEMENT
+   ✅ TIGE FILETÉE : uniquement pour aluminium 30/10
    - Prix lettre = (PU * Q) * remise_série
    - Prix lisse = 1 fois, mais * nb lisses (sans remise série)
    - Total = (lettres + lisse) * coef * remise client
 ========================================================= */
 function compute(){
+  updateTigeUI();
+
   const remiseClient = getRemiseClientFactor();
 
   const Hraw = Number(elH.value || 0);
@@ -550,13 +573,20 @@ function compute(){
   // Surépaisseur Dibond 4 mm (+15%)
   if (catVal === 'dibond4') unit_interne_lettre *= 1.15;
 
-  // Supplément fixation entretoise à clipser (taquet)
+  // Suppléments fixations :
+  // - taquet possible partout
+  // - tige filetée uniquement sur lettre aluminium 30/10
   let fx = 0;
   if (MAP.fixKey){
     const v = numFR(row[MAP.fixKey]);
     if (isFinite(v)) fx = v;
   }
+
   if (fx && elFix && elFix.checked){
+    unit_interne_lettre += fx;
+  }
+
+  if (fx && catVal === "alu30" && elTige && elTige.checked){
     unit_interne_lettre += fx;
   }
 
@@ -596,6 +626,7 @@ function compute(){
     catVal,
     fin: elFLaque.checked ? 'laqué' : 'brut',
     hasFixTaquet: !!(elFix && elFix.checked),
+    hasFixTige: !!(catVal === "alu30" && elTige && elTige.checked),
     lmm,
     lmlUnit,
     lmlTotal,
@@ -615,6 +646,7 @@ async function loadCSV(){
     HEADS=rawHeads; ROWS=rows; MAP=buildMapping(HEADS);
     if (elHelp) elHelp.textContent = "Hauteur max 1500 mm";
     updateLisseUI();
+    updateTigeUI();
     compute();
   }catch(e){
     console.error(e);
@@ -625,12 +657,13 @@ async function loadCSV(){
 ["input","change"].forEach(evt=>{
   [
     elH, elQ, $("categorie"),
-    elFix, elFBrut, elFLaque,
+    elFix, elTige, elFBrut, elFLaque,
     elLisse, elLisseLongueur, elLisseNb // ✅ AJOUT
   ].forEach(el=>{
     if(!el) return;
     el.addEventListener(evt, ()=>{
       updateLisseUI();
+      updateTigeUI();
       compute();
     });
   });
@@ -639,6 +672,7 @@ async function loadCSV(){
 $("btnReset").addEventListener("click", ()=>{
   elH.value=''; elQ.value=1;
   if (elFix) elFix.checked=false;
+  if (elTige) elTige.checked=false;
   elFBrut.checked=true; elFLaque.checked=false;
 
   if (elLisse) elLisse.checked = false;
@@ -646,6 +680,7 @@ $("btnReset").addEventListener("click", ()=>{
   if (elLisseNb) elLisseNb.value = 1;
 
   updateLisseUI();
+  updateTigeUI();
   if (elHelp) elHelp.textContent = "Hauteur max 1500 mm";
   compute();
 });
@@ -654,6 +689,7 @@ loadCSV();
 
 buildCustomFromNative($("categorie"));
 $("categorie").addEventListener("change", ()=>{
+  updateTigeUI();
   compute();
 });
 </script>
@@ -684,9 +720,17 @@ $("btnAddDevis").addEventListener("click", ()=>{
     if (catVal === 'dibond3') catTxt = 'Lettre alu/PVC 3 mm (type Dibond)';
     if (catVal === 'dibond4') catTxt = 'Lettre alu/PVC 4 mm (type Dibond)';
 
+    // Sécurité : la tige n’est jamais prise en compte hors alu 30/10
+    if (catVal !== "alu30" && elTige) {
+      elTige.checked = false;
+    }
+
     const fin = $("finitionLaque").checked ? 'laqué' : 'brut';
 
     const supFixTaquet = $("optFixation").checked ? ' + fixation entretoise à clipser (taquet)' : '';
+    const supFixTige = (catVal === "alu30" && elTige && elTige.checked)
+      ? ' + fixation tige filetée à sceller'
+      : '';
 
     const optLisse = $("optLisse");
     const lisseMM = Number($("lisseLongueur")?.value || 0);
@@ -700,7 +744,7 @@ $("btnAddDevis").addEventListener("click", ()=>{
     const total_ht = window._LAST.total_net_ht;
     const pu_public_ht = qte>0 ? (total_ht / qte) : 0;
 
-    const designation = `${catTxt} — H ${hauteur || 'n.c.'} mm — ${fin}${supFixTaquet}${supLisseText}`;
+    const designation = `${catTxt} — H ${hauteur || 'n.c.'} mm — ${fin}${supFixTaquet}${supFixTige}${supLisseText}`;
 
     Devis.addLine({
       type: 'Lettres',
