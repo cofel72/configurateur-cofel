@@ -243,11 +243,6 @@
             </label>
 
             <label class="option-item">
-              <input type="checkbox" id="optTige" />
-              <span>Fixation tige aluminium soudée à sceller</span>
-            </label>
-
-            <label class="option-item">
               <input type="checkbox" id="optLisse" />
               <span>Pose sur lisse</span>
             </label>
@@ -313,7 +308,6 @@ const elHelp = $("helpRanges");
 const elLisse = $("optLisse");
 const elLisseLongueur = $("lisseLongueur");
 const elLisseNb = $("lisseNb"); // ✅ AJOUT
-const elTige = $("optTige");
 
 function normKey(k){
   return String(k||'').toLowerCase()
@@ -491,18 +485,6 @@ function updateLisseUI(){
   if(!block) return;
   block.classList.toggle("hidden", !elLisse.checked);
 }
-function updateFixationTigeAvailability(){
-  const catVal = $("categorie").value;
-  const labelTige = elTige ? elTige.closest("label") : null;
-  if (!labelTige) return;
-
-  if (catVal === "alu20") {
-    labelTige.classList.remove("hidden");
-  } else {
-    if (elTige) elTige.checked = false;
-    labelTige.classList.add("hidden");
-  }
-}
 
 /* =========================================================
    ✅ PATCH TARIF LISSE : NON multipliée par quantité
@@ -513,8 +495,6 @@ function updateFixationTigeAvailability(){
    - Total = (lettres + lisse) * coef * remise client
 ========================================================= */
 function compute(){
-  updateFixationTigeAvailability();
-
   const remiseClient = getRemiseClientFactor();
 
   const Hraw = Number(elH.value || 0);
@@ -549,15 +529,14 @@ function compute(){
   const catVal = $("categorie").value;
   if (catVal === 'dibond4') unit_interne_lettre *= 1.15;
 
-  // Suppléments fixations (taquet / tige = même prix)
+  // Supplément fixation entretoise à clipser (taquet)
   let fx = 0;
   if (MAP.fixKey){
     const v = numFR(row[MAP.fixKey]);
     if (isFinite(v)) fx = v;
   }
-  if (fx){
-    if (elFix && elFix.checked) unit_interne_lettre += fx;
-    if (elTige && elTige.checked) unit_interne_lettre += fx;
+  if (fx && elFix && elFix.checked){
+    unit_interne_lettre += fx;
   }
 
   // 2) Lisse = 1 fois, mais multipliée par nb lisses (sans remise série)
@@ -596,7 +575,6 @@ function compute(){
     catVal,
     fin: elFLaque.checked ? 'laqué' : 'brut',
     hasFixTaquet: !!(elFix && elFix.checked),
-    hasFixTige: !!(elTige && elTige.checked),
     lmm,
     lmlUnit,
     lmlTotal,
@@ -616,7 +594,6 @@ async function loadCSV(){
     HEADS=rawHeads; ROWS=rows; MAP=buildMapping(HEADS);
     if (elHelp) elHelp.textContent = "Hauteur max 1500 mm";
     updateLisseUI();
-    updateFixationTigeAvailability();
     compute();
   }catch(e){
     console.error(e);
@@ -627,7 +604,7 @@ async function loadCSV(){
 ["input","change"].forEach(evt=>{
   [
     elH, elQ, $("categorie"),
-    elFix, elTige, elFBrut, elFLaque,
+    elFix, elFBrut, elFLaque,
     elLisse, elLisseLongueur, elLisseNb // ✅ AJOUT
   ].forEach(el=>{
     if(!el) return;
@@ -641,7 +618,6 @@ async function loadCSV(){
 $("btnReset").addEventListener("click", ()=>{
   elH.value=''; elQ.value=1;
   if (elFix) elFix.checked=false;
-  if (elTige) elTige.checked=false;
   elFBrut.checked=true; elFLaque.checked=false;
 
   if (elLisse) elLisse.checked = false;
@@ -657,7 +633,6 @@ loadCSV();
 
 buildCustomFromNative($("categorie"));
 $("categorie").addEventListener("change", ()=>{
-  updateFixationTigeAvailability();
   compute();
 });
 </script>
@@ -682,9 +657,6 @@ $("btnAddDevis").addEventListener("click", ()=>{
     if (!isFinite(hauteur) || hauteur < 1) hauteur = 1;
     if (hauteur > 1500) { hauteur = 1500; $("hauteur").value = 1500; }
 
-    // Interdit tige sur Dibond (sécurité)
-    if ($("categorie").value !== "alu20" && elTige) elTige.checked = false;
-
     const catVal = $("categorie").value;
     let catTxt = 'Lettre aluminium 20/10';
     if (catVal === 'dibond3') catTxt = 'Lettre alu/PVC 3 mm (type Dibond)';
@@ -693,7 +665,6 @@ $("btnAddDevis").addEventListener("click", ()=>{
     const fin = $("finitionLaque").checked ? 'laqué' : 'brut';
 
     const supFixTaquet = $("optFixation").checked ? ' + fixation entretoise à clipser (taquet)' : '';
-    const supFixTige   = (elTige && elTige.checked) ? ' + fixation tige alu soudée à sceller' : '';
 
     const optLisse = $("optLisse");
     const lisseMM = Number($("lisseLongueur")?.value || 0);
@@ -707,7 +678,7 @@ $("btnAddDevis").addEventListener("click", ()=>{
     const total_ht = window._LAST.total_net_ht;
     const pu_public_ht = qte>0 ? (total_ht / qte) : 0;
 
-    const designation = `${catTxt} — H ${hauteur || 'n.c.'} mm — ${fin}${supFixTaquet}${supFixTige}${supLisseText}`;
+    const designation = `${catTxt} — H ${hauteur || 'n.c.'} mm — ${fin}${supFixTaquet}${supLisseText}`;
 
     Devis.addLine({
       type: 'Lettres',
@@ -729,4 +700,3 @@ $("btnAddDevis").addEventListener("click", ()=>{
 
 </body>
 </html>
-
