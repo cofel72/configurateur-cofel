@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../styles/cofel-components.css">
 <link rel="stylesheet" href="../styles/cofel-glass.css">
 
-<title>Configurateur — Lettres Alu 20/10 & Dibond 3 mm | Cofel</title>
+<title>Configurateur — Lettres Alu 20/10, 30/10 & Dibond 3 mm | Cofel</title>
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -177,7 +177,7 @@
       <img src="/assets/ESO-rect1.png" alt="ESO">
 
       <h1 class="cofel-title">
-        Configurateur — Lettres Alu 20/10 & Dibond 3 mm
+        Configurateur — Lettres Alu 20/10, 30/10 & Dibond 3 mm
       </h1>
     </div>
   </div>
@@ -192,6 +192,7 @@
         <label for="categorie">Catégorie</label>
         <select id="categorie" class="native-select">
           <option value="alu20" selected>Lettre aluminium 20/10</option>
+          <option value="alu30">Lettre aluminium 30/10</option>
           <option value="dibond3">Lettre alu/PVC 3 mm (type Dibond)</option>
           <option value="dibond4">Lettre alu/PVC 4 mm (type Dibond)</option>
         </select>
@@ -294,6 +295,7 @@ const COEF_PUBLIC = 2;
 const CSV_URL = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/lettres/Lettre%20alu%2020_10%20%C3%A8me%20ou%20Type%20Dibond%203%20mm.csv";
 const H_MAX = 1500;
 const LISSE_PRICE_ML = 25; // €/ml interne
+const ALU_30_10_FACTOR = 41.78 / 27.46; // secours si les colonnes 30/10 ne sont pas trouvées dans le CSV
 
 let HEADS=[], ROWS=[], MAP=null;
 const $ = id => document.getElementById(id);
@@ -456,11 +458,13 @@ function buildMapping(rawHeads){
   const nk = rawHeads.map(normKey);
   const find=(k)=>{const i=nk.indexOf(k); return i>=0?rawHeads[i]:null;};
   const loose=(...res)=>{ for(let i=0;i<nk.length;i++){ const k=nk[i]; if(res.every(r=>r.test(k))) return rawHeads[i]; } return null; };
-  const hKey   = find('hauteurmm')      || loose(/hauteur/,/mm/);
-  const brutKey= find('prixbruteur')    || loose(/brut/);
-  const laqKey = find('prixlaqueeur')   || loose(/laque/);
-  const fixKey = find('supfixationeur') || loose(/fix/);
-  return {hKey, brutKey, laqKey, fixKey};
+  const hKey      = find('hauteurmm')          || loose(/hauteur/,/mm/);
+  const brutKey   = find('prixbruteur')        || loose(/brut/);
+  const laqKey    = find('prixlaqueeur')       || loose(/laque/);
+  const brut30Key = find('prixbrut3010eur')    || loose(/brut/,/30/,/10/);
+  const laq30Key  = find('prixlaque3010eur')   || loose(/laque/,/30/,/10/);
+  const fixKey    = find('supfixationeur')     || loose(/fix/);
+  return {hKey, brutKey, laqKey, brut30Key, laq30Key, fixKey};
 }
 
 function pickRowForHeight(H){
@@ -516,8 +520,26 @@ function compute(){
     return;
   }
 
-  const brut = MAP.brutKey ? numFR(row[MAP.brutKey]) : NaN;
-  const laqe = MAP.laqKey  ? numFR(row[MAP.laqKey])  : NaN;
+  const catVal = $("categorie").value;
+
+  const brut20 = MAP.brutKey ? numFR(row[MAP.brutKey]) : NaN;
+  const laqe20 = MAP.laqKey  ? numFR(row[MAP.laqKey])  : NaN;
+
+  // Colonnes dédiées à l'aluminium 30/10.
+  // Si elles ne sont pas présentes, secours = prix 20/10 × ratio matière 30/10.
+  const brut30Csv = MAP.brut30Key ? numFR(row[MAP.brut30Key]) : NaN;
+  const laqe30Csv = MAP.laq30Key  ? numFR(row[MAP.laq30Key])  : NaN;
+
+  const brut30 = isFinite(brut30Csv) ? brut30Csv : (isFinite(brut20) ? brut20 * ALU_30_10_FACTOR : NaN);
+  const laqe30 = isFinite(laqe30Csv) ? laqe30Csv : (isFinite(laqe20) ? laqe20 * ALU_30_10_FACTOR : NaN);
+
+  let brut = brut20;
+  let laqe = laqe20;
+
+  if (catVal === 'alu30') {
+    brut = brut30;
+    laqe = laqe30;
+  }
 
   // 1) PU interne lettre (sans lisse)
   let unit_interne_lettre = 0;
@@ -526,7 +548,6 @@ function compute(){
   else if(isFinite(laqe)) { unit_interne_lettre = laqe; elFLaque.checked=true; elFBrut.checked=false; }
 
   // Surépaisseur Dibond 4 mm (+15%)
-  const catVal = $("categorie").value;
   if (catVal === 'dibond4') unit_interne_lettre *= 1.15;
 
   // Supplément fixation entretoise à clipser (taquet)
@@ -659,6 +680,7 @@ $("btnAddDevis").addEventListener("click", ()=>{
 
     const catVal = $("categorie").value;
     let catTxt = 'Lettre aluminium 20/10';
+    if (catVal === 'alu30') catTxt = 'Lettre aluminium 30/10';
     if (catVal === 'dibond3') catTxt = 'Lettre alu/PVC 3 mm (type Dibond)';
     if (catVal === 'dibond4') catTxt = 'Lettre alu/PVC 4 mm (type Dibond)';
 
