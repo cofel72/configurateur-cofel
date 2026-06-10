@@ -44,11 +44,11 @@
       display:flex; align-items:center; gap:12px;
     }
     .brand-lite img{
-  height: clamp(52px, 6vw, 72px);
-  width:auto;
-  object-fit:contain;
-  border-radius:8px;
-}
+      height: clamp(52px, 6vw, 72px);
+      width:auto;
+      object-fit:contain;
+      border-radius:8px;
+    }
 
     .brand-lite h1{
       font-size: clamp(18px, 2.4vw, 22px); margin:0; letter-spacing:.2px; font-weight:700;
@@ -70,90 +70,94 @@
     }
     .logout-btn:hover{ opacity:1; transform: translateY(-1px); box-shadow: 0 14px 34px rgba(0,0,0,.42); }
 
-   /* ===================== APPS GRID PAR FAMILLES ===================== */
-.wrap{max-width:1200px; margin:26px auto; padding:0 20px 40px; position:relative; z-index:1;}
+    /* ===================== APPS GRID PAR FAMILLES ===================== */
+    .wrap{max-width:1200px; margin:26px auto; padding:0 20px 40px; position:relative; z-index:1;}
 
-.apps{
-  display:grid;
-  gap:18px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  align-items:stretch;
-}
+    .apps{
+      display:grid;
+      gap:18px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items:stretch;
+    }
 
-.app-family{
-  background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.055));
-  border:1px solid rgba(255,255,255,.20);
-  border-radius:22px;
-  padding:16px;
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(var(--blur));
-  min-height:100%;
-}
+    .app-family{
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.055));
+      border:1px solid rgba(255,255,255,.20);
+      border-radius:22px;
+      padding:16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(var(--blur));
+      min-height:100%;
+    }
 
-.app-family-head{
-  display:flex;
-  align-items:flex-start;
-  gap:10px;
-  padding:2px 2px 14px;
-  margin-bottom:14px;
-  border-bottom:1px solid rgba(255,255,255,.14);
-}
+    .app-family-head{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      padding:2px 2px 14px;
+      margin-bottom:14px;
+      border-bottom:1px solid rgba(255,255,255,.14);
+    }
 
-.app-family-icon{
-  font-size:24px;
-  line-height:1;
-  filter: drop-shadow(0 8px 18px rgba(0,0,0,.25));
-}
+    .app-family-icon{
+      font-size:24px;
+      line-height:1;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,.25));
+    }
 
-.app-family-title{
-  margin:0;
-  font-size:16px;
-  font-weight:850;
-  letter-spacing:.25px;
-  color:#fff;
-  text-transform:uppercase;
-}
+    .app-family-title{
+      margin:0;
+      font-size:16px;
+      font-weight:850;
+      letter-spacing:.25px;
+      color:#fff;
+      text-transform:uppercase;
+    }
 
-.app-family-subtitle{
-  margin:4px 0 0;
-  color:var(--txt-dim);
-  font-size:12px;
-  line-height:1.35;
-}
+    .app-family-subtitle{
+      margin:4px 0 0;
+      color:var(--txt-dim);
+      font-size:12px;
+      line-height:1.35;
+    }
 
-.app-list{
-  display:grid;
-  gap:12px;
-}
+    .app-list{
+      display:grid;
+      gap:12px;
+    }
 
-.app{
-  position:relative; text-decoration:none; color:var(--txt);
-  background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
-  border:1px solid rgba(255,255,255,.2); border-radius:18px; padding:16px 14px;
-  box-shadow: var(--shadow); backdrop-filter: blur(var(--blur));
-  transform: translateY(0); transition: transform .18s, box-shadow .18s, background .18s, border-color .18s;
-  display:block;
-}
+    .app{
+      position:relative; text-decoration:none; color:var(--txt);
+      background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
+      border:1px solid rgba(255,255,255,.2);
+      border-radius:18px;
+      padding:16px 14px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(var(--blur));
+      transform: translateY(0);
+      transition: transform .18s, box-shadow .18s, background .18s, border-color .18s;
+      display:block;
+    }
 
-.app:hover{
-  transform: translateY(-4px);
-  box-shadow: 0 18px 40px rgba(0,0,0,.45);
-  border-color:rgba(255,255,255,.32);
-  background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.10));
-}
+    .app:hover{
+      transform: translateY(-4px);
+      box-shadow: 0 18px 40px rgba(0,0,0,.45);
+      border-color:rgba(255,255,255,.32);
+      background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.10));
+    }
 
-.app .title{ font-weight:800; margin:0 0 6px; letter-spacing:.2px; }
-.app .hint{ color:var(--txt-dim); margin:0; font-size:13px; line-height:1.35; }
+    .app .title{ font-weight:800; margin:0 0 6px; letter-spacing:.2px; }
+    .app .hint{ color:var(--txt-dim); margin:0; font-size:13px; line-height:1.35; }
 
-@media (max-width:980px){
-  .apps{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .app-family:last-child{ grid-column:1 / -1; }
-}
+    @media (max-width:980px){
+      .apps{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .app-family:last-child{ grid-column:1 / -1; }
+    }
 
-@media (max-width:680px){
-  .apps{ grid-template-columns: 1fr; }
-  .app-family:last-child{ grid-column:auto; }
-}
+    @media (max-width:680px){
+      .apps{ grid-template-columns: 1fr; }
+      .app-family:last-child{ grid-column:auto; }
+    }
 
     /* ===================== PANEL (devis + client) ===================== */
     .panel{
@@ -256,34 +260,88 @@
   <!-- ===================== APPS GRID ===================== -->
   <main class="wrap">
     <section class="apps" aria-label="Liste des configurateurs">
-      <a class="app" href="/configurateurs/configurateur-tole-tablette.html">
-        <p class="title">Tôle Tablette</p><p class="hint">Ajourage, PMMA, châssis…</p>
-      </a>
-      <a class="app" href="/configurateurs/configurateur-rampe-lumineuse.html">
-        <p class="title">Rampe Lumineuse (PLL)</p><p class="hint">LED + laquage inclus</p>
-      </a>
-      <a class="app" href="/configurateurs/configurateur-enseigne-drapeau.html">
-        <p class="title">Enseigne Drapeau</p><p class="hint">Rond / Carré, potence</p>
-      </a>
-      <a class="app" href="/configurateurs/configurateur-totems.html">
-        <p class="title">Totems</p><p class="hint">Hauteurs, options d’installation</p>
-      </a>
-      <a class="app" href="/configurateurs/configurateur-lettres-PVC.html">
-        <p class="title">Lettres PVC</p><p class="hint">Hauteur, chant, finitions</p>
-      </a>
-      <a class="app" href="/configurateurs/configurateur-lettre-alu-alupvc.html">
-        <p class="title">Lettres Alu / Alu-PVC</p><p class="hint">Finitions et options</p>
-      </a>
-      <a class="app" href="/configurateurs/configurateur-lettre-boitier.html">
-        <p class="title">Lettres Boîtiers</p><p class="hint">Face PMMA ou Dibond</p>
-      </a>
-      <a class="app" href="/configurateurs/configurateur-tolerie-dibond.html">
-        <p class="title">Tôlerie Alu / Dibond</p><p class="hint">Au m², laqué / prélaqué</p>
-      </a>
-      <a class="app" href="/configurateurs/souples-rigides-adhesifs.html">
-        <p class="title">Supports souples, rigides & adhésifs</p>
-        <p class="hint">adhésif, panneau, impression & finitions</p>
-      </a>
+
+      <div class="app-family">
+        <div class="app-family-head">
+          <div class="app-family-icon" aria-hidden="true">🏢</div>
+          <div>
+            <h2 class="app-family-title">Enseigne</h2>
+            <p class="app-family-subtitle">Fabrications d’enseignes, tôlerie et éclairage.</p>
+          </div>
+        </div>
+
+        <div class="app-list">
+          <a class="app" href="/configurateurs/configurateur-tole-tablette.html">
+            <p class="title">Tôle Tablette</p>
+            <p class="hint">Ajourage, PMMA, châssis…</p>
+          </a>
+
+          <a class="app" href="/configurateurs/configurateur-enseigne-drapeau.html">
+            <p class="title">Enseigne Drapeau</p>
+            <p class="hint">Rond / Carré, potence</p>
+          </a>
+
+          <a class="app" href="/configurateurs/configurateur-rampe-lumineuse.html">
+            <p class="title">Rampe Lumineuse (PLL)</p>
+            <p class="hint">LED + laquage inclus</p>
+          </a>
+
+          <a class="app" href="/configurateurs/configurateur-tolerie-dibond.html">
+            <p class="title">Tôlerie Alu / Dibond</p>
+            <p class="hint">Au m², laqué / prélaqué</p>
+          </a>
+        </div>
+      </div>
+
+      <div class="app-family">
+        <div class="app-family-head">
+          <div class="app-family-icon" aria-hidden="true">🔠</div>
+          <div>
+            <h2 class="app-family-title">Lettres reliefs</h2>
+            <p class="app-family-subtitle">Lettres découpées, boîtiers et finitions.</p>
+          </div>
+        </div>
+
+        <div class="app-list">
+          <a class="app" href="/configurateurs/configurateur-lettre-boitier.html">
+            <p class="title">Lettres Boîtiers</p>
+            <p class="hint">Face PMMA ou Dibond</p>
+          </a>
+
+          <a class="app" href="/configurateurs/configurateur-lettres-PVC.html">
+            <p class="title">Lettres PVC</p>
+            <p class="hint">Hauteur, chant, finitions</p>
+          </a>
+
+          <a class="app" href="/configurateurs/configurateur-lettre-alu-alupvc.html">
+            <p class="title">Lettres Alu / Alu-PVC</p>
+            <p class="hint">Finitions et options</p>
+          </a>
+        </div>
+      </div>
+
+      <div class="app-family">
+        <div class="app-family-head">
+          <div class="app-family-icon" aria-hidden="true">🖨</div>
+          <div>
+            <h2 class="app-family-title">Signalétique & print</h2>
+            <p class="app-family-subtitle">Totems, supports, adhésifs et impression.</p>
+          </div>
+        </div>
+
+        <div class="app-list">
+          <a class="app" href="/configurateurs/configurateur-totems.html">
+            <p class="title">Totems</p>
+            <p class="hint">Hauteurs, options d’installation</p>
+          </a>
+
+          <a class="app" href="/configurateurs/souples-rigides-adhesifs.html">
+            <p class="title">Supports souples, rigides & adhésifs</p>
+            <p class="hint">Adhésif, panneau, impression & finitions</p>
+          </a>
+        </div>
+      </div>
+
     </section>
 
     <!-- ===================== RÉCAP + CLIENT ===================== -->
@@ -947,42 +1005,42 @@ try {
       }
 
       // ----- HEADER -----
-     const drawHeader = () => {
-  const yTop = margin;
+      const drawHeader = () => {
+        const yTop = margin;
 
-  let logoH = 0;
-  if (logoData) {
-    const W = 240;                 // ✅ plus grand (avant 180)
-    const H = Math.round(W * 0.28); // si ton logo est très “rectangulaire”, ça reste OK
-    logoH = H;
-    doc.addImage(logoData, "PNG", margin, yTop, W, H);
-  }
+        let logoH = 0;
+        if (logoData) {
+          const W = 240;                 // ✅ plus grand (avant 180)
+          const H = Math.round(W * 0.28); // si ton logo est très “rectangulaire”, ça reste OK
+          logoH = H;
+          doc.addImage(logoData, "PNG", margin, yTop, W, H);
+        }
 
-  doc.setFont("Helvetica", "bold");
-  doc.setFontSize(18);
-  doc.setTextColor(...COLOR_TEXT);
-  doc.text("DEVIS", pageWidth - margin, yTop + 6, { align: "right" });
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(18);
+        doc.setTextColor(...COLOR_TEXT);
+        doc.text("DEVIS", pageWidth - margin, yTop + 6, { align: "right" });
 
-  doc.setFont("Helvetica", "normal");
-  doc.setFontSize(10);
-  doc.setTextColor(...COLOR_TEXT);
+        doc.setFont("Helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(...COLOR_TEXT);
 
-  const lines = [
-    "COFEL72 — ZA du Perquoi, 72560 Changé",
-    "SIRET 927 659 458 00024 — TVA FR80927659458",
-    "Date : " + new Date().toLocaleDateString("fr-FR"),
-  ];
+        const lines = [
+          "COFEL72 — ZA du Perquoi, 72560 Changé",
+          "SIRET 927 659 458 00024 — TVA FR80927659458",
+          "Date : " + new Date().toLocaleDateString("fr-FR"),
+        ];
 
-  lines.forEach((txt, i) => {
-    doc.text(txt, pageWidth - margin, yTop + 26 + i * 14, { align: "right" });
-  });
+        lines.forEach((txt, i) => {
+          doc.text(txt, pageWidth - margin, yTop + 26 + i * 14, { align: "right" });
+        });
 
-  // ✅ ligne placée assez bas si le logo est plus haut
-  const yLine = yTop + Math.max(54, logoH + 10);
-  doc.setDrawColor(...COLOR_LINE);
-  doc.setLineWidth(1);
-  doc.line(margin, yLine, pageWidth - margin, yLine);
-};
+        // ✅ ligne placée assez bas si le logo est plus haut
+        const yLine = yTop + Math.max(54, logoH + 10);
+        doc.setDrawColor(...COLOR_LINE);
+        doc.setLineWidth(1);
+        doc.line(margin, yLine, pageWidth - margin, yLine);
+      };
 
       // ----- FOOTER -----
       const drawFooter = (pageNum, pageCount) => {
@@ -1003,25 +1061,25 @@ try {
 
       // ----- CARTOUCHE "Sous réserve" (gris) -----
       function drawTechNotice(yStart) {
-  const boxW = pageWidth - margin * 2;
-  const boxH = 56;
-  const y = yStart;
+        const boxW = pageWidth - margin * 2;
+        const boxH = 56;
+        const y = yStart;
 
-  doc.setFillColor(...BG_NOTICE);
-  doc.setDrawColor(...BORDER_SOFT);
-  doc.roundedRect(margin, y, boxW, boxH, 8, 8, "FD");
+        doc.setFillColor(...BG_NOTICE);
+        doc.setDrawColor(...BORDER_SOFT);
+        doc.roundedRect(margin, y, boxW, boxH, 8, 8, "FD");
 
-  doc.setTextColor(...COLOR_TEXT);
-  doc.setFont("Helvetica", "bold");
-  doc.setFontSize(12);
-  doc.text(
-    "DEVIS SOUS RÉSERVE D'APPROBATION DE NOTRE ÉQUIPE TECHNIQUE",
-    margin + boxW / 2,
-    y + boxH / 2 + 4,
-    { align: "center", baseline: "middle" }
-  );
-  return y + boxH;
-}
+        doc.setTextColor(...COLOR_TEXT);
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(12);
+        doc.text(
+          "DEVIS SOUS RÉSERVE D'APPROBATION DE NOTRE ÉQUIPE TECHNIQUE",
+          margin + boxW / 2,
+          y + boxH / 2 + 4,
+          { align: "center", baseline: "middle" }
+        );
+        return y + boxH;
+      }
 
       // ----- CARTE CLIENT (blanc + bordure grise) -----
       const drawClientCard = (yStart) => {
@@ -1123,26 +1181,26 @@ try {
       });
 
       const TOTALS_BOX_H = 100;
-const NOTICE_BOX_H = 56;
-const GAP_BETWEEN_BOXES = 20;
-const FOOTER_RESERVED = 40;
+      const NOTICE_BOX_H = 56;
+      const GAP_BETWEEN_BOXES = 20;
+      const FOOTER_RESERVED = 40;
 
-doc.setPage(doc.internal.getNumberOfPages());
+      doc.setPage(doc.internal.getNumberOfPages());
 
-let blockStartY = doc.lastAutoTable.finalY + 16;
+      let blockStartY = doc.lastAutoTable.finalY + 16;
 
-// zone maxi dispo avant le footer
-const maxY = pageHeight - margin - FOOTER_RESERVED;
+      // zone maxi dispo avant le footer
+      const maxY = pageHeight - margin - FOOTER_RESERVED;
 
-// Si les totaux + l'encadré technique ne tiennent pas, on crée une nouvelle page
-if (blockStartY + TOTALS_BOX_H + GAP_BETWEEN_BOXES + NOTICE_BOX_H > maxY) {
-  doc.addPage();
-  drawHeader();
-  blockStartY = margin + 90;
-}
+      // Si les totaux + l'encadré technique ne tiennent pas, on crée une nouvelle page
+      if (blockStartY + TOTALS_BOX_H + GAP_BETWEEN_BOXES + NOTICE_BOX_H > maxY) {
+        doc.addPage();
+        drawHeader();
+        blockStartY = margin + 90;
+      }
 
-const afterTotalsY = drawTotalsBox(blockStartY);
-drawTechNotice(afterTotalsY + GAP_BETWEEN_BOXES);
+      const afterTotalsY = drawTotalsBox(blockStartY);
+      drawTechNotice(afterTotalsY + GAP_BETWEEN_BOXES);
 
       const pageCount = doc.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
