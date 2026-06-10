@@ -100,18 +100,40 @@
         </div>
 
         <div>
-          <label for="quantite">Quantité</label>
-          <input type="number" id="quantite" value="1" min="1"/>
+          <label for="relief">Relief des chants</label>
+
+          <select id="relief" class="native-select">
+            <option value="50" selected>50 mm — tarif standard</option>
+            <option value="80">80 mm — +2%</option>
+            <option value="100">100 mm — +3%</option>
+          </select>
+
+          <div class="cselect" data-bind="relief">
+            <button type="button" class="cselect-toggle">
+              <span class="cselect-label">50 mm — tarif standard</span>
+              <span class="cselect-caret"></span>
+            </button>
+            <div class="cselect-menu"></div>
+          </div>
+
+          <div class="help">Le tarif actuel correspond au relief 50 mm.</div>
         </div>
       </div>
 
       <div class="grid">
         <div>
+          <label for="quantite">Quantité</label>
+          <input type="number" id="quantite" value="1" min="1"/>
+        </div>
+
+        <div>
           <label for="hauteur">Hauteur (mm)</label>
           <input type="number" id="hauteur" placeholder="Ex : 325" min="1"/>
           <div id="rangesHelp" class="help"></div>
         </div>
+      </div>
 
+      <div class="grid">
         <div>
           <label for="variant">Éclairage</label>
 
@@ -172,6 +194,7 @@
       <p>Prix TTC : <b><span id="prixTTC">0,00</span> €</b></p>
       <div class="muted">TVA 20 % incluse dans le calcul.</div>
       <div class="muted">📐 Plan de pose inclus avec nos lettres boîtiers.</div>
+      <div class="muted">ℹ️ Relief des chants disponible en 50, 80 ou 100 mm.</div>
     </div>
 
     <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
@@ -202,6 +225,17 @@ const COEF_PUBLIC = 2;
  */
 const COEF_CORRECTION_CSV = 0.714285714;
 
+/* ✅ Coefficient relief des chants
+   50 mm = tarif actuel
+   80 mm = +2% sur le tarif 50 mm
+   100 mm = +3% sur le tarif 50 mm
+*/
+const RELIEF_FACTORS = {
+  "50": 1,
+  "80": 1.02,
+  "100": 1.03
+};
+
 /* Supplément lisse (INTERNE) — NON multiplié par quantité */
 const TARIF_LISSE_INTERNE_ML = 25; // €/ml
 
@@ -222,6 +256,7 @@ let CURRENT=null, HEADS=[], ROWS=[], MAP=null;
 const $ = id => document.getElementById(id);
 
 const elFam = $("famille");
+const elRelief = $("relief");
 const elQ   = $("quantite");
 const elH   = $("hauteur");
 const elVar = $("variant");
@@ -231,7 +266,7 @@ const elHT  = $("prixHT");
 const elTTC = $("prixTTC");
 const elOptLisse = $("optLisse");
 const elLongLisse = $("lisseLongueur");
-const elNbLisse = $("lisseNb"); // ✅ AJOUT
+const elNbLisse = $("lisseNb");
 const elLightingInfo = document.getElementById("lightingInfo");
 
 function updateLisseUI(){
@@ -554,6 +589,9 @@ function compute(){
   const H = Number(elH.value || 0);
   const Q = Math.max(1, parseInt(elQ.value || 1, 10) || 1);
 
+  const relief = String(elRelief?.value || "50");
+  const reliefFactor = RELIEF_FACTORS[relief] || 1;
+
   // Si un champ "variant" existe dans le CSV, on force la sélection
   if (MAP?.variantKey && !elVar.value){
     elHT.textContent="0,00";
@@ -572,8 +610,11 @@ function compute(){
   const row = findRowForHeight(H);
 
   // ✅ Prix unitaire interne issu du CSV (corrigé par COEF_CORRECTION_CSV)
+  // ✅ Le relief 50 mm = tarif actuel
+  // ✅ Relief 80 mm = tarif actuel +2%
+  // ✅ Relief 100 mm = tarif actuel +3%
   const base_interne_raw = row ? numFR(row[MAP.baseKey]) : 0;
-  const base_interne = base_interne_raw * COEF_CORRECTION_CSV;
+  const base_interne = base_interne_raw * COEF_CORRECTION_CSV * reliefFactor;
 
   // ✅ Lisse NON multipliée par quantité, mais multipliée par nb lisses
   let supplement_lisse_interne = 0;
@@ -611,6 +652,8 @@ function compute(){
     pu_public_ht : Number(pu_public_ht.toFixed(2)),
     total_net_ht : Number(total_net_client.toFixed(2)),
     supplement_lisse_interne : Number(supplement_lisse_interne.toFixed(2)),
+    relief,
+    reliefFactor,
     lmm: Lmm,
     nbLisse: nbL,
     lmlTotal: LmlTotal,
@@ -660,6 +703,7 @@ function bind(){
     }
   });
 
+  elRelief.addEventListener("change", compute);
   elQ.addEventListener("input", compute);
 
   elH.addEventListener("input", ()=>{
@@ -674,11 +718,14 @@ function bind(){
 
   elOptLisse.addEventListener("change", compute);
   elLongLisse.addEventListener("input", compute);
-  elNbLisse.addEventListener("input", compute); // ✅ AJOUT
+  elNbLisse.addEventListener("input", compute);
 
   $("btnReset").addEventListener("click", ()=>{
     elFam.value = "";
     buildCustomFromNative(elFam);
+
+    elRelief.value = "50";
+    buildCustomFromNative(elRelief);
 
     CURRENT = null; ROWS = []; MAP = null;
 
@@ -700,8 +747,10 @@ function bind(){
 
 (function init(){
   fillFamilles();
+  buildCustomFromNative(elRelief);
   bind();
   updateLisseUI();
+  compute();
 })();
 </script>
 
@@ -722,6 +771,7 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
     const qte = Math.max(1, parseInt(document.getElementById("quantite").value || 1, 10) || 1);
     const H   = Number(document.getElementById("hauteur").value || 0);
     const variant = document.getElementById("variant").value;
+    const relief = String(document.getElementById("relief")?.value || "50");
 
     if (!(H > 0)) {
       alert("Saisis une hauteur valide.");
@@ -739,7 +789,7 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
     const lisseNb = Math.max(1, parseInt(document.getElementById("lisseNb")?.value || 1, 10));
     const lisseML = (lisseLongueur / 1000) * lisseNb;
 
-    let designation = `${familleName} — H ${H} mm`;
+    let designation = `${familleName} — H ${H} mm — Relief chants ${relief} mm`;
     if (variant) designation += ` — Éclairage: ${variant}`;
     if (optLisse){
       designation += (lisseLongueur > 0)
@@ -775,4 +825,3 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
 
 </body>
 </html>
-
