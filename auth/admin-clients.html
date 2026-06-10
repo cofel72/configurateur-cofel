@@ -21,14 +21,9 @@
   :root{
     --txt:#f5f7ff;
     --txt-dim: rgba(255,255,255,.68);
-    --accent: rgba(255,255,255,.82);
     --radius:18px;
     --blur:18px;
     --shadow: 0 10px 30px rgba(0,0,0,.35);
-
-    --glass: rgba(255,255,255,.10);
-    --glass-soft: rgba(255,255,255,.06);
-    --stroke: rgba(255,255,255,.18);
     --stroke-soft: rgba(255,255,255,.12);
   }
 
@@ -38,7 +33,7 @@
   body{
     color:var(--txt);
     font-family:-apple-system,"SF Pro Text",BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-    background:#000;                 /* ✅ plus de violet */
+    background:#000;
     padding:20px;
   }
 
@@ -48,7 +43,6 @@
     width:100%;
   }
 
-  /* HEADER */
   header{
     display:flex;
     flex-wrap:wrap;
@@ -56,8 +50,7 @@
     justify-content:space-between;
     gap:12px;
     margin-bottom:18px;
-
-    padding:14px 14px;
+    padding:14px;
     border-radius:20px;
     background: rgba(255,255,255,.06);
     border:1px solid var(--stroke-soft);
@@ -67,12 +60,24 @@
   }
 
   .brand{
-    display:flex; align-items:center; gap:12px;
+    display:flex;
+    align-items:center;
+    gap:12px;
     flex:1;
     min-width:240px;
   }
-  .brand img{height:40px; width:auto; border-radius:10px;}
-  h1{margin:0; font-size:18px; letter-spacing:.2px;}
+
+  .brand img{
+    height:40px;
+    width:auto;
+    border-radius:10px;
+  }
+
+  h1{
+    margin:0;
+    font-size:18px;
+    letter-spacing:.2px;
+  }
 
   .actions{
     display:flex;
@@ -81,7 +86,6 @@
     justify-content:flex-end;
   }
 
-  /* ✅ Boutons (plus de blanc) */
   .btn{
     appearance:none;
     border:none;
@@ -97,17 +101,18 @@
     -webkit-backdrop-filter: blur(var(--blur));
     transition: transform .16s, box-shadow .16s, background .16s, opacity .16s;
   }
+
   .btn:hover{
     background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
     transform: translateY(-1px);
     box-shadow: 0 14px 30px rgba(0,0,0,.35);
   }
+
   .btn:active{
     transform: translateY(1px);
     box-shadow: 0 6px 16px rgba(0,0,0,.28);
   }
 
-  /* TABS */
   .tabs{
     display:flex;
     gap:10px;
@@ -128,11 +133,13 @@
     cursor:pointer;
     transition: background .16s, transform .16s, box-shadow .16s, border-color .16s;
   }
+
   .tab-btn:hover{
     background: rgba(255,255,255,.10);
     transform: translateY(-1px);
     box-shadow: 0 10px 24px rgba(0,0,0,.22);
   }
+
   .tab-btn.active{
     background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
     border-color: rgba(255,255,255,.26);
@@ -152,7 +159,6 @@
     -webkit-backdrop-filter: blur(var(--blur));
   }
 
-  /* Recherche */
   #searchClient{
     width:100%;
     padding:12px;
@@ -163,27 +169,35 @@
     background:rgba(255,255,255,.06);
     color:var(--txt);
     outline:none;
-    transition: border-color .18s, box-shadow .18s, background .18s;
   }
-  #searchClient::placeholder{ color: rgba(255,255,255,.55); }
+
+  #searchClient::placeholder{
+    color: rgba(255,255,255,.55);
+  }
+
   #searchClient:focus{
     border-color: rgba(255,255,255,.34);
     background: rgba(255,255,255,.08);
     box-shadow: 0 0 0 3px rgba(255,255,255,.14);
   }
 
-  /*******************************
-     AFFICHAGE NORMAL (DESKTOP)
-  *******************************/
+  .table-container{
+    overflow:auto;
+    border-radius:14px;
+  }
+
   table{
     width:100%;
     border-collapse:collapse;
+    min-width:880px;
   }
+
   th, td{
     padding:10px;
     font-size:14px;
     vertical-align:top;
   }
+
   th{
     background: rgba(255,255,255,.06);
     color: rgba(255,255,255,.75);
@@ -192,14 +206,19 @@
     letter-spacing:.35px;
     border-bottom:1px solid rgba(255,255,255,.12);
   }
+
   tbody tr + tr td{
     border-top:1px solid rgba(255,255,255,.08);
   }
-  td{ color: rgba(255,255,255,.92); }
 
-  .empty{ color: var(--txt-dim); }
+  td{
+    color: rgba(255,255,255,.92);
+  }
 
-  /* ✅ Boutons actions ligne harmonisés */
+  .empty{
+    color: var(--txt-dim);
+  }
+
   .btn-row{
     appearance:none;
     border:none;
@@ -215,70 +234,43 @@
     transition: transform .16s, box-shadow .16s, background .16s, opacity .16s;
     margin:2px 4px 2px 0;
   }
+
   .btn-row:hover{
     background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));
     transform: translateY(-1px);
     box-shadow: 0 14px 28px rgba(0,0,0,.32);
   }
+
   .btn-row:active{
     transform: translateY(1px);
     box-shadow: 0 6px 16px rgba(0,0,0,.26);
   }
 
-  /* Variantes (reste lisible, pas flashy) */
   .btn-approve{ border-color: rgba(140,255,190,.35); }
   .btn-row-secondary{ border-color: rgba(255,255,255,.18); opacity:.95; }
   .btn-row-reset{ border-color: rgba(255,220,120,.35); color:#fff; }
   .btn-row-delete{ border-color: rgba(255,120,120,.40); color:#fff; }
 
-  /*******************************
-       MODE PORTRAIT iPHONE
-       → Table transformée en cartes
-  *******************************/
-  @media(max-width:700px){
-
-    thead{ display:none; }
-
-    table tr{
-      display:block;
-      background: rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.12);
-      margin-bottom:12px;
-      padding:12px;
-      border-radius:14px;
-    }
-
-    table td{
-      display:flex;
-      justify-content:space-between;
-      padding:8px 4px;
-      font-size:15px;
-      border-bottom:1px solid rgba(255,255,255,0.08);
-    }
-    table td:last-child{ border-bottom:none; }
-
-    table td:nth-child(1)::before{content:"Email : "; color: rgba(255,255,255,.72);}
-    table td:nth-child(2)::before{content:"Société : "; color: rgba(255,255,255,.72);}
-    table td:nth-child(3)::before{content:"Contact : "; color: rgba(255,255,255,.72);}
-    table td:nth-child(4)::before{content:"Remise : "; color: rgba(255,255,255,.72);}
-    table td:nth-child(5)::before{content:"Remise SR : "; color: rgba(255,255,255,.72);}
-    table td:nth-child(6)::before{content:"Configs : "; color: rgba(255,255,255,.72);}
-    table td:nth-child(7)::before{content:"Statut : "; color: rgba(255,255,255,.72);}
-    table td:nth-child(8)::before{content:"Actions : "; color: rgba(255,255,255,.72);}
-
-    .btn-row{
-      padding:10px 14px;
-      font-size:14px;
-      margin:4px 2px;
-    }
-
-    h1{ font-size:16px; }
-    body{ padding:12px; }
+  .activity-toolbar{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    align-items:center;
+    margin-bottom:12px;
+    flex-wrap:wrap;
   }
 
-  /*******************************
-       MODALES
-  *******************************/
+  .activity-title{
+    font-weight:800;
+  }
+
+  .details-cell{
+    max-width:340px;
+    white-space:normal;
+    line-height:1.35;
+    color:rgba(255,255,255,.82);
+  }
+
   #modalApprove,#modalCreate{
     position:fixed;
     inset:0;
@@ -289,6 +281,7 @@
     z-index:20;
     padding:20px;
   }
+
   .modal-card{
     background: rgba(255,255,255,.08);
     border:1px solid rgba(255,255,255,.16);
@@ -300,9 +293,16 @@
     width:100%;
     max-width:420px;
   }
-  .modal-card h3{ margin:0 0 12px; letter-spacing:.2px; }
 
-  .modal-field{ margin-bottom:12px; }
+  .modal-card h3{
+    margin:0 0 12px;
+    letter-spacing:.2px;
+  }
+
+  .modal-field{
+    margin-bottom:12px;
+  }
+
   .modal-field label{
     display:block;
     font-weight:800;
@@ -310,6 +310,7 @@
     color: rgba(255,255,255,.78);
     margin-bottom:6px;
   }
+
   .modal-field input,.modal-field select{
     width:100%;
     padding:12px;
@@ -320,6 +321,7 @@
     color:#fff;
     outline:none;
   }
+
   .modal-field input:focus,.modal-field select:focus{
     border-color: rgba(255,255,255,.34);
     box-shadow: 0 0 0 3px rgba(255,255,255,.14);
@@ -345,20 +347,71 @@
     box-shadow: 0 10px 22px rgba(0,0,0,.22);
     transition: transform .16s, box-shadow .16s, background .16s;
   }
+
   .btn-modal:hover{
     background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
     transform: translateY(-1px);
     box-shadow: 0 14px 28px rgba(0,0,0,.32);
   }
+
   .btn-modal:active{
     transform: translateY(1px);
     box-shadow: 0 6px 16px rgba(0,0,0,.26);
   }
+
   .btn-cancel{
     background: rgba(255,255,255,.08);
     border:1px solid rgba(255,255,255,.14);
   }
 
+  @media(max-width:700px){
+    body{ padding:12px; }
+    h1{ font-size:16px; }
+
+    table{
+      min-width:0;
+    }
+
+    thead{
+      display:none;
+    }
+
+    table tr{
+      display:block;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.12);
+      margin-bottom:12px;
+      padding:12px;
+      border-radius:14px;
+    }
+
+    table td{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:8px 4px;
+      font-size:15px;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      word-break:break-word;
+    }
+
+    table td:last-child{
+      border-bottom:none;
+    }
+
+    table td::before{
+      content: attr(data-label);
+      color: rgba(255,255,255,.72);
+      font-weight:700;
+      flex:0 0 110px;
+    }
+
+    .btn-row{
+      padding:10px 14px;
+      font-size:14px;
+      margin:4px 2px;
+    }
+  }
 </style>
 </head>
 
@@ -370,6 +423,7 @@
  ****************************************************/
 const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
 const FULL_ADMINS = ["commercial@cofel72.fr"];
+
 if (!FULL_ADMINS.includes(profile.email || "")) {
   alert("⛔ Accès réservé à l'administrateur complet.");
   window.location.href = "../index.html";
@@ -394,12 +448,12 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
   <div class="tabs">
     <button class="tab-btn active" data-tab="clients">Clients</button>
     <button class="tab-btn" data-tab="requests">Demandes</button>
+    <button class="tab-btn" data-tab="activity">Activité</button>
   </div>
 
   <!-- PANEL : CLIENTS -->
   <div id="clients" class="tab-panel active">
 
-    <!-- 🔎 RECHERCHE CLIENTS -->
     <input
       id="searchClient"
       type="text"
@@ -447,6 +501,36 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
           </thead>
           <tbody id="reqTbody">
             <tr><td colspan="7" class="empty">Chargement…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL : ACTIVITÉ -->
+  <div id="activity" class="tab-panel">
+    <div class="card">
+      <div class="activity-toolbar">
+        <div class="activity-title">Journal d’activité configurateur</div>
+        <button id="btnRefreshActivity" class="btn-row btn-row-secondary">🔄 Actualiser</button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Client</th>
+              <th>Société</th>
+              <th>Action</th>
+              <th>Configurateur</th>
+              <th>Total HT</th>
+              <th>Lignes</th>
+              <th>Détails</th>
+            </tr>
+          </thead>
+          <tbody id="activityTbody">
+            <tr><td colspan="8" class="empty">Chargement…</td></tr>
           </tbody>
         </table>
       </div>
@@ -519,11 +603,51 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
 </div>
 
 <script>
-/* ===================== LOGIQUE DE LA PAGE ===================== */
-
+/* ===================== CONFIG ===================== */
 const WORKER_BASE = "https://cofel-auth.sonveven.workers.dev";
 
-/* TABS */
+/* ===================== HELPERS ===================== */
+function esc(v){
+  return String(v ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function shortText(v, max = 160){
+  const s = String(v ?? "").trim();
+  if (!s) return "";
+  return s.length > max ? s.slice(0, max) + "…" : s;
+}
+
+function formatDate(iso){
+  if(!iso) return "—";
+  const d = new Date(iso);
+  if(isNaN(d)) return "—";
+  return d.toLocaleDateString("fr-FR") + " " + d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+}
+
+function formatRate(rate){
+  return ((Number(rate || 0)) * 100).toFixed(1) + " %";
+}
+
+function formatMoney(n){
+  const v = Number(n || 0);
+  if (!v) return "—";
+  return v.toFixed(2).replace(".", ",") + " €";
+}
+
+function parseJsonSafe(s, fallback){
+  try{
+    return JSON.parse(s || "");
+  }catch(e){
+    return fallback;
+  }
+}
+
+/* ===================== TABS ===================== */
 const tabButtons = document.querySelectorAll(".tab-btn");
 const tabPanels  = document.querySelectorAll(".tab-panel");
 
@@ -538,14 +662,16 @@ tabButtons.forEach(btn => {
       p.classList.remove("active");
       if (p.id === target) p.classList.add("active");
     });
+
+    if (target === "activity") {
+      loadActivity();
+    }
   });
 });
 
-/* ===================== TABLEAU CLIENTS ===================== */
-
+/* ===================== CLIENTS ===================== */
 const tbodyClients = document.getElementById("tbodyClients");
 
-/* ===================== RECHERCHE CLIENTS ===================== */
 document.getElementById("searchClient").addEventListener("input", function () {
   const term = this.value.toLowerCase().trim();
   const rows = document.querySelectorAll("#tbodyClients tr");
@@ -556,19 +682,9 @@ document.getElementById("searchClient").addEventListener("input", function () {
   });
 });
 
-function formatRate(rate){
-  return ((rate || 0) * 100).toFixed(1) + " %";
-}
-
-function formatDate(iso){
-  if(!iso) return "—";
-  const d = new Date(iso);
-  if(isNaN(d)) return "—";
-  return d.toLocaleDateString("fr-FR") + " " + d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
-}
-
 async function loadClients(){
   tbodyClients.innerHTML = `<tr><td colspan="8" class="empty">Chargement…</td></tr>`;
+
   try{
     const r = await fetch(`${WORKER_BASE}/clients`);
     const data = await r.json();
@@ -580,38 +696,36 @@ async function loadClients(){
 
     tbodyClients.innerHTML = data.clients.map(c => {
       const status = c.status === "active" ? "🟢 Actif" : "🔴 Inactif";
-      const configs = JSON.parse(c.allowed_configurators || "[]");
+      const configs = parseJsonSafe(c.allowed_configurators, []);
 
       return `
         <tr>
-          <td>${c.email}</td>
-          <td>${c.company || "—"}</td>
-          <td>${c.contact_name || "—"}</td>
-          <td>${formatRate(c.discount_rate)}</td>
-          <td>${formatRate(c.discount_sr)}</td>
-          <td>${configs.join(", ") || "—"}</td>
-          <td>${status}</td>
-          <td>
-            <button class="btn-row btn-row-secondary btn-edit" data-email="${c.email}">✏ Modifier</button>
-            <button class="btn-row btn-row-reset btn-reset" data-email="${c.email}">🔁 Reset MDP</button>
-            <button class="btn-row btn-row-delete btn-delete" data-email="${c.email}">🗑 Supprimer</button>
+          <td data-label="Email">${esc(c.email)}</td>
+          <td data-label="Société">${esc(c.company || "—")}</td>
+          <td data-label="Contact">${esc(c.contact_name || "—")}</td>
+          <td data-label="Remise">${formatRate(c.discount_rate)}</td>
+          <td data-label="Remise SR">${formatRate(c.discount_sr)}</td>
+          <td data-label="Configs">${esc(configs.join(", ") || "—")}</td>
+          <td data-label="Statut">${status}</td>
+          <td data-label="Actions">
+            <button class="btn-row btn-row-secondary btn-edit" data-email="${esc(c.email)}">✏ Modifier</button>
+            <button class="btn-row btn-row-reset btn-reset" data-email="${esc(c.email)}">🔁 Reset MDP</button>
+            <button class="btn-row btn-row-delete btn-delete" data-email="${esc(c.email)}">🗑 Supprimer</button>
           </td>
         </tr>
       `;
     }).join("");
 
-  } catch(err){
+  }catch(err){
+    console.error(err);
     tbodyClients.innerHTML = `<tr><td colspan="8" class="empty">Erreur de chargement.</td></tr>`;
   }
 }
-
-/* ===================== ACTIONS CLIENTS ===================== */
 
 tbodyClients.addEventListener("click", async e => {
   const email = e.target.dataset.email;
   if (!email) return;
 
-  /* Reset mot de passe */
   if (e.target.classList.contains("btn-reset")){
     if (!confirm("Réinitialiser le mot de passe ?")) return;
 
@@ -626,7 +740,6 @@ tbodyClients.addEventListener("click", async e => {
     return;
   }
 
-  /* Supprimer */
   if (e.target.classList.contains("btn-delete")){
     if (!confirm("Supprimer ce client ?")) return;
 
@@ -641,7 +754,6 @@ tbodyClients.addEventListener("click", async e => {
     return;
   }
 
-  /* Modifier */
   if (e.target.classList.contains("btn-edit")){
     window.open(
       `./edit-client.html?email=${encodeURIComponent(email)}`,
@@ -652,8 +764,7 @@ tbodyClients.addEventListener("click", async e => {
   }
 });
 
-/* ===================== TABLEAU DEMANDES ===================== */
-
+/* ===================== DEMANDES ===================== */
 const reqTbody = document.getElementById("reqTbody");
 let approvalTargetId = null;
 
@@ -671,31 +782,29 @@ async function loadRequests(){
 
     reqTbody.innerHTML = data.requests.map(r => `
       <tr>
-        <td>${r.company}</td>
-        <td>${r.name}</td>
-        <td>${r.email}</td>
-        <td>${r.phone || "—"}</td>
-        <td>${r.message || "—"}</td>
-        <td>${formatDate(r.created_at)}</td>
-        <td>
-          <button class="btn-row btn-approve" data-id="${r.id}">✔</button>
-          <button class="btn-row btn-row-secondary btn-reject" data-id="${r.id}">❌</button>
+        <td data-label="Société">${esc(r.company)}</td>
+        <td data-label="Nom">${esc(r.name)}</td>
+        <td data-label="Email">${esc(r.email)}</td>
+        <td data-label="Téléphone">${esc(r.phone || "—")}</td>
+        <td data-label="Message">${esc(r.message || "—")}</td>
+        <td data-label="Créé">${formatDate(r.created_at)}</td>
+        <td data-label="Actions">
+          <button class="btn-row btn-approve" data-id="${esc(r.id)}">✔</button>
+          <button class="btn-row btn-row-secondary btn-reject" data-id="${esc(r.id)}">❌</button>
         </td>
       </tr>
     `).join("");
 
   }catch(err){
+    console.error(err);
     reqTbody.innerHTML = `<tr><td colspan="7" class="empty">Erreur de chargement.</td></tr>`;
   }
 }
-
-/* ACTIONS DEMANDES */
 
 reqTbody.addEventListener("click", async e => {
   const id = e.target.dataset.id;
   if (!id) return;
 
-  /* Refuser */
   if (e.target.classList.contains("btn-reject")){
     if (!confirm("Refuser cette demande ?")) return;
 
@@ -710,7 +819,6 @@ reqTbody.addEventListener("click", async e => {
     return;
   }
 
-  /* Approuver */
   if (e.target.classList.contains("btn-approve")){
     approvalTargetId = id;
     document.getElementById("approveDiscount").value = "0";
@@ -719,16 +827,89 @@ reqTbody.addEventListener("click", async e => {
   }
 });
 
-/* BOUTON RETOUR */
+/* ===================== ACTIVITÉ ===================== */
+const activityTbody = document.getElementById("activityTbody");
+
+function formatEventType(type){
+  const map = {
+    page_view: "Ouverture page",
+    open_configurator: "Ouverture configurateur",
+    add_to_quote: "Ajout au devis",
+    quote_snapshot: "Panier en cours",
+    export_pdf: "Export PDF",
+    login: "Connexion"
+  };
+  return map[type] || type || "—";
+}
+
+function extractActivityDetails(log){
+  const d = parseJsonSafe(log.details_json, {});
+
+  if (d.designation) return d.designation;
+  if (d.button) return d.button;
+  if (d.title) return d.title;
+  if (d.message) return d.message;
+
+  if (Array.isArray(d.lignes) && d.lignes.length) {
+    return d.lignes
+      .slice(0, 2)
+      .map(l => l.designation || "")
+      .filter(Boolean)
+      .join(" | ");
+  }
+
+  return "";
+}
+
+async function loadActivity(){
+  if (!activityTbody) return;
+
+  activityTbody.innerHTML = `<tr><td colspan="8" class="empty">Chargement…</td></tr>`;
+
+  try{
+    const r = await fetch(`${WORKER_BASE}/activity-logs?limit=200`);
+    const data = await r.json();
+
+    if(!data.ok){
+      throw new Error(data.error || "Erreur API activité");
+    }
+
+    if(!data.logs || !data.logs.length){
+      activityTbody.innerHTML = `<tr><td colspan="8" class="empty">Aucune activité enregistrée.</td></tr>`;
+      return;
+    }
+
+    activityTbody.innerHTML = data.logs.map(log => {
+      const details = shortText(extractActivityDetails(log), 180);
+
+      return `
+        <tr>
+          <td data-label="Date">${formatDate(log.created_at)}</td>
+          <td data-label="Client">${esc(log.client_email || "—")}</td>
+          <td data-label="Société">${esc(log.client_company || "—")}</td>
+          <td data-label="Action">${esc(formatEventType(log.event_type))}</td>
+          <td data-label="Configurateur">${esc(log.product_type || "—")}</td>
+          <td data-label="Total HT">${formatMoney(log.total_ht)}</td>
+          <td data-label="Lignes">${Number(log.lines_count || 0) || "—"}</td>
+          <td data-label="Détails" class="details-cell">${esc(details || "—")}</td>
+        </tr>
+      `;
+    }).join("");
+
+  }catch(err){
+    console.error(err);
+    activityTbody.innerHTML = `<tr><td colspan="8" class="empty">Erreur de chargement de l’activité.</td></tr>`;
+  }
+}
+
+document.getElementById("btnRefreshActivity")?.addEventListener("click", loadActivity);
+
+/* ===================== RETOUR ===================== */
 document.getElementById("btnBack").onclick = () => {
   location.href = "../index.html";
 };
 
-/* CHARGEMENT */
-loadClients();
-loadRequests();
-
-/* APPROBATION */
+/* ===================== APPROBATION ===================== */
 const modalApprove = document.getElementById("modalApprove");
 const approveDiscount = document.getElementById("approveDiscount");
 const approveDiscountSR = document.getElementById("approveDiscountSR");
@@ -740,7 +921,6 @@ document.getElementById("approveCancel").onclick = () => {
 };
 
 document.getElementById("approveSave").onclick = async () => {
-
   if (!approvalTargetId){
     alert("Erreur : aucun ID de demande.");
     return;
@@ -767,7 +947,7 @@ document.getElementById("approveSave").onclick = async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         requestId: approvalTargetId,
-        discount: discount,
+        discount,
         discount_sr: discountSR,
         configs: [
           "enseigne-drapeau",
@@ -784,9 +964,10 @@ document.getElementById("approveSave").onclick = async () => {
     });
 
     const out = await res.json();
-    if (!out.ok) throw new Error();
+    if (!out.ok) throw new Error("Réponse serveur incorrecte");
 
-  } catch(err){
+  }catch(err){
+    console.error(err);
     approveMsg.textContent = "Erreur serveur.";
     return;
   }
@@ -800,7 +981,7 @@ document.getElementById("approveSave").onclick = async () => {
   loadClients();
 };
 
-/* CREATION */
+/* ===================== CRÉATION CLIENT ===================== */
 const modalCreate   = document.getElementById("modalCreate");
 const btnCreate     = document.getElementById("btnCreateClient");
 const createEmail   = document.getElementById("createEmail");
@@ -811,11 +992,11 @@ const createDiscountSR= document.getElementById("createDiscountSR");
 const createMsg     = document.getElementById("createMsg");
 
 btnCreate.onclick = () => {
-  createEmail.value   = "";
+  createEmail.value = "";
   createCompany.value = "";
-  createName.value    = "";
-  createDiscount.value= "0";
-  createDiscountSR.value= "0";
+  createName.value = "";
+  createDiscount.value = "0";
+  createDiscountSR.value = "0";
   createMsg.textContent = "";
   modalCreate.style.display = "flex";
 };
@@ -828,7 +1009,8 @@ document.getElementById("createSave").onclick = async () => {
   createMsg.textContent = "";
   createMsg.style.color = "#ffb3b3";
 
-  const email = (createEmail.value || "").trim();
+  const email = (createEmail.value || "").trim().toLowerCase();
+
   if (!email.includes("@")){
     createMsg.textContent = "Email invalide.";
     return;
@@ -853,6 +1035,7 @@ document.getElementById("createSave").onclick = async () => {
       body:JSON.stringify({
         email,
         company: (createCompany.value || "").trim(),
+        contact: (createName.value || "").trim(),
         name: (createName.value || "").trim(),
         discount,
         discount_sr: discountSR,
@@ -873,7 +1056,7 @@ document.getElementById("createSave").onclick = async () => {
     const out = await r.json();
 
     if(!out.ok){
-      createMsg.textContent = "Erreur.";
+      createMsg.textContent = out.error || "Erreur.";
       return;
     }
 
@@ -886,9 +1069,15 @@ document.getElementById("createSave").onclick = async () => {
     loadClients();
 
   }catch(err){
+    console.error(err);
     createMsg.textContent = "Erreur serveur.";
   }
 };
+
+/* ===================== CHARGEMENT INITIAL ===================== */
+loadClients();
+loadRequests();
+loadActivity();
 </script>
 
 </body>
