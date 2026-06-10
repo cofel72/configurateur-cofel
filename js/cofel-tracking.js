@@ -49,23 +49,14 @@
 
       const body = JSON.stringify(payload);
 
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon(
-          `${WORKER_BASE}/track-event`,
-          new Blob([body], { type: "application/json" })
-        );
-      } else {
-        fetch(`${WORKER_BASE}/track-event`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body,
-          keepalive: true
-        }).catch(()=>{});
-      }
-    } catch(e) {
-      console.warn("Tracking Cofel impossible", e);
-    }
-  }
+     fetch(`${WORKER_BASE}/track-event`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body,
+  keepalive: true
+}).catch((err) => {
+  console.warn("Erreur tracking Cofel :", err);
+});
 
   function quoteTotalsFromStorage(){
     const quote = readQuote();
