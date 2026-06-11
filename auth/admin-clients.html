@@ -319,6 +319,53 @@
     min-width:170px;
   }
 
+  .activity-summary{
+    margin-bottom:14px;
+    padding:12px;
+    border-radius:16px;
+    background:rgba(140,190,255,.055);
+    border:1px solid rgba(140,190,255,.16);
+  }
+
+  .activity-summary-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+
+  .activity-summary-content{
+    display:block;
+  }
+
+  .activity-summary-content.is-hidden{
+    display:none;
+  }
+
+  .activity-summary table{
+    min-width:980px;
+  }
+
+  .activity-summary tbody tr{
+    background:rgba(255,255,255,.025);
+  }
+
+  .activity-summary td,
+  .activity-summary th{
+    white-space:nowrap;
+  }
+
+  .warning-no-export{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    margin-left:6px;
+    color:#ffd36a;
+    font-size:14px;
+  }
+
   .details-cell{
     max-width:380px;
     white-space:normal;
@@ -618,6 +665,42 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
           </select>
 
           <button id="btnDeleteOldActivity" class="btn-row btn-row-delete">🧹 Vider anciens logs</button>
+        </div>
+      </div>
+
+      <div class="activity-summary">
+        <div class="activity-summary-header">
+          <div>
+            <strong>Résumé par client</strong>
+            <div class="activity-subtitle">
+              Synthèse calculée avec les filtres actifs. Le symbole ⚠️ indique un ajout au devis sans export PDF.
+            </div>
+          </div>
+
+          <button id="btnToggleActivitySummary" class="btn-row btn-row-secondary">Afficher / masquer</button>
+        </div>
+
+        <div id="activitySummaryContent" class="activity-summary-content">
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Société</th>
+                  <th>Total actions</th>
+                  <th>Ouvertures</th>
+                  <th>Ajouts devis</th>
+                  <th>Exports PDF</th>
+                  <th>Paniers</th>
+                  <th>Total HT devis</th>
+                  <th>Dernière activité</th>
+                </tr>
+              </thead>
+              <tbody id="activitySummaryTbody">
+                <tr><td colspan="9" class="empty">Chargement…</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -1021,6 +1104,8 @@ function applyActivityFilters(){
 }
 
 function renderActivity(){
+  renderActivitySummary();
+
   if(!activityLogsFiltered.length){
     activityTbody.innerHTML = `<tr><td colspan="8" class="empty">Aucune activité avec ces filtres.</td></tr>`;
     activityCount.textContent = `0 résultat sur ${activityLogsAll.length} log(s) chargé(s)`;
@@ -1049,8 +1134,104 @@ function renderActivity(){
   }).join("");
 }
 
+function buildActivitySummary(){
+  const map = new Map();
+
+  activityLogsFiltered.forEach(log => {
+    const email = String(log.client_email || "Sans email").trim().toLowerCase();
+    const company = String(log.client_company || "—").trim() || "—";
+    const key = email || company || "inconnu";
+
+    if(!map.has(key)){
+      map.set(key, {
+        email,
+        company,
+        totalActions:0,
+        pageViews:0,
+        addToQuote:0,
+        exportPdf:0,
+        snapshots:0,
+        totalHTAddToQuote:0,
+        lastActivity:null
+      });
+    }
+
+    const item = map.get(key);
+
+    item.totalActions++;
+
+    if(log.event_type === "page_view") item.pageViews++;
+
+    if(log.event_type === "add_to_quote"){
+      item.addToQuote++;
+      item.totalHTAddToQuote += Number(log.total_ht || 0);
+    }
+
+    if(log.event_type ===LogsFiltered.forEach(log => {
+    const email = String(log.client_email || "Sans email"). "export_pdf") item.exportPdf++;
+    if(log.event_type === "quote_snapshot") item.snapshots++;
+
+    const d = new Date(log.created_at);
+    if(!isNaN(d)){
+      if(!item.lastActivity || d > item.lastActivity){
+        item.lastActivity = d;
+      }
+    }
+  });
+
+  return Array.from(map.values()).sort((a,b) => {
+    const scoreA = (a.addToQuote > 0 && a.exportPdf === 0) ? 1 : 0;
+    const scoreB = (b.addToQuote > 0 && b.exportPdf === 0) ? 1 : 0;
+
+    if(scoreA !== scoreB) return scoreB - scoreA;
+
+    const da = a.lastActivity ? a.lastActivity.getTime() : 0;
+    const db = b.lastActivity ? b.lastActivity.getTime() : 0;
+
+    return db - da;
+  });
+}
+
+function renderActivitySummary(){
+  const tbody = document.getElementById("activitySummaryTbody");
+  if(!tbody) return;
+
+  const summary = buildActivitySummary();
+
+  if(!summary.length){
+    tbody.innerHTML = `<tr><td colspan="9" class="empty">Aucun résumé disponible avec ces filtres.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = summary.map(item => {
+    const alertNoExport =
+      item.addToQuote > 0 && item.exportPdf === 0
+        ? ` <span class="warning-no-export" title="Ajout au devis sans export PDF">⚠️</span>`
+        : "";
+
+    return `
+      <tr>
+        <td data-label="Client">${esc(item.email || "—")}${alertNoExport}</td>
+        <td data-label="Société">${esc(item.company || "—")}</td>
+        <td data-label="Total actions">${item.totalActions}</td>
+        <td data-label="Ouvertures">${item.pageViews || "—"}</td>
+        <td data-label="Ajouts devis">${item.addToQuote || "—"}</td>
+        <td data-label="Exports PDF">${item.exportPdf || "—"}</td>
+        <td data-label="Paniers">${item.snapshots || "—"}</td>
+        <td data-label="Total HT devis">${formatMoney(item.totalHTAddToQuote)}</td>
+        <td data-label="Dernière activité">${item.lastActivity ? formatDate(item.lastActivity.toISOString()) : "—"}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
 async function loadActivity(){
   activityTbody.innerHTML = `<tr><td colspan="8" class="empty">Chargement…</td></tr>`;
+
+  const summaryTbody = document.getElementById("activitySummaryTbody");
+  if(summaryTbody){
+    summaryTbody.innerHTML = `<tr><td colspan="9" class="empty">Chargement…</td></tr>`;
+  }
 
   try{
     const r = await fetch(`${WORKER_BASE}/activity-logs?limit=1000`);
@@ -1065,6 +1246,10 @@ async function loadActivity(){
     console.error(err);
     activityTbody.innerHTML = `<tr><td colspan="8" class="empty">Erreur de chargement de l’activité.</td></tr>`;
     activityCount.textContent = "Erreur de chargement";
+
+    if(summaryTbody){
+      summaryTbody.innerHTML = `<tr><td colspan="9" class="empty">Erreur de chargement du résumé.</td></tr>`;
+    }
   }
 }
 
@@ -1165,6 +1350,10 @@ async function deleteOldActivityLogs(){
 document.getElementById("btnRefreshActivity").addEventListener("click", loadActivity);
 document.getElementById("btnExportActivity").addEventListener("click", exportActivityToExcel);
 document.getElementById("btnDeleteOldActivity").addEventListener("click", deleteOldActivityLogs);
+
+document.getElementById("btnToggleActivitySummary").addEventListener("click", () => {
+  document.getElementById("activitySummaryContent").classList.toggle("is-hidden");
+});
 
 activitySearch.addEventListener("input", applyActivityFilters);
 activityTypeFilter.addEventListener("change", applyActivityFilters);
