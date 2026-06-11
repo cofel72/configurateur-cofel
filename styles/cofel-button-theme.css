@@ -1429,3 +1429,69 @@ body:has(.cselect) .cofel-back:hover{
     width:100% !important;
   }
 }
+/* ==========================================================================
+   COFEL — Correctif Totems : checkboxes rondes comme les autres configurateurs
+   ========================================================================== */
+
+/* Totems : transformer les carrés checkbox en ronds type radio */
+body:has(#btnMassif) #optionsBox input[type="checkbox"],
+body:has(#btnMassif) #fixedOptions input[type="checkbox"],
+body:has(#btnMassif) label.opt-row input[type="checkbox"]{
+  appearance:none !important;
+  -webkit-appearance:none !important;
+
+  width:18px !important;
+  height:18px !important;
+  min-width:18px !important;
+  min-height:18px !important;
+
+  border-radius:999px !important;
+  border:2px solid rgba(255,255,255,.68) !important;
+
+  background:rgba(255,255,255,.06) !important;
+
+  display:inline-block !important;
+  vertical-align:middle !important;
+
+  cursor:pointer !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 0 0 1px rgba(0,0,0,.18) !important;
+
+  transition:
+    background .16s ease,
+    border-color .16s ease,
+    box-shadow .16s ease,
+    opacity .16s ease !important;
+}
+
+/* État survol */
+body:has(#btnMassif) #optionsBox input[type="checkbox"]:hover,
+body:has(#btnMassif) #fixedOptions input[type="checkbox"]:hover,
+body:has(#btnMassif) label.opt-row input[type="checkbox"]:hover{
+  border-color:rgba(255,255,255,.88) !important;
+  background:rgba(255,255,255,.12) !important;
+}
+
+/* État coché : rond blanc avec point noir au centre */
+body:has(#btnMassif) #optionsBox input[type="checkbox"]:checked,
+body:has(#btnMassif) #fixedOptions input[type="checkbox"]:checked,
+body:has(#btnMassif) label.opt-row input[type="checkbox"]:checked{
+  border-color:#ffffff !important;
+
+  background:
+    radial-gradient(circle at center, #111111 0 39%, #ffffff 42% 100%) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.12),
+    0 4px 12px rgba(0,0,0,.28) !important;
+}
+
+/* État désactivé, par exemple pré-laquage inclus */
+body:has(#btnMassif) #optionsBox input[type="checkbox"]:disabled,
+body:has(#btnMassif) #fixedOptions input[type="checkbox"]:disabled,
+body:has(#btnMassif) label.opt-row input[type="checkbox"]:disabled{
+  opacity:.55 !important;
+  cursor:not-allowed !important;
+}
