@@ -1167,8 +1167,7 @@ function buildActivitySummary(){
       item.totalHTAddToQuote += Number(log.total_ht || 0);
     }
 
-    if(log.event_type ===LogsFiltered.forEach(log => {
-    const email = String(log.client_email || "Sans email"). "export_pdf") item.exportPdf++;
+        if(log.event_type === "export_pdf") item.exportPdf++;
     if(log.event_type === "quote_snapshot") item.snapshots++;
 
     const d = new Date(log.created_at);
