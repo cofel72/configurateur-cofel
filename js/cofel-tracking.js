@@ -3,6 +3,11 @@
   const CLIENT_KEY = "cofel_client_profile";
   const STORAGE_KEY = "devisCourant_v1";
 
+  // Emails à ne jamais enregistrer dans le journal d'activité
+  const IGNORED_EMAILS = [
+    "commercial@cofel72.fr"
+  ];
+
   function readClient(){
     try {
       return JSON.parse(localStorage.getItem(CLIENT_KEY) || "{}");
@@ -29,10 +34,16 @@
   function postEvent(eventType, extra){
     try {
       const client = readClient();
+      const clientEmail = String(client.email || "").trim().toLowerCase();
+
+      // On ignore complètement les actions internes Cofel
+      if (IGNORED_EMAILS.includes(clientEmail)) {
+        return;
+      }
 
       const payload = {
         eventType,
-        clientEmail: client.email || "",
+        clientEmail: clientEmail,
         clientCompany: client.company || "",
         page: location.pathname,
         productType: getProductType(),
