@@ -1,4 +1,52 @@
-/* COFEL — Harmonisation globale des boutons */ 
+/* ==========================================================================
+   COFEL — Button Theme propre
+   Version consolidée noir / blanc / gris
+   Remplace l'ancien empilement de correctifs dans /styles/cofel-button-theme.css
+
+   Principe :
+   - aucune teinte violette
+   - boutons sobres glass noir / blanc / gris
+   - rouge discret uniquement pour les actions dangereuses
+   - règles spécifiques conservées : Totems, Supports SR, Lettres boîtiers, Lettres alu/alu-PVC
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. Variables locales
+   ========================================================================== */
+
+:root{
+  --cofel-ui-white:#ffffff;
+  --cofel-ui-bg:#050506;
+  --cofel-ui-bg-2:#111116;
+
+  --cofel-ui-text:#ffffff;
+  --cofel-ui-muted:rgba(255,255,255,.62);
+  --cofel-ui-soft:rgba(255,255,255,.42);
+
+  --cofel-ui-border:rgba(255,255,255,.16);
+  --cofel-ui-border-strong:rgba(255,255,255,.30);
+
+  --cofel-ui-surface:rgba(255,255,255,.055);
+  --cofel-ui-surface-2:rgba(255,255,255,.085);
+  --cofel-ui-surface-3:rgba(255,255,255,.12);
+
+  --cofel-ui-shadow:0 12px 28px rgba(0,0,0,.30);
+  --cofel-ui-shadow-strong:0 18px 42px rgba(0,0,0,.38);
+
+  --cofel-ui-danger-bg:rgba(255,107,107,.11);
+  --cofel-ui-danger-bg-hover:rgba(255,107,107,.18);
+  --cofel-ui-danger-border:rgba(255,107,107,.40);
+  --cofel-ui-danger-text:#ffe3e3;
+
+  --cofel-ui-radius:18px;
+  --cofel-ui-pill:999px;
+}
+
+
+/* ==========================================================================
+   2. Boutons globaux — base commune
+   ========================================================================== */
 
 .cofel-btn,
 .btn,
@@ -8,173 +56,20 @@
 .btn-reopen,
 .btn-row,
 .btn-modal,
-a.cofel-back{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:8px !important;
-
-  min-height:38px !important;
-  padding:9px 14px !important;
-
-  border-radius:999px !important;
-  border:1px solid rgba(255,255,255,.18) !important;
-
-  background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06)) !important;
-  color:var(--txt,#fff) !important;
-
-  font-family:inherit !important;
-  font-size:13px !important;
-  font-weight:800 !important;
-  line-height:1 !important;
-
-  text-decoration:none !important;
-  white-space:nowrap !important;
-  cursor:pointer !important;
-
-  box-shadow:0 10px 24px rgba(0,0,0,.28) !important;
-
-  transition:
-    transform .16s ease,
-    box-shadow .16s ease,
-    background .16s ease,
-    border-color .16s ease,
-    opacity .16s ease !important;
-}
-
-.cofel-btn:hover,
-.btn:hover,
-.btn-pill:hover,
-.btn-link:hover,
-.btn-view:hover,
-.btn-reopen:hover,
-.btn-row:hover,
-.btn-modal:hover,
-a.cofel-back:hover{
-  background:linear-gradient(180deg, rgba(255,255,255,.19), rgba(255,255,255,.09)) !important;
-  border-color:rgba(255,255,255,.28) !important;
-  transform:translateY(-1px);
-  box-shadow:0 14px 30px rgba(0,0,0,.38) !important;
-  opacity:1 !important;
-}
-
-.cofel-btn:active,
-.btn:active,
-.btn-pill:active,
-.btn-link:active,
-.btn-view:active,
-.btn-reopen:active,
-.btn-row:active,
-.btn-modal:active,
-a.cofel-back:active{
-  transform:translateY(1px);
-  box-shadow:0 6px 16px rgba(0,0,0,.28) !important;
-}
-
-.cofel-btn:disabled,
-.cofel-btn[disabled],
-.btn:disabled,
-.btn[disabled],
-.btn-reopen:disabled,
-.btn-reopen[disabled]{
-  opacity:.42 !important;
-  cursor:not-allowed !important;
-  transform:none !important;
-  box-shadow:none !important;
-  pointer-events:none !important;
-}
-
-/* Boutons secondaires / discrets */
-.cofel-btn-secondary,
-.btn-secondary,
-.btn-ghost,
-.ghost,
-.secondary,
-.btn-row-secondary,
-.btn-cancel{
-  background:rgba(255,255,255,.065) !important;
-  color:var(--txt,#fff) !important;
-  border-color:rgba(255,255,255,.16) !important;
-  box-shadow:none !important;
-}
-
-.cofel-btn-secondary:hover,
-.btn-secondary:hover,
-.btn-ghost:hover,
-.ghost:hover,
-.secondary:hover,
-.btn-row-secondary:hover,
-.btn-cancel:hover{
-  background:rgba(255,255,255,.105) !important;
-}
-
-/* Boutons danger : supprimer / vider */
-.cofel-btn-danger,
-.btn-danger,
-.btn-row-delete{
-  background:rgba(255,107,107,.12) !important;
-  color:#ffe3e3 !important;
-  border-color:rgba(255,107,107,.45) !important;
-  box-shadow:none !important;
-}
-
-.cofel-btn-danger:hover,
-.btn-danger:hover,
-.btn-row-delete:hover{
-  background:rgba(255,107,107,.18) !important;
-}
-
-/* Boutons validation / modifier / approuver */
-.cofel-btn-success,
-.btn-success,
-.btn-approve,
-.btn-reopen{
-  background:rgba(80,220,140,.12) !important;
-  color:#ddffe9 !important;
-  border-color:rgba(80,220,140,.42) !important;
-  box-shadow:none !important;
-}
-
-.cofel-btn-success:hover,
-.btn-success:hover,
-.btn-approve:hover,
-.btn-reopen:hover{
-  background:rgba(80,220,140,.18) !important;
-}
-
-/* Petits boutons dans tableaux */
-.cofel-btn-sm,
-.btn-sm,
-.btn-row,
-.btn-view,
-.btn-reopen,
-.btn-qty,
-.btn-edit,
-.btn-del,
-.btn-up,
-.btn-down{
-  min-height:32px !important;
-  padding:7px 10px !important;
-  font-size:12px !important;
-}
-
-/* Boutons icône : ▲ ▼ */
-.cofel-btn-icon,
-.btn-up,
-.btn-down{
-  width:32px !important;
-  min-width:32px !important;
-  padding-left:0 !important;
-  padding-right:0 !important;
-}
-
-
-/* ==========================================================================
-   COFEL — Phase 2 : harmonisation avancée des configurateurs
-   Objectif : appliquer le style aux boutons spécifiques des pages produits
-   ========================================================================== */
-
-/* Boutons génériques dans les configurateurs */
+.btn-nav,
+.cofel-fab,
+.ral-btn,
+.ral-close,
+.ral-tab,
+.ral-chip,
+.massif-close,
+.back,
+.back-btn,
+.btn-back,
+.retour,
+.retour-btn,
+.btn-retour,
+a.cofel-back,
 .configurateur button,
 .configurator button,
 .page-configurateur button,
@@ -201,11 +96,14 @@ a.cofel-back:active{
   min-height:38px !important;
   padding:9px 14px !important;
 
-  border-radius:999px !important;
-  border:1px solid rgba(255,255,255,.18) !important;
+  border-radius:var(--cofel-ui-pill) !important;
+  border:1px solid var(--cofel-ui-border) !important;
 
-  background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06)) !important;
-  color:var(--txt,#fff) !important;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,.16), transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,.125), rgba(255,255,255,.055)) !important;
+
+  color:var(--cofel-ui-text) !important;
 
   font-family:inherit !important;
   font-size:13px !important;
@@ -216,7 +114,9 @@ a.cofel-back:active{
   white-space:nowrap !important;
   cursor:pointer !important;
 
-  box-shadow:0 10px 24px rgba(0,0,0,.28) !important;
+  box-shadow:
+    var(--cofel-ui-shadow),
+    inset 0 1px 0 rgba(255,255,255,.08) !important;
 
   transition:
     transform .16s ease,
@@ -226,6 +126,28 @@ a.cofel-back:active{
     opacity .16s ease !important;
 }
 
+.cofel-btn:hover,
+.btn:hover,
+.btn-pill:hover,
+.btn-link:hover,
+.btn-view:hover,
+.btn-reopen:hover,
+.btn-row:hover,
+.btn-modal:hover,
+.btn-nav:hover,
+.cofel-fab:hover,
+.ral-btn:hover,
+.ral-close:hover,
+.ral-tab:hover,
+.ral-chip:hover,
+.massif-close:hover,
+.back:hover,
+.back-btn:hover,
+.btn-back:hover,
+.retour:hover,
+.retour-btn:hover,
+.btn-retour:hover,
+a.cofel-back:hover,
 .configurateur button:hover,
 .configurator button:hover,
 .page-configurateur button:hover,
@@ -244,35 +166,393 @@ a.cofel-back:active{
 #resultat button:hover,
 #resume button:hover,
 #panier button:hover{
-  background:linear-gradient(180deg, rgba(255,255,255,.19), rgba(255,255,255,.09)) !important;
-  border-color:rgba(255,255,255,.28) !important;
   transform:translateY(-1px);
-  box-shadow:0 14px 30px rgba(0,0,0,.38) !important;
+  border-color:var(--cofel-ui-border-strong) !important;
+
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,.24), transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.075)) !important;
+
+  box-shadow:
+    var(--cofel-ui-shadow-strong),
+    inset 0 1px 0 rgba(255,255,255,.12) !important;
+
+  opacity:1 !important;
 }
 
-.configurateur button:active,
-.configurator button:active,
-.page-configurateur button:active,
-.wrap button:active,
-.panel button:active,
-.card button:active,
-.actions button:active,
-.action button:active,
-.form-actions button:active,
-.result-actions button:active,
-.recap-actions button:active,
-.recap button:active,
-.summary button:active,
-#recap button:active,
-#result button:active,
-#resultat button:active,
-#resume button:active,
-#panier button:active{
+.cofel-btn:active,
+.btn:active,
+.btn-pill:active,
+.btn-link:active,
+.btn-view:active,
+.btn-reopen:active,
+.btn-row:active,
+.btn-modal:active,
+.btn-nav:active,
+.cofel-fab:active,
+.ral-btn:active,
+.ral-close:active,
+.ral-tab:active,
+.ral-chip:active,
+.massif-close:active,
+.back:active,
+.back-btn:active,
+.btn-back:active,
+.retour:active,
+.retour-btn:active,
+.btn-retour:active,
+a.cofel-back:active{
   transform:translateY(1px);
-  box-shadow:0 6px 16px rgba(0,0,0,.28) !important;
+  box-shadow:
+    0 7px 18px rgba(0,0,0,.30),
+    inset 0 1px 0 rgba(255,255,255,.08) !important;
 }
 
-/* Choix / cartes cliquables / options */
+.cofel-btn:disabled,
+.cofel-btn[disabled],
+.btn:disabled,
+.btn[disabled],
+.btn-nav:disabled,
+.btn-reopen:disabled,
+.btn-reopen[disabled],
+.cofel-fab:disabled,
+.ral-btn:disabled,
+button:disabled,
+button[disabled]{
+  opacity:.42 !important;
+  cursor:not-allowed !important;
+  transform:none !important;
+  box-shadow:none !important;
+  pointer-events:none !important;
+}
+
+
+/* ==========================================================================
+   3. Variantes de boutons
+   ========================================================================== */
+
+/* Secondaire / ghost */
+.cofel-btn-secondary,
+.btn-secondary,
+.btn-ghost,
+.ghost,
+.secondary,
+.btn-row-secondary,
+.btn-cancel,
+#btnReset{
+  background:rgba(255,255,255,.055) !important;
+  color:var(--cofel-ui-text) !important;
+  border-color:rgba(255,255,255,.15) !important;
+  box-shadow:none !important;
+}
+
+.cofel-btn-secondary:hover,
+.btn-secondary:hover,
+.btn-ghost:hover,
+.ghost:hover,
+.secondary:hover,
+.btn-row-secondary:hover,
+.btn-cancel:hover,
+#btnReset:hover{
+  background:rgba(255,255,255,.095) !important;
+  border-color:rgba(255,255,255,.26) !important;
+}
+
+/* Principal : ajouter / calculer / valider, sans violet */
+.cofel-fab,
+#btnAddDevis,
+#btnAjouterDevis,
+#btnAjoutDevis,
+#btnCalculer,
+#btnValider,
+#btnSubmit,
+#addToDevisBtn,
+button[id*="add"],
+button[id*="ajout"],
+button[id*="devis"],
+button[id*="calcul"],
+button[id*="valider"],
+button[class*="add"],
+button[class*="ajout"],
+button[class*="devis"],
+button[class*="calcul"],
+button[class*="valider"],
+.add-to-quote,
+.ajouter-devis,
+.btn-add,
+.btn-ajout,
+.btn-calculate,
+.btn-calc,
+.btn-submit,
+.btn-primary{
+  min-height:42px !important;
+  padding:11px 16px !important;
+
+  border:1px solid rgba(255,255,255,.26) !important;
+
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,.20), transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.065)) !important;
+
+  color:#ffffff !important;
+
+  box-shadow:
+    0 13px 30px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.16) !important;
+}
+
+.cofel-fab:hover,
+#btnAddDevis:hover,
+#btnAjouterDevis:hover,
+#btnAjoutDevis:hover,
+#btnCalculer:hover,
+#btnValider:hover,
+#btnSubmit:hover,
+#addToDevisBtn:hover,
+button[id*="add"]:hover,
+button[id*="ajout"]:hover,
+button[id*="devis"]:hover,
+button[id*="calcul"]:hover,
+button[id*="valider"]:hover,
+button[class*="add"]:hover,
+button[class*="ajout"]:hover,
+button[class*="devis"]:hover,
+button[class*="calcul"]:hover,
+button[class*="valider"]:hover,
+.add-to-quote:hover,
+.ajouter-devis:hover,
+.btn-add:hover,
+.btn-ajout:hover,
+.btn-calculate:hover,
+.btn-calc:hover,
+.btn-submit:hover,
+.btn-primary:hover{
+  border-color:rgba(255,255,255,.40) !important;
+
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,.28), transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.09)) !important;
+
+  box-shadow:
+    0 17px 36px rgba(0,0,0,.42),
+    0 0 0 1px rgba(255,255,255,.08),
+    inset 0 1px 0 rgba(255,255,255,.20) !important;
+}
+
+/* Danger : suppression / vider / reset destructif */
+.cofel-btn-danger,
+.btn-danger,
+.btn-row-delete,
+.btn-del,
+.btn-delete,
+.btn-remove,
+.btn-suppr,
+.btn-clear,
+.btn-reset,
+#resetBtn,
+button[id*="delete"],
+button[id*="remove"],
+button[id*="suppr"],
+button[id*="vider"],
+button[class*="delete"],
+button[class*="remove"],
+button[class*="suppr"],
+button[class*="vider"]{
+  background:var(--cofel-ui-danger-bg) !important;
+  color:var(--cofel-ui-danger-text) !important;
+  border-color:var(--cofel-ui-danger-border) !important;
+  box-shadow:none !important;
+}
+
+.cofel-btn-danger:hover,
+.btn-danger:hover,
+.btn-row-delete:hover,
+.btn-del:hover,
+.btn-delete:hover,
+.btn-remove:hover,
+.btn-suppr:hover,
+.btn-clear:hover,
+.btn-reset:hover,
+#resetBtn:hover,
+button[id*="delete"]:hover,
+button[id*="remove"]:hover,
+button[id*="suppr"]:hover,
+button[id*="vider"]:hover,
+button[class*="delete"]:hover,
+button[class*="remove"]:hover,
+button[class*="suppr"]:hover,
+button[class*="vider"]:hover{
+  background:var(--cofel-ui-danger-bg-hover) !important;
+  border-color:rgba(255,107,107,.55) !important;
+}
+
+/* Petits boutons tableaux */
+.cofel-btn-sm,
+.btn-sm,
+.btn-row,
+.btn-view,
+.btn-reopen,
+.btn-qty,
+.btn-edit,
+.btn-del,
+.btn-up,
+.btn-down,
+table button,
+.table button,
+tbody button,
+tr button{
+  min-height:30px !important;
+  padding:6px 10px !important;
+  font-size:12px !important;
+  box-shadow:none !important;
+}
+
+.cofel-btn-icon,
+.btn-up,
+.btn-down{
+  width:32px !important;
+  min-width:32px !important;
+  padding-left:0 !important;
+  padding-right:0 !important;
+}
+
+
+/* ==========================================================================
+   4. Champs, menus, labels
+   ========================================================================== */
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([type="button"]):not([type="submit"]),
+select,
+textarea{
+  min-height:40px !important;
+  padding:10px 12px !important;
+
+  border-radius:14px !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+
+  background:rgba(255,255,255,.065) !important;
+  color:#ffffff !important;
+
+  font-family:inherit !important;
+  font-size:14px !important;
+  font-weight:650 !important;
+
+  outline:none !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06) !important;
+
+  transition:
+    background .16s ease,
+    border-color .16s ease,
+    box-shadow .16s ease !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([type="button"]):not([type="submit"]):hover,
+select:hover,
+textarea:hover{
+  background:rgba(255,255,255,.09) !important;
+  border-color:rgba(255,255,255,.24) !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([type="button"]):not([type="submit"]):focus,
+select:focus,
+textarea:focus{
+  background:rgba(255,255,255,.105) !important;
+  border-color:rgba(255,255,255,.38) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.08),
+    0 10px 24px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:rgba(255,255,255,.42) !important;
+}
+
+select option{
+  background:#16161a !important;
+  color:#ffffff !important;
+}
+
+input[type="checkbox"],
+input[type="radio"]{
+  accent-color:#ffffff !important;
+}
+
+label{
+  color:rgba(255,255,255,.86);
+  font-weight:750;
+}
+
+.hint,
+small,
+.muted,
+.help,
+footer{
+  color:rgba(255,255,255,.62) !important;
+}
+
+
+/* ==========================================================================
+   5. Panneaux, cartes, fieldsets, résultats
+   ========================================================================== */
+
+fieldset,
+.panel,
+.panel.glass,
+.card,
+.card.glass,
+.mapping,
+.result,
+.resultat,
+#result,
+#resultat,
+#recap,
+.recap,
+.summary,
+.notice-glass{
+  border:1px solid rgba(255,255,255,.13) !important;
+  border-radius:var(--cofel-ui-radius) !important;
+
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255,255,255,.045), transparent 38%),
+    rgba(255,255,255,.035) !important;
+
+  color:#ffffff !important;
+
+  box-shadow:
+    0 16px 36px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.045) !important;
+}
+
+fieldset{
+  border-radius:22px !important;
+}
+
+legend{
+  padding:0 10px !important;
+  color:#ffffff !important;
+  font-weight:900 !important;
+  letter-spacing:.2px;
+}
+
+.panel h1,
+.panel h2,
+.panel h3,
+.card h1,
+.card h2,
+.card h3,
+.card-title,
+.mapping h3{
+  color:#ffffff !important;
+}
+
+
+/* ==========================================================================
+   6. Choix, options, radio-row
+   ========================================================================== */
+
 .choice,
 .choices button,
 .choice-btn,
@@ -288,8 +568,8 @@ a.cofel-back:active{
 .chip{
   border-radius:16px !important;
   border:1px solid rgba(255,255,255,.16) !important;
-  background:rgba(255,255,255,.065) !important;
-  color:var(--txt,#fff) !important;
+  background:rgba(255,255,255,.060) !important;
+  color:#ffffff !important;
   box-shadow:none !important;
   transition:
     transform .16s ease,
@@ -316,7 +596,6 @@ a.cofel-back:active{
   transform:translateY(-1px);
 }
 
-/* État sélectionné */
 .choice.active,
 .choice.selected,
 .choice.is-active,
@@ -343,184 +622,15 @@ a.cofel-back:active{
 button.active,
 button.selected,
 button.is-active{
-  background:rgba(201,183,255,.18) !important;
-  border-color:rgba(201,183,255,.55) !important;
-  box-shadow:0 0 0 1px rgba(201,183,255,.18), 0 12px 28px rgba(0,0,0,.26) !important;
-}
-
-/* Bouton principal : ajouter au devis / calculer / valider */
-button[id*="add"],
-button[id*="ajout"],
-button[id*="devis"],
-button[id*="calcul"],
-button[id*="valider"],
-button[class*="add"],
-button[class*="ajout"],
-button[class*="devis"],
-button[class*="calcul"],
-button[class*="valider"],
-.add-to-quote,
-.ajouter-devis,
-.btn-add,
-.btn-ajout,
-.btn-calculate,
-.btn-calc,
-.btn-submit,
-.btn-primary{
-  background:linear-gradient(180deg, rgba(201,183,255,.34), rgba(120,56,167,.34)) !important;
+  background:rgba(255,255,255,.13) !important;
+  border-color:rgba(255,255,255,.42) !important;
   color:#ffffff !important;
-  border-color:rgba(201,183,255,.55) !important;
-  box-shadow:0 12px 28px rgba(0,0,0,.32) !important;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.08),
+    0 10px 24px rgba(0,0,0,.28),
+    inset 0 1px 0 rgba(255,255,255,.14) !important;
 }
 
-button[id*="add"]:hover,
-button[id*="ajout"]:hover,
-button[id*="devis"]:hover,
-button[id*="calcul"]:hover,
-button[id*="valider"]:hover,
-button[class*="add"]:hover,
-button[class*="ajout"]:hover,
-button[class*="devis"]:hover,
-button[class*="calcul"]:hover,
-button[class*="valider"]:hover,
-.add-to-quote:hover,
-.ajouter-devis:hover,
-.btn-add:hover,
-.btn-ajout:hover,
-.btn-calculate:hover,
-.btn-calc:hover,
-.btn-submit:hover,
-.btn-primary:hover{
-  background:linear-gradient(180deg, rgba(201,183,255,.42), rgba(120,56,167,.42)) !important;
-  border-color:rgba(201,183,255,.72) !important;
-}
-
-/* Boutons retour */
-.back,
-.back-btn,
-.btn-back,
-.retour,
-.retour-btn,
-.btn-retour,
-a[href*="index.html"],
-a[href="/"],
-a[href="../index.html"]{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:8px !important;
-
-  min-height:38px !important;
-  padding:9px 14px !important;
-
-  border-radius:999px !important;
-  border:1px solid rgba(255,255,255,.16) !important;
-  background:rgba(255,255,255,.065) !important;
-  color:var(--txt,#fff) !important;
-
-  font-weight:800 !important;
-  text-decoration:none !important;
-  box-shadow:none !important;
-}
-
-.back:hover,
-.back-btn:hover,
-.btn-back:hover,
-.retour:hover,
-.retour-btn:hover,
-.btn-retour:hover,
-a[href*="index.html"]:hover,
-a[href="/"]:hover,
-a[href="../index.html"]:hover{
-  background:rgba(255,255,255,.105) !important;
-  border-color:rgba(255,255,255,.26) !important;
-}
-
-/* Boutons dans tableaux / lignes de devis */
-table button,
-.table button,
-tbody button,
-tr button{
-  min-height:30px !important;
-  padding:6px 10px !important;
-  font-size:12px !important;
-  box-shadow:none !important;
-}
-
-/* Boutons de suppression / reset */
-button[id*="delete"],
-button[id*="remove"],
-button[id*="suppr"],
-button[id*="vider"],
-button[class*="delete"],
-button[class*="remove"],
-button[class*="suppr"],
-button[class*="vider"],
-.btn-delete,
-.btn-remove,
-.btn-suppr,
-.btn-clear,
-.btn-reset{
-  background:rgba(255,107,107,.12) !important;
-  color:#ffe3e3 !important;
-  border-color:rgba(255,107,107,.45) !important;
-  box-shadow:none !important;
-}
-
-button[id*="delete"]:hover,
-button[id*="remove"]:hover,
-button[id*="suppr"]:hover,
-button[id*="vider"]:hover,
-button[class*="delete"]:hover,
-button[class*="remove"]:hover,
-button[class*="suppr"]:hover,
-button[class*="vider"]:hover,
-.btn-delete:hover,
-.btn-remove:hover,
-.btn-suppr:hover,
-.btn-clear:hover,
-.btn-reset:hover{
-  background:rgba(255,107,107,.18) !important;
-}
-
-/* Sécurité : ne pas transformer les champs de formulaire */
-input,
-select,
-textarea{
-  box-shadow:none;
-}
-
-/* Mobile : éviter les boutons trop serrés */
-@media (max-width:640px){
-  .cofel-btn,
-  .btn,
-  .btn-pill,
-  .btn-link,
-  .btn-view,
-  .btn-reopen,
-  .btn-row,
-  .configurateur button,
-  .configurator button,
-  .page-configurateur button,
-  .wrap button,
-  .panel button,
-  .card button,
-  .actions button,
-  .form-actions button,
-  .result-actions button,
-  .recap-actions button{
-    min-height:40px !important;
-    padding:9px 12px !important;
-    font-size:12px !important;
-  }
-}
-
-
-/* ==========================================================================
-   COFEL — Phase 3 : finition Tôle Tablette + choix radio communs
-   ========================================================================== */
-
-/* Choix radio / checkbox dans les configurateurs */
 .radio-row{
   display:flex;
   flex-wrap:wrap;
@@ -535,10 +645,10 @@ textarea{
   min-height:38px !important;
   padding:9px 13px !important;
 
-  border-radius:999px !important;
+  border-radius:var(--cofel-ui-pill) !important;
   border:1px solid rgba(255,255,255,.16) !important;
   background:rgba(255,255,255,.06) !important;
-  color:var(--txt,#fff) !important;
+  color:#ffffff !important;
 
   font-weight:750 !important;
   cursor:pointer !important;
@@ -557,347 +667,7 @@ textarea{
   transform:translateY(-1px);
 }
 
-/* État sélectionné — fonctionne sur navigateurs modernes */
 .radio-row > label:has(input:checked){
-  background:rgba(201,183,255,.18) !important;
-  border-color:rgba(201,183,255,.62) !important;
-  box-shadow:0 0 0 1px rgba(201,183,255,.18), 0 10px 24px rgba(0,0,0,.24) !important;
-}
-
-.radio-row > label input{
-  accent-color:#c9b7ff;
-}
-
-/* Ne pas transformer les blocs radio-row utilisés comme simple wrapper */
-label.radio-row{
-  display:flex !important;
-  border:none !important;
-  background:transparent !important;
-  box-shadow:none !important;
-  padding:0 !important;
-  border-radius:0 !important;
-}
-
-/* Bouton RAL principal */
-.ral-btn{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:8px !important;
-
-  min-height:38px !important;
-  padding:9px 14px !important;
-
-  border-radius:999px !important;
-  border:1px solid rgba(201,183,255,.55) !important;
-  background:linear-gradient(180deg, rgba(201,183,255,.28), rgba(120,56,167,.32)) !important;
-  color:#fff !important;
-
-  font-weight:800 !important;
-  box-shadow:0 12px 28px rgba(0,0,0,.28) !important;
-}
-
-.ral-btn:hover{
-  background:linear-gradient(180deg, rgba(201,183,255,.38), rgba(120,56,167,.42)) !important;
-  border-color:rgba(201,183,255,.75) !important;
-  transform:translateY(-1px);
-}
-
-.ral-btn:disabled{
-  opacity:.42 !important;
-  cursor:not-allowed !important;
-  transform:none !important;
-  box-shadow:none !important;
-}
-
-/* Popup RAL */
-.ral-close,
-.ral-tab,
-.ral-chip{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-
-  min-height:34px !important;
-  padding:8px 11px !important;
-
-  border-radius:999px !important;
-  border:1px solid rgba(255,255,255,.16) !important;
-  background:rgba(255,255,255,.06) !important;
-  color:var(--txt,#fff) !important;
-
-  font-weight:800 !important;
-  cursor:pointer !important;
-  box-shadow:none !important;
-
-  transition:
-    transform .16s ease,
-    background .16s ease,
-    border-color .16s ease !important;
-}
-
-.ral-close:hover,
-.ral-tab:hover,
-.ral-chip:hover{
-  background:rgba(255,255,255,.105) !important;
-  border-color:rgba(255,255,255,.28) !important;
-  transform:translateY(-1px);
-}
-
-.ral-tab.is-active{
-  background:rgba(201,183,255,.18) !important;
-  border-color:rgba(201,183,255,.62) !important;
-}
-
-.ral-chip{
-  font-size:12px !important;
-}
-
-/* Mobile */
-@media (max-width:640px){
-  .radio-row{
-    gap:8px;
-  }
-
-  .radio-row > label{
-    width:100%;
-    justify-content:flex-start !important;
-  }
-
-  .ral-btn{
-    width:100%;
-  }
-}
-
-/* ==========================================================================
-   COFEL — Phase 4 : boutons d’action principaux des configurateurs
-   ========================================================================== */
-
-.cofel-actions{
-  display:flex;
-  flex-wrap:wrap;
-  align-items:center;
-  gap:12px;
-  margin-top:16px;
-}
-
-.cofel-fab,
-#btnAddDevis,
-#btnAjouterDevis,
-#btnAjoutDevis,
-#btnCalculer,
-#btnValider,
-#btnSubmit{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:9px !important;
-
-  min-height:44px !important;
-  padding:12px 18px !important;
-
-  border-radius:999px !important;
-  border:1px solid rgba(201,183,255,.65) !important;
-
-  background:
-    radial-gradient(circle at 20% 0%, rgba(255,255,255,.22), transparent 38%),
-    linear-gradient(180deg, rgba(201,183,255,.36), rgba(120,56,167,.42)) !important;
-
-  color:#ffffff !important;
-
-  font-family:inherit !important;
-  font-size:14px !important;
-  font-weight:850 !important;
-  line-height:1 !important;
-
-  text-decoration:none !important;
-  white-space:nowrap !important;
-  cursor:pointer !important;
-
-  box-shadow:
-    0 14px 32px rgba(0,0,0,.34),
-    inset 0 1px 0 rgba(255,255,255,.18) !important;
-
-  transition:
-    transform .16s ease,
-    box-shadow .16s ease,
-    background .16s ease,
-    border-color .16s ease,
-    opacity .16s ease !important;
-}
-
-.cofel-fab:hover,
-#btnAddDevis:hover,
-#btnAjouterDevis:hover,
-#btnAjoutDevis:hover,
-#btnCalculer:hover,
-#btnValider:hover,
-#btnSubmit:hover{
-  transform:translateY(-1px);
-  border-color:rgba(201,183,255,.85) !important;
-
-  background:
-    radial-gradient(circle at 20% 0%, rgba(255,255,255,.28), transparent 38%),
-    linear-gradient(180deg, rgba(201,183,255,.46), rgba(120,56,167,.52)) !important;
-
-  box-shadow:
-    0 18px 38px rgba(0,0,0,.42),
-    0 0 0 1px rgba(201,183,255,.18),
-    inset 0 1px 0 rgba(255,255,255,.20) !important;
-}
-
-.cofel-fab:active,
-#btnAddDevis:active,
-#btnAjouterDevis:active,
-#btnAjoutDevis:active,
-#btnCalculer:active,
-#btnValider:active,
-#btnSubmit:active{
-  transform:translateY(1px);
-  box-shadow:
-    0 8px 20px rgba(0,0,0,.32),
-    inset 0 1px 0 rgba(255,255,255,.14) !important;
-}
-
-.cofel-fab:disabled,
-#btnAddDevis:disabled,
-#btnAjouterDevis:disabled,
-#btnAjoutDevis:disabled,
-#btnCalculer:disabled,
-#btnValider:disabled,
-#btnSubmit:disabled{
-  opacity:.45 !important;
-  cursor:not-allowed !important;
-  transform:none !important;
-  box-shadow:none !important;
-}
-
-@media (max-width:640px){
-  .cofel-actions{
-    width:100%;
-  }
-
-  .cofel-fab,
-  #btnAddDevis,
-  #btnAjouterDevis,
-  #btnAjoutDevis,
-  #btnCalculer,
-  #btnValider,
-  #btnSubmit{
-    width:100%;
-    min-height:46px !important;
-  }
-}
-/* ==========================================================================
-   COFEL — Correctif neutralisation violet
-   Objectif : boutons harmonisés noir / blanc / gris
-   ========================================================================== */
-
-/* Boutons principaux : Ajouter au devis / Calculer / Valider */
-.cofel-fab,
-#btnAddDevis,
-#btnAjouterDevis,
-#btnAjoutDevis,
-#btnCalculer,
-#btnValider,
-#btnSubmit,
-button[id*="add"],
-button[id*="ajout"],
-button[id*="devis"],
-button[id*="calcul"],
-button[id*="valider"],
-button[class*="add"],
-button[class*="ajout"],
-button[class*="devis"],
-button[class*="calcul"],
-button[class*="valider"],
-.add-to-quote,
-.ajouter-devis,
-.btn-add,
-.btn-ajout,
-.btn-calculate,
-.btn-calc,
-.btn-submit,
-.btn-primary{
-  border:1px solid rgba(255,255,255,.26) !important;
-
-  background:
-    radial-gradient(circle at 20% 0%, rgba(255,255,255,.20), transparent 40%),
-    linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.065)) !important;
-
-  color:#ffffff !important;
-
-  box-shadow:
-    0 12px 28px rgba(0,0,0,.34),
-    inset 0 1px 0 rgba(255,255,255,.16) !important;
-}
-
-.cofel-fab:hover,
-#btnAddDevis:hover,
-#btnAjouterDevis:hover,
-#btnAjoutDevis:hover,
-#btnCalculer:hover,
-#btnValider:hover,
-#btnSubmit:hover,
-button[id*="add"]:hover,
-button[id*="ajout"]:hover,
-button[id*="devis"]:hover,
-button[id*="calcul"]:hover,
-button[id*="valider"]:hover,
-button[class*="add"]:hover,
-button[class*="ajout"]:hover,
-button[class*="devis"]:hover,
-button[class*="calcul"]:hover,
-button[class*="valider"]:hover,
-.add-to-quote:hover,
-.ajouter-devis:hover,
-.btn-add:hover,
-.btn-ajout:hover,
-.btn-calculate:hover,
-.btn-calc:hover,
-.btn-submit:hover,
-.btn-primary:hover{
-  border-color:rgba(255,255,255,.40) !important;
-
-  background:
-    radial-gradient(circle at 20% 0%, rgba(255,255,255,.28), transparent 40%),
-    linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.09)) !important;
-
-  box-shadow:
-    0 16px 34px rgba(0,0,0,.42),
-    0 0 0 1px rgba(255,255,255,.08),
-    inset 0 1px 0 rgba(255,255,255,.20) !important;
-}
-
-/* États sélectionnés : choix, options, boutons actifs */
-.choice.active,
-.choice.selected,
-.choice.is-active,
-.choice-btn.active,
-.choice-btn.selected,
-.option.active,
-.option.selected,
-.option-btn.active,
-.option-btn.selected,
-.option-card.active,
-.option-card.selected,
-.card-option.active,
-.card-option.selected,
-.card-choice.active,
-.card-choice.selected,
-.select-card.active,
-.select-card.selected,
-.tile.active,
-.tile.selected,
-.pill.active,
-.pill.selected,
-.chip.active,
-.chip.selected,
-button.active,
-button.selected,
-button.is-active,
-.radio-row > label:has(input:checked),
-.ral-tab.is-active{
   background:rgba(255,255,255,.13) !important;
   border-color:rgba(255,255,255,.42) !important;
   color:#ffffff !important;
@@ -908,7 +678,20 @@ button.is-active,
     inset 0 1px 0 rgba(255,255,255,.14) !important;
 }
 
-/* Bouton RAL principal */
+label.radio-row{
+  display:flex !important;
+  border:none !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  padding:0 !important;
+  border-radius:0 !important;
+}
+
+
+/* ==========================================================================
+   7. RAL
+   ========================================================================== */
+
 .ral-btn{
   border:1px solid rgba(255,255,255,.26) !important;
 
@@ -931,302 +714,193 @@ button.is-active,
     linear-gradient(180deg, rgba(255,255,255,.21), rgba(255,255,255,.09)) !important;
 }
 
-/* Accent des radios / checkbox */
-.radio-row > label input{
-  accent-color:#ffffff !important;
-}
-
-/* Boutons validation / modifier / approuver : suppression du vert */
-.cofel-btn-success,
-.btn-success,
-.btn-approve,
-.btn-reopen{
-  background:rgba(255,255,255,.075) !important;
-  color:#ffffff !important;
-  border-color:rgba(255,255,255,.20) !important;
-  box-shadow:none !important;
-}
-
-.cofel-btn-success:hover,
-.btn-success:hover,
-.btn-approve:hover,
-.btn-reopen:hover{
-  background:rgba(255,255,255,.12) !important;
-  border-color:rgba(255,255,255,.32) !important;
-}
-
-/* Boutons secondaires : gris discret */
-.cofel-btn-secondary,
-.btn-secondary,
-.btn-ghost,
-.ghost,
-.secondary,
-.btn-row-secondary,
-.btn-cancel,
 .ral-close,
 .ral-tab,
 .ral-chip{
+  min-height:34px !important;
+  padding:8px 11px !important;
+  border-radius:var(--cofel-ui-pill) !important;
   background:rgba(255,255,255,.065) !important;
-  color:#ffffff !important;
   border-color:rgba(255,255,255,.16) !important;
+  color:#ffffff !important;
+  box-shadow:none !important;
 }
 
-.cofel-btn-secondary:hover,
-.btn-secondary:hover,
-.btn-ghost:hover,
-.ghost:hover,
-.secondary:hover,
-.btn-row-secondary:hover,
-.btn-cancel:hover,
-.ral-close:hover,
-.ral-tab:hover,
-.ral-chip:hover{
-  background:rgba(255,255,255,.105) !important;
-  border-color:rgba(255,255,255,.28) !important;
+.ral-tab.is-active{
+  background:rgba(255,255,255,.13) !important;
+  border-color:rgba(255,255,255,.42) !important;
+  color:#ffffff !important;
 }
+
+.ral-chip{
+  font-size:12px !important;
+}
+
+
 /* ==========================================================================
-   COFEL — Phase 5 : harmonisation champs et panneaux
-   Objectif : cohérence noir / blanc / gris avec les boutons
+   8. Totems
    ========================================================================== */
 
-/* Champs de formulaire */
-input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]),
-select,
-textarea{
-  min-height:40px !important;
-  padding:10px 12px !important;
+body:has(#btnMassif) fieldset{
+  padding:18px !important;
+  margin-bottom:18px !important;
 
-  border-radius:14px !important;
-  border:1px solid rgba(255,255,255,.16) !important;
-
-  background:rgba(255,255,255,.065) !important;
-  color:#ffffff !important;
-
-  font-family:inherit !important;
-  font-size:14px !important;
-  font-weight:650 !important;
-
-  outline:none !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06) !important;
-
-  transition:
-    background .16s ease,
-    border-color .16s ease,
-    box-shadow .16s ease !important;
-}
-
-input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):hover,
-select:hover,
-textarea:hover{
-  background:rgba(255,255,255,.09) !important;
-  border-color:rgba(255,255,255,.24) !important;
-}
-
-input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):focus,
-select:focus,
-textarea:focus{
-  background:rgba(255,255,255,.105) !important;
-  border-color:rgba(255,255,255,.38) !important;
-
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,.08),
-    0 10px 24px rgba(0,0,0,.22),
-    inset 0 1px 0 rgba(255,255,255,.08) !important;
-}
-
-input::placeholder,
-textarea::placeholder{
-  color:rgba(255,255,255,.42) !important;
-}
-
-/* Options dans les menus déroulants */
-select option{
-  background:#16151b !important;
-  color:#ffffff !important;
-}
-
-/* Labels */
-label{
-  color:rgba(255,255,255,.86);
-  font-weight:750;
-}
-
-/* Fieldsets / blocs de paramètres */
-fieldset{
-  border:1px solid rgba(255,255,255,.13) !important;
-  border-radius:20px !important;
+  border:1px solid rgba(255,255,255,.14) !important;
+  border-radius:22px !important;
 
   background:
-    radial-gradient(circle at 10% 0%, rgba(255,255,255,.055), transparent 36%),
+    radial-gradient(circle at 12% 0%, rgba(255,255,255,.045), transparent 38%),
     rgba(255,255,255,.035) !important;
 
   box-shadow:
-    0 18px 42px rgba(0,0,0,.26),
-    inset 0 1px 0 rgba(255,255,255,.05) !important;
-}
-
-legend{
-  padding:0 10px !important;
-  color:#ffffff !important;
-  font-weight:900 !important;
-  letter-spacing:.2px;
-}
-
-/* Zones résultat / récap */
-.result,
-.resultat,
-#result,
-#resultat,
-#recap,
-.recap,
-.summary,
-.notice-glass{
-  border:1px solid rgba(255,255,255,.13) !important;
-  border-radius:18px !important;
-
-  background:
-    radial-gradient(circle at 15% 0%, rgba(255,255,255,.055), transparent 38%),
-    rgba(255,255,255,.045) !important;
-
-  box-shadow:
-    0 16px 36px rgba(0,0,0,.24),
-    inset 0 1px 0 rgba(255,255,255,.05) !important;
-}
-
-/* Texte secondaire */
-.hint,
-small,
-.muted{
-  color:rgba(255,255,255,.62) !important;
-}
-
-/* Correction mobile */
-@media (max-width:640px){
-  input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]),
-  select,
-  textarea{
-    width:100%;
-    min-height:42px !important;
-  }
-
-  fieldset{
-    border-radius:18px !important;
-  }
-}
-/* ==========================================================================
-   COFEL — Phase 6 : options, lignes de choix et popups techniques
-   Objectif : harmoniser Totems + options avancées en noir / blanc / gris
-   ========================================================================== */
-
-/* Conteneurs d’options */
-.options-wrap,
-#optionsBox{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-/* Lignes d’options */
-.opt-row{
-  border:1px solid rgba(255,255,255,.13) !important;
-  border-radius:16px !important;
-
-  background:
-    radial-gradient(circle at 10% 0%, rgba(255,255,255,.045), transparent 38%),
-    rgba(255,255,255,.035) !important;
-
-  color:#ffffff !important;
-
-  padding:10px 12px !important;
-
-  box-shadow:
-    0 10px 26px rgba(0,0,0,.18),
+    0 18px 42px rgba(0,0,0,.24),
     inset 0 1px 0 rgba(255,255,255,.045) !important;
 }
 
-.opt-row:hover{
-  background:
-    radial-gradient(circle at 10% 0%, rgba(255,255,255,.065), transparent 38%),
-    rgba(255,255,255,.055) !important;
-
-  border-color:rgba(255,255,255,.22) !important;
+body:has(#btnMassif) fieldset > label{
+  display:block;
+  margin-top:14px !important;
+  margin-bottom:7px !important;
 }
 
-/* Options cochées */
-.opt-row:has(input:checked){
-  border-color:rgba(255,255,255,.38) !important;
-  background:rgba(255,255,255,.10) !important;
-
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,.08),
-    0 12px 28px rgba(0,0,0,.24),
-    inset 0 1px 0 rgba(255,255,255,.10) !important;
+body:has(#btnMassif) fieldset > label:first-of-type{
+  margin-top:8px !important;
 }
 
-/* Labels dans les lignes d’options */
-.opt-row label,
-.opt-row span{
-  color:#ffffff !important;
+body:has(#btnMassif) #optionsBox{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:10px !important;
+  margin-top:8px !important;
+  margin-bottom:12px !important;
 }
 
-.opt-row em{
-  color:rgba(255,255,255,.62) !important;
-}
+body:has(#btnMassif) #optionsBox .opt-row,
+body:has(#btnMassif) label.opt-row{
+  width:100% !important;
 
-/* Checkboxes / radios sobres */
-input[type="checkbox"],
-input[type="radio"]{
-  accent-color:#ffffff !important;
-}
+  padding:11px 14px !important;
+  margin:0 0 10px 0 !important;
 
-/* Bloc options fixes Totems */
-#fixedOptions{
-  padding:10px 0 !important;
-}
-
-#fixedOptions > label{
-  display:inline-flex !important;
-  align-items:center !important;
-  gap:8px !important;
-
-  min-height:38px !important;
-  padding:9px 12px !important;
-
-  border-radius:999px !important;
   border:1px solid rgba(255,255,255,.14) !important;
-  background:rgba(255,255,255,.055) !important;
-
-  color:#ffffff !important;
-}
-
-#fixedOptions > label:hover{
-  border-color:rgba(255,255,255,.24) !important;
-  background:rgba(255,255,255,.085) !important;
-}
-
-#fixedOptions > label:has(input:checked){
-  border-color:rgba(255,255,255,.38) !important;
-  background:rgba(255,255,255,.11) !important;
-}
-
-/* Blocs de mappage CSV */
-.mapping{
-  border:1px solid rgba(255,255,255,.13) !important;
-  border-radius:18px !important;
+  border-radius:16px !important;
 
   background:
-    radial-gradient(circle at 10% 0%, rgba(255,255,255,.05), transparent 38%),
-    rgba(255,255,255,.035) !important;
+    linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.035)) !important;
 
-  padding:14px !important;
+  color:#ffffff !important;
 
   box-shadow:
-    0 16px 36px rgba(0,0,0,.22),
     inset 0 1px 0 rgba(255,255,255,.05) !important;
 }
 
-.mapping h3{
+body:has(#btnMassif) #optionsBox .opt-row{
+  margin-bottom:0 !important;
+}
+
+body:has(#btnMassif) #optionsBox .opt-row:has(input:checked),
+body:has(#btnMassif) label.opt-row:has(input:checked){
+  border-color:rgba(255,255,255,.36) !important;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.065)) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.07),
+    inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+
+body:has(#btnMassif) #fixedOptions{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+  gap:10px !important;
+
+  padding:12px !important;
+  margin:12px 0 14px 0 !important;
+
+  border:1px solid rgba(255,255,255,.14) !important;
+  border-radius:18px !important;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.03)) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+
+body:has(#btnMassif) #fixedOptions > label{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+
+  min-height:36px !important;
+  padding:8px 12px !important;
+  margin:0 !important;
+
+  border:1px solid rgba(255,255,255,.16) !important;
+  border-radius:var(--cofel-ui-pill) !important;
+
+  background:rgba(255,255,255,.055) !important;
   color:#ffffff !important;
+
+  box-shadow:none !important;
+}
+
+body:has(#btnMassif) #fixedOptions > label:has(input:checked){
+  border-color:rgba(255,255,255,.34) !important;
+  background:rgba(255,255,255,.105) !important;
+}
+
+body:has(#btnMassif) #fixedOptions > label:has(input:disabled){
+  opacity:.62 !important;
+}
+
+body:has(#btnMassif) #fixedOptions .ral-btn,
+body:has(#btnMassif) #btnMassif,
+body:has(#btnMassif) #btnRal{
+  min-height:36px !important;
+  padding:8px 13px !important;
+  margin:0 !important;
+
+  border-radius:var(--cofel-ui-pill) !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.045)) !important;
+
+  color:#ffffff !important;
+
+  box-shadow:
+    0 8px 20px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+
+body:has(#btnMassif) #fixedOptions .ral-btn:hover,
+body:has(#btnMassif) #btnMassif:hover,
+body:has(#btnMassif) #btnRal:hover{
+  border-color:rgba(255,255,255,.30) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,.065)) !important;
+}
+
+body:has(#btnMassif) #btnRal{
+  margin-left:auto !important;
+}
+
+body:has(#btnMassif) #quantite{
+  margin-top:4px !important;
+}
+
+body:has(#btnMassif) fieldset + fieldset{
+  margin-top:18px !important;
+}
+
+body:has(#btnMassif) label.opt-row span{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:8px !important;
 }
 
 /* Popup massif béton */
@@ -1259,29 +933,12 @@ input[type="radio"]{
 }
 
 .massif-close{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-
   width:36px !important;
   min-width:36px !important;
   min-height:36px !important;
   padding:0 !important;
-
-  border-radius:999px !important;
-  border:1px solid rgba(255,255,255,.18) !important;
-  background:rgba(255,255,255,.065) !important;
-  color:#ffffff !important;
-
-  cursor:pointer !important;
 }
 
-.massif-close:hover{
-  background:rgba(255,255,255,.12) !important;
-  border-color:rgba(255,255,255,.30) !important;
-}
-
-/* Tableau massif béton */
 .massif-table{
   border:1px solid rgba(255,255,255,.13) !important;
   border-radius:16px !important;
@@ -1309,234 +966,11 @@ input[type="radio"]{
   color:#ffffff !important;
 }
 
-/* Mobile */
-@media (max-width:640px){
-  #fixedOptions{
-    gap:10px !important;
-  }
 
-  #fixedOptions > label,
-  #btnMassif,
-  #btnRal{
-    width:100% !important;
-    justify-content:flex-start !important;
-  }
-
-  .massif-card{
-    width:calc(100vw - 20px) !important;
-  }
-}
 /* ==========================================================================
-   COFEL — Correctif Totems : encadrés plus réguliers
-   Objectif : éviter les cadres qui se touchent et harmoniser les fonds
+   9. Supports souples, rigides & adhésifs
    ========================================================================== */
 
-/* Totems : respiration générale dans les fieldsets */
-body:has(#btnMassif) fieldset{
-  padding:18px !important;
-  margin-bottom:18px !important;
-
-  border:1px solid rgba(255,255,255,.14) !important;
-  border-radius:22px !important;
-
-  background:
-    radial-gradient(circle at 12% 0%, rgba(255,255,255,.045), transparent 38%),
-    rgba(255,255,255,.035) !important;
-
-  box-shadow:
-    0 18px 42px rgba(0,0,0,.24),
-    inset 0 1px 0 rgba(255,255,255,.045) !important;
-}
-
-/* Totems : labels de section mieux espacés */
-body:has(#btnMassif) fieldset > label{
-  display:block;
-  margin-top:14px !important;
-  margin-bottom:7px !important;
-}
-
-/* Premier label après les infos : pas trop d’espace */
-body:has(#btnMassif) fieldset > label:first-of-type{
-  margin-top:8px !important;
-}
-
-/* Totems : options disponibles dynamiquement */
-body:has(#btnMassif) #optionsBox{
-  display:flex !important;
-  flex-direction:column !important;
-  gap:10px !important;
-  margin-top:8px !important;
-  margin-bottom:12px !important;
-}
-
-/* Totems : lignes option panier / platine / ajourage */
-body:has(#btnMassif) #optionsBox .opt-row,
-body:has(#btnMassif) label.opt-row{
-  width:100% !important;
-
-  padding:11px 14px !important;
-  margin:0 0 10px 0 !important;
-
-  border:1px solid rgba(255,255,255,.14) !important;
-  border-radius:16px !important;
-
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.035)) !important;
-
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.05) !important;
-}
-
-/* Évite double marge dans #optionsBox */
-body:has(#btnMassif) #optionsBox .opt-row{
-  margin-bottom:0 !important;
-}
-
-/* Totems : ligne cochée */
-body:has(#btnMassif) #optionsBox .opt-row:has(input:checked),
-body:has(#btnMassif) label.opt-row:has(input:checked){
-  border-color:rgba(255,255,255,.36) !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.065)) !important;
-
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,.07),
-    inset 0 1px 0 rgba(255,255,255,.08) !important;
-}
-
-/* Totems : bloc fixe pré-laquage / RAL / massif
-   On supprime l’effet gros cadre trop lourd */
-body:has(#btnMassif) #fixedOptions{
-  display:flex !important;
-  flex-wrap:wrap !important;
-  align-items:center !important;
-  gap:10px !important;
-
-  padding:12px !important;
-  margin:12px 0 14px 0 !important;
-
-  border:1px solid rgba(255,255,255,.14) !important;
-  border-radius:18px !important;
-
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.03)) !important;
-
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.05) !important;
-}
-
-/* Totems : les labels à l’intérieur de #fixedOptions deviennent des pastilles régulières */
-body:has(#btnMassif) #fixedOptions > label{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:8px !important;
-
-  min-height:36px !important;
-  padding:8px 12px !important;
-  margin:0 !important;
-
-  border:1px solid rgba(255,255,255,.16) !important;
-  border-radius:999px !important;
-
-  background:rgba(255,255,255,.055) !important;
-  color:#ffffff !important;
-
-  box-shadow:none !important;
-}
-
-/* Totems : label coché */
-body:has(#btnMassif) #fixedOptions > label:has(input:checked){
-  border-color:rgba(255,255,255,.34) !important;
-  background:rgba(255,255,255,.105) !important;
-}
-
-/* Totems : label désactivé pré-laquage */
-body:has(#btnMassif) #fixedOptions > label:has(input:disabled){
-  opacity:.62 !important;
-}
-
-/* Totems : boutons dans #fixedOptions homogènes avec les pastilles */
-body:has(#btnMassif) #fixedOptions .ral-btn,
-body:has(#btnMassif) #btnMassif,
-body:has(#btnMassif) #btnRal{
-  min-height:36px !important;
-  padding:8px 13px !important;
-  margin:0 !important;
-
-  border-radius:999px !important;
-  border:1px solid rgba(255,255,255,.18) !important;
-
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.045)) !important;
-
-  color:#ffffff !important;
-
-  box-shadow:
-    0 8px 20px rgba(0,0,0,.22),
-    inset 0 1px 0 rgba(255,255,255,.06) !important;
-}
-
-body:has(#btnMassif) #fixedOptions .ral-btn:hover,
-body:has(#btnMassif) #btnMassif:hover,
-body:has(#btnMassif) #btnRal:hover{
-  border-color:rgba(255,255,255,.30) !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,.065)) !important;
-}
-
-/* Totems : bouton RAL à droite mais propre */
-body:has(#btnMassif) #btnRal{
-  margin-left:auto !important;
-}
-
-/* Totems : quantité avec respiration */
-body:has(#btnMassif) #quantite{
-  margin-top:4px !important;
-}
-
-/* Totems : bloc ajourage mieux séparé */
-body:has(#btnMassif) fieldset + fieldset{
-  margin-top:18px !important;
-}
-
-/* Totems : éviter qu’un label opt-row imbriqué prenne trop de style */
-body:has(#btnMassif) label.opt-row span{
-  display:inline-flex !important;
-  align-items:center !important;
-  gap:8px !important;
-}
-
-/* Mobile Totems */
-@media (max-width:640px){
-  body:has(#btnMassif) #fixedOptions{
-    flex-direction:column !important;
-    align-items:stretch !important;
-  }
-
-  body:has(#btnMassif) #fixedOptions > label,
-  body:has(#btnMassif) #fixedOptions .ral-btn,
-  body:has(#btnMassif) #btnMassif,
-  body:has(#btnMassif) #btnRal{
-    width:100% !important;
-    justify-content:flex-start !important;
-  }
-
-  body:has(#btnMassif) #btnRal{
-    margin-left:0 !important;
-  }
-}
-/* ==========================================================================
-   COFEL — Phase 7 : configurateur Supports souples, rigides & adhésifs
-   Objectif : harmoniser les étapes, boutons de navigation et sections
-   ========================================================================== */
-
-/* Page configurateur multi-étapes */
-body:has(#stepsNav) .wrapper{
-  display:block;
-}
-
-/* Barre des étapes */
 body:has(#stepsNav) .steps-nav{
   display:flex !important;
   flex-wrap:wrap !important;
@@ -1557,7 +991,6 @@ body:has(#stepsNav) .steps-nav{
     inset 0 1px 0 rgba(255,255,255,.045) !important;
 }
 
-/* Pastilles d'étapes */
 body:has(#stepsNav) .step-item{
   display:inline-flex !important;
   align-items:center !important;
@@ -1566,7 +999,7 @@ body:has(#stepsNav) .step-item{
   min-height:34px !important;
   padding:8px 12px !important;
 
-  border-radius:999px !important;
+  border-radius:var(--cofel-ui-pill) !important;
   border:1px solid rgba(255,255,255,.14) !important;
 
   background:rgba(255,255,255,.055) !important;
@@ -1580,7 +1013,6 @@ body:has(#stepsNav) .step-item{
   user-select:none !important;
 }
 
-/* Étape active */
 body:has(#stepsNav) .step-item.active{
   background:
     linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,.075)) !important;
@@ -1594,35 +1026,20 @@ body:has(#stepsNav) .step-item.active{
     inset 0 1px 0 rgba(255,255,255,.12) !important;
 }
 
-/* Étapes verrouillées */
 body:has(#stepsNav) .step-item.locked{
   opacity:.45 !important;
   color:rgba(255,255,255,.45) !important;
 }
 
-/* Sections */
 body:has(#stepsNav) .step-section{
   margin-bottom:18px !important;
 }
 
-/* Fieldsets des étapes */
 body:has(#stepsNav) .step-section fieldset{
   padding:18px !important;
   margin-bottom:14px !important;
-
-  border:1px solid rgba(255,255,255,.14) !important;
-  border-radius:22px !important;
-
-  background:
-    radial-gradient(circle at 12% 0%, rgba(255,255,255,.045), transparent 38%),
-    rgba(255,255,255,.035) !important;
-
-  box-shadow:
-    0 18px 42px rgba(0,0,0,.24),
-    inset 0 1px 0 rgba(255,255,255,.045) !important;
 }
 
-/* Boutons précédent / suivant / ajouter */
 body:has(#stepsNav) .nav-buttons{
   display:flex !important;
   flex-wrap:wrap !important;
@@ -1632,53 +1049,10 @@ body:has(#stepsNav) .nav-buttons{
 }
 
 body:has(#stepsNav) .btn-nav{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:8px !important;
-
   min-height:40px !important;
   padding:10px 15px !important;
-
-  border-radius:999px !important;
-  border:1px solid rgba(255,255,255,.18) !important;
-
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.055)) !important;
-
-  color:#ffffff !important;
-
-  font-size:13px !important;
-  font-weight:850 !important;
-  line-height:1 !important;
-
-  cursor:pointer !important;
-
-  box-shadow:
-    0 10px 24px rgba(0,0,0,.26),
-    inset 0 1px 0 rgba(255,255,255,.08) !important;
-
-  transition:
-    transform .16s ease,
-    background .16s ease,
-    border-color .16s ease,
-    box-shadow .16s ease !important;
 }
 
-body:has(#stepsNav) .btn-nav:hover{
-  transform:translateY(-1px);
-
-  border-color:rgba(255,255,255,.30) !important;
-
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.17), rgba(255,255,255,.075)) !important;
-
-  box-shadow:
-    0 14px 30px rgba(0,0,0,.34),
-    inset 0 1px 0 rgba(255,255,255,.10) !important;
-}
-
-/* Bouton Ajouter au devis */
 body:has(#stepsNav) #addToDevisBtn{
   border-color:rgba(255,255,255,.28) !important;
 
@@ -1691,105 +1065,77 @@ body:has(#stepsNav) #addToDevisBtn{
     inset 0 1px 0 rgba(255,255,255,.14) !important;
 }
 
-/* Bouton Réinitialiser */
 body:has(#stepsNav) #resetBtn{
-  background:rgba(255,107,107,.10) !important;
-  color:#ffe3e3 !important;
+  background:var(--cofel-ui-danger-bg) !important;
+  color:var(--cofel-ui-danger-text) !important;
   border-color:rgba(255,107,107,.34) !important;
   box-shadow:none !important;
 }
 
-/* Récapitulatif */
 body:has(#stepsNav) #recap{
   padding:14px !important;
   margin-top:10px !important;
-
-  border:1px solid rgba(255,255,255,.13) !important;
-  border-radius:18px !important;
-
-  background:
-    radial-gradient(circle at 15% 0%, rgba(255,255,255,.055), transparent 38%),
-    rgba(255,255,255,.045) !important;
 }
 
-/* Footer */
-body:has(#stepsNav) .cofel-footer{
-  color:rgba(255,255,255,.48) !important;
-}
 
-/* Mobile */
-@media (max-width:640px){
-  body:has(#stepsNav) .steps-nav{
-    gap:7px !important;
-    padding:10px !important;
-  }
-
-  body:has(#stepsNav) .step-item{
-    width:100% !important;
-    justify-content:flex-start !important;
-  }
-
-  body:has(#stepsNav) .nav-buttons{
-    flex-direction:column !important;
-  }
-
-  body:has(#stepsNav) .btn-nav{
-    width:100% !important;
-  }
-}
 /* ==========================================================================
-   COFEL — Phase 8 : Lettres boîtiers + Lettres alu / alu-PVC
-   Objectif : neutraliser les anciens styles violets et harmoniser les selects
+   10. Lettres boîtiers + Lettres alu / alu-PVC
    ========================================================================== */
 
-/* Pages utilisant les selects personnalisés */
+body:has(.cselect){
+  background:
+    radial-gradient(900px 520px at 20% -10%, rgba(255,255,255,.075), transparent 62%),
+    radial-gradient(900px 520px at 110% 10%, rgba(255,255,255,.055), transparent 62%),
+    linear-gradient(135deg, #050506, #111116 48%, #060607) !important;
+
+  color:#ffffff !important;
+}
+
 body:has(.cselect) .cofel-container,
 body:has(.cselect) .wrap{
   max-width:1200px;
 }
 
-/* Panneaux principaux */
-body:has(.cselect) .panel,
-body:has(.cselect) .panel.glass{
-  border:1px solid rgba(255,255,255,.14) !important;
-  border-radius:22px !important;
+body:has(.cselect) .cofel-header,
+body:has(.cselect) .cofel-header.glass{
+  border-bottom:1px solid rgba(255,255,255,.12) !important;
 
   background:
-    radial-gradient(circle at 12% 0%, rgba(255,255,255,.045), transparent 38%),
-    rgba(255,255,255,.035) !important;
+    linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.025)) !important;
+
+  backdrop-filter:blur(18px) !important;
 
   box-shadow:
-    0 18px 42px rgba(0,0,0,.24),
+    0 10px 30px rgba(0,0,0,.28),
     inset 0 1px 0 rgba(255,255,255,.045) !important;
 }
 
-/* Cartes internes */
-body:has(.cselect) .card,
-body:has(.cselect) .card.glass{
-  border:1px solid rgba(255,255,255,.13) !important;
-  border-radius:18px !important;
-
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.03)) !important;
-
-  box-shadow:
-    0 12px 30px rgba(0,0,0,.18),
-    inset 0 1px 0 rgba(255,255,255,.045) !important;
-}
-
-/* Titres */
-body:has(.cselect) .panel h2,
-body:has(.cselect) .card-title{
+body:has(.cselect) h1,
+body:has(.cselect) h2,
+body:has(.cselect) h3,
+body:has(.cselect) .cofel-title,
+body:has(.cselect) .panel h2{
   color:#ffffff !important;
 }
 
-/* Labels */
+body:has(.cselect) .panel,
+body:has(.cselect) .panel.glass{
+  margin-bottom:18px !important;
+  padding:18px !important;
+}
+
+body:has(.cselect) .card,
+body:has(.cselect) .card.glass{
+  margin-bottom:12px !important;
+  padding:14px !important;
+}
+
 body:has(.cselect) label{
   color:rgba(255,255,255,.86) !important;
   font-weight:800 !important;
 }
 
-/* Select custom : bouton fermé */
+/* Select custom fermé */
 body:has(.cselect) .cselect-toggle{
   display:flex !important;
   align-items:center !important;
@@ -1830,7 +1176,7 @@ body:has(.cselect) .cselect[aria-expanded="true"] .cselect-toggle{
     inset 0 1px 0 rgba(255,255,255,.08) !important;
 }
 
-/* Select custom : menu déroulant */
+/* Menu select custom */
 body:has(.cselect) .cselect-menu{
   padding:7px !important;
 
@@ -1849,7 +1195,7 @@ body:has(.cselect) .cselect-menu{
   backdrop-filter:blur(14px) !important;
 }
 
-/* Select custom : options */
+/* Options du select */
 body:has(.cselect) .cselect-option{
   padding:10px 12px !important;
   margin:4px 0 !important;
@@ -1869,7 +1215,7 @@ body:has(.cselect) .cselect-option[aria-selected="true"]{
   border-color:rgba(255,255,255,.28) !important;
 }
 
-/* Cases options : pose sur lisse, suppléments, etc. */
+/* Cases options anciennes pages */
 body:has(.cselect) .option-item{
   display:flex !important;
   align-items:center !important;
@@ -1907,30 +1253,20 @@ body:has(.cselect) .option-item:has(input:checked){
     inset 0 1px 0 rgba(255,255,255,.08) !important;
 }
 
-/* Checkbox custom dans ces anciennes pages */
 body:has(.cselect) .option-item input[type="checkbox"],
 body:has(.cselect) .option-item input[type="radio"]{
   accent-color:#ffffff !important;
 }
 
-/* Si la page force une checkbox custom en violet, on la neutralise */
 body:has(.cselect) .option-item input:checked{
   background:#ffffff !important;
   border-color:#ffffff !important;
 }
 
-/* Le check reste visible */
 body:has(.cselect) .option-item input:checked::after{
   border-color:#111111 !important;
 }
 
-/* Zones d'aide */
-body:has(.cselect) .help,
-body:has(.cselect) .muted{
-  color:rgba(255,255,255,.62) !important;
-}
-
-/* Résultat / récap */
 body:has(.cselect) .result{
   border:1px solid rgba(255,255,255,.13) !important;
   border-radius:18px !important;
@@ -1946,12 +1282,11 @@ body:has(.cselect) .result{
     inset 0 1px 0 rgba(255,255,255,.05) !important;
 }
 
-/* Boutons récap */
 body:has(.cselect) .result + div .btn,
 body:has(.cselect) #btnAddDevis,
 body:has(.cselect) #btnReset{
   border:1px solid rgba(255,255,255,.18) !important;
-  border-radius:999px !important;
+  border-radius:var(--cofel-ui-pill) !important;
 
   background:
     linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.055)) !important;
@@ -1963,123 +1298,14 @@ body:has(.cselect) #btnReset{
     inset 0 1px 0 rgba(255,255,255,.08) !important;
 }
 
-body:has(.cselect) .result + div .btn:hover,
-body:has(.cselect) #btnAddDevis:hover,
-body:has(.cselect) #btnReset:hover{
-  border-color:rgba(255,255,255,.30) !important;
-
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.17), rgba(255,255,255,.075)) !important;
-}
-
-/* Réinitialiser : plus discret */
 body:has(.cselect) #btnReset{
   background:rgba(255,255,255,.055) !important;
   box-shadow:none !important;
 }
 
-/* Mobile */
-@media (max-width:640px){
-  body:has(.cselect) .result + div{
-    flex-direction:column !important;
-  }
-
-  body:has(.cselect) .result + div .btn,
-  body:has(.cselect) #btnAddDevis,
-  body:has(.cselect) #btnReset{
-    width:100% !important;
-  }
-}
-/* ==========================================================================
-   COFEL — Phase 9 : neutralisation des anciens fonds violets
-   Objectif : pages Lettres boîtiers + Lettres alu/alu-PVC en noir / gris
-   ========================================================================== */
-
-/* Pages avec selects custom : neutralise l'ancien fond violet */
-body:has(.cselect){
-  background:
-    radial-gradient(900px 520px at 20% -10%, rgba(255,255,255,.075), transparent 62%),
-    radial-gradient(900px 520px at 110% 10%, rgba(255,255,255,.055), transparent 62%),
-    linear-gradient(135deg, #050506, #111116 48%, #060607) !important;
-
-  color:#ffffff !important;
-}
-
-/* Header plus cohérent noir / gris */
-body:has(.cselect) .cofel-header,
-body:has(.cselect) .cofel-header.glass{
-  border-bottom:1px solid rgba(255,255,255,.12) !important;
-
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.025)) !important;
-
-  backdrop-filter:blur(18px) !important;
-
-  box-shadow:
-    0 10px 30px rgba(0,0,0,.28),
-    inset 0 1px 0 rgba(255,255,255,.045) !important;
-}
-
-/* Titres : suppression de l'accent violet */
-body:has(.cselect) h1,
-body:has(.cselect) h2,
-body:has(.cselect) h3,
-body:has(.cselect) .cofel-title,
-body:has(.cselect) .panel h2{
-  color:#ffffff !important;
-}
-
-/* Texte secondaire plus sobre */
-body:has(.cselect) .muted,
-body:has(.cselect) .help,
-body:has(.cselect) footer{
-  color:rgba(255,255,255,.62) !important;
-}
-
-/* Menus déroulants natifs : fond noir/gris au lieu du violet */
-body:has(.cselect) select option{
-  background:#141417 !important;
-  color:#ffffff !important;
-}
-
-/* Cartes et panneaux : homogénéisation finale */
-body:has(.cselect) .panel,
-body:has(.cselect) .panel.glass{
-  margin-bottom:18px !important;
-  padding:18px !important;
-
-  border:1px solid rgba(255,255,255,.14) !important;
-  border-radius:22px !important;
-
-  background:
-    radial-gradient(circle at 12% 0%, rgba(255,255,255,.045), transparent 38%),
-    rgba(255,255,255,.035) !important;
-
-  box-shadow:
-    0 18px 42px rgba(0,0,0,.24),
-    inset 0 1px 0 rgba(255,255,255,.045) !important;
-}
-
-body:has(.cselect) .card,
-body:has(.cselect) .card.glass{
-  margin-bottom:12px !important;
-  padding:14px !important;
-
-  border:1px solid rgba(255,255,255,.13) !important;
-  border-radius:18px !important;
-
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.03)) !important;
-
-  box-shadow:
-    0 12px 30px rgba(0,0,0,.18),
-    inset 0 1px 0 rgba(255,255,255,.045) !important;
-}
-
-/* Boutons retour accueil sur ces anciennes pages */
 body:has(.cselect) .cofel-back{
   border:1px solid rgba(255,255,255,.18) !important;
-  border-radius:999px !important;
+  border-radius:var(--cofel-ui-pill) !important;
 
   background:
     linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.05)) !important;
@@ -2098,12 +1324,108 @@ body:has(.cselect) .cofel-back:hover{
     linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.07)) !important;
 }
 
-/* Correction spécifique checkbox custom encore violette */
-body:has(.cselect) .option-item input:checked{
-  background:#ffffff !important;
-  border-color:#ffffff !important;
-}
 
-body:has(.cselect) .option-item input:checked::after{
-  border-color:#111111 !important;
+/* ==========================================================================
+   11. Mobile
+   ========================================================================== */
+
+@media (max-width:640px){
+  .cofel-btn,
+  .btn,
+  .btn-pill,
+  .btn-link,
+  .btn-view,
+  .btn-reopen,
+  .btn-row,
+  .btn-nav,
+  .cofel-fab,
+  .configurateur button,
+  .configurator button,
+  .page-configurateur button,
+  .wrap button,
+  .panel button,
+  .card button,
+  .actions button,
+  .form-actions button,
+  .result-actions button,
+  .recap-actions button{
+    min-height:40px !important;
+    padding:9px 12px !important;
+    font-size:12px !important;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([type="button"]):not([type="submit"]),
+  select,
+  textarea{
+    width:100%;
+    min-height:42px !important;
+  }
+
+  fieldset{
+    border-radius:18px !important;
+  }
+
+  .radio-row{
+    gap:8px;
+  }
+
+  .radio-row > label{
+    width:100%;
+    justify-content:flex-start !important;
+  }
+
+  .ral-btn{
+    width:100%;
+  }
+
+  body:has(#btnMassif) #fixedOptions{
+    flex-direction:column !important;
+    align-items:stretch !important;
+  }
+
+  body:has(#btnMassif) #fixedOptions > label,
+  body:has(#btnMassif) #fixedOptions .ral-btn,
+  body:has(#btnMassif) #btnMassif,
+  body:has(#btnMassif) #btnRal{
+    width:100% !important;
+    justify-content:flex-start !important;
+  }
+
+  body:has(#btnMassif) #btnRal{
+    margin-left:0 !important;
+  }
+
+  .massif-card{
+    width:calc(100vw - 20px) !important;
+  }
+
+  body:has(#stepsNav) .steps-nav{
+    gap:7px !important;
+    padding:10px !important;
+  }
+
+  body:has(#stepsNav) .step-item{
+    width:100% !important;
+    justify-content:flex-start !important;
+  }
+
+  body:has(#stepsNav) .nav-buttons{
+    flex-direction:column !important;
+  }
+
+  body:has(#stepsNav) .btn-nav,
+  body:has(#stepsNav) #addToDevisBtn,
+  body:has(#stepsNav) #resetBtn{
+    width:100% !important;
+  }
+
+  body:has(.cselect) .result + div{
+    flex-direction:column !important;
+  }
+
+  body:has(.cselect) .result + div .btn,
+  body:has(.cselect) #btnAddDevis,
+  body:has(.cselect) #btnReset{
+    width:100% !important;
+  }
 }
