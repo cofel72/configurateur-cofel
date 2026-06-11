@@ -1,0 +1,169 @@
+/* COFEL — Harmonisation globale des boutons */
+
+.cofel-btn,
+.btn,
+.btn-pill,
+.btn-link,
+.btn-view,
+.btn-reopen,
+.btn-row,
+.btn-modal,
+a.cofel-back{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+
+  min-height:38px !important;
+  padding:9px 14px !important;
+
+  border-radius:999px !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+
+  background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06)) !important;
+  color:var(--txt,#fff) !important;
+
+  font-family:inherit !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+  line-height:1 !important;
+
+  text-decoration:none !important;
+  white-space:nowrap !important;
+  cursor:pointer !important;
+
+  box-shadow:0 10px 24px rgba(0,0,0,.28) !important;
+
+  transition:
+    transform .16s ease,
+    box-shadow .16s ease,
+    background .16s ease,
+    border-color .16s ease,
+    opacity .16s ease !important;
+}
+
+.cofel-btn:hover,
+.btn:hover,
+.btn-pill:hover,
+.btn-link:hover,
+.btn-view:hover,
+.btn-reopen:hover,
+.btn-row:hover,
+.btn-modal:hover,
+a.cofel-back:hover{
+  background:linear-gradient(180deg, rgba(255,255,255,.19), rgba(255,255,255,.09)) !important;
+  border-color:rgba(255,255,255,.28) !important;
+  transform:translateY(-1px);
+  box-shadow:0 14px 30px rgba(0,0,0,.38) !important;
+  opacity:1 !important;
+}
+
+.cofel-btn:active,
+.btn:active,
+.btn-pill:active,
+.btn-link:active,
+.btn-view:active,
+.btn-reopen:active,
+.btn-row:active,
+.btn-modal:active,
+a.cofel-back:active{
+  transform:translateY(1px);
+  box-shadow:0 6px 16px rgba(0,0,0,.28) !important;
+}
+
+.cofel-btn:disabled,
+.cofel-btn[disabled],
+.btn:disabled,
+.btn[disabled],
+.btn-reopen:disabled,
+.btn-reopen[disabled]{
+  opacity:.42 !important;
+  cursor:not-allowed !important;
+  transform:none !important;
+  box-shadow:none !important;
+  pointer-events:none !important;
+}
+
+/* Boutons secondaires / discrets */
+.cofel-btn-secondary,
+.btn-secondary,
+.btn-ghost,
+.ghost,
+.secondary,
+.btn-row-secondary,
+.btn-cancel{
+  background:rgba(255,255,255,.065) !important;
+  color:var(--txt,#fff) !important;
+  border-color:rgba(255,255,255,.16) !important;
+  box-shadow:none !important;
+}
+
+.cofel-btn-secondary:hover,
+.btn-secondary:hover,
+.btn-ghost:hover,
+.ghost:hover,
+.secondary:hover,
+.btn-row-secondary:hover,
+.btn-cancel:hover{
+  background:rgba(255,255,255,.105) !important;
+}
+
+/* Boutons danger : supprimer / vider */
+.cofel-btn-danger,
+.btn-danger,
+.btn-row-delete{
+  background:rgba(255,107,107,.12) !important;
+  color:#ffe3e3 !important;
+  border-color:rgba(255,107,107,.45) !important;
+  box-shadow:none !important;
+}
+
+.cofel-btn-danger:hover,
+.btn-danger:hover,
+.btn-row-delete:hover{
+  background:rgba(255,107,107,.18) !important;
+}
+
+/* Boutons validation / modifier / approuver */
+.cofel-btn-success,
+.btn-success,
+.btn-approve,
+.btn-reopen{
+  background:rgba(80,220,140,.12) !important;
+  color:#ddffe9 !important;
+  border-color:rgba(80,220,140,.42) !important;
+  box-shadow:none !important;
+}
+
+.cofel-btn-success:hover,
+.btn-success:hover,
+.btn-approve:hover,
+.btn-reopen:hover{
+  background:rgba(80,220,140,.18) !important;
+}
+
+/* Petits boutons dans tableaux */
+.cofel-btn-sm,
+.btn-sm,
+.btn-row,
+.btn-view,
+.btn-reopen,
+.btn-qty,
+.btn-edit,
+.btn-del,
+.btn-up,
+.btn-down{
+  min-height:32px !important;
+  padding:7px 10px !important;
+  font-size:12px !important;
+}
+
+/* Boutons icône : ▲ ▼ */
+.cofel-btn-icon,
+.btn-up,
+.btn-down{
+  width:32px !important;
+  min-width:32px !important;
+  padding-left:0 !important;
+  padding-right:0 !important;
+}
