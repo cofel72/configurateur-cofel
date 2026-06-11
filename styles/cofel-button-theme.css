@@ -788,3 +788,199 @@ label.radio-row{
     min-height:46px !important;
   }
 }
+/* ==========================================================================
+   COFEL — Correctif neutralisation violet
+   Objectif : boutons harmonisés noir / blanc / gris
+   ========================================================================== */
+
+/* Boutons principaux : Ajouter au devis / Calculer / Valider */
+.cofel-fab,
+#btnAddDevis,
+#btnAjouterDevis,
+#btnAjoutDevis,
+#btnCalculer,
+#btnValider,
+#btnSubmit,
+button[id*="add"],
+button[id*="ajout"],
+button[id*="devis"],
+button[id*="calcul"],
+button[id*="valider"],
+button[class*="add"],
+button[class*="ajout"],
+button[class*="devis"],
+button[class*="calcul"],
+button[class*="valider"],
+.add-to-quote,
+.ajouter-devis,
+.btn-add,
+.btn-ajout,
+.btn-calculate,
+.btn-calc,
+.btn-submit,
+.btn-primary{
+  border:1px solid rgba(255,255,255,.26) !important;
+
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,.20), transparent 40%),
+    linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.065)) !important;
+
+  color:#ffffff !important;
+
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.16) !important;
+}
+
+.cofel-fab:hover,
+#btnAddDevis:hover,
+#btnAjouterDevis:hover,
+#btnAjoutDevis:hover,
+#btnCalculer:hover,
+#btnValider:hover,
+#btnSubmit:hover,
+button[id*="add"]:hover,
+button[id*="ajout"]:hover,
+button[id*="devis"]:hover,
+button[id*="calcul"]:hover,
+button[id*="valider"]:hover,
+button[class*="add"]:hover,
+button[class*="ajout"]:hover,
+button[class*="devis"]:hover,
+button[class*="calcul"]:hover,
+button[class*="valider"]:hover,
+.add-to-quote:hover,
+.ajouter-devis:hover,
+.btn-add:hover,
+.btn-ajout:hover,
+.btn-calculate:hover,
+.btn-calc:hover,
+.btn-submit:hover,
+.btn-primary:hover{
+  border-color:rgba(255,255,255,.40) !important;
+
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,.28), transparent 40%),
+    linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.09)) !important;
+
+  box-shadow:
+    0 16px 34px rgba(0,0,0,.42),
+    0 0 0 1px rgba(255,255,255,.08),
+    inset 0 1px 0 rgba(255,255,255,.20) !important;
+}
+
+/* États sélectionnés : choix, options, boutons actifs */
+.choice.active,
+.choice.selected,
+.choice.is-active,
+.choice-btn.active,
+.choice-btn.selected,
+.option.active,
+.option.selected,
+.option-btn.active,
+.option-btn.selected,
+.option-card.active,
+.option-card.selected,
+.card-option.active,
+.card-option.selected,
+.card-choice.active,
+.card-choice.selected,
+.select-card.active,
+.select-card.selected,
+.tile.active,
+.tile.selected,
+.pill.active,
+.pill.selected,
+.chip.active,
+.chip.selected,
+button.active,
+button.selected,
+button.is-active,
+.radio-row > label:has(input:checked),
+.ral-tab.is-active{
+  background:rgba(255,255,255,.13) !important;
+  border-color:rgba(255,255,255,.42) !important;
+  color:#ffffff !important;
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.08),
+    0 10px 24px rgba(0,0,0,.28),
+    inset 0 1px 0 rgba(255,255,255,.14) !important;
+}
+
+/* Bouton RAL principal */
+.ral-btn{
+  border:1px solid rgba(255,255,255,.26) !important;
+
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,.18), transparent 40%),
+    linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,.065)) !important;
+
+  color:#ffffff !important;
+
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.30),
+    inset 0 1px 0 rgba(255,255,255,.14) !important;
+}
+
+.ral-btn:hover{
+  border-color:rgba(255,255,255,.40) !important;
+
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,.25), transparent 40%),
+    linear-gradient(180deg, rgba(255,255,255,.21), rgba(255,255,255,.09)) !important;
+}
+
+/* Accent des radios / checkbox */
+.radio-row > label input{
+  accent-color:#ffffff !important;
+}
+
+/* Boutons validation / modifier / approuver : suppression du vert */
+.cofel-btn-success,
+.btn-success,
+.btn-approve,
+.btn-reopen{
+  background:rgba(255,255,255,.075) !important;
+  color:#ffffff !important;
+  border-color:rgba(255,255,255,.20) !important;
+  box-shadow:none !important;
+}
+
+.cofel-btn-success:hover,
+.btn-success:hover,
+.btn-approve:hover,
+.btn-reopen:hover{
+  background:rgba(255,255,255,.12) !important;
+  border-color:rgba(255,255,255,.32) !important;
+}
+
+/* Boutons secondaires : gris discret */
+.cofel-btn-secondary,
+.btn-secondary,
+.btn-ghost,
+.ghost,
+.secondary,
+.btn-row-secondary,
+.btn-cancel,
+.ral-close,
+.ral-tab,
+.ral-chip{
+  background:rgba(255,255,255,.065) !important;
+  color:#ffffff !important;
+  border-color:rgba(255,255,255,.16) !important;
+}
+
+.cofel-btn-secondary:hover,
+.btn-secondary:hover,
+.btn-ghost:hover,
+.ghost:hover,
+.secondary:hover,
+.btn-row-secondary:hover,
+.btn-cancel:hover,
+.ral-close:hover,
+.ral-tab:hover,
+.ral-chip:hover{
+  background:rgba(255,255,255,.105) !important;
+  border-color:rgba(255,255,255,.28) !important;
+}
