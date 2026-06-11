@@ -135,6 +135,13 @@
       letter-spacing:.2px;
     }
 
+    .note{
+      margin:0 0 14px;
+      color:rgba(255,255,255,.68);
+      font-size:13px;
+      line-height:1.4;
+    }
+
     .filters{
       display:flex;
       flex-wrap:wrap;
@@ -167,7 +174,7 @@
     table{
       width:100%;
       border-collapse:collapse;
-      min-width:900px;
+      min-width:980px;
       background: rgba(0,0,0,.20);
     }
     thead tr{ background: rgba(255,255,255,.06); }
@@ -189,7 +196,15 @@
     }
     tbody tr:hover{ background: rgba(255,255,255,.05); }
 
-    .btn-view{
+    .actions-cell{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .btn-view,
+    .btn-reopen{
       padding:8px 12px;
       border-radius:999px;
       cursor:pointer;
@@ -199,17 +214,43 @@
       border:1px solid rgba(255,255,255,.18);
       color: var(--txt,#fff);
       box-shadow: 0 10px 24px rgba(0,0,0,.25);
-      transition: transform .16s, box-shadow .16s, background .16s;
+      transition: transform .16s, box-shadow .16s, background .16s, opacity .16s;
       white-space:nowrap;
     }
-    .btn-view:hover{
+
+    .btn-reopen{
+      border-color:rgba(140,255,190,.35);
+    }
+
+    .btn-view:hover,
+    .btn-reopen:hover{
       background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
       transform: translateY(-1px);
       box-shadow: 0 14px 30px rgba(0,0,0,.35);
     }
-    .btn-view:active{
+
+    .btn-view:active,
+    .btn-reopen:active{
       transform: translateY(1px);
       box-shadow: 0 6px 16px rgba(0,0,0,.28);
+    }
+
+    .btn-reopen[disabled]{
+      opacity:.35;
+      cursor:not-allowed;
+      pointer-events:none;
+    }
+
+    @media(max-width:700px){
+      .header-inner{
+        align-items:flex-start;
+        flex-direction:column;
+      }
+
+      .filters input,
+      .filters select{
+        width:100%;
+      }
     }
   </style>
 </head>
@@ -244,6 +285,11 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
       <button id="btnExportXlsx" class="btn-pill" type="button">⬇️ Export Excel</button>
     </div>
 
+    <p class="note">
+      Le bouton <strong>Modifier</strong> permettra de réinjecter un devis dans la page d’accueil pour le reprendre rapidement.
+      L’ancien PDF restera archivé : le prochain export créera un nouveau devis.
+    </p>
+
     <div class="filters">
       <input type="text" id="searchEmail" placeholder="Rechercher email client" />
       <input type="text" id="searchCompany" placeholder="Rechercher société" />
@@ -253,11 +299,16 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
         <option value="tole-tablette">Tôle tablette</option>
         <option value="rampe-lumineuse">Rampe lumineuse (PLL)</option>
         <option value="totem">Totems</option>
+        <option value="totems">Totems</option>
         <option value="lettres-pvc">Lettres PVC</option>
+        <option value="lettre-alu-alupvc">Lettres Alu / Alu-PVC</option>
+        <option value="lettre-boitier">Lettres boîtiers</option>
+        <option value="tolerie-dibond">Tôlerie Alu / Dibond</option>
+        <option value="souples-rigides-adhesifs">Supports souples, rigides & adhésifs</option>
         <option value="devis-index">Devis Index</option>
       </select>
 
-      <!-- ✅ NOUVEAU : presets période -->
+      <!-- ✅ Presets période -->
       <select id="datePreset">
         <option value="">Période : personnalisée</option>
         <option value="month_current">Mois en cours</option>
@@ -266,7 +317,7 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
         <option value="rolling_30d">30 derniers jours</option>
       </select>
 
-      <!-- ✅ NOUVEAU : période du / au -->
+      <!-- ✅ Période du / au -->
       <input type="date" id="dateFrom" />
       <input type="date" id="dateTo" />
 
@@ -285,7 +336,7 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
             <th>Contact</th>
             <th>Produit</th>
             <th>Total HT</th>
-            <th></th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody></tbody>
