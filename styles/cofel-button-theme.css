@@ -984,3 +984,132 @@ button.is-active,
   background:rgba(255,255,255,.105) !important;
   border-color:rgba(255,255,255,.28) !important;
 }
+/* ==========================================================================
+   COFEL — Phase 5 : harmonisation champs et panneaux
+   Objectif : cohérence noir / blanc / gris avec les boutons
+   ========================================================================== */
+
+/* Champs de formulaire */
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]),
+select,
+textarea{
+  min-height:40px !important;
+  padding:10px 12px !important;
+
+  border-radius:14px !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+
+  background:rgba(255,255,255,.065) !important;
+  color:#ffffff !important;
+
+  font-family:inherit !important;
+  font-size:14px !important;
+  font-weight:650 !important;
+
+  outline:none !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06) !important;
+
+  transition:
+    background .16s ease,
+    border-color .16s ease,
+    box-shadow .16s ease !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):hover,
+select:hover,
+textarea:hover{
+  background:rgba(255,255,255,.09) !important;
+  border-color:rgba(255,255,255,.24) !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):focus,
+select:focus,
+textarea:focus{
+  background:rgba(255,255,255,.105) !important;
+  border-color:rgba(255,255,255,.38) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.08),
+    0 10px 24px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:rgba(255,255,255,.42) !important;
+}
+
+/* Options dans les menus déroulants */
+select option{
+  background:#16151b !important;
+  color:#ffffff !important;
+}
+
+/* Labels */
+label{
+  color:rgba(255,255,255,.86);
+  font-weight:750;
+}
+
+/* Fieldsets / blocs de paramètres */
+fieldset{
+  border:1px solid rgba(255,255,255,.13) !important;
+  border-radius:20px !important;
+
+  background:
+    radial-gradient(circle at 10% 0%, rgba(255,255,255,.055), transparent 36%),
+    rgba(255,255,255,.035) !important;
+
+  box-shadow:
+    0 18px 42px rgba(0,0,0,.26),
+    inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+
+legend{
+  padding:0 10px !important;
+  color:#ffffff !important;
+  font-weight:900 !important;
+  letter-spacing:.2px;
+}
+
+/* Zones résultat / récap */
+.result,
+.resultat,
+#result,
+#resultat,
+#recap,
+.recap,
+.summary,
+.notice-glass{
+  border:1px solid rgba(255,255,255,.13) !important;
+  border-radius:18px !important;
+
+  background:
+    radial-gradient(circle at 15% 0%, rgba(255,255,255,.055), transparent 38%),
+    rgba(255,255,255,.045) !important;
+
+  box-shadow:
+    0 16px 36px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+
+/* Texte secondaire */
+.hint,
+small,
+.muted{
+  color:rgba(255,255,255,.62) !important;
+}
+
+/* Correction mobile */
+@media (max-width:640px){
+  input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]),
+  select,
+  textarea{
+    width:100%;
+    min-height:42px !important;
+  }
+
+  fieldset{
+    border-radius:18px !important;
+  }
+}
