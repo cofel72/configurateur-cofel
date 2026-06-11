@@ -167,3 +167,350 @@ a.cofel-back:active{
   padding-left:0 !important;
   padding-right:0 !important;
 }
+
+
+/* ==========================================================================
+   COFEL — Phase 2 : harmonisation avancée des configurateurs
+   Objectif : appliquer le style aux boutons spécifiques des pages produits
+   ========================================================================== */
+
+/* Boutons génériques dans les configurateurs */
+.configurateur button,
+.configurator button,
+.page-configurateur button,
+.wrap button,
+.panel button,
+.card button,
+.actions button,
+.action button,
+.form-actions button,
+.result-actions button,
+.recap-actions button,
+.recap button,
+.summary button,
+#recap button,
+#result button,
+#resultat button,
+#resume button,
+#panier button{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+
+  min-height:38px !important;
+  padding:9px 14px !important;
+
+  border-radius:999px !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+
+  background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06)) !important;
+  color:var(--txt,#fff) !important;
+
+  font-family:inherit !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+  line-height:1 !important;
+
+  text-decoration:none !important;
+  white-space:nowrap !important;
+  cursor:pointer !important;
+
+  box-shadow:0 10px 24px rgba(0,0,0,.28) !important;
+
+  transition:
+    transform .16s ease,
+    box-shadow .16s ease,
+    background .16s ease,
+    border-color .16s ease,
+    opacity .16s ease !important;
+}
+
+.configurateur button:hover,
+.configurator button:hover,
+.page-configurateur button:hover,
+.wrap button:hover,
+.panel button:hover,
+.card button:hover,
+.actions button:hover,
+.action button:hover,
+.form-actions button:hover,
+.result-actions button:hover,
+.recap-actions button:hover,
+.recap button:hover,
+.summary button:hover,
+#recap button:hover,
+#result button:hover,
+#resultat button:hover,
+#resume button:hover,
+#panier button:hover{
+  background:linear-gradient(180deg, rgba(255,255,255,.19), rgba(255,255,255,.09)) !important;
+  border-color:rgba(255,255,255,.28) !important;
+  transform:translateY(-1px);
+  box-shadow:0 14px 30px rgba(0,0,0,.38) !important;
+}
+
+.configurateur button:active,
+.configurator button:active,
+.page-configurateur button:active,
+.wrap button:active,
+.panel button:active,
+.card button:active,
+.actions button:active,
+.action button:active,
+.form-actions button:active,
+.result-actions button:active,
+.recap-actions button:active,
+.recap button:active,
+.summary button:active,
+#recap button:active,
+#result button:active,
+#resultat button:active,
+#resume button:active,
+#panier button:active{
+  transform:translateY(1px);
+  box-shadow:0 6px 16px rgba(0,0,0,.28) !important;
+}
+
+/* Choix / cartes cliquables / options */
+.choice,
+.choices button,
+.choice-btn,
+.option,
+.option-btn,
+.option-card,
+.card-option,
+.card-choice,
+.select-card,
+.tile,
+.tile-btn,
+.pill,
+.chip{
+  border-radius:16px !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  background:rgba(255,255,255,.065) !important;
+  color:var(--txt,#fff) !important;
+  box-shadow:none !important;
+  transition:
+    transform .16s ease,
+    background .16s ease,
+    border-color .16s ease,
+    box-shadow .16s ease !important;
+}
+
+.choice:hover,
+.choices button:hover,
+.choice-btn:hover,
+.option:hover,
+.option-btn:hover,
+.option-card:hover,
+.card-option:hover,
+.card-choice:hover,
+.select-card:hover,
+.tile:hover,
+.tile-btn:hover,
+.pill:hover,
+.chip:hover{
+  background:rgba(255,255,255,.105) !important;
+  border-color:rgba(255,255,255,.26) !important;
+  transform:translateY(-1px);
+}
+
+/* État sélectionné */
+.choice.active,
+.choice.selected,
+.choice.is-active,
+.choice-btn.active,
+.choice-btn.selected,
+.option.active,
+.option.selected,
+.option-btn.active,
+.option-btn.selected,
+.option-card.active,
+.option-card.selected,
+.card-option.active,
+.card-option.selected,
+.card-choice.active,
+.card-choice.selected,
+.select-card.active,
+.select-card.selected,
+.tile.active,
+.tile.selected,
+.pill.active,
+.pill.selected,
+.chip.active,
+.chip.selected,
+button.active,
+button.selected,
+button.is-active{
+  background:rgba(201,183,255,.18) !important;
+  border-color:rgba(201,183,255,.55) !important;
+  box-shadow:0 0 0 1px rgba(201,183,255,.18), 0 12px 28px rgba(0,0,0,.26) !important;
+}
+
+/* Bouton principal : ajouter au devis / calculer / valider */
+button[id*="add"],
+button[id*="ajout"],
+button[id*="devis"],
+button[id*="calcul"],
+button[id*="valider"],
+button[class*="add"],
+button[class*="ajout"],
+button[class*="devis"],
+button[class*="calcul"],
+button[class*="valider"],
+.add-to-quote,
+.ajouter-devis,
+.btn-add,
+.btn-ajout,
+.btn-calculate,
+.btn-calc,
+.btn-submit,
+.btn-primary{
+  background:linear-gradient(180deg, rgba(201,183,255,.34), rgba(120,56,167,.34)) !important;
+  color:#ffffff !important;
+  border-color:rgba(201,183,255,.55) !important;
+  box-shadow:0 12px 28px rgba(0,0,0,.32) !important;
+}
+
+button[id*="add"]:hover,
+button[id*="ajout"]:hover,
+button[id*="devis"]:hover,
+button[id*="calcul"]:hover,
+button[id*="valider"]:hover,
+button[class*="add"]:hover,
+button[class*="ajout"]:hover,
+button[class*="devis"]:hover,
+button[class*="calcul"]:hover,
+button[class*="valider"]:hover,
+.add-to-quote:hover,
+.ajouter-devis:hover,
+.btn-add:hover,
+.btn-ajout:hover,
+.btn-calculate:hover,
+.btn-calc:hover,
+.btn-submit:hover,
+.btn-primary:hover{
+  background:linear-gradient(180deg, rgba(201,183,255,.42), rgba(120,56,167,.42)) !important;
+  border-color:rgba(201,183,255,.72) !important;
+}
+
+/* Boutons retour */
+.back,
+.back-btn,
+.btn-back,
+.retour,
+.retour-btn,
+.btn-retour,
+a[href*="index.html"],
+a[href="/"],
+a[href="../index.html"]{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+
+  min-height:38px !important;
+  padding:9px 14px !important;
+
+  border-radius:999px !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  background:rgba(255,255,255,.065) !important;
+  color:var(--txt,#fff) !important;
+
+  font-weight:800 !important;
+  text-decoration:none !important;
+  box-shadow:none !important;
+}
+
+.back:hover,
+.back-btn:hover,
+.btn-back:hover,
+.retour:hover,
+.retour-btn:hover,
+.btn-retour:hover,
+a[href*="index.html"]:hover,
+a[href="/"]:hover,
+a[href="../index.html"]:hover{
+  background:rgba(255,255,255,.105) !important;
+  border-color:rgba(255,255,255,.26) !important;
+}
+
+/* Boutons dans tableaux / lignes de devis */
+table button,
+.table button,
+tbody button,
+tr button{
+  min-height:30px !important;
+  padding:6px 10px !important;
+  font-size:12px !important;
+  box-shadow:none !important;
+}
+
+/* Boutons de suppression / reset */
+button[id*="delete"],
+button[id*="remove"],
+button[id*="suppr"],
+button[id*="vider"],
+button[class*="delete"],
+button[class*="remove"],
+button[class*="suppr"],
+button[class*="vider"],
+.btn-delete,
+.btn-remove,
+.btn-suppr,
+.btn-clear,
+.btn-reset{
+  background:rgba(255,107,107,.12) !important;
+  color:#ffe3e3 !important;
+  border-color:rgba(255,107,107,.45) !important;
+  box-shadow:none !important;
+}
+
+button[id*="delete"]:hover,
+button[id*="remove"]:hover,
+button[id*="suppr"]:hover,
+button[id*="vider"]:hover,
+button[class*="delete"]:hover,
+button[class*="remove"]:hover,
+button[class*="suppr"]:hover,
+button[class*="vider"]:hover,
+.btn-delete:hover,
+.btn-remove:hover,
+.btn-suppr:hover,
+.btn-clear:hover,
+.btn-reset:hover{
+  background:rgba(255,107,107,.18) !important;
+}
+
+/* Sécurité : ne pas transformer les champs de formulaire */
+input,
+select,
+textarea{
+  box-shadow:none;
+}
+
+/* Mobile : éviter les boutons trop serrés */
+@media (max-width:640px){
+  .cofel-btn,
+  .btn,
+  .btn-pill,
+  .btn-link,
+  .btn-view,
+  .btn-reopen,
+  .btn-row,
+  .configurateur button,
+  .configurator button,
+  .page-configurateur button,
+  .wrap button,
+  .panel button,
+  .card button,
+  .actions button,
+  .form-actions button,
+  .result-actions button,
+  .recap-actions button{
+    min-height:40px !important;
+    padding:9px 12px !important;
+    font-size:12px !important;
+  }
+}
