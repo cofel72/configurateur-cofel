@@ -6,10 +6,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
   <title>Administration clients — Cofel</title>
 
-  <!-- 🔒 Protection identique au portail interne -->
   <script src="./lock.js" type="module"></script>
 
-  <!-- ✅ CSS commun + thème DARK -->
   <link rel="stylesheet" href="../styles/cofel.css" />
   <link rel="stylesheet" href="../styles/cofel-components.css" />
   <link rel="stylesheet" href="../styles/cofel-glass.css" />
@@ -20,15 +18,15 @@
 <style>
   :root{
     --txt:#f5f7ff;
-    --txt-dim: rgba(255,255,255,.68);
+    --txt-dim:rgba(255,255,255,.68);
     --radius:18px;
     --blur:18px;
-    --shadow: 0 10px 30px rgba(0,0,0,.35);
-    --stroke-soft: rgba(255,255,255,.12);
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+    --stroke-soft:rgba(255,255,255,.12);
   }
 
   *{box-sizing:border-box;}
-  html,body{height:100%; margin:0; padding:0;}
+  html,body{height:100%;margin:0;padding:0;}
 
   body{
     color:var(--txt);
@@ -38,7 +36,7 @@
   }
 
   .shell{
-    max-width:1200px;
+    max-width:1280px;
     margin:0 auto;
     width:100%;
   }
@@ -52,11 +50,11 @@
     margin-bottom:18px;
     padding:14px;
     border-radius:20px;
-    background: rgba(255,255,255,.06);
+    background:rgba(255,255,255,.06);
     border:1px solid var(--stroke-soft);
-    backdrop-filter: blur(var(--blur));
-    -webkit-backdrop-filter: blur(var(--blur));
-    box-shadow: var(--shadow);
+    backdrop-filter:blur(var(--blur));
+    -webkit-backdrop-filter:blur(var(--blur));
+    box-shadow:var(--shadow);
   }
 
   .brand{
@@ -92,25 +90,20 @@
     cursor:pointer;
     font-weight:800;
     color:var(--txt);
-    background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+    background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
     border:1px solid rgba(255,255,255,.18);
     border-radius:999px;
     padding:10px 16px;
-    box-shadow: 0 10px 24px rgba(0,0,0,.25);
-    backdrop-filter: blur(var(--blur));
-    -webkit-backdrop-filter: blur(var(--blur));
-    transition: transform .16s, box-shadow .16s, background .16s, opacity .16s;
+    box-shadow:0 10px 24px rgba(0,0,0,.25);
+    backdrop-filter:blur(var(--blur));
+    -webkit-backdrop-filter:blur(var(--blur));
+    transition:transform .16s,box-shadow .16s,background .16s,opacity .16s;
   }
 
   .btn:hover{
-    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
-    transform: translateY(-1px);
-    box-shadow: 0 14px 30px rgba(0,0,0,.35);
-  }
-
-  .btn:active{
-    transform: translateY(1px);
-    box-shadow: 0 6px 16px rgba(0,0,0,.28);
+    background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.08));
+    transform:translateY(-1px);
+    box-shadow:0 14px 30px rgba(0,0,0,.35);
   }
 
   .tabs{
@@ -125,38 +118,38 @@
     padding:10px 18px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.18);
-    background: rgba(255,255,255,.06);
-    color: rgba(255,255,255,.86);
+    background:rgba(255,255,255,.06);
+    color:rgba(255,255,255,.86);
     font-size:14px;
     font-weight:800;
     white-space:nowrap;
     cursor:pointer;
-    transition: background .16s, transform .16s, box-shadow .16s, border-color .16s;
+    transition:background .16s,transform .16s,box-shadow .16s,border-color .16s;
   }
 
   .tab-btn:hover{
-    background: rgba(255,255,255,.10);
-    transform: translateY(-1px);
-    box-shadow: 0 10px 24px rgba(0,0,0,.22);
+    background:rgba(255,255,255,.10);
+    transform:translateY(-1px);
+    box-shadow:0 10px 24px rgba(0,0,0,.22);
   }
 
   .tab-btn.active{
-    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
-    border-color: rgba(255,255,255,.26);
+    background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.08));
+    border-color:rgba(255,255,255,.26);
     color:#fff;
   }
 
-  .tab-panel{ display:none; }
-  .tab-panel.active{ display:block; }
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
 
   .card{
-    background: rgba(255,255,255,.06);
+    background:rgba(255,255,255,.06);
     border:1px solid rgba(255,255,255,.14);
     border-radius:var(--radius);
     box-shadow:var(--shadow);
     padding:16px;
-    backdrop-filter: blur(var(--blur));
-    -webkit-backdrop-filter: blur(var(--blur));
+    backdrop-filter:blur(var(--blur));
+    -webkit-backdrop-filter:blur(var(--blur));
   }
 
   #searchClient{
@@ -171,14 +164,10 @@
     outline:none;
   }
 
-  #searchClient::placeholder{
-    color: rgba(255,255,255,.55);
-  }
+  #searchClient::placeholder{color:rgba(255,255,255,.55);}
 
-  #searchClient:focus{
-    border-color: rgba(255,255,255,.34);
-    background: rgba(255,255,255,.08);
-    box-shadow: 0 0 0 3px rgba(255,255,255,.14);
+  input,select,button{
+    font-family:inherit;
   }
 
   .table-container{
@@ -189,18 +178,18 @@
   table{
     width:100%;
     border-collapse:collapse;
-    min-width:880px;
+    min-width:900px;
   }
 
-  th, td{
+  th,td{
     padding:10px;
     font-size:14px;
     vertical-align:top;
   }
 
   th{
-    background: rgba(255,255,255,.06);
-    color: rgba(255,255,255,.75);
+    background:rgba(255,255,255,.06);
+    color:rgba(255,255,255,.75);
     font-size:11px;
     text-transform:uppercase;
     letter-spacing:.35px;
@@ -211,13 +200,8 @@
     border-top:1px solid rgba(255,255,255,.08);
   }
 
-  td{
-    color: rgba(255,255,255,.92);
-  }
-
-  .empty{
-    color: var(--txt-dim);
-  }
+  td{color:rgba(255,255,255,.92);}
+  .empty{color:var(--txt-dim);}
 
   .btn-row{
     appearance:none;
@@ -228,28 +212,23 @@
     font-size:12px;
     border-radius:10px;
     color:#fff;
-    background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+    background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.06));
     border:1px solid rgba(255,255,255,.16);
-    box-shadow: 0 10px 22px rgba(0,0,0,.22);
-    transition: transform .16s, box-shadow .16s, background .16s, opacity .16s;
+    box-shadow:0 10px 22px rgba(0,0,0,.22);
+    transition:transform .16s,box-shadow .16s,background .16s,opacity .16s;
     margin:2px 4px 2px 0;
   }
 
   .btn-row:hover{
-    background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));
-    transform: translateY(-1px);
-    box-shadow: 0 14px 28px rgba(0,0,0,.32);
+    background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.08));
+    transform:translateY(-1px);
+    box-shadow:0 14px 28px rgba(0,0,0,.32);
   }
 
-  .btn-row:active{
-    transform: translateY(1px);
-    box-shadow: 0 6px 16px rgba(0,0,0,.26);
-  }
-
-  .btn-approve{ border-color: rgba(140,255,190,.35); }
-  .btn-row-secondary{ border-color: rgba(255,255,255,.18); opacity:.95; }
-  .btn-row-reset{ border-color: rgba(255,220,120,.35); color:#fff; }
-  .btn-row-delete{ border-color: rgba(255,120,120,.40); color:#fff; }
+  .btn-approve{border-color:rgba(140,255,190,.35);}
+  .btn-row-secondary{border-color:rgba(255,255,255,.18);opacity:.95;}
+  .btn-row-reset{border-color:rgba(255,220,120,.35);}
+  .btn-row-delete{border-color:rgba(255,120,120,.40);}
 
   .activity-toolbar{
     display:flex;
@@ -264,12 +243,92 @@
     font-weight:800;
   }
 
+  .activity-subtitle{
+    margin-top:4px;
+    font-size:12px;
+    color:rgba(255,255,255,.62);
+  }
+
+  .activity-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+
+  .activity-filters{
+    display:grid;
+    grid-template-columns:1.5fr 1fr .75fr .75fr auto;
+    gap:10px;
+    align-items:end;
+    margin:14px 0;
+    padding:12px;
+    border-radius:16px;
+    background:rgba(255,255,255,.045);
+    border:1px solid rgba(255,255,255,.10);
+  }
+
+  .filter-field label{
+    display:block;
+    margin-bottom:6px;
+    font-size:12px;
+    font-weight:800;
+    color:rgba(255,255,255,.72);
+  }
+
+  .filter-field input,
+  .filter-field select,
+  .activity-cleaner select{
+    width:100%;
+    padding:10px 11px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.18);
+    background:#161616;
+    color:#fff;
+    outline:none;
+  }
+
+  .filter-field input:focus,
+  .filter-field select:focus,
+  .activity-cleaner select:focus{
+    border-color:rgba(255,255,255,.34);
+    box-shadow:0 0 0 3px rgba(255,255,255,.12);
+  }
+
+  .activity-cleaner{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+    padding:12px;
+    border-radius:16px;
+    background:rgba(255,120,120,.07);
+    border:1px solid rgba(255,120,120,.18);
+  }
+
+  .activity-cleaner-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+
+  .activity-cleaner-actions select{
+    min-width:170px;
+  }
+
   .details-cell{
-    max-width:340px;
+    max-width:380px;
     white-space:normal;
     line-height:1.35;
     color:rgba(255,255,255,.82);
   }
+
+  .activity-row-add{background:rgba(140,255,190,.045);}
+  .activity-row-export{background:rgba(140,190,255,.045);}
+  .activity-row-snapshot{background:rgba(255,220,120,.04);}
 
   #modalApprove,#modalCreate{
     position:fixed;
@@ -283,11 +342,11 @@
   }
 
   .modal-card{
-    background: rgba(255,255,255,.08);
+    background:rgba(255,255,255,.08);
     border:1px solid rgba(255,255,255,.16);
-    box-shadow: 0 16px 40px rgba(0,0,0,.45);
-    backdrop-filter: blur(var(--blur));
-    -webkit-backdrop-filter: blur(var(--blur));
+    box-shadow:0 16px 40px rgba(0,0,0,.45);
+    backdrop-filter:blur(var(--blur));
+    -webkit-backdrop-filter:blur(var(--blur));
     padding:18px;
     border-radius:16px;
     width:100%;
@@ -307,24 +366,19 @@
     display:block;
     font-weight:800;
     font-size:12px;
-    color: rgba(255,255,255,.78);
+    color:rgba(255,255,255,.78);
     margin-bottom:6px;
   }
 
-  .modal-field input,.modal-field select{
+  .modal-field input{
     width:100%;
     padding:12px;
     font-size:15px;
-    background:rgba(255,255,255,.06);
+    background:#161616;
     border-radius:14px;
     border:1px solid rgba(255,255,255,.18);
     color:#fff;
     outline:none;
-  }
-
-  .modal-field input:focus,.modal-field select:focus{
-    border-color: rgba(255,255,255,.34);
-    box-shadow: 0 0 0 3px rgba(255,255,255,.14);
   }
 
   .modal-actions{
@@ -342,43 +396,31 @@
     padding:10px 14px;
     border-radius:999px;
     color:#fff;
-    background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+    background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
     border:1px solid rgba(255,255,255,.18);
-    box-shadow: 0 10px 22px rgba(0,0,0,.22);
-    transition: transform .16s, box-shadow .16s, background .16s;
-  }
-
-  .btn-modal:hover{
-    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
-    transform: translateY(-1px);
-    box-shadow: 0 14px 28px rgba(0,0,0,.32);
-  }
-
-  .btn-modal:active{
-    transform: translateY(1px);
-    box-shadow: 0 6px 16px rgba(0,0,0,.26);
+    box-shadow:0 10px 22px rgba(0,0,0,.22);
   }
 
   .btn-cancel{
-    background: rgba(255,255,255,.08);
+    background:rgba(255,255,255,.08);
     border:1px solid rgba(255,255,255,.14);
   }
 
+  @media(max-width:900px){
+    .activity-filters{
+      grid-template-columns:1fr 1fr;
+    }
+  }
+
   @media(max-width:700px){
-    body{ padding:12px; }
-    h1{ font-size:16px; }
-
-    table{
-      min-width:0;
-    }
-
-    thead{
-      display:none;
-    }
+    body{padding:12px;}
+    h1{font-size:16px;}
+    table{min-width:0;}
+    thead{display:none;}
 
     table tr{
       display:block;
-      background: rgba(255,255,255,.05);
+      background:rgba(255,255,255,.05);
       border:1px solid rgba(255,255,255,.12);
       margin-bottom:12px;
       padding:12px;
@@ -391,19 +433,34 @@
       gap:12px;
       padding:8px 4px;
       font-size:15px;
-      border-bottom:1px solid rgba(255,255,255,0.08);
+      border-bottom:1px solid rgba(255,255,255,.08);
       word-break:break-word;
     }
 
-    table td:last-child{
-      border-bottom:none;
-    }
+    table td:last-child{border-bottom:none;}
 
     table td::before{
-      content: attr(data-label);
-      color: rgba(255,255,255,.72);
+      content:attr(data-label);
+      color:rgba(255,255,255,.72);
       font-weight:700;
       flex:0 0 110px;
+    }
+
+    .activity-filters{
+      grid-template-columns:1fr;
+    }
+
+    .activity-cleaner{
+      align-items:flex-start;
+    }
+
+    .activity-cleaner-actions{
+      width:100%;
+    }
+
+    .activity-cleaner-actions select,
+    .activity-cleaner-actions button{
+      width:100%;
     }
 
     .btn-row{
@@ -418,9 +475,6 @@
 <body>
 
 <script>
-/****************************************************
- * PROTECTION ADMIN — accès réservé aux FULL ADMINS
- ****************************************************/
 const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
 const FULL_ADMINS = ["commercial@cofel72.fr"];
 
@@ -444,21 +498,14 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
     </div>
   </header>
 
-  <!-- TABS -->
   <div class="tabs">
     <button class="tab-btn active" data-tab="clients">Clients</button>
     <button class="tab-btn" data-tab="requests">Demandes</button>
     <button class="tab-btn" data-tab="activity">Activité</button>
   </div>
 
-  <!-- PANEL : CLIENTS -->
   <div id="clients" class="tab-panel active">
-
-    <input
-      id="searchClient"
-      type="text"
-      placeholder="Rechercher (email, société, contact…)"
-    />
+    <input id="searchClient" type="text" placeholder="Rechercher (email, société, contact…)" />
 
     <div class="card">
       <div class="table-container">
@@ -483,7 +530,6 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
     </div>
   </div>
 
-  <!-- PANEL : DEMANDES -->
   <div id="requests" class="tab-panel">
     <div class="card">
       <div class="table-container">
@@ -507,15 +553,75 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
     </div>
   </div>
 
-  <!-- PANEL : ACTIVITÉ -->
   <div id="activity" class="tab-panel">
     <div class="card">
+
       <div class="activity-toolbar">
-        <div class="activity-title">Journal d’activité configurateur</div>
-        <button id="btnRefreshActivity" class="btn-row btn-row-secondary">🔄 Actualiser</button>
+        <div>
+          <div class="activity-title">Journal d’activité configurateur</div>
+          <div class="activity-subtitle" id="activityCount">—</div>
+        </div>
+
+        <div class="activity-actions">
+          <button id="btnRefreshActivity" class="btn-row btn-row-secondary">🔄 Actualiser</button>
+          <button id="btnExportActivity" class="btn-row btn-row-secondary">📊 Export Excel</button>
+        </div>
       </div>
 
-      <div class="table-container">
+      <div class="activity-filters">
+        <div class="filter-field">
+          <label>Client / société</label>
+          <input id="activitySearch" type="text" placeholder="Rechercher un client, une société, un email…">
+        </div>
+
+        <div class="filter-field">
+          <label>Action</label>
+          <select id="activityTypeFilter">
+            <option value="">Toutes les actions</option>
+            <option value="add_to_quote">Uniquement ajout au devis</option>
+            <option value="export_pdf">Uniquement export PDF</option>
+            <option value="page_view">Ouvertures de page</option>
+            <option value="quote_snapshot">Paniers en cours</option>
+            <option value="test_manual">Tests manuels</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label>Du</label>
+          <input id="activityDateFrom" type="date">
+        </div>
+
+        <div class="filter-field">
+          <label>Au</label>
+          <input id="activityDateTo" type="date">
+        </div>
+
+        <div class="filter-field">
+          <label>&nbsp;</label>
+          <button id="btnResetActivityFilters" class="btn-row btn-row-secondary">Réinitialiser</button>
+        </div>
+      </div>
+
+      <div class="activity-cleaner">
+        <div>
+          <strong>Nettoyage des anciens logs</strong>
+          <div class="activity-subtitle">Supprimer uniquement les logs plus anciens que la période choisie.</div>
+        </div>
+
+        <div class="activity-cleaner-actions">
+          <select id="activityDeletePeriod">
+            <option value="1">Plus de 1 mois</option>
+            <option value="2">Plus de 2 mois</option>
+            <option value="3">Plus de 3 mois</option>
+            <option value="6">Plus de 6 mois</option>
+            <option value="12">Plus de 1 an</option>
+          </select>
+
+          <button id="btnDeleteOldActivity" class="btn-row btn-row-delete">🧹 Vider anciens logs</button>
+        </div>
+      </div>
+
+      <div class="table-container activity-table-container">
         <table>
           <thead>
             <tr>
@@ -537,7 +643,6 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
     </div>
   </div>
 
-  <!-- MODALE APPROBATION -->
   <div id="modalApprove">
     <div class="modal-card">
       <h3>Approuver l’accès</h3>
@@ -561,7 +666,6 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
     </div>
   </div>
 
-  <!-- MODALE CREATION CLIENT -->
   <div id="modalCreate">
     <div class="modal-card">
       <h3>Créer un client manuellement</h3>
@@ -603,23 +707,38 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
 </div>
 
 <script>
-/* ===================== CONFIG ===================== */
 const WORKER_BASE = "https://cofel-auth.sonveven.workers.dev";
 
-/* ===================== HELPERS ===================== */
+const CONFIGS_ALL = [
+  "enseigne-drapeau",
+  "lettre-alu-alupvc",
+  "lettre-boitier",
+  "lettres-pvc",
+  "rampe-lumineuse",
+  "tole-tablette",
+  "tolerie-dibond",
+  "totems",
+  "souples-rigides-adhesifs"
+];
+
 function esc(v){
   return String(v ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
 }
 
-function shortText(v, max = 160){
+function shortText(v,max=160){
   const s = String(v ?? "").trim();
-  if (!s) return "";
-  return s.length > max ? s.slice(0, max) + "…" : s;
+  if(!s) return "";
+  return s.length > max ? s.slice(0,max) + "…" : s;
+}
+
+function parseJsonSafe(s,fallback){
+  try{return JSON.parse(s || "");}
+  catch(e){return fallback;}
 }
 
 function formatDate(iso){
@@ -635,50 +754,32 @@ function formatRate(rate){
 
 function formatMoney(n){
   const v = Number(n || 0);
-  if (!v) return "—";
-  return v.toFixed(2).replace(".", ",") + " €";
+  if(!v) return "—";
+  return v.toFixed(2).replace(".",",") + " €";
 }
 
-function parseJsonSafe(s, fallback){
-  try{
-    return JSON.parse(s || "");
-  }catch(e){
-    return fallback;
-  }
-}
-
-/* ===================== TABS ===================== */
-const tabButtons = document.querySelectorAll(".tab-btn");
-const tabPanels  = document.querySelectorAll(".tab-panel");
-
-tabButtons.forEach(btn => {
+document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
-    tabButtons.forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
 
-    const target = btn.getAttribute("data-tab");
+    const target = btn.dataset.tab;
 
-    tabPanels.forEach(p => {
-      p.classList.remove("active");
-      if (p.id === target) p.classList.add("active");
+    document.querySelectorAll(".tab-panel").forEach(p => {
+      p.classList.toggle("active", p.id === target);
     });
 
-    if (target === "activity") {
-      loadActivity();
-    }
+    if(target === "activity") loadActivity();
   });
 });
 
 /* ===================== CLIENTS ===================== */
 const tbodyClients = document.getElementById("tbodyClients");
 
-document.getElementById("searchClient").addEventListener("input", function () {
+document.getElementById("searchClient").addEventListener("input", function(){
   const term = this.value.toLowerCase().trim();
-  const rows = document.querySelectorAll("#tbodyClients tr");
-
-  rows.forEach(row => {
-    const text = row.innerText.toLowerCase();
-    row.style.display = text.includes(term) ? "" : "none";
+  document.querySelectorAll("#tbodyClients tr").forEach(row => {
+    row.style.display = row.innerText.toLowerCase().includes(term) ? "" : "none";
   });
 });
 
@@ -724,15 +825,15 @@ async function loadClients(){
 
 tbodyClients.addEventListener("click", async e => {
   const email = e.target.dataset.email;
-  if (!email) return;
+  if(!email) return;
 
-  if (e.target.classList.contains("btn-reset")){
-    if (!confirm("Réinitialiser le mot de passe ?")) return;
+  if(e.target.classList.contains("btn-reset")){
+    if(!confirm("Réinitialiser le mot de passe ?")) return;
 
     const r = await fetch(`${WORKER_BASE}/client-reset-password`, {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ email })
+      body:JSON.stringify({ email })
     });
 
     const out = await r.json();
@@ -740,13 +841,13 @@ tbodyClients.addEventListener("click", async e => {
     return;
   }
 
-  if (e.target.classList.contains("btn-delete")){
-    if (!confirm("Supprimer ce client ?")) return;
+  if(e.target.classList.contains("btn-delete")){
+    if(!confirm("Supprimer ce client ?")) return;
 
     await fetch(`${WORKER_BASE}/client-delete`, {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ email })
+      body:JSON.stringify({ email })
     });
 
     alert("Client supprimé.");
@@ -754,13 +855,12 @@ tbodyClients.addEventListener("click", async e => {
     return;
   }
 
-  if (e.target.classList.contains("btn-edit")){
+  if(e.target.classList.contains("btn-edit")){
     window.open(
       `./edit-client.html?email=${encodeURIComponent(email)}`,
       "_blank",
       "width=520,height=720,top=100,left=100"
     );
-    return;
   }
 });
 
@@ -803,15 +903,15 @@ async function loadRequests(){
 
 reqTbody.addEventListener("click", async e => {
   const id = e.target.dataset.id;
-  if (!id) return;
+  if(!id) return;
 
-  if (e.target.classList.contains("btn-reject")){
-    if (!confirm("Refuser cette demande ?")) return;
+  if(e.target.classList.contains("btn-reject")){
+    if(!confirm("Refuser cette demande ?")) return;
 
     await fetch(`${WORKER_BASE}/access-request-reject`, {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ id })
+      body:JSON.stringify({ id })
     });
 
     alert("Demande refusée.");
@@ -819,25 +919,36 @@ reqTbody.addEventListener("click", async e => {
     return;
   }
 
-  if (e.target.classList.contains("btn-approve")){
+  if(e.target.classList.contains("btn-approve")){
     approvalTargetId = id;
     document.getElementById("approveDiscount").value = "0";
     document.getElementById("approveDiscountSR").value = "0";
+    document.getElementById("approveMsg").textContent = "";
     document.getElementById("modalApprove").style.display = "flex";
   }
 });
 
 /* ===================== ACTIVITÉ ===================== */
 const activityTbody = document.getElementById("activityTbody");
+const activitySearch = document.getElementById("activitySearch");
+const activityTypeFilter = document.getElementById("activityTypeFilter");
+const activityDateFrom = document.getElementById("activityDateFrom");
+const activityDateTo = document.getElementById("activityDateTo");
+const activityCount = document.getElementById("activityCount");
+const activityDeletePeriod = document.getElementById("activityDeletePeriod");
+
+let activityLogsAll = [];
+let activityLogsFiltered = [];
 
 function formatEventType(type){
   const map = {
-    page_view: "Ouverture page",
-    open_configurator: "Ouverture configurateur",
-    add_to_quote: "Ajout au devis",
-    quote_snapshot: "Panier en cours",
-    export_pdf: "Export PDF",
-    login: "Connexion"
+    page_view:"Ouverture page",
+    open_configurator:"Ouverture configurateur",
+    add_to_quote:"Ajout au devis",
+    quote_snapshot:"Panier en cours",
+    export_pdf:"Export PDF",
+    login:"Connexion",
+    test_manual:"Test manuel"
   };
   return map[type] || type || "—";
 }
@@ -845,14 +956,14 @@ function formatEventType(type){
 function extractActivityDetails(log){
   const d = parseJsonSafe(log.details_json, {});
 
-  if (d.designation) return d.designation;
-  if (d.button) return d.button;
-  if (d.title) return d.title;
-  if (d.message) return d.message;
+  if(d.designation) return d.designation;
+  if(d.button) return d.button;
+  if(d.title) return d.title;
+  if(d.message) return d.message;
 
-  if (Array.isArray(d.lignes) && d.lignes.length) {
+  if(Array.isArray(d.lignes) && d.lignes.length){
     return d.lignes
-      .slice(0, 2)
+      .slice(0,3)
       .map(l => l.designation || "")
       .filter(Boolean)
       .join(" | ");
@@ -861,48 +972,212 @@ function extractActivityDetails(log){
   return "";
 }
 
-async function loadActivity(){
-  if (!activityTbody) return;
+function getActivityRowClass(type){
+  if(type === "add_to_quote") return "activity-row-add";
+  if(type === "export_pdf") return "activity-row-export";
+  if(type === "quote_snapshot") return "activity-row-snapshot";
+  return "";
+}
 
+function dateOnlyFromIso(iso){
+  const d = new Date(iso);
+  if(isNaN(d)) return "";
+  return d.toISOString().slice(0,10);
+}
+
+function applyActivityFilters(){
+  const search = (activitySearch.value || "").toLowerCase().trim();
+  const type = activityTypeFilter.value || "";
+  const from = activityDateFrom.value || "";
+  const to = activityDateTo.value || "";
+
+  activityLogsFiltered = activityLogsAll.filter(log => {
+    const logDate = dateOnlyFromIso(log.created_at);
+
+    if(type && log.event_type !== type) return false;
+    if(from && logDate < from) return false;
+    if(to && logDate > to) return false;
+
+    if(search){
+      const details = extractActivityDetails(log);
+
+      const haystack = [
+        log.client_email,
+        log.client_company,
+        log.event_type,
+        formatEventType(log.event_type),
+        log.product_type,
+        log.page,
+        details
+      ].join(" ").toLowerCase();
+
+      if(!haystack.includes(search)) return false;
+    }
+
+    return true;
+  });
+
+  renderActivity();
+}
+
+function renderActivity(){
+  if(!activityLogsFiltered.length){
+    activityTbody.innerHTML = `<tr><td colspan="8" class="empty">Aucune activité avec ces filtres.</td></tr>`;
+    activityCount.textContent = `0 résultat sur ${activityLogsAll.length} log(s) chargé(s)`;
+    return;
+  }
+
+  activityCount.textContent =
+    `${activityLogsFiltered.length} résultat(s) affiché(s) sur ${activityLogsAll.length} log(s) chargé(s)`;
+
+  activityTbody.innerHTML = activityLogsFiltered.map(log => {
+    const details = shortText(extractActivityDetails(log), 220);
+    const rowClass = getActivityRowClass(log.event_type);
+
+    return `
+      <tr class="${rowClass}">
+        <td data-label="Date">${formatDate(log.created_at)}</td>
+        <td data-label="Client">${esc(log.client_email || "—")}</td>
+        <td data-label="Société">${esc(log.client_company || "—")}</td>
+        <td data-label="Action">${esc(formatEventType(log.event_type))}</td>
+        <td data-label="Configurateur">${esc(log.product_type || "—")}</td>
+        <td data-label="Total HT">${formatMoney(log.total_ht)}</td>
+        <td data-label="Lignes">${Number(log.lines_count || 0) || "—"}</td>
+        <td data-label="Détails" class="details-cell">${esc(details || "—")}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+async function loadActivity(){
   activityTbody.innerHTML = `<tr><td colspan="8" class="empty">Chargement…</td></tr>`;
 
   try{
-    const r = await fetch(`${WORKER_BASE}/activity-logs?limit=200`);
+    const r = await fetch(`${WORKER_BASE}/activity-logs?limit=1000`);
     const data = await r.json();
 
-    if(!data.ok){
-      throw new Error(data.error || "Erreur API activité");
-    }
+    if(!data.ok) throw new Error(data.error || "Erreur API activité");
 
-    if(!data.logs || !data.logs.length){
-      activityTbody.innerHTML = `<tr><td colspan="8" class="empty">Aucune activité enregistrée.</td></tr>`;
-      return;
-    }
-
-    activityTbody.innerHTML = data.logs.map(log => {
-      const details = shortText(extractActivityDetails(log), 180);
-
-      return `
-        <tr>
-          <td data-label="Date">${formatDate(log.created_at)}</td>
-          <td data-label="Client">${esc(log.client_email || "—")}</td>
-          <td data-label="Société">${esc(log.client_company || "—")}</td>
-          <td data-label="Action">${esc(formatEventType(log.event_type))}</td>
-          <td data-label="Configurateur">${esc(log.product_type || "—")}</td>
-          <td data-label="Total HT">${formatMoney(log.total_ht)}</td>
-          <td data-label="Lignes">${Number(log.lines_count || 0) || "—"}</td>
-          <td data-label="Détails" class="details-cell">${esc(details || "—")}</td>
-        </tr>
-      `;
-    }).join("");
+    activityLogsAll = Array.isArray(data.logs) ? data.logs : [];
+    applyActivityFilters();
 
   }catch(err){
     console.error(err);
     activityTbody.innerHTML = `<tr><td colspan="8" class="empty">Erreur de chargement de l’activité.</td></tr>`;
+    activityCount.textContent = "Erreur de chargement";
   }
 }
 
-document.getElementById("btnRefreshActivity")?.addEventListener("click", loadActivity);
+function exportActivityToExcel(){
+  if(!activityLogsFiltered.length){
+    alert("Aucun log à exporter avec les filtres actuels.");
+    return;
+  }
+
+  const headers = [
+    "Date",
+    "Client",
+    "Société",
+    "Action",
+    "Configurateur",
+    "Total HT",
+    "Total TTC",
+    "Nombre de lignes",
+    "Page",
+    "Détails"
+  ];
+
+  const rows = activityLogsFiltered.map(log => [
+    formatDate(log.created_at),
+    log.client_email || "",
+    log.client_company || "",
+    formatEventType(log.event_type),
+    log.product_type || "",
+    Number(log.total_ht || 0).toFixed(2).replace(".",","),
+    Number(log.total_ttc || 0).toFixed(2).replace(".",","),
+    Number(log.lines_count || 0),
+    log.page || "",
+    extractActivityDetails(log)
+  ]);
+
+  const csv = [headers, ...rows]
+    .map(row => row.map(cell => {
+      const value = String(cell ?? "").replace(/"/g,'""');
+      return `"${value}"`;
+    }).join(";"))
+    .join("\n");
+
+  const blob = new Blob(["\uFEFF" + csv], {
+    type:"text/csv;charset=utf-8;"
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const today = new Date().toISOString().slice(0,10);
+
+  a.href = url;
+  a.download = `logs-activite-configurateur-${today}.csv`;
+
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  URL.revokeObjectURL(url);
+}
+
+async function deleteOldActivityLogs(){
+  const months = Number(activityDeletePeriod.value || 0);
+
+  if(!months){
+    alert("Choisis une période de suppression.");
+    return;
+  }
+
+  const label = activityDeletePeriod.options[activityDeletePeriod.selectedIndex].textContent;
+
+  const ok = confirm(
+    `Confirmer la suppression des logs de ${label.toLowerCase()} ?\n\n` +
+    `Cette action est définitive.`
+  );
+
+  if(!ok) return;
+
+  try{
+    const r = await fetch(`${WORKER_BASE}/activity-logs-delete`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ months })
+    });
+
+    const data = await r.json();
+
+    if(!data.ok) throw new Error(data.error || "Erreur suppression");
+
+    alert(`${data.deleted || 0} log(s) supprimé(s).`);
+    loadActivity();
+
+  }catch(err){
+    console.error(err);
+    alert("Erreur lors de la suppression des anciens logs.");
+  }
+}
+
+document.getElementById("btnRefreshActivity").addEventListener("click", loadActivity);
+document.getElementById("btnExportActivity").addEventListener("click", exportActivityToExcel);
+document.getElementById("btnDeleteOldActivity").addEventListener("click", deleteOldActivityLogs);
+
+activitySearch.addEventListener("input", applyActivityFilters);
+activityTypeFilter.addEventListener("change", applyActivityFilters);
+activityDateFrom.addEventListener("change", applyActivityFilters);
+activityDateTo.addEventListener("change", applyActivityFilters);
+
+document.getElementById("btnResetActivityFilters").addEventListener("click", () => {
+  activitySearch.value = "";
+  activityTypeFilter.value = "";
+  activityDateFrom.value = "";
+  activityDateTo.value = "";
+  applyActivityFilters();
+});
 
 /* ===================== RETOUR ===================== */
 document.getElementById("btnBack").onclick = () => {
@@ -921,7 +1196,7 @@ document.getElementById("approveCancel").onclick = () => {
 };
 
 document.getElementById("approveSave").onclick = async () => {
-  if (!approvalTargetId){
+  if(!approvalTargetId){
     alert("Erreur : aucun ID de demande.");
     return;
   }
@@ -930,66 +1205,57 @@ document.getElementById("approveSave").onclick = async () => {
   approveMsg.style.color = "#ffb3b3";
 
   const discount = Number(approveDiscount.value || 0);
-  if (discount < 0 || discount > 90){
+  const discountSR = Number(approveDiscountSR.value || 0);
+
+  if(discount < 0 || discount > 90){
     approveMsg.textContent = "Remise invalide.";
     return;
   }
 
-  const discountSR = Number(approveDiscountSR.value || 0);
-  if (discountSR < 0 || discountSR > 90){
+  if(discountSR < 0 || discountSR > 90){
     approveMsg.textContent = "Remise SR invalide.";
     return;
   }
 
   try{
     const res = await fetch(`${WORKER_BASE}/admin-approve`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        requestId: approvalTargetId,
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({
+        requestId:approvalTargetId,
         discount,
-        discount_sr: discountSR,
-        configs: [
-          "enseigne-drapeau",
-          "lettre-alu-alupvc",
-          "lettre-boitier",
-          "lettres-pvc",
-          "rampe-lumineuse",
-          "tole-tablette",
-          "tolerie-dibond",
-          "totems",
-          "souples-rigides-adhesifs"
-        ]
+        discount_sr:discountSR,
+        configs:CONFIGS_ALL
       })
     });
 
     const out = await res.json();
-    if (!out.ok) throw new Error("Réponse serveur incorrecte");
+
+    if(!out.ok) throw new Error("Réponse serveur incorrecte");
+
+    approveMsg.style.color = "#b7ffcf";
+    approveMsg.textContent = "Accès approuvé.";
+    alert("Accès approuvé.");
+
+    modalApprove.style.display = "none";
+    loadRequests();
+    loadClients();
 
   }catch(err){
     console.error(err);
     approveMsg.textContent = "Erreur serveur.";
-    return;
   }
-
-  approveMsg.style.color = "#b7ffcf";
-  approveMsg.textContent = "Accès approuvé.";
-  alert("Accès approuvé.");
-
-  modalApprove.style.display = "none";
-  loadRequests();
-  loadClients();
 };
 
 /* ===================== CRÉATION CLIENT ===================== */
-const modalCreate   = document.getElementById("modalCreate");
-const btnCreate     = document.getElementById("btnCreateClient");
-const createEmail   = document.getElementById("createEmail");
+const modalCreate = document.getElementById("modalCreate");
+const btnCreate = document.getElementById("btnCreateClient");
+const createEmail = document.getElementById("createEmail");
 const createCompany = document.getElementById("createCompany");
-const createName    = document.getElementById("createName");
-const createDiscount= document.getElementById("createDiscount");
-const createDiscountSR= document.getElementById("createDiscountSR");
-const createMsg     = document.getElementById("createMsg");
+const createName = document.getElementById("createName");
+const createDiscount = document.getElementById("createDiscount");
+const createDiscountSR = document.getElementById("createDiscountSR");
+const createMsg = document.getElementById("createMsg");
 
 btnCreate.onclick = () => {
   createEmail.value = "";
@@ -1011,19 +1277,20 @@ document.getElementById("createSave").onclick = async () => {
 
   const email = (createEmail.value || "").trim().toLowerCase();
 
-  if (!email.includes("@")){
+  if(!email.includes("@")){
     createMsg.textContent = "Email invalide.";
     return;
   }
 
   const discount = Number(createDiscount.value || 0);
-  if (discount < 0 || discount > 90){
+  const discountSR = Number(createDiscountSR.value || 0);
+
+  if(discount < 0 || discount > 90){
     createMsg.textContent = "Remise incorrecte.";
     return;
   }
 
-  const discountSR = Number(createDiscountSR.value || 0);
-  if (discountSR < 0 || discountSR > 90){
+  if(discountSR < 0 || discountSR > 90){
     createMsg.textContent = "Remise SR incorrecte.";
     return;
   }
@@ -1031,25 +1298,15 @@ document.getElementById("createSave").onclick = async () => {
   try{
     const r = await fetch(`${WORKER_BASE}/client-create`, {
       method:"POST",
-      headers:{"Content-Type":"application/json"},
+      headers:{ "Content-Type":"application/json" },
       body:JSON.stringify({
         email,
-        company: (createCompany.value || "").trim(),
-        contact: (createName.value || "").trim(),
-        name: (createName.value || "").trim(),
+        company:(createCompany.value || "").trim(),
+        contact:(createName.value || "").trim(),
+        name:(createName.value || "").trim(),
         discount,
-        discount_sr: discountSR,
-        configs: [
-          "enseigne-drapeau",
-          "lettre-alu-alupvc",
-          "lettre-boitier",
-          "lettres-pvc",
-          "rampe-lumineuse",
-          "tole-tablette",
-          "tolerie-dibond",
-          "totems",
-          "souples-rigides-adhesifs"
-        ]
+        discount_sr:discountSR,
+        configs:CONFIGS_ALL
       })
     });
 
