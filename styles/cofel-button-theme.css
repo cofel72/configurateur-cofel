@@ -1113,3 +1113,216 @@ small,
     border-radius:18px !important;
   }
 }
+/* ==========================================================================
+   COFEL — Phase 6 : options, lignes de choix et popups techniques
+   Objectif : harmoniser Totems + options avancées en noir / blanc / gris
+   ========================================================================== */
+
+/* Conteneurs d’options */
+.options-wrap,
+#optionsBox{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+/* Lignes d’options */
+.opt-row{
+  border:1px solid rgba(255,255,255,.13) !important;
+  border-radius:16px !important;
+
+  background:
+    radial-gradient(circle at 10% 0%, rgba(255,255,255,.045), transparent 38%),
+    rgba(255,255,255,.035) !important;
+
+  color:#ffffff !important;
+
+  padding:10px 12px !important;
+
+  box-shadow:
+    0 10px 26px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.045) !important;
+}
+
+.opt-row:hover{
+  background:
+    radial-gradient(circle at 10% 0%, rgba(255,255,255,.065), transparent 38%),
+    rgba(255,255,255,.055) !important;
+
+  border-color:rgba(255,255,255,.22) !important;
+}
+
+/* Options cochées */
+.opt-row:has(input:checked){
+  border-color:rgba(255,255,255,.38) !important;
+  background:rgba(255,255,255,.10) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.08),
+    0 12px 28px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,255,255,.10) !important;
+}
+
+/* Labels dans les lignes d’options */
+.opt-row label,
+.opt-row span{
+  color:#ffffff !important;
+}
+
+.opt-row em{
+  color:rgba(255,255,255,.62) !important;
+}
+
+/* Checkboxes / radios sobres */
+input[type="checkbox"],
+input[type="radio"]{
+  accent-color:#ffffff !important;
+}
+
+/* Bloc options fixes Totems */
+#fixedOptions{
+  padding:10px 0 !important;
+}
+
+#fixedOptions > label{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:8px !important;
+
+  min-height:38px !important;
+  padding:9px 12px !important;
+
+  border-radius:999px !important;
+  border:1px solid rgba(255,255,255,.14) !important;
+  background:rgba(255,255,255,.055) !important;
+
+  color:#ffffff !important;
+}
+
+#fixedOptions > label:hover{
+  border-color:rgba(255,255,255,.24) !important;
+  background:rgba(255,255,255,.085) !important;
+}
+
+#fixedOptions > label:has(input:checked){
+  border-color:rgba(255,255,255,.38) !important;
+  background:rgba(255,255,255,.11) !important;
+}
+
+/* Blocs de mappage CSV */
+.mapping{
+  border:1px solid rgba(255,255,255,.13) !important;
+  border-radius:18px !important;
+
+  background:
+    radial-gradient(circle at 10% 0%, rgba(255,255,255,.05), transparent 38%),
+    rgba(255,255,255,.035) !important;
+
+  padding:14px !important;
+
+  box-shadow:
+    0 16px 36px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+
+.mapping h3{
+  color:#ffffff !important;
+}
+
+/* Popup massif béton */
+.massif-card{
+  border:1px solid rgba(255,255,255,.16) !important;
+  border-radius:20px !important;
+
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255,255,255,.06), transparent 38%),
+    rgba(18,18,18,.92) !important;
+
+  box-shadow:
+    0 22px 60px rgba(0,0,0,.55),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+
+.massif-head,
+.massif-foot{
+  border-color:rgba(255,255,255,.12) !important;
+}
+
+.massif-title{
+  color:#ffffff !important;
+  font-weight:900 !important;
+}
+
+.massif-sub,
+.massif-note{
+  color:rgba(255,255,255,.62) !important;
+}
+
+.massif-close{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  width:36px !important;
+  min-width:36px !important;
+  min-height:36px !important;
+  padding:0 !important;
+
+  border-radius:999px !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  background:rgba(255,255,255,.065) !important;
+  color:#ffffff !important;
+
+  cursor:pointer !important;
+}
+
+.massif-close:hover{
+  background:rgba(255,255,255,.12) !important;
+  border-color:rgba(255,255,255,.30) !important;
+}
+
+/* Tableau massif béton */
+.massif-table{
+  border:1px solid rgba(255,255,255,.13) !important;
+  border-radius:16px !important;
+  background:rgba(255,255,255,.035) !important;
+}
+
+.massif-table th{
+  background:rgba(255,255,255,.08) !important;
+  color:#ffffff !important;
+  font-weight:900 !important;
+}
+
+.massif-table td{
+  color:rgba(255,255,255,.86) !important;
+}
+
+.massif-table th,
+.massif-table td{
+  border-color:rgba(255,255,255,.08) !important;
+}
+
+.massif-highlight{
+  outline:2px solid rgba(255,255,255,.38) !important;
+  background:rgba(255,255,255,.14) !important;
+  color:#ffffff !important;
+}
+
+/* Mobile */
+@media (max-width:640px){
+  #fixedOptions{
+    gap:10px !important;
+  }
+
+  #fixedOptions > label,
+  #btnMassif,
+  #btnRal{
+    width:100% !important;
+    justify-content:flex-start !important;
+  }
+
+  .massif-card{
+    width:calc(100vw - 20px) !important;
+  }
+}
