@@ -1526,3 +1526,214 @@ body:has(#btnMassif) label.opt-row span{
     margin-left:0 !important;
   }
 }
+/* ==========================================================================
+   COFEL — Phase 7 : configurateur Supports souples, rigides & adhésifs
+   Objectif : harmoniser les étapes, boutons de navigation et sections
+   ========================================================================== */
+
+/* Page configurateur multi-étapes */
+body:has(#stepsNav) .wrapper{
+  display:block;
+}
+
+/* Barre des étapes */
+body:has(#stepsNav) .steps-nav{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:8px !important;
+
+  margin:18px 0 22px 0 !important;
+  padding:12px !important;
+
+  border:1px solid rgba(255,255,255,.12) !important;
+  border-radius:20px !important;
+
+  background:
+    radial-gradient(circle at 10% 0%, rgba(255,255,255,.05), transparent 38%),
+    rgba(255,255,255,.035) !important;
+
+  box-shadow:
+    0 16px 36px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.045) !important;
+}
+
+/* Pastilles d'étapes */
+body:has(#stepsNav) .step-item{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  min-height:34px !important;
+  padding:8px 12px !important;
+
+  border-radius:999px !important;
+  border:1px solid rgba(255,255,255,.14) !important;
+
+  background:rgba(255,255,255,.055) !important;
+  color:rgba(255,255,255,.72) !important;
+
+  font-size:12px !important;
+  font-weight:850 !important;
+  line-height:1 !important;
+
+  box-shadow:none !important;
+  user-select:none !important;
+}
+
+/* Étape active */
+body:has(#stepsNav) .step-item.active{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,.075)) !important;
+
+  border-color:rgba(255,255,255,.36) !important;
+  color:#ffffff !important;
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.08),
+    0 10px 24px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,255,255,.12) !important;
+}
+
+/* Étapes verrouillées */
+body:has(#stepsNav) .step-item.locked{
+  opacity:.45 !important;
+  color:rgba(255,255,255,.45) !important;
+}
+
+/* Sections */
+body:has(#stepsNav) .step-section{
+  margin-bottom:18px !important;
+}
+
+/* Fieldsets des étapes */
+body:has(#stepsNav) .step-section fieldset{
+  padding:18px !important;
+  margin-bottom:14px !important;
+
+  border:1px solid rgba(255,255,255,.14) !important;
+  border-radius:22px !important;
+
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255,255,255,.045), transparent 38%),
+    rgba(255,255,255,.035) !important;
+
+  box-shadow:
+    0 18px 42px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,255,255,.045) !important;
+}
+
+/* Boutons précédent / suivant / ajouter */
+body:has(#stepsNav) .nav-buttons{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+
+  margin-top:14px !important;
+}
+
+body:has(#stepsNav) .btn-nav{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+
+  min-height:40px !important;
+  padding:10px 15px !important;
+
+  border-radius:999px !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.055)) !important;
+
+  color:#ffffff !important;
+
+  font-size:13px !important;
+  font-weight:850 !important;
+  line-height:1 !important;
+
+  cursor:pointer !important;
+
+  box-shadow:
+    0 10px 24px rgba(0,0,0,.26),
+    inset 0 1px 0 rgba(255,255,255,.08) !important;
+
+  transition:
+    transform .16s ease,
+    background .16s ease,
+    border-color .16s ease,
+    box-shadow .16s ease !important;
+}
+
+body:has(#stepsNav) .btn-nav:hover{
+  transform:translateY(-1px);
+
+  border-color:rgba(255,255,255,.30) !important;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.17), rgba(255,255,255,.075)) !important;
+
+  box-shadow:
+    0 14px 30px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.10) !important;
+}
+
+/* Bouton Ajouter au devis */
+body:has(#stepsNav) #addToDevisBtn{
+  border-color:rgba(255,255,255,.28) !important;
+
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,.20), transparent 40%),
+    linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.07)) !important;
+
+  box-shadow:
+    0 14px 32px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.14) !important;
+}
+
+/* Bouton Réinitialiser */
+body:has(#stepsNav) #resetBtn{
+  background:rgba(255,107,107,.10) !important;
+  color:#ffe3e3 !important;
+  border-color:rgba(255,107,107,.34) !important;
+  box-shadow:none !important;
+}
+
+/* Récapitulatif */
+body:has(#stepsNav) #recap{
+  padding:14px !important;
+  margin-top:10px !important;
+
+  border:1px solid rgba(255,255,255,.13) !important;
+  border-radius:18px !important;
+
+  background:
+    radial-gradient(circle at 15% 0%, rgba(255,255,255,.055), transparent 38%),
+    rgba(255,255,255,.045) !important;
+}
+
+/* Footer */
+body:has(#stepsNav) .cofel-footer{
+  color:rgba(255,255,255,.48) !important;
+}
+
+/* Mobile */
+@media (max-width:640px){
+  body:has(#stepsNav) .steps-nav{
+    gap:7px !important;
+    padding:10px !important;
+  }
+
+  body:has(#stepsNav) .step-item{
+    width:100% !important;
+    justify-content:flex-start !important;
+  }
+
+  body:has(#stepsNav) .nav-buttons{
+    flex-direction:column !important;
+  }
+
+  body:has(#stepsNav) .btn-nav{
+    width:100% !important;
+  }
+}
