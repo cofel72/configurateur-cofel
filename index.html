@@ -1002,26 +1002,55 @@ if(isGroupLine(l)){
   });
 
   // ===== Intégration TRANSPORT : réception depuis transport.html =====
-  function addTransportLine(payload){
-    const st = readStore();
-    if(!st.lignes) st.lignes = [];
-    const exists = st.lignes.some(l => l.id === payload.id);
-    if(!exists){
-      const q = Number(payload.quantite||1);
-      const pu = Number(payload.pu_net_ht||0);
+function addTransportLine(payload){
+  const st = readStore();
+  if(!st.lignes) st.lignes = [];
+
+  const exists = st.lignes.some(l => l.id === payload.id);
+  if(!exists){
+    const q = Number(payload.quantite || 1);
+    const pu = Number(payload.pu_net_ht || 0);
+
+    const lastLine = st.lignes[st.lignes.length - 1];
+
+    const lastIsTransportGroup =
+      isGroupLine(lastLine) &&
+      normalizeGroupTitle(lastLine.designation || "") === "TRANSPORT";
+
+    const lastIsTransportLine =
+      String(lastLine?.type || "").toLowerCase() === "transport";
+
+    // Ajoute automatiquement un groupe TRANSPORT avant la ligne transport,
+    // sauf si le groupe existe déjà juste avant, ou si on ajoute plusieurs transports à la suite.
+    if(!lastIsTransportGroup && !lastIsTransportLine){
       st.lignes.push({
-        id: payload.id,
-        designation: payload.designation || "Transport",
-        quantite: q,
-        pu_net_ht: pu,
-        total_ligne_ht: +(q*pu).toFixed(2),
-        type: payload.type || "transport"
+        id: genId(),
+        type: "groupe",
+        designation: "TRANSPORT",
+        quantite: 0,
+        pu_net_ht: 0,
+        total_ligne_ht: 0
       });
-      writeStore(st);
-      try{ Devis.reload && Devis.reload(); }catch{}
-      render();
     }
+
+    st.lignes.push({
+      id: payload.id,
+      designation: payload.designation || "Transport",
+      quantite: q,
+      pu_net_ht: pu,
+      total_ligne_ht: +(q * pu).toFixed(2),
+      type: payload.type || "transport"
+    });
+
+    writeStore(st);
+
+    try{
+      Devis.reload && Devis.reload();
+    }catch(e){}
+
+    render();
   }
+}
   function checkTransportInbox(){
     const raw = localStorage.getItem('cofel_transport_add');
     if(!raw) return;
