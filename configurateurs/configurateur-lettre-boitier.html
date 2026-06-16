@@ -767,8 +767,13 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
       return;
     }
 
-    const familleName = (FAMILLES[famIdx] || {}).name || "Lettres boîtiers";
-    const qte = Math.max(1, parseInt(document.getElementById("quantite").value || 1, 10) || 1);
+const familleNameRaw = (FAMILLES[famIdx] || {}).name || "Lettres boîtiers";
+
+const familleName = familleNameRaw
+  .replace(/^Boîtier\s+Bâton/i, "Lettre boîtier bâton")
+  .replace(/^Boîtier\s+Fantaisie/i, "Lettre boîtier fantaisie");
+
+const qte = Math.max(1, parseInt(document.getElementById("quantite").value || 1, 10) || 1);
     const H   = Number(document.getElementById("hauteur").value || 0);
     const variant = document.getElementById("variant").value;
     const relief = String(document.getElementById("relief")?.value || "50");
@@ -789,8 +794,11 @@ document.getElementById("btnAddDevis").addEventListener("click", () => {
     const lisseNb = Math.max(1, parseInt(document.getElementById("lisseNb")?.value || 1, 10));
     const lisseML = (lisseLongueur / 1000) * lisseNb;
 
-    let designation = `${familleName} — H ${H} mm — Relief chants ${relief} mm`;
-    if (variant) designation += ` — Éclairage: ${variant}`;
+ let designation = `${familleName} — H ${H} mm — Relief chants ${relief} mm`;
+
+if (variant) {
+  designation += ` — Lumière : module LED plus alimentation 12V déportée`;
+}
     if (optLisse){
       designation += (lisseLongueur > 0)
         ? ` — Pose sur lisse — ${lisseNb} × ${lisseLongueur} mm (${lisseML.toFixed(2)} ml)`
