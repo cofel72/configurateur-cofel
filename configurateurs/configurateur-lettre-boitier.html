@@ -775,8 +775,19 @@ const familleName = familleNameRaw
 
 const qte = Math.max(1, parseInt(document.getElementById("quantite").value || 1, 10) || 1);
     const H   = Number(document.getElementById("hauteur").value || 0);
-    const variant = document.getElementById("variant").value;
-    const relief = String(document.getElementById("relief")?.value || "50");
+const variant = String(document.getElementById("variant").value || "").trim();
+const variantKey = variant
+  .toLowerCase()
+  .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+const isEclairageNon =
+  variantKey === "non" ||
+  variantKey.includes("eclairage non") ||
+  variantKey.includes("sans eclairage") ||
+  variantKey.includes("sans led") ||
+  variantKey.includes("aucun");
+
+const relief = String(document.getElementById("relief")?.value || "50");
 
     if (!(H > 0)) {
       alert("Saisis une hauteur valide.");
@@ -797,7 +808,11 @@ const qte = Math.max(1, parseInt(document.getElementById("quantite").value || 1,
  let designation = `${familleName} — H ${H} mm — Relief chants ${relief} mm`;
 
 if (variant) {
-  designation += ` — Lumière : module LED plus alimentation 12V déportée`;
+  if (isEclairageNon) {
+    designation += ` — Éclairage : non`;
+  } else {
+    designation += ` — Lumière : module LED plus alimentation 12V déportée`;
+  }
 }
     if (optLisse){
       designation += (lisseLongueur > 0)
