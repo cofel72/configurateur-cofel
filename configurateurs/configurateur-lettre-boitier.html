@@ -163,6 +163,12 @@
               <input type="checkbox" id="optLisse">
               <span>Pose sur lisse</span>
             </label>
+            <label class="option-item hidden" id="optAdhesifDiffusantRow">
+  <input type="checkbox" id="optAdhesifDiffusant">
+  <span>Adhésif diffusant contre-collé sur face PMMA</span>
+</label>
+
+<div id="adhesifDiffusantInfo" class="help hidden"></div>
           </div>
 
           <!-- ✅ MODIF : longueur + nombre de lisses -->
@@ -238,7 +244,7 @@ const RELIEF_FACTORS = {
 
 /* Supplément lisse (INTERNE) — NON multiplié par quantité */
 const TARIF_LISSE_INTERNE_ML = 25; // €/ml
-
+const TARIF_ADHESIF_DIFFUSANT_EUR_M2 = 50; // €/m² — prix client HT
 const FAMILLES = [
   { name: "Boîtier Bâton – face PMMA blanc diffusant",
     url: "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/lettres/lettre%20boitier%20baton%20chants%20alu%20laqu%C3%A9%20et%20face%20PMMA%20blanc%20diffusant.csv" },
@@ -268,7 +274,9 @@ const elOptLisse = $("optLisse");
 const elLongLisse = $("lisseLongueur");
 const elNbLisse = $("lisseNb");
 const elLightingInfo = document.getElementById("lightingInfo");
-
+const elOptAdhesifDiffusant = $("optAdhesifDiffusant");
+const elOptAdhesifDiffusantRow = $("optAdhesifDiffusantRow");
+const elAdhesifDiffusantInfo = $("adhesifDiffusantInfo");
 function updateLisseUI(){
   const block = document.getElementById("lisseBlock");
   if (!block) return;
@@ -298,7 +306,46 @@ function numFR(v){
 function euro(n){
   return (isFinite(n)?n:0).toFixed(2).replace('.',',');
 }
+function isCurrentPMMAFamily(){
+  return String(CURRENT?.name || "")
+    .toLowerCase()
+    .includes("pmma");
+}
 
+function calcAdhesifDiffusantSurfaceM2(H, Q){
+  const hauteurM = Number(H || 0) / 1000;
+  const qte = Math.max(1, parseInt(Q || 1, 10) || 1);
+
+  if(!(hauteurM > 0)) return 0;
+
+  // Surface forfaitaire : carré de la hauteur × quantité
+  return +(hauteurM * hauteurM * qte).toFixed(4);
+}
+
+function updateAdhesifDiffusantUI(H, Q, surfaceM2, supplementHT){
+  const isPMMA = isCurrentPMMAFamily();
+
+  if(elOptAdhesifDiffusantRow){
+    elOptAdhesifDiffusantRow.classList.toggle("hidden", !isPMMA);
+  }
+
+  if(!isPMMA && elOptAdhesifDiffusant){
+    elOptAdhesifDiffusant.checked = false;
+  }
+
+  if(!elAdhesifDiffusantInfo) return;
+
+  const showInfo = isPMMA && elOptAdhesifDiffusant?.checked;
+
+  elAdhesifDiffusantInfo.classList.toggle("hidden", !showInfo);
+
+  if(showInfo){
+    elAdhesifDiffusantInfo.textContent =
+      `Surface estimée : ${surfaceM2.toFixed(2)} m² × ${TARIF_ADHESIF_DIFFUSANT_EUR_M2} €/m² = ${euro(supplementHT)} € HT`;
+  } else {
+    elAdhesifDiffusantInfo.textContent = "";
+  }
+}
 /* =====================================================
    ✅ REMISE SÉRIE (quantité) — "moins agressive"
    Règle demandée :
@@ -638,10 +685,29 @@ function compute(){
   const serieFactor = getRemiseSerieFactor(Q);
   const total_interne_lettres_serie = total_interne_lettres * serieFactor;
 
-  const total_interne = total_interne_lettres_serie + supplement_lisse_interne;
+const total_interne = total_interne_lettres_serie + supplement_lisse_interne;
 
-  const total_public_brut = total_interne * COEF_PUBLIC;
-  const total_net_client = total_public_brut * remiseClient;
+const total_public_brut = total_interne * COEF_PUBLIC;
+
+// Option adhésif diffusant : prix client HT direct, uniquement sur face PMMA
+let surface_adhesif_diffusant_m2 = 0;
+let supplement_adhesif_diffusant_ht = 0;
+
+if(isCurrentPMMAFamily() && elOptAdhesifDiffusant?.checked){
+  surface_adhesif_diffusant_m2 = calcAdhesifDiffusantSurfaceM2(H, Q);
+  supplement_adhesif_diffusant_ht =
+    surface_adhesif_diffusant_m2 * TARIF_ADHESIF_DIFFUSANT_EUR_M2;
+}
+
+const total_net_client =
+  (total_public_brut * remiseClient) + supplement_adhesif_diffusant_ht;
+
+updateAdhesifDiffusantUI(
+  H,
+  Q,
+  surface_adhesif_diffusant_m2,
+  supplement_adhesif_diffusant_ht
+);
 
   const pu_public_ht = Q > 0 ? (total_net_client / Q) : 0;
 
@@ -657,6 +723,9 @@ function compute(){
     lmm: Lmm,
     nbLisse: nbL,
     lmlTotal: LmlTotal,
+    adhesifDiffusant: !!(isCurrentPMMAFamily() && elOptAdhesifDiffusant?.checked),
+adhesifDiffusantSurfaceM2: Number(surface_adhesif_diffusant_m2.toFixed(4)),
+adhesifDiffusantSupplementHT: Number(supplement_adhesif_diffusant_ht.toFixed(2)),
     // debug éventuel
     serieFactor,
     total_interne_lettres,
@@ -719,7 +788,7 @@ function bind(){
   elOptLisse.addEventListener("change", compute);
   elLongLisse.addEventListener("input", compute);
   elNbLisse.addEventListener("input", compute);
-
+elOptAdhesifDiffusant?.addEventListener("change", compute);
   $("btnReset").addEventListener("click", ()=>{
     elFam.value = "";
     buildCustomFromNative(elFam);
@@ -740,7 +809,8 @@ function bind(){
     elLongLisse.value = "";
     if (elNbLisse) elNbLisse.value = 1;
     updateLisseUI();
-
+if(elOptAdhesifDiffusant) elOptAdhesifDiffusant.checked = false;
+updateAdhesifDiffusantUI(0, 1, 0, 0);
     compute();
   });
 }
@@ -813,6 +883,10 @@ if (variant) {
   } else {
     designation += ` — Lumière : module LED plus alimentation 12V déportée`;
   }
+}
+    if(p.adhesifDiffusant){
+  designation +=
+    ` — Adhésif diffusant contre-collé sur face PMMA (${p.adhesifDiffusantSurfaceM2.toFixed(2)} m²)`;
 }
     if (optLisse){
       designation += (lisseLongueur > 0)
