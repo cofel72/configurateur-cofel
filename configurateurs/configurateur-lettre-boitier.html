@@ -342,12 +342,11 @@ function updateAdhesifDiffusantUI(H, Q, surfaceM2, supplementHT){
 
   elAdhesifDiffusantInfo.classList.toggle("hidden", !showInfo);
 
-  if(showInfo){
-    elAdhesifDiffusantInfo.textContent =
-      `Surface estimée : ${surfaceM2.toFixed(2)} m² × ${TARIF_ADHESIF_DIFFUSANT_EUR_M2} €/m² = ${euro(supplementHT)} € HT`;
-  } else {
-    elAdhesifDiffusantInfo.textContent = "";
-  }
+if(showInfo){
+  elAdhesifDiffusantInfo.textContent =
+    `Option ajoutée : adhésif diffusant contre-collé sur face PMMA`;
+} else {
+  elAdhesifDiffusantInfo.textContent = "";
 }
 /* =====================================================
    ✅ REMISE SÉRIE (quantité) — "moins agressive"
