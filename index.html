@@ -557,6 +557,33 @@ function normalizeGroupTitle(value){
     .replace(/\s+/g, " ")
     .toUpperCase();
 }
+    function getLineTotalHT(line){
+  if(!line || isGroupLine(line)) return 0;
+
+  const total = Number(line.total_ligne_ht);
+  if(Number.isFinite(total)) return total;
+
+  const q = Number(line.quantite || 0);
+  const pu = Number(line.pu_net_ht || 0);
+
+  return +(q * pu).toFixed(2);
+}
+
+function getGroupSubtotalHT(lignes, groupIndex){
+  if(!Array.isArray(lignes)) return 0;
+
+  let subtotal = 0;
+
+  for(let i = groupIndex + 1; i < lignes.length; i++){
+    const line = lignes[i];
+
+    if(isGroupLine(line)) break;
+
+    subtotal += getLineTotalHT(line);
+  }
+
+  return +subtotal.toFixed(2);
+}
   function repairStoredLines(){
     const st = readStore();
     if(!st || !Array.isArray(st.lignes)) return;
@@ -729,13 +756,15 @@ const noteInfo   = document.getElementById('noteInfo');
       const isFirst = idx === 0;
       const isLast = idx === d.lignes.length - 1;
 
-      if(isGroupLine(l)){
-        return `
-          <tr data-id="${l.id}" class="quote-group-row">
-            <td colspan="4">
-              <span class="quote-group-title">${l.designation || "GROUPE"}</span>
-              <span class="quote-group-note">Titre de regroupement — sans impact sur le total</span>
-            </td>
+ if(isGroupLine(l)){
+  const groupSubtotal = getGroupSubtotalHT(d.lignes, idx);
+
+  return `
+    <tr data-id="${l.id}" class="quote-group-row">
+      <td colspan="4">
+        <span class="quote-group-title">${l.designation || "GROUPE"}</span>
+        <span class="quote-group-note">Sous-total HT du groupe : ${fmt(groupSubtotal)}</span>
+      </td>
             <td class="center">
               <button
                 class="btn btn-ghost btn-up"
@@ -1371,11 +1400,13 @@ if(isGroupLine(l)){
       };
 
       // ----- TABLEAU -----
-     const rows = (d.lignes || []).map((l) => {
+const rows = (d.lignes || []).map((l, idx) => {
   if(isGroupLine(l)){
+    const groupSubtotal = getGroupSubtotalHT(d.lignes || [], idx);
+
     return [
       {
-        content: String(l.designation || "GROUPE").toUpperCase(),
+        content: `${String(l.designation || "GROUPE").toUpperCase()} — Sous-total HT : ${fmt(groupSubtotal)}`,
         colSpan: 4,
         styles: {
           fontStyle: "bold",
