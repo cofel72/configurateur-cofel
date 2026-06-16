@@ -335,7 +335,10 @@ function updateAdhesifDiffusantUI(H, Q, surfaceM2, supplementHT){
 
   if(!elAdhesifDiffusantInfo) return;
 
-  const showInfo = isPMMA && elOptAdhesifDiffusant?.checked;
+ const showInfo =
+  isPMMA &&
+  elOptAdhesifDiffusant?.checked &&
+  Number(surfaceM2 || 0) > 0;
 
   elAdhesifDiffusantInfo.classList.toggle("hidden", !showInfo);
 
@@ -635,7 +638,9 @@ function compute(){
 
   const H = Number(elH.value || 0);
   const Q = Math.max(1, parseInt(elQ.value || 1, 10) || 1);
-
+// Met à jour immédiatement l'affichage de l'option selon la famille PMMA / Dibond,
+// même si le calcul s'arrête ensuite faute de hauteur ou d'éclairage.
+updateAdhesifDiffusantUI(H, Q, 0, 0);
   const relief = String(elRelief?.value || "50");
   const reliefFactor = RELIEF_FACTORS[relief] || 1;
 
