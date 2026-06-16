@@ -714,129 +714,117 @@ const noteInfo   = document.getElementById('noteInfo');
   [ ['societe', elSociete], ['contact', elContact], ['chantier', elChantier] ]
     .forEach(([k,el]) => el?.addEventListener('input', () => { updateClientField(k, el.value); validateExportEnabled(); } ));
 
-  function render(){
-    const d = Devis.computeTotals();
-    const storedRemise = Number(d.remise_pct||0);
-    if(Number(elRemise?.value||0) !== storedRemise && elRemise) elRemise.value = storedRemise;
+ function render(){
+  const d = Devis.computeTotals();
+  const storedRemise = Number(d.remise_pct || 0);
 
-    if(!d.lignes.length){
-      body.innerHTML = '<tr><td colspan="5" style="padding:12px;color:#f0edff">Aucune ligne dans le devis.</td></tr>';
-    } else {
-      body.innerHTML = d.lignes.map((l, idx) => {
-        const isFirst = idx === 0;
-        const isLast = idx === d.lignes.length - 1;
+  if(Number(elRemise?.value || 0) !== storedRemise && elRemise){
+    elRemise.value = storedRemise;
+  }
 
-        if(isGroupLine(l)){
-  return `
-    <tr data-id="${l.id}" class="quote-group-row">
-      <td colspan="4">
-        <span class="quote-group-title">${l.designation || "GROUPE"}</span>
-        <span class="quote-group-note">Titre de regroupement — sans impact sur le total</span>
-      </td>
-      <td class="center">
-        <button
-          class="btn btn-ghost btn-up"
-          style="padding:6px 8px;margin-right:4px;"
-          title="Monter le groupe"
-          ${isFirst ? "disabled" : ""}
-        >▲</button>
+  if(!d.lignes.length){
+    body.innerHTML = '<tr><td colspan="5" style="padding:12px;color:#f0edff">Aucune ligne dans le devis.</td></tr>';
+  } else {
+    body.innerHTML = d.lignes.map((l, idx) => {
+      const isFirst = idx === 0;
+      const isLast = idx === d.lignes.length - 1;
 
-        <button
-          class="btn btn-ghost btn-down"
-          style="padding:6px 8px;margin-right:6px;"
-          title="Descendre le groupe"
-          ${isLast ? "disabled" : ""}
-        >▼</button>
-
-        ${canEditQuote ? `
-          <button class="btn btn-ghost btn-edit" style="margin-right:6px;">✏️ Renommer</button>
-        ` : ""}
-
-        <button class="btn btn-danger btn-del">Suppr.</button>
-      </td>
-    </tr>
-  `;
-}
-
-return `
-  <tr data-id="${l.id}">
-    <td>${l.designation || "-"}</td>
-    <td class="center">${l.quantite}</td>
-    <td class="right">${fmt(l.pu_net_ht)}</td>
-    <td class="right">${fmt(l.total_ligne_ht)}</td>
-    <td class="center">
-      <button
-        class="btn btn-ghost btn-up"
-        style="padding:6px 8px;margin-right:4px;"
-        title="Monter la ligne"
-        ${isFirst ? "disabled" : ""}
-      >▲</button>
-
-      <button
-        class="btn btn-ghost btn-down"
-        style="padding:6px 8px;margin-right:6px;"
-        title="Descendre la ligne"
-        ${isLast ? "disabled" : ""}
-      >▼</button>
-
-      <button class="btn btn-ghost btn-qty" style="margin-right:6px;">📝 Qté</button>
-
-      ${canEditQuote ? `
-        <button class="btn btn-ghost btn-edit" style="margin-right:6px;">✏️ Modifier</button>
-      ` : ""}
-
-      <button class="btn btn-danger btn-del">Suppr.</button>
-    </td>
-  </tr>
-`;
+      if(isGroupLine(l)){
+        return `
+          <tr data-id="${l.id}" class="quote-group-row">
+            <td colspan="4">
+              <span class="quote-group-title">${l.designation || "GROUPE"}</span>
+              <span class="quote-group-note">Titre de regroupement — sans impact sur le total</span>
+            </td>
+            <td class="center">
               <button
                 class="btn btn-ghost btn-up"
                 style="padding:6px 8px;margin-right:4px;"
-                title="Monter la ligne"
+                title="Monter le groupe"
                 ${isFirst ? "disabled" : ""}
               >▲</button>
 
               <button
                 class="btn btn-ghost btn-down"
                 style="padding:6px 8px;margin-right:6px;"
-                title="Descendre la ligne"
+                title="Descendre le groupe"
                 ${isLast ? "disabled" : ""}
               >▼</button>
 
-              <button class="btn btn-ghost btn-qty" style="margin-right:6px;">📝 Qté</button>
-
               ${canEditQuote ? `
-                <button class="btn btn-ghost btn-edit" style="margin-right:6px;">✏️ Modifier</button>
+                <button class="btn btn-ghost btn-edit" style="margin-right:6px;">✏️ Renommer</button>
               ` : ""}
 
               <button class="btn btn-danger btn-del">Suppr.</button>
             </td>
           </tr>
         `;
-      }).join("");
-    }
+      }
 
-    const t = totalsExcludingTransportDiscount(d);
-    elHT.textContent  = fmt(t.total_ht);
-    elTVA.textContent = fmt(t.tva);
-    elTTC.textContent = fmt(t.total_ttc);
+      return `
+        <tr data-id="${l.id}">
+          <td>${l.designation || "-"}</td>
+          <td class="center">${l.quantite}</td>
+          <td class="right">${fmt(l.pu_net_ht)}</td>
+          <td class="right">${fmt(l.total_ligne_ht)}</td>
+          <td class="center">
+            <button
+              class="btn btn-ghost btn-up"
+              style="padding:6px 8px;margin-right:4px;"
+              title="Monter la ligne"
+              ${isFirst ? "disabled" : ""}
+            >▲</button>
+
+            <button
+              class="btn btn-ghost btn-down"
+              style="padding:6px 8px;margin-right:6px;"
+              title="Descendre la ligne"
+              ${isLast ? "disabled" : ""}
+            >▼</button>
+
+            <button class="btn btn-ghost btn-qty" style="margin-right:6px;">📝 Qté</button>
+
+            ${canEditQuote ? `
+              <button class="btn btn-ghost btn-edit" style="margin-right:6px;">✏️ Modifier</button>
+            ` : ""}
+
+            <button class="btn btn-danger btn-del">Suppr.</button>
+          </td>
+        </tr>
+      `;
+    }).join("");
   }
 
-  // === AJOUT MANUEL DE LIGNE ===
-  document.getElementById("btnAddManu").addEventListener("click", () => {
-    const designation = (document.getElementById("manuDesignation").value || "").trim();
-    const qte = Number(document.getElementById("manuQte").value || 1);
-    const pu = Number(document.getElementById("manuPU").value || 0);
+  const t = totalsExcludingTransportDiscount(d);
+  elHT.textContent  = fmt(t.total_ht);
+  elTVA.textContent = fmt(t.tva);
+  elTTC.textContent = fmt(t.total_ttc);
+}
 
-    if (!designation) return alert("Veuillez saisir une désignation.");
-    if (qte <= 0 || pu < 0) return alert("Valeurs invalides.");
+// === AJOUT MANUEL DE LIGNE ===
+document.getElementById("btnAddManu").addEventListener("click", () => {
+  const designation = (document.getElementById("manuDesignation").value || "").trim();
+  const qte = Number(document.getElementById("manuQte").value || 1);
+  const pu = Number(document.getElementById("manuPU").value || 0);
 
-    Devis.addLine({
-      type: "manuel",
-      designation,
-      quantite: qte,
-      pu_net_ht: pu
-    });
+  if (!designation) return alert("Veuillez saisir une désignation.");
+  if (qte <= 0 || pu < 0) return alert("Valeurs invalides.");
+
+  Devis.addLine({
+    type: "manuel",
+    designation,
+    quantite: qte,
+    pu_net_ht: pu
+  });
+
+  document.getElementById("manuDesignation").value = "";
+  document.getElementById("manuQte").value = 1;
+  document.getElementById("manuPU").value = 0;
+
+  render();
+});
+
+// === AJOUT D'UN GROUPE DE LIGNES ===
 btnAddGroup?.addEventListener("click", () => {
   const title = prompt("Nom du groupe :", "Enseigne façade principale");
   if(title === null) return;
@@ -865,12 +853,6 @@ btnAddGroup?.addEventListener("click", () => {
   render();
   showToast("Groupe ajouté ✔", true);
 });
-    document.getElementById("manuDesignation").value = "";
-    document.getElementById("manuQte").value = 1;
-    document.getElementById("manuPU").value = 0;
-
-    render();
-  });
 
   function moveQuoteLine(id, direction){
     const st = readStore();
