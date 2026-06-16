@@ -335,18 +335,19 @@ function updateAdhesifDiffusantUI(H, Q, surfaceM2, supplementHT){
 
   if(!elAdhesifDiffusantInfo) return;
 
- const showInfo =
-  isPMMA &&
-  elOptAdhesifDiffusant?.checked &&
-  Number(surfaceM2 || 0) > 0;
+  const showInfo =
+    isPMMA &&
+    elOptAdhesifDiffusant?.checked &&
+    Number(surfaceM2 || 0) > 0;
 
   elAdhesifDiffusantInfo.classList.toggle("hidden", !showInfo);
 
-if(showInfo){
-  elAdhesifDiffusantInfo.textContent =
-    `Option ajoutée : adhésif diffusant contre-collé sur face PMMA`;
-} else {
-  elAdhesifDiffusantInfo.textContent = "";
+  if(showInfo){
+    elAdhesifDiffusantInfo.textContent =
+      `Option ajoutée : adhésif diffusant contre-collé sur face PMMA`;
+  } else {
+    elAdhesifDiffusantInfo.textContent = "";
+  }
 }
 /* =====================================================
    ✅ REMISE SÉRIE (quantité) — "moins agressive"
