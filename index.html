@@ -194,7 +194,39 @@
     th{ font-size:12px; color:var(--accent); letter-spacing:.3px; }
     tbody tr + tr td{ border-top:1px solid rgba(255,255,255,.12); }
     td.right{ text-align:right; } td.center{ text-align:center; }
+/* ===================== LIGNES DE GROUPE DANS LE DEVIS ===================== */
 
+tr.quote-group-row td{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08)) !important;
+  border-top:1px solid rgba(255,255,255,.22) !important;
+  border-bottom:1px solid rgba(255,255,255,.14) !important;
+}
+
+.quote-group-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:900;
+  letter-spacing:.45px;
+  text-transform:uppercase;
+  color:#ffffff;
+}
+
+.quote-group-title::before{
+  content:"▸";
+  opacity:.85;
+}
+
+.quote-group-note{
+  display:block;
+  margin-top:3px;
+  color:rgba(255,255,255,.62);
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:0;
+  text-transform:none;
+}
     .totaux{ margin-top:16px; display:flex; justify-content:space-between; gap:16px; align-items:flex-start; flex-wrap:wrap; }
     .totaux-box{
       min-width:320px; border-radius:16px; padding:12px 14px;
@@ -419,9 +451,12 @@
       </div>
 
       <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-        <button id="btnPdf" class="btn" disabled
-          title="Renseignez Entreprise, Nom & prénom et Nom du chantier pour activer l’export PDF">📄 Exporter le devis en PDF</button>
-        <button id="btnClear" class="btn btn-danger">🗑 Vider le devis</button>
+      <button id="btnPdf" class="btn" disabled
+  title="Renseignez Entreprise, Nom & prénom et Nom du chantier pour activer l’export PDF">📄 Exporter le devis en PDF</button>
+
+<button id="btnAddGroup" class="btn btn-ghost" type="button">📁 Ajouter un groupe</button>
+
+<button id="btnClear" class="btn btn-danger">🗑 Vider le devis</button>
         <div id="noteInfo" class="note-info">💡 Veuillez renseigner l’entreprise, le nom du contact et le chantier pour activer l’export PDF.</div>
       </div>
     </section>
@@ -512,21 +547,57 @@ try {
     }
     return null;
   }
+    function isGroupLine(line){
+  return String(line?.type || "").toLowerCase() === "groupe";
+}
+
+function normalizeGroupTitle(value){
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toUpperCase();
+}
   function repairStoredLines(){
     const st = readStore();
     if(!st || !Array.isArray(st.lignes)) return;
 
     let changed = false;
 
-    for(const l of st.lignes){
-      if(!l || typeof l !== "object") continue;
+ for(const l of st.lignes){
+  if(!l || typeof l !== "object") continue;
 
-      if(!l.id){
-        l.id = genId();
-        changed = true;
-      }
+  if(!l.id){
+    l.id = genId();
+    changed = true;
+  }
 
-      const q = Number(l.quantite ?? l.qte ?? l.qty ?? 1);
+  // Ligne de groupe : titre visuel, sans prix, sans quantité, sans total
+  if(isGroupLine(l)){
+    const cleanTitle = normalizeGroupTitle(l.designation || "GROUPE");
+    if(l.designation !== cleanTitle){
+      l.designation = cleanTitle;
+      changed = true;
+    }
+
+    if(l.quantite !== 0){
+      l.quantite = 0;
+      changed = true;
+    }
+
+    if(l.pu_net_ht !== 0){
+      l.pu_net_ht = 0;
+      changed = true;
+    }
+
+    if(l.total_ligne_ht !== 0){
+      l.total_ligne_ht = 0;
+      changed = true;
+    }
+
+    continue;
+  }
+
+  const q = Number(l.quantite ?? l.qte ?? l.qty ?? 1);
       if(!Number.isFinite(q) || q <= 0){
         l.quantite = 1;
         changed = true;
@@ -572,13 +643,16 @@ try {
     const lignes = d?.lignes || [];
     const remise = 0;
     let sumTransport = 0, sumNon = 0;
-    for (const l of lignes){
-      const q  = Number(l.quantite)||0;
-      const pu = Number(l.pu_net_ht)||0;
-      const total = q * pu;
-      if ((l.type || "").toLowerCase() === "transport") sumTransport += total;
-      else sumNon += total;
-    }
+   for (const l of lignes){
+  if(isGroupLine(l)) continue;
+
+  const q  = Number(l.quantite)||0;
+  const pu = Number(l.pu_net_ht)||0;
+  const total = q * pu;
+
+  if ((l.type || "").toLowerCase() === "transport") sumTransport += total;
+  else sumNon += total;
+}
     const nonAfterRemise = sumNon * (1 - remise/100);
     const total_ht  = +(nonAfterRemise + sumTransport).toFixed(2);
     const tva       = +(total_ht * TVA_RATE).toFixed(2);
@@ -596,8 +670,9 @@ try {
   const elContact  = document.getElementById('contact');
   const elChantier = document.getElementById('chantier');
   const btnPdf     = document.getElementById('btnPdf');
-  const btnClear   = document.getElementById('btnClear');
-  const noteInfo   = document.getElementById('noteInfo');
+ const btnClear   = document.getElementById('btnClear');
+const btnAddGroup = document.getElementById('btnAddGroup');
+const noteInfo   = document.getElementById('noteInfo');
 
   // Validation activation export PDF
   function validateExportEnabled(){
@@ -651,13 +726,69 @@ try {
         const isFirst = idx === 0;
         const isLast = idx === d.lignes.length - 1;
 
-        return `
-          <tr data-id="${l.id}">
-            <td>${l.designation || "-"}</td>
-            <td class="center">${l.quantite}</td>
-            <td class="right">${fmt(l.pu_net_ht)}</td>
-            <td class="right">${fmt(l.total_ligne_ht)}</td>
-            <td class="center">
+        if(isGroupLine(l)){
+  return `
+    <tr data-id="${l.id}" class="quote-group-row">
+      <td colspan="4">
+        <span class="quote-group-title">${l.designation || "GROUPE"}</span>
+        <span class="quote-group-note">Titre de regroupement — sans impact sur le total</span>
+      </td>
+      <td class="center">
+        <button
+          class="btn btn-ghost btn-up"
+          style="padding:6px 8px;margin-right:4px;"
+          title="Monter le groupe"
+          ${isFirst ? "disabled" : ""}
+        >▲</button>
+
+        <button
+          class="btn btn-ghost btn-down"
+          style="padding:6px 8px;margin-right:6px;"
+          title="Descendre le groupe"
+          ${isLast ? "disabled" : ""}
+        >▼</button>
+
+        ${canEditQuote ? `
+          <button class="btn btn-ghost btn-edit" style="margin-right:6px;">✏️ Renommer</button>
+        ` : ""}
+
+        <button class="btn btn-danger btn-del">Suppr.</button>
+      </td>
+    </tr>
+  `;
+}
+
+return `
+  <tr data-id="${l.id}">
+    <td>${l.designation || "-"}</td>
+    <td class="center">${l.quantite}</td>
+    <td class="right">${fmt(l.pu_net_ht)}</td>
+    <td class="right">${fmt(l.total_ligne_ht)}</td>
+    <td class="center">
+      <button
+        class="btn btn-ghost btn-up"
+        style="padding:6px 8px;margin-right:4px;"
+        title="Monter la ligne"
+        ${isFirst ? "disabled" : ""}
+      >▲</button>
+
+      <button
+        class="btn btn-ghost btn-down"
+        style="padding:6px 8px;margin-right:6px;"
+        title="Descendre la ligne"
+        ${isLast ? "disabled" : ""}
+      >▼</button>
+
+      <button class="btn btn-ghost btn-qty" style="margin-right:6px;">📝 Qté</button>
+
+      ${canEditQuote ? `
+        <button class="btn btn-ghost btn-edit" style="margin-right:6px;">✏️ Modifier</button>
+      ` : ""}
+
+      <button class="btn btn-danger btn-del">Suppr.</button>
+    </td>
+  </tr>
+`;
               <button
                 class="btn btn-ghost btn-up"
                 style="padding:6px 8px;margin-right:4px;"
@@ -706,7 +837,34 @@ try {
       quantite: qte,
       pu_net_ht: pu
     });
+btnAddGroup?.addEventListener("click", () => {
+  const title = prompt("Nom du groupe :", "Enseigne façade principale");
+  if(title === null) return;
 
+  const cleanTitle = normalizeGroupTitle(title);
+  if(!cleanTitle) return alert("Veuillez saisir un nom de groupe.");
+
+  const st = readStore();
+  if(!Array.isArray(st.lignes)) st.lignes = [];
+
+  st.lignes.push({
+    id: genId(),
+    type: "groupe",
+    designation: cleanTitle,
+    quantite: 0,
+    pu_net_ht: 0,
+    total_ligne_ht: 0
+  });
+
+  writeStore(st);
+
+  try{
+    Devis.reload && Devis.reload();
+  }catch(e){}
+
+  render();
+  showToast("Groupe ajouté ✔", true);
+});
     document.getElementById("manuDesignation").value = "";
     document.getElementById("manuQte").value = 1;
     document.getElementById("manuPU").value = 0;
@@ -760,6 +918,30 @@ try {
 
       const l = Devis.getLine(id);
       if (!l) return;
+if(isGroupLine(l)){
+  const newTitle = prompt("Nouveau nom du groupe :", l.designation || "GROUPE");
+  if(newTitle === null) return;
+
+  const cleanTitle = normalizeGroupTitle(newTitle);
+  if(!cleanTitle) return alert("Veuillez saisir un nom de groupe.");
+
+  const st = readStore();
+  if(Array.isArray(st.lignes)){
+    const line = st.lignes.find(x => x.id === id);
+    if(line){
+      line.designation = cleanTitle;
+      line.type = "groupe";
+      line.quantite = 0;
+      line.pu_net_ht = 0;
+      line.total_ligne_ht = 0;
+      writeStore(st);
+      try{ Devis.reload && Devis.reload(); }catch(e){}
+    }
+  }
+
+  render();
+  return;
+}
 
       const newDesignation = prompt("Nouvelle désignation :", l.designation || "");
       if (newDesignation === null) return;
@@ -990,9 +1172,11 @@ try {
     const rows = [header.join(";")];
 
     let lineNo = 0;
-    for(const l of (devis?.lignes || [])){
-      const qty = Number(l.quantite ?? 0);
-      if (!Number.isFinite(qty) || qty <= 0) continue;
+   for(const l of (devis?.lignes || [])){
+  if(isGroupLine(l)) continue;
+
+  const qty = Number(l.quantite ?? 0);
+  if (!Number.isFinite(qty) || qty <= 0) continue;
 
       lineNo++;
       const pu = Number(l.pu_net_ht ?? 0);
@@ -1205,12 +1389,29 @@ try {
       };
 
       // ----- TABLEAU -----
-      const rows = (d.lignes || []).map((l) => [
-        l.designation || "-",
-        String(l.quantite),
-        (Number(l.pu_net_ht) || 0).toFixed(2),
-        (Number(l.total_ligne_ht) || 0).toFixed(2),
-      ]);
+     const rows = (d.lignes || []).map((l) => {
+  if(isGroupLine(l)){
+    return [
+      {
+        content: String(l.designation || "GROUPE").toUpperCase(),
+        colSpan: 4,
+        styles: {
+          fontStyle: "bold",
+          fillColor: [230, 230, 230],
+          textColor: COLOR_TEXT,
+          halign: "left"
+        }
+      }
+    ];
+  }
+
+  return [
+    l.designation || "-",
+    String(l.quantite),
+    (Number(l.pu_net_ht) || 0).toFixed(2),
+    (Number(l.total_ligne_ht) || 0).toFixed(2),
+  ];
+});
 
       drawHeader();
       let cursorY = drawClientCard(margin + 90);
