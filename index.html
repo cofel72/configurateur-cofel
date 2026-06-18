@@ -70,7 +70,12 @@
       opacity:.95; transition: opacity .15s, transform .15s, box-shadow .15s;
     }
     .logout-btn:hover{ opacity:1; transform: translateY(-1px); box-shadow: 0 14px 34px rgba(0,0,0,.42); }
-
+.hero-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
     /* ===================== APPS GRID PAR FAMILLES ===================== */
     .wrap{max-width:1200px; margin:26px auto; padding:0 20px 40px; position:relative; z-index:1;}
 
@@ -280,7 +285,10 @@ tr.quote-group-row td{
         <img src="./assets/ESO-rect1.png" alt="ESO" />
         <h1>Configurateurs Cofel</h1>
       </div>
-      <button id="logoutBtn" class="logout-btn" title="Se déconnecter">🚪 Se déconnecter</button>
+      <div class="hero-actions">
+  <a href="/auth/mes-devis.html" class="logout-btn" style="text-decoration:none;">📄 Mes devis</a>
+  <button id="logoutBtn" class="logout-btn" title="Se déconnecter">🚪 Se déconnecter</button>
+</div>
     </div>
     <p class="hero-tagline">
       Choisissez un configurateur puis composez votre devis en quelques clics.
