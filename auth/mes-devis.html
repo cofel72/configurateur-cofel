@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mes devis — Cofel</title>
+
+  <script src="./lock.js" type="module"></script>
+
+  <link rel="stylesheet" href="../styles/cofel.css" />
+  <link rel="stylesheet" href="../styles/cofel-components.css" />
+  <link rel="stylesheet" href="../styles/cofel-glass.css" />
+  <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css" />
+  <link rel="stylesheet" href="/styles/cofel-button-theme.css" />
+
+  <style>
+    *{box-sizing:border-box}
+    html,body{height:100%}
+
+    body{
+      margin:0;
+      font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Arial, sans-serif;
+      background:#000;
+      color:var(--txt,#f5f7ff);
+      min-height:100vh;
+    }
+
+    header{
+      padding:22px 20px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+    }
+
+    .header-inner{
+      max-width:1200px;
+      margin:0 auto;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .header-title{
+      font-size:20px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+
+    .container{
+      max-width:1200px;
+      margin:26px auto;
+      padding:0 20px 40px;
+    }
+
+    .panel{
+      background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:20px;
+      padding:18px;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+    }
+
+    h2{
+      margin:0 0 8px;
+      font-size:20px;
+      font-weight:900;
+    }
+
+    .note{
+      margin:0 0 14px;
+      color:rgba(255,255,255,.68);
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.14);
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:850px;
+      background:rgba(0,0,0,.20);
+    }
+
+    thead tr{ background:rgba(255,255,255,.06); }
+
+    th{
+      padding:12px;
+      text-align:left;
+      color:rgba(255,255,255,.78);
+      font-size:12px;
+      letter-spacing:.3px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+      white-space:nowrap;
+    }
+
+    td{
+      padding:12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      color:rgba(255,255,255,.92);
+      font-size:13px;
+      vertical-align:top;
+    }
+
+    tbody tr:hover{ background:rgba(255,255,255,.05); }
+
+    .actions-cell{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .btn-link,
+    .btn-view,
+    .btn-reopen{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 13px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:900;
+      font-size:13px;
+      text-decoration:none;
+      color:#fff;
+      background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 10px 24px rgba(0,0,0,.25);
+      white-space:nowrap;
+    }
+
+    .btn-reopen{
+      border-color:rgba(140,255,190,.35);
+    }
+
+    .btn-reopen[disabled]{
+      opacity:.35;
+      cursor:not-allowed;
+      pointer-events:none;
+    }
+
+    .empty{
+      padding:24px;
+      text-align:center;
+      color:rgba(255,255,255,.62);
+    }
+
+    .msg{
+      margin-top:12px;
+      font-size:13px;
+      color:#ffe3e3;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="header-title">📄 Mes devis</div>
+      <a class="btn-link" href="/index.html">← Retour configurateur</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <h2>Mes devis enregistrés</h2>
+      <p class="note">
+        Vous pouvez consulter vos PDF ou reprendre un ancien devis modifiable.
+        L’ancien PDF reste archivé ; un nouvel export créera un nouveau devis.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Société</th>
+              <th>Contact</th>
+              <th>Produit</th>
+              <th>Total HT</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="quotesBody">
+            <tr>
+              <td colspan="6" class="empty">Chargement des devis…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="msg" class="msg"></div>
+    </section>
+  </main>
+
+  <script>
+    const API_URL = "https://cofel-auth.sonveven.workers.dev";
+    const CLIENT_KEY = "cofel_client_profile";
+    const STORAGE_KEY = "devisCourant_v1";
+
+    const tbody = document.getElementById("quotesBody");
+    const msg = document.getElementById("msg");
+
+    let allQuotes = [];
+
+    function getProfile(){
+      try{
+        return JSON.parse(localStorage.getItem(CLIENT_KEY) || "{}");
+      }catch(e){
+        return {};
+      }
+    }
+
+    async function loadMyQuotes(){
+      const profile = getProfile();
+      const email = String(profile.email || "").trim().toLowerCase();
+      const sessionToken = String(profile.sessionToken || "").trim();
+
+      if(!email || !sessionToken){
+        tbody.innerHTML = `<tr><td colspan="6" class="empty">Session expirée. Merci de vous reconnecter.</td></tr>`;
+        return;
+      }
+
+      try{
+        const res = await fetch(`${API_URL}/my-quotes`, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ email, sessionToken })
+        });
+
+        const data = await res.json();
+
+        if(!res.ok || !data.ok){
+          throw new Error(data.error || "Chargement impossible");
+        }
+
+        allQuotes = data.quotes || [];
+        renderQuotes();
+
+      }catch(err){
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="6" class="empty">Erreur de chargement des devis.</td></tr>`;
+        msg.textContent = "Impossible de charger vos devis. Merci de vous reconnecter si le problème persiste.";
+      }
+    }
+
+    function renderQuotes(){
+      if(!allQuotes.length){
+        tbody.innerHTML = `<tr><td colspan="6" class="empty">Aucun devis enregistré pour ce compte.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = allQuotes.map(q => {
+        const editable = quoteHasEditableData(q);
+
+        return `
+          <tr>
+            <td>${formatDate(q.created_at)}</td>
+            <td>${escapeHtml(q.client_company || "-")}</td>
+            <td>${escapeHtml(q.client_name || "-")}</td>
+            <td>${escapeHtml(humanProduct(q.product_type))}</td>
+            <td>${formatEuros(q.total_ht)}</td>
+            <td>
+              <div class="actions-cell">
+                <button class="btn-view" onclick="viewQuote(${Number(q.id)})">Voir PDF</button>
+                <button
+                  class="btn-reopen"
+                  onclick="reopenQuote(${Number(q.id)})"
+                  ${editable ? "" : "disabled"}
+                  title="${editable ? "Reprendre ce devis" : "Ancien devis sans données modifiables"}"
+                >
+                  ↩ Modifier
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function viewQuote(id){
+      window.open(`${API_URL}/get-pdf?id=${id}`, "_blank");
+    }
+
+    function quoteHasEditableData(q){
+      const extra = parseQuoteExtra(q);
+      const lignes = extractLinesFromExtra(extra);
+      return Array.isArray(lignes) && lignes.length > 0;
+    }
+
+    function reopenQuote(id){
+      const q = allQuotes.find(item => Number(item.id) === Number(id));
+
+      if(!q){
+        alert("Devis introuvable.");
+        return;
+      }
+
+      const extra = parseQuoteExtra(q);
+      const lignesSource = extractLinesFromExtra(extra);
+
+      if(!Array.isArray(lignesSource) || !lignesSource.length){
+        alert("Impossible de modifier ce devis : les lignes du devis ne sont pas disponibles.");
+        return;
+      }
+
+      const ok = confirm(
+        "Ce devis va être repris dans la page d'accueil du configurateur.\\n\\n" +
+        "Le devis actuellement présent sera remplacé.\\n\\n" +
+        "Continuer ?"
+      );
+
+      if(!ok) return;
+
+      const lignes = normalizeQuoteLines(lignesSource);
+
+      const chantier =
+        extra?.chantier ||
+        extra?.client?.chantier ||
+        extra?.infos?.chantier ||
+        "";
+
+      const date =
+        extra?.date ||
+        extra?.devisDate ||
+        extra?.date_devis ||
+        new Date().toISOString().slice(0, 10);
+
+      const societe =
+        extra?.societe ||
+        extra?.client?.societe ||
+        extra?.clientCompany ||
+        q.client_company ||
+        "";
+
+      const contact =
+        extra?.contact ||
+        extra?.client?.contact ||
+        extra?.clientName ||
+        q.client_name ||
+        "";
+
+      const state = {
+        lignes,
+        chantier,
+        date,
+
+        clientEmail: q.client_email || "",
+        clientCompany: societe,
+        clientName: contact,
+
+        client: {
+          societe,
+          contact,
+          chantier
+        },
+
+        remise_pct: Number(extra?.remise_pct || extra?.remise || 0) || 0,
+
+        reopened_from_quote: {
+          id: q.id,
+          created_at: q.created_at,
+          product_type: q.product_type,
+          reopened_at: new Date().toISOString()
+        }
+      };
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+      sessionStorage.setItem("cofel_reopened_quote", JSON.stringify({
+        id: q.id,
+        created_at: q.created_at,
+        product_type: q.product_type
+      }));
+
+      window.location.href = "/index.html";
+    }
+
+    function parseQuoteExtra(q){
+      if(!q) return null;
+
+      const raw = q.extra_json;
+      if(!raw) return null;
+
+      if(typeof raw === "object") return raw;
+
+      try{
+        return JSON.parse(raw);
+      }catch(err){
+        console.warn("extra_json invalide pour le devis", q.id, err);
+        return null;
+      }
+    }
+
+    function extractLinesFromExtra(extra){
+      if(!extra) return [];
+
+      if(Array.isArray(extra.lignes)) return extra.lignes;
+      if(Array.isArray(extra.lines)) return extra.lines;
+      if(Array.isArray(extra.devis?.lignes)) return extra.devis.lignes;
+      if(Array.isArray(extra.quote?.lignes)) return extra.quote.lignes;
+
+      return [];
+    }
+
+    function normalizeQuoteLines(lignes){
+      return lignes
+        .filter(l => l && typeof l === "object")
+        .map(l => {
+          const isGroup = String(l.type || "").toLowerCase() === "groupe";
+
+          if(isGroup){
+            return {
+              ...l,
+              id: l.id || generateLineId(),
+              type: "groupe",
+              designation: l.designation || "GROUPE",
+              quantite: 0,
+              pu_net_ht: 0,
+              total_ligne_ht: 0
+            };
+          }
+
+          const qteRaw = l.quantite ?? l.qte ?? l.qty ?? 1;
+          const quantite = Math.max(1, toNumber(qteRaw) || 1);
+
+          let pu = toNumber(
+            l.pu_net_ht ??
+            l.pu_public_ht ??
+            l.pu_ht ??
+            l.puHT ??
+            l.pu ??
+            l.price_ht ??
+            l.prix_ht ??
+            0
+          );
+
+          let total = toNumber(
+            l.total_ligne_ht ??
+            l.total_ht ??
+            l.totalHT ??
+            l.montant_ht ??
+            l.total ??
+            0
+          );
+
+          if(!pu && total && quantite){
+            pu = total / quantite;
+          }
+
+          if(!total && pu){
+            total = pu * quantite;
+          }
+
+          return {
+            ...l,
+            id: l.id || generateLineId(),
+            type: l.type || "devis-reouvert",
+            designation: l.designation || l.label || l.name || "Ligne devis",
+            quantite: round2(quantite),
+            pu_net_ht: round2(pu),
+            total_ligne_ht: round2(total)
+          };
+        });
+    }
+
+    function generateLineId(){
+      try{
+        if(window.crypto && typeof crypto.randomUUID === "function"){
+          return crypto.randomUUID();
+        }
+      }catch(e){}
+
+      return "L_" + Date.now() + "_" + Math.random().toString(16).slice(2);
+    }
+
+    function humanProduct(p){
+      const map = {
+        "tole-tablette":"Tôle tablette",
+        "rampe-lumineuse":"Rampe lumineuse",
+        "totem":"Totem",
+        "totems":"Totems",
+        "lettres-pvc":"Lettres PVC",
+        "lettre-alu-alupvc":"Lettres Alu / Alu-PVC",
+        "lettre-boitier":"Lettres boîtiers",
+        "tolerie-dibond":"Tôlerie Alu / Dibond",
+        "souples-rigides-adhesifs":"Supports souples, rigides & adhésifs",
+        "devis-index":"Devis"
+      };
+
+      return map[p] || p || "-";
+    }
+
+    function formatDate(iso){
+      if(!iso) return "-";
+
+      try{
+        const d = new Date(iso);
+        return d.toLocaleDateString("fr-FR") + " " +
+          d.toLocaleTimeString("fr-FR", {
+            hour:"2-digit",
+            minute:"2-digit"
+          });
+      }catch(e){
+        return iso;
+      }
+    }
+
+    function formatEuros(v){
+      const n = toNumber(v);
+      return n.toLocaleString("fr-FR", {
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      }) + " €";
+    }
+
+    function toNumber(v){
+      if(v === undefined || v === null || v === "") return 0;
+
+      if(typeof v === "number"){
+        return Number.isFinite(v) ? v : 0;
+      }
+
+      const clean = String(v)
+        .replace(/\s/g, "")
+        .replace("€", "")
+        .replace(",", ".");
+
+      const n = Number(clean);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function round2(n){
+      const x = Number(n || 0);
+      return Number.isFinite(x) ? Number(x.toFixed(2)) : 0;
+    }
+
+    function escapeHtml(str){
+      return String(str ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    loadMyQuotes();
+  </script>
+</body>
+</html>
