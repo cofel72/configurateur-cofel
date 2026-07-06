@@ -557,9 +557,14 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
       <button id="btnCreateClient" class="btn">➕ Créer un client</button>
       <button id="btnBack" class="btn">⬅ Retour</button>
     </div>
-  </header>
+    </header>
 
- utton class="tab-btn active" data-tab="clients"
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="clients">Clients</button>
+    <button class="tab-btn" data-tab="requests">Demandes</button>
+    <button class="tab-btn" data-tab="groups">Groupes</button>
+    <button class="tab-btn" data-tab="activity">Activité</button>
+  </div>
 
   <div id="clients" class="tab-panel active">
     <input id="searchClient" type="text" placeholder="Rechercher (email, société, contact…)" />
