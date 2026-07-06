@@ -977,7 +977,11 @@ async function loadClientGroups(){
         <td data-label="Remise">${formatRate(g.discount_rate)}</td>
         <td data-label="Remise SR">${formatRate(g.discount_sr)}</td>
         <td data-label="Clients">${Number(g.clients_count || 0)}</td>
-        <td data-label="Actions">
+                <td data-label="Actions">
+          <button class="btn-row btn-row-secondary btn-group-view"
+            data-id="${esc(g.id)}"
+            data-name="${esc(g.name)}">👥 Voir clients</button>
+
           <button class="btn-row btn-row-secondary btn-group-edit"
             data-id="${esc(g.id)}"
             data-name="${esc(g.name)}"
@@ -1062,7 +1066,41 @@ document.getElementById("btnSaveGroup").addEventListener("click", async () => {
 tbodyGroups.addEventListener("click", async e => {
   const id = e.target.dataset.id;
   if(!id) return;
+  if(e.target.classList.contains("btn-group-view")){
+    const groupName = e.target.dataset.name || "ce groupe";
 
+    try{
+      const r = await fetch(`${WORKER_BASE}/clients`);
+      const data = await r.json();
+
+      const clients = Array.isArray(data.clients)
+        ? data.clients.filter(c => String(c.group_id || "") === String(id))
+        : [];
+
+      if(!clients.length){
+        alert(`Aucun client dans le groupe "${groupName}".`);
+        return;
+      }
+
+      const list = clients.map(c => {
+        const company = c.company || "Société non renseignée";
+        const contact = c.contact_name || "Contact non renseigné";
+        const email = c.email || "Email non renseigné";
+        return `• ${company} — ${contact} — ${email}`;
+      }).join("\n");
+
+      alert(
+        `Clients du groupe "${groupName}" :\n\n` +
+        list
+      );
+
+    }catch(err){
+      console.error(err);
+      alert("Erreur lors du chargement des clients du groupe.");
+    }
+
+    return;
+  }
   if(e.target.classList.contains("btn-group-edit")){
     editingGroupId = Number(id);
     groupName.value = e.target.dataset.name || "";
