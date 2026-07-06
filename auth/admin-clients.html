@@ -165,7 +165,21 @@
   }
 
   #searchClient::placeholder{color:rgba(255,255,255,.55);}
+  .group-select{
+    width:100%;
+    min-width:130px;
+    padding:8px 10px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.18);
+    background:#161616;
+    color:#fff;
+    outline:none;
+  }
 
+  .group-select:focus{
+    border-color:rgba(255,255,255,.34);
+    box-shadow:0 0 0 3px rgba(255,255,255,.12);
+  }
   input,select,button{
     font-family:inherit;
   }
@@ -545,11 +559,7 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
     </div>
   </header>
 
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="clients">Clients</button>
-    <button class="tab-btn" data-tab="requests">Demandes</button>
-    <button class="tab-btn" data-tab="activity">Activité</button>
-  </div>
+ utton class="tab-btn active" data-tab="clients"
 
   <div id="clients" class="tab-panel active">
     <input id="searchClient" type="text" placeholder="Rechercher (email, société, contact…)" />
@@ -557,11 +567,12 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
     <div class="card">
       <div class="table-container">
         <table>
-          <thead>
+                   <thead>
             <tr>
               <th>Email</th>
               <th>Société</th>
               <th>Contact</th>
+              <th>Groupe</th>
               <th>Remise</th>
               <th>Remise SR</th>
               <th>Configs</th>
@@ -570,7 +581,7 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
             </tr>
           </thead>
           <tbody id="tbodyClients">
-            <tr><td colspan="8" class="empty">Chargement…</td></tr>
+            <tr><td colspan="9" class="empty">Chargement…</td></tr>
           </tbody>
         </table>
       </div>
@@ -599,7 +610,57 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
       </div>
     </div>
   </div>
+  <div id="groups" class="tab-panel">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px;">
+        <div>
+          <strong>Groupes clients</strong>
+          <div class="activity-subtitle">
+            Crée un groupe, affecte les clients manuellement, puis applique les remises du groupe à tous les clients concernés.
+          </div>
+        </div>
+      </div>
 
+      <div style="display:grid;grid-template-columns:1.4fr .7fr .7fr auto auto;gap:10px;align-items:end;margin-bottom:16px;">
+        <div class="modal-field" style="margin-bottom:0;">
+          <label>Nom du groupe</label>
+          <input id="groupName" type="text" placeholder="Ex : PANO">
+        </div>
+
+        <div class="modal-field" style="margin-bottom:0;">
+          <label>Remise (%)</label>
+          <input id="groupDiscount" type="number" min="0" max="90" value="0">
+        </div>
+
+        <div class="modal-field" style="margin-bottom:0;">
+          <label>Remise SR (%)</label>
+          <input id="groupDiscountSR" type="number" min="0" max="90" value="0">
+        </div>
+
+        <button id="btnSaveGroup" class="btn-row">💾 Enregistrer</button>
+        <button id="btnCancelGroupEdit" class="btn-row btn-row-secondary">Annuler</button>
+      </div>
+
+      <div id="groupMsg" style="margin-bottom:12px;color:#b7ffcf;"></div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Groupe</th>
+              <th>Remise</th>
+              <th>Remise SR</th>
+              <th>Clients</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyGroups">
+            <tr><td colspan="5" class="empty">Chargement…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
   <div id="activity" class="tab-panel">
     <div class="card">
 
@@ -852,8 +913,218 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
       p.classList.toggle("active", p.id === target);
     });
 
+        if(target === "groups") loadClientGroups();
     if(target === "activity") loadActivity();
   });
+});
+
+/* ===================== GROUPES CLIENTS ===================== */
+const tbodyGroups = document.getElementById("tbodyGroups");
+const groupName = document.getElementById("groupName");
+const groupDiscount = document.getElementById("groupDiscount");
+const groupDiscountSR = document.getElementById("groupDiscountSR");
+const groupMsg = document.getElementById("groupMsg");
+
+let clientGroupsAll = [];
+let editingGroupId = null;
+
+function resetGroupForm(){
+  editingGroupId = null;
+  groupName.value = "";
+  groupDiscount.value = "0";
+  groupDiscountSR.value = "0";
+  groupMsg.textContent = "";
+}
+
+function groupOptionsHtml(selectedId){
+  const selected = selectedId == null ? "" : String(selectedId);
+
+  return [
+    `<option value="">Aucun groupe</option>`,
+    ...clientGroupsAll.map(g => {
+      const id = String(g.id);
+      return `<option value="${esc(id)}" ${id === selected ? "selected" : ""}>${esc(g.name)}</option>`;
+    })
+  ].join("");
+}
+
+async function loadClientGroups(){
+  if(!tbodyGroups) return;
+
+  tbodyGroups.innerHTML = `<tr><td colspan="5" class="empty">Chargement…</td></tr>`;
+
+  try{
+    const r = await fetch(`${WORKER_BASE}/client-groups`);
+    const data = await r.json();
+
+    if(!data.ok) throw new Error(data.error || "Erreur groupes");
+
+    clientGroupsAll = Array.isArray(data.groups) ? data.groups : [];
+
+    if(!clientGroupsAll.length){
+      tbodyGroups.innerHTML = `<tr><td colspan="5" class="empty">Aucun groupe pour le moment.</td></tr>`;
+      return;
+    }
+
+    tbodyGroups.innerHTML = clientGroupsAll.map(g => `
+      <tr>
+        <td data-label="Groupe">${esc(g.name)}</td>
+        <td data-label="Remise">${formatRate(g.discount_rate)}</td>
+        <td data-label="Remise SR">${formatRate(g.discount_sr)}</td>
+        <td data-label="Clients">${Number(g.clients_count || 0)}</td>
+        <td data-label="Actions">
+          <button class="btn-row btn-row-secondary btn-group-edit"
+            data-id="${esc(g.id)}"
+            data-name="${esc(g.name)}"
+            data-discount="${esc(Number(g.discount_rate || 0) * 100)}"
+            data-discount-sr="${esc(Number(g.discount_sr || 0) * 100)}">✏ Modifier</button>
+
+          <button class="btn-row btn-approve btn-group-apply"
+            data-id="${esc(g.id)}"
+            data-name="${esc(g.name)}"
+            data-count="${esc(g.clients_count || 0)}">Appliquer remises</button>
+
+          <button class="btn-row btn-row-delete btn-group-delete"
+            data-id="${esc(g.id)}"
+            data-name="${esc(g.name)}">🗑 Supprimer</button>
+        </td>
+      </tr>
+    `).join("");
+
+  }catch(err){
+    console.error(err);
+    tbodyGroups.innerHTML = `<tr><td colspan="5" class="empty">Erreur de chargement des groupes.</td></tr>`;
+  }
+}
+
+document.getElementById("btnCancelGroupEdit").addEventListener("click", resetGroupForm);
+
+document.getElementById("btnSaveGroup").addEventListener("click", async () => {
+  groupMsg.style.color = "#ffb3b3";
+  groupMsg.textContent = "";
+
+  const name = (groupName.value || "").trim();
+  const discount = Number(groupDiscount.value || 0);
+  const discountSR = Number(groupDiscountSR.value || 0);
+
+  if(!name){
+    groupMsg.textContent = "Nom du groupe obligatoire.";
+    return;
+  }
+
+  if(discount < 0 || discount > 90){
+    groupMsg.textContent = "Remise invalide.";
+    return;
+  }
+
+  if(discountSR < 0 || discountSR > 90){
+    groupMsg.textContent = "Remise SR invalide.";
+    return;
+  }
+
+  try{
+    const r = await fetch(`${WORKER_BASE}/client-group-save`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({
+        id:editingGroupId,
+        name,
+        discount,
+        discount_sr:discountSR
+      })
+    });
+
+    const out = await r.json();
+
+    if(!out.ok){
+      groupMsg.textContent = out.error || "Erreur.";
+      return;
+    }
+
+    groupMsg.style.color = "#b7ffcf";
+    groupMsg.textContent = editingGroupId ? "Groupe modifié." : "Groupe créé.";
+
+    resetGroupForm();
+    await loadClientGroups();
+    await loadClients();
+
+  }catch(err){
+    console.error(err);
+    groupMsg.textContent = "Erreur serveur.";
+  }
+});
+
+tbodyGroups.addEventListener("click", async e => {
+  const id = e.target.dataset.id;
+  if(!id) return;
+
+  if(e.target.classList.contains("btn-group-edit")){
+    editingGroupId = Number(id);
+    groupName.value = e.target.dataset.name || "";
+    groupDiscount.value = e.target.dataset.discount || "0";
+    groupDiscountSR.value = e.target.dataset.discountSr || "0";
+    groupMsg.style.color = "#b7ffcf";
+    groupMsg.textContent = "Modification du groupe en cours.";
+    return;
+  }
+
+  if(e.target.classList.contains("btn-group-delete")){
+    const name = e.target.dataset.name || "ce groupe";
+
+    if(!confirm(`Supprimer le groupe "${name}" ?\n\nLes clients de ce groupe seront remis sur "Aucun groupe".`)){
+      return;
+    }
+
+    const r = await fetch(`${WORKER_BASE}/client-group-delete`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ id })
+    });
+
+    const out = await r.json();
+
+    if(!out.ok){
+      alert(out.error || "Erreur suppression groupe.");
+      return;
+    }
+
+    alert("Groupe supprimé.");
+    resetGroupForm();
+    await loadClientGroups();
+    await loadClients();
+    return;
+  }
+
+  if(e.target.classList.contains("btn-group-apply")){
+    const name = e.target.dataset.name || "ce groupe";
+    const count = Number(e.target.dataset.count || 0);
+
+    if(count <= 0){
+      alert("Aucun client dans ce groupe.");
+      return;
+    }
+
+    if(!confirm(`Appliquer les remises du groupe "${name}" à ${count} client(s) ?\n\nCela va remplacer leurs remises actuelles.`)){
+      return;
+    }
+
+    const r = await fetch(`${WORKER_BASE}/client-group-apply-discounts`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ id })
+    });
+
+    const out = await r.json();
+
+    if(!out.ok){
+      alert(out.error || "Erreur application remises.");
+      return;
+    }
+
+    alert(`${out.updated || 0} client(s) mis à jour.`);
+    await loadClientGroups();
+    await loadClients();
+  }
 });
 
 /* ===================== CLIENTS ===================== */
@@ -867,14 +1138,18 @@ document.getElementById("searchClient").addEventListener("input", function(){
 });
 
 async function loadClients(){
-  tbodyClients.innerHTML = `<tr><td colspan="8" class="empty">Chargement…</td></tr>`;
+  tbodyClients.innerHTML = `<tr><td colspan="9" class="empty">Chargement…</td></tr>`;
 
   try{
+    if(!clientGroupsAll.length){
+      await loadClientGroups();
+    }
+
     const r = await fetch(`${WORKER_BASE}/clients`);
     const data = await r.json();
 
     if(!data.clients || !data.clients.length){
-      tbodyClients.innerHTML = `<tr><td colspan="8" class="empty">Aucun client.</td></tr>`;
+      tbodyClients.innerHTML = `<tr><td colspan="9" class="empty">Aucun client.</td></tr>`;
       return;
     }
 
@@ -887,6 +1162,11 @@ async function loadClients(){
           <td data-label="Email">${esc(c.email)}</td>
           <td data-label="Société">${esc(c.company || "—")}</td>
           <td data-label="Contact">${esc(c.contact_name || "—")}</td>
+          <td data-label="Groupe">
+            <select class="group-select client-group-select" data-email="${esc(c.email)}">
+              ${groupOptionsHtml(c.group_id)}
+            </select>
+          </td>
           <td data-label="Remise">${formatRate(c.discount_rate)}</td>
           <td data-label="Remise SR">${formatRate(c.discount_sr)}</td>
           <td data-label="Configs">${esc(configs.join(", ") || "—")}</td>
@@ -902,9 +1182,44 @@ async function loadClients(){
 
   }catch(err){
     console.error(err);
-    tbodyClients.innerHTML = `<tr><td colspan="8" class="empty">Erreur de chargement.</td></tr>`;
+    tbodyClients.innerHTML = `<tr><td colspan="9" class="empty">Erreur de chargement.</td></tr>`;
   }
 }
+
+tbodyClients.addEventListener("change", async e => {
+  if(!e.target.classList.contains("client-group-select")) return;
+
+  const email = e.target.dataset.email;
+  const groupId = e.target.value || null;
+
+  if(!email) return;
+
+  try{
+    const r = await fetch(`${WORKER_BASE}/client-group-assign`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({
+        email,
+        groupId
+      })
+    });
+
+    const out = await r.json();
+
+    if(!out.ok){
+      alert(out.error || "Erreur affectation groupe.");
+      await loadClients();
+      return;
+    }
+
+    await loadClientGroups();
+
+  }catch(err){
+    console.error(err);
+    alert("Erreur serveur lors de l'affectation du groupe.");
+    await loadClients();
+  }
+});
 
 tbodyClients.addEventListener("click", async e => {
   const email = e.target.dataset.email;
@@ -935,6 +1250,7 @@ tbodyClients.addEventListener("click", async e => {
 
     alert("Client supprimé.");
     loadClients();
+    loadClientGroups();
     return;
   }
 
@@ -1520,7 +1836,10 @@ document.getElementById("createSave").onclick = async () => {
 };
 
 /* ===================== CHARGEMENT INITIAL ===================== */
-loadClients();
+loadClientGroups().then(() => {
+  loadClients();
+});
+
 loadRequests();
 loadActivity();
 </script>
