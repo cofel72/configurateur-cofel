@@ -893,7 +893,7 @@ function compute(){
     const chLinCost = CHASSIS_PRICE_ML[section] * P;
 
     // Base goussets
-    const baseGoussets = Math.max(4, Math.ceil(4 + 4 * A));
+    const baseGoussets = Math.max(4, Math.ceil(4 + 2 * A));
 
     // ✅ Traverses : coût au ml + +2 goussets par traverse
     let traverses_ml_total = 0;
