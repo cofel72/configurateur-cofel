@@ -47,9 +47,9 @@
     </div>
   </fieldset>
 
-  <!-- Fixation -->
+   <!-- Fixation -->
   <fieldset>
-    <legend>Fixation (laquage inclus)</legend>
+    <legend>Fixation</legend>
 
     <div class="radio-row">
       <label>
@@ -69,7 +69,17 @@
       <div class="hint">Le déport est informatif (pas d’impact tarifaire).</div>
     </div>
   </fieldset>
+  <!-- Options -->
+  <fieldset>
+    <legend>Options</legend>
 
+    <label class="radio-row" style="padding:0;border:none">
+      <span>
+        <input type="checkbox" id="optLaquage" />
+        Laquage de la rampe
+      </span>
+    </label>
+  </fieldset>
   <!-- Résultats -->
   <div class="result">
     <p>Prix unitaire HT : <b><span id="prixUHT">0,00</span> €</b></p>
@@ -101,6 +111,9 @@ const PRICE_RAMPE_ML = 115.44;
 const PRICE_FIX_DIRECTE = 5.00;
 const PRICE_FIX_PLATINE = 15.00;
 
+// Option laquage : donne 35 € HT / ml après remise client de 43 %
+const PRICE_LAQUAGE_ML = 30.70;
+
 /*** DOM ***/
 const $ = id => document.getElementById(id);
 const elL = $('longueur');
@@ -112,6 +125,7 @@ const elPrixTTC = $('prixTTC');
 const elLenM = $('lenM');
 const elNbFix = $('nbFix');
 const elTypeFix = $('typeFix');
+const elOptLaquage = $('optLaquage');
 
 function euro(n){
   return (isFinite(n)?n:0).toFixed(2).replace('.', ',');
@@ -136,10 +150,15 @@ function compute(){
   const fixPrice = fixVal === 'platine' ? PRICE_FIX_PLATINE : PRICE_FIX_DIRECTE;
   const nbFix = Math.max(2, Math.ceil(Lm) + 1);
 
-  const rampeInterne = PRICE_RAMPE_ML * Lm;
+    const rampeInterne = PRICE_RAMPE_ML * Lm;
   const fixInterne = fixPrice * nbFix;
 
-  const unitInterne = rampeInterne + fixInterne;
+  let laquageInterne = 0;
+  if(elOptLaquage && elOptLaquage.checked){
+    laquageInterne = PRICE_LAQUAGE_ML * Lm;
+  }
+
+  const unitInterne = rampeInterne + fixInterne + laquageInterne;
   const unitPublic = unitInterne * COEF_PUBLIC * remiseClient;
 
   const totalHT = unitPublic * Q;
@@ -160,7 +179,7 @@ function toggleBlocks(){
 
 ['input','change'].forEach(evt=>{
   document.addEventListener(evt, e=>{
-    if(e.target.matches('#longueur,#quantite,#deport,input[name="fixation"]')){
+    if(e.target.matches('#longueur,#quantite,#deport,#optLaquage,input[name="fixation"]')){
       toggleBlocks();
       compute();
     }
@@ -186,7 +205,11 @@ document.getElementById('btnAddDevis').addEventListener('click',()=>{
     const totalHT = Number(elPrixHT.innerText.replace(',','.')) || 0;
     const pu = qte>0 ? totalHT/qte : 0;
 
-    const designation = `Rampe lumineuse (PLL) — L ${Lmm} mm — Fixation ${fixVal}`;
+        let designation = `Rampe lumineuse (PLL) — L ${Lmm} mm — Fixation ${fixVal}`;
+
+    if(elOptLaquage && elOptLaquage.checked){
+      designation += ` — Laquage`;
+    }
 
     Devis.addLine({
       type: 'Rampe lumineuse (PLL)',
