@@ -553,10 +553,11 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
       <h1>Administration des comptes clients</h1>
     </div>
 
-    <div class="actions">
-      <button id="btnCreateClient" class="btn">➕ Créer un client</button>
-      <button id="btnBack" class="btn">⬅ Retour</button>
-    </div>
+   <div class="actions">
+  <button id="btnCreateClient" class="btn">➕ Créer un client</button>
+  <button id="btnDiagnostic" class="btn">🧪 Diagnostic</button>
+  <button id="btnBack" class="btn">⬅ Retour</button>
+</div>
     </header>
 
   <div class="tabs">
@@ -1727,6 +1728,10 @@ document.getElementById("btnResetActivityFilters").addEventListener("click", () 
 });
 
 /* ===================== RETOUR ===================== */
+document.getElementById("btnDiagnostic").onclick = () => {
+  location.href = "./admin-diagnostic.html";
+};
+
 document.getElementById("btnBack").onclick = () => {
   location.href = "../index.html";
 };
