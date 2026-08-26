@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Diagnostic configurateur — Cofel</title>
+
+  <script src="./lock.js" type="module"></script>
+
+  <link rel="stylesheet" href="../styles/cofel.css">
+  <link rel="stylesheet" href="../styles/cofel-components.css">
+  <link rel="stylesheet" href="../styles/cofel-glass.css">
+  <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
+  <link rel="stylesheet" href="/styles/cofel-button-theme.css" />
+
+  <style>
+    body{
+      background:#000;
+      color:#fff;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      padding:20px;
+    }
+
+    .diag-shell{
+      max-width:1200px;
+      margin:0 auto;
+    }
+
+    .diag-header{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:18px;
+      padding:16px;
+      border-radius:18px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.14);
+    }
+
+    .diag-title{
+      margin:0;
+      font-size:24px;
+    }
+
+    .diag-sub{
+      color:rgba(255,255,255,.65);
+      font-size:14px;
+      margin-top:6px;
+    }
+
+    .diag-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .diag-btn{
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.10);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:999px;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .diag-btn:hover{
+      background:rgba(255,255,255,.16);
+    }
+
+    .diag-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .diag-card{
+      padding:14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+    }
+
+    .diag-card strong{
+      display:block;
+      font-size:13px;
+      color:rgba(255,255,255,.65);
+      margin-bottom:6px;
+    }
+
+    .diag-card span{
+      font-size:22px;
+      font-weight:900;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:rgba(255,255,255,.05);
+      border-radius:16px;
+      overflow:hidden;
+    }
+
+    th,td{
+      padding:10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      vertical-align:top;
+      font-size:14px;
+    }
+
+    th{
+      text-align:left;
+      color:rgba(255,255,255,.65);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.3px;
+      background:rgba(255,255,255,.06);
+    }
+
+    .status{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:5px 9px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .ok{
+      background:rgba(90,255,160,.14);
+      color:#8dffbc;
+      border:1px solid rgba(90,255,160,.25);
+    }
+
+    .warn{
+      background:rgba(255,210,90,.14);
+      color:#ffd76d;
+      border:1px solid rgba(255,210,90,.25);
+    }
+
+    .err{
+      background:rgba(255,100,100,.14);
+      color:#ff9a9a;
+      border:1px solid rgba(255,100,100,.25);
+    }
+
+    .info{
+      background:rgba(120,180,255,.14);
+      color:#9fc5ff;
+      border:1px solid rgba(120,180,255,.25);
+    }
+
+    .details{
+      color:rgba(255,255,255,.75);
+      line-height:1.4;
+      white-space:pre-wrap;
+    }
+
+    .diag-log{
+      margin-top:18px;
+      padding:14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.10);
+      color:rgba(255,255,255,.72);
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      font-size:12px;
+      white-space:pre-wrap;
+      max-height:280px;
+      overflow:auto;
+    }
+
+    #testFrame{
+      position:absolute;
+      width:1px;
+      height:1px;
+      left:-9999px;
+      top:-9999px;
+      opacity:0;
+      pointer-events:none;
+    }
+
+    @media(max-width:900px){
+      .diag-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+    }
+
+    @media(max-width:600px){
+      .diag-grid{
+        grid-template-columns:1fr;
+      }
+
+      table,thead,tbody,tr,th,td{
+        display:block;
+      }
+
+      thead{
+        display:none;
+      }
+
+      tr{
+        margin-bottom:12px;
+        border:1px solid rgba(255,255,255,.10);
+        border-radius:14px;
+        overflow:hidden;
+      }
+
+      td::before{
+        content:attr(data-label);
+        display:block;
+        color:rgba(255,255,255,.55);
+        font-size:11px;
+        text-transform:uppercase;
+        margin-bottom:4px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<script>
+const profile = JSON.parse(localStorage.getItem("cofel_client_profile") || "{}");
+const FULL_ADMINS = ["commercial@cofel72.fr"];
+
+if (!FULL_ADMINS.includes(profile.email || "")) {
+  alert("⛔ Accès réservé à l'administrateur complet.");
+  window.location.href = "../index.html";
+}
+</script>
+
+<div class="diag-shell">
+
+  <div class="diag-header">
+    <div>
+      <h1 class="diag-title">Diagnostic configurateur Cofel</h1>
+      <div class="diag-sub">
+        Vérifie les pages configurateurs, les CSV, le Worker et les prix visibles.
+      </div>
+    </div>
+
+    <div class="diag-actions">
+      <button class="diag-btn" id="btnRun">▶ Lancer le diagnostic</button>
+      <button class="diag-btn" id="btnCopy">📋 Copier le rapport</button>
+      <button class="diag-btn" onclick="location.href='./admin-clients.html'">⬅ Retour admin</button>
+    </div>
+  </div>
+
+  <div class="diag-grid">
+    <div class="diag-card">
+      <strong>Tests OK</strong>
+      <span id="countOk">0</span>
+    </div>
+    <div class="diag-card">
+      <strong>Avertissements</strong>
+      <span id="countWarn">0</span>
+    </div>
+    <div class="diag-card">
+      <strong>Erreurs</strong>
+      <span id="countErr">0</span>
+    </div>
+    <div class="diag-card">
+      <strong>Total tests</strong>
+      <span id="countTotal">0</span>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>État</th>
+        <th>Test</th>
+        <th>Détails</th>
+      </tr>
+    </thead>
+    <tbody id="tbody">
+      <tr>
+        <td colspan="3" class="details">Clique sur “Lancer le diagnostic”.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="diag-log" id="log"></div>
+
+</div>
+
+<iframe id="testFrame" title="Diagnostic iframe"></iframe>
+
+<script>
+const WORKER_BASE = "https://cofel-auth.sonveven.workers.dev";
+const CSV_TOLE_TABLETTE = "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/toles_tabelette";
+
+const tbody = document.getElementById("tbody");
+const logBox = document.getElementById("log");
+
+let results = [];
+
+function log(msg){
+  const time = new Date().toLocaleTimeString("fr-FR");
+  logBox.textContent += `[${time}] ${msg}\n`;
+  logBox.scrollTop = logBox.scrollHeight;
+}
+
+function statusLabel(status){
+  if(status === "ok") return "OK";
+  if(status === "warn") return "Attention";
+  if(status === "err") return "Erreur";
+  return "Info";
+}
+
+function addResult(status, title, details){
+  results.push({ status, title, details });
+  renderResults();
+}
+
+function renderResults(){
+  const ok = results.filter(r => r.status === "ok").length;
+  const warn = results.filter(r => r.status === "warn").length;
+  const err = results.filter(r => r.status === "err").length;
+
+  document.getElementById("countOk").textContent = ok;
+  document.getElementById("countWarn").textContent = warn;
+  document.getElementById("countErr").textContent = err;
+  document.getElementById("countTotal").textContent = results.length;
+
+  tbody.innerHTML = results.map(r => `
+    <tr>
+      <td data-label="État"><span class="status ${r.status}">${statusLabel(r.status)}</span></td>
+      <td data-label="Test"><strong>${escapeHtml(r.title)}</strong></td>
+      <td data-label="Détails" class="details">${escapeHtml(r.details || "")}</td>
+    </tr>
+  `).join("");
+}
+
+function escapeHtml(v){
+  return String(v ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function parsePrice(txt){
+  const s = String(txt || "")
+    .replace(/\s/g,"")
+    .replace("€","")
+    .replace(",",".");
+  const n = Number(s);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function wait(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function fetchText(url, options = {}){
+  const r = await fetch(url, {
+    cache:"no-store",
+    ...options
+  });
+  const text = await r.text();
+  return { ok:r.ok, status:r.status, text };
+}
+
+async function testProfile(){
+  try{
+    const raw = localStorage.getItem("cofel_client_profile");
+    if(!raw){
+      addResult("warn", "Profil client localStorage", "Aucun profil trouvé dans cofel_client_profile.");
+      return;
+    }
+
+    const p = JSON.parse(raw);
+    const email = p.email || "email absent";
+    const company = p.company || p.clientCompany || "société absente";
+    const discount = typeof p.discountRate === "number"
+      ? `${(p.discountRate * 100).toFixed(1)} %`
+      : "remise absente";
+
+    addResult("ok", "Profil client localStorage", `Email : ${email}\nSociété : ${company}\nRemise : ${discount}`);
+  }catch(err){
+    addResult("err", "Profil client localStorage", "Impossible de lire le profil : " + err.message);
+  }
+}
+
+async function testWorker(){
+  const urls = [
+    { title:"Worker /ping", url:`${WORKER_BASE}/ping` },
+    { title:"Worker /client-groups", url:`${WORKER_BASE}/client-groups` }
+  ];
+
+  for(const item of urls){
+    try{
+      const r = await fetchText(item.url);
+      if(r.ok){
+        addResult("ok", item.title, `HTTP ${r.status}\n${r.text.slice(0,300)}`);
+      }else{
+        addResult("err", item.title, `HTTP ${r.status}\n${r.text.slice(0,300)}`);
+      }
+    }catch(err){
+      addResult("err", item.title, err.message);
+    }
+  }
+}
+
+async function testCSV(){
+  try{
+    const r = await fetchText(CSV_TOLE_TABLETTE);
+    if(!r.ok){
+      addResult("err", "CSV tôle tablette", `HTTP ${r.status}`);
+      return;
+    }
+
+    const txt = r.text;
+    const pmmaCount = (txt.match(/PMMA/gi) || []).length;
+    const hasPmma15 = txt.includes("PMMA diffusant 15 mm en incrustation ressortant de 10 mm");
+
+    addResult(
+      hasPmma15 ? "ok" : "warn",
+      "CSV tôle tablette",
+      `CSV chargé.\nOccurrences PMMA : ${pmmaCount}\nPMMA 15 mm présent : ${hasPmma15 ? "oui" : "non"}`
+    );
+
+  }catch(err){
+    addResult("err", "CSV tôle tablette", err.message);
+  }
+}
+
+async function findConfiguratorLinks(){
+  try{
+    const r = await fetchText(`/index.html?_diag=${Date.now()}`);
+    if(!r.ok){
+      addResult("err", "Lecture index.html", `HTTP ${r.status}`);
+      return [];
+    }
+
+    const doc = new DOMParser().parseFromString(r.text, "text/html");
+    const links = [...doc.querySelectorAll("a[href]")]
+      .map(a => a.getAttribute("href"))
+      .filter(Boolean)
+      .map(h => new URL(h, location.origin).pathname)
+      .filter(path => path.includes("/configurateurs/") && path.endsWith(".html"));
+
+    const unique = [...new Set(links)];
+
+    if(unique.length){
+      addResult("ok", "Détection configurateurs", `${unique.length} page(s) trouvée(s) depuis index.html :\n${unique.join("\n")}`);
+    }else{
+      addResult("warn", "Détection configurateurs", "Aucun lien /configurateurs/*.html trouvé depuis index.html. Tests configurateurs standards utilisés.");
+    }
+
+    return unique;
+  }catch(err){
+    addResult("err", "Détection configurateurs", err.message);
+    return [];
+  }
+}
+
+function defaultConfiguratorList(){
+  return [
+    "/configurateurs/configurateur-tole-tablette.html",
+    "/configurateurs/configurateur-rampe-lumineuse.html",
+    "/configurateurs/configurateur-lettre-boitier.html",
+    "/configurateurs/configurateur-lettres-pvc.html",
+    "/configurateurs/configurateur-lettre-alu-alupvc.html",
+    "/configurateurs/configurateur-enseigne-drapeau.html",
+    "/configurateurs/configurateur-tolerie-dibond.html",
+    "/configurateurs/configurateur-totems.html",
+    "/configurateurs/configurateur-souples-rigides-adhesifs.html"
+  ];
+}
+
+async function testPageFetch(path){
+  try{
+    const r = await fetch(path + `?_diag=${Date.now()}`, { cache:"no-store" });
+    if(r.ok){
+      addResult("ok", `Page accessible — ${path}`, `HTTP ${r.status}`);
+      return true;
+    }
+
+    addResult("err", `Page inaccessible — ${path}`, `HTTP ${r.status}`);
+    return false;
+  }catch(err){
+    addResult("err", `Page inaccessible — ${path}`, err.message);
+    return false;
+  }
+}
+
+function setValue(doc, id, value){
+  const el = doc.getElementById(id);
+  if(!el) return false;
+  el.value = value;
+  el.dispatchEvent(new Event("input", { bubbles:true }));
+  el.dispatchEvent(new Event("change", { bubbles:true }));
+  return true;
+}
+
+function setChecked(doc, selector, checked){
+  const el = doc.querySelector(selector);
+  if(!el) return false;
+  el.checked = checked;
+  el.dispatchEvent(new Event("input", { bubbles:true }));
+  el.dispatchEvent(new Event("change", { bubbles:true }));
+  return true;
+}
+
+function genericFill(doc, path){
+  setValue(doc, "quantite", "1");
+  setValue(doc, "largeur", "1000");
+  setValue(doc, "hauteur", "500");
+  setValue(doc, "longueur", "1000");
+  setValue(doc, "plis", "0");
+
+  setValue(doc, "ajourLargeur", "500");
+  setValue(doc, "ajourHauteur", "200");
+
+  setValue(doc, "hauteurLettre", "300");
+  setValue(doc, "hauteur_lettre", "300");
+  setValue(doc, "largeurTotale", "1000");
+  setValue(doc, "hauteurTotale", "500");
+
+  setChecked(doc, 'input[name="fixation"][value="aucune"]', true);
+  setChecked(doc, 'input[name="fixation"][value="directe"]', true);
+  setChecked(doc, 'input[name="matiere"][value="prelaque"]', true);
+
+  if(path.includes("tole-tablette")){
+    setChecked(doc, "#optAjour", true);
+    setValue(doc, "ajourLargeur", "500");
+    setValue(doc, "ajourHauteur", "200");
+
+    const pmma = doc.getElementById("pmmaSel");
+    if(pmma && pmma.options.length > 1){
+      let wantedIndex = 1;
+      [...pmma.options].forEach((o,i)=>{
+        if(String(o.textContent || "").includes("15 mm")) wantedIndex = i;
+      });
+      pmma.selectedIndex = wantedIndex;
+      pmma.dispatchEvent(new Event("change", { bubbles:true }));
+    }
+  }
+
+  if(path.includes("rampe")){
+    setValue(doc, "longueur", "1000");
+    setChecked(doc, 'input[name="fixation"][value="directe"]', true);
+  }
+}
+
+function findPrice(doc){
+  const ids = [
+    "prixHT",
+    "prixTTC",
+    "prixUHT",
+    "totalHT",
+    "totalTTC",
+    "resultatHT",
+    "resultHT"
+  ];
+
+  const found = [];
+
+  ids.forEach(id=>{
+    const el = doc.getElementById(id);
+    if(el){
+      found.push({
+        id,
+        text:String(el.textContent || el.innerText || "").trim(),
+        value:parsePrice(el.textContent || el.innerText || "")
+      });
+    }
+  });
+
+  return found;
+}
+
+async function loadInIframe(path){
+  return new Promise((resolve, reject)=>{
+    const iframe = document.getElementById("testFrame");
+    const timer = setTimeout(()=>{
+      reject(new Error("Chargement trop long"));
+    }, 12000);
+
+    iframe.onload = ()=>{
+      clearTimeout(timer);
+      resolve(iframe.contentDocument);
+    };
+
+    iframe.onerror = ()=>{
+      clearTimeout(timer);
+      reject(new Error("Erreur chargement iframe"));
+    };
+
+    iframe.src = path + `?_diag=${Date.now()}`;
+  });
+}
+
+async function testConfiguratorRuntime(path){
+  try{
+    const doc = await loadInIframe(path);
+
+    await wait(1000);
+    genericFill(doc, path);
+
+    await wait(2200);
+
+    genericFill(doc, path);
+    await wait(800);
+
+    const prices = findPrice(doc);
+
+    if(!prices.length){
+      addResult("warn", `Prix visible — ${path}`, "Aucun champ prix connu trouvé : prixHT, prixTTC, prixUHT, totalHT...");
+      return;
+    }
+
+    const detail = prices.map(p => `${p.id} = ${p.text || "vide"} (${p.value})`).join("\n");
+    const hasPositivePrice = prices.some(p => p.value > 0);
+
+    if(hasPositivePrice){
+      addResult("ok", `Calcul prix — ${path}`, detail);
+    }else{
+      addResult("warn", `Calcul prix — ${path}`, `Page chargée, mais prix à 0 après remplissage automatique.\n${detail}`);
+    }
+
+  }catch(err){
+    addResult("err", `Test runtime — ${path}`, err.message);
+  }
+}
+
+async function runDiagnostic(){
+  results = [];
+  logBox.textContent = "";
+  renderResults();
+
+  log("Diagnostic démarré.");
+
+  await testProfile();
+  await testWorker();
+  await testCSV();
+
+  const detected = await findConfiguratorLinks();
+  const paths = detected.length ? detected : defaultConfiguratorList();
+
+  for(const path of paths){
+    log("Test page : " + path);
+    const ok = await testPageFetch(path);
+    if(ok){
+      await testConfiguratorRuntime(path);
+    }
+  }
+
+  log("Diagnostic terminé.");
+}
+
+function copyReport(){
+  if(!results.length){
+    alert("Aucun rapport à copier.");
+    return;
+  }
+
+  const txt = results.map(r => {
+    return `[${statusLabel(r.status)}] ${r.title}\n${r.details || ""}`;
+  }).join("\n\n---\n\n");
+
+  navigator.clipboard.writeText(txt).then(()=>{
+    alert("Rapport copié.");
+  }).catch(()=>{
+    window.prompt("Copie le rapport :", txt);
+  });
+}
+
+document.getElementById("btnRun").addEventListener("click", runDiagnostic);
+document.getElementById("btnCopy").addEventListener("click", copyReport);
+</script>
+
+</body>
+</html>
