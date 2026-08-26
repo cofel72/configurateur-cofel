@@ -640,6 +640,60 @@ function findPrice(doc){
     }
   });
 
+  // Cas spécial : Supports Souples / Rigides / Adhésifs
+  // Cette page n'a pas prixHT/prixTTC. Le prix est dans #recap.
+  const recap = doc.getElementById("recap");
+  if(recap){
+    const txt = String(recap.innerText || recap.textContent || "").trim();
+
+    if(txt){
+      const lines = txt.split(/\n+/).map(s => s.trim()).filter(Boolean);
+      const hits = [];
+
+      const moneyRe = /(\d[\d\s]*([.,]\d+)?)\s*(?:€|eur\b)/gi;
+
+      for(const line of lines){
+        const low = line.toLowerCase();
+
+        // On évite les lignes TTC si possible
+        if(low.includes("ttc")) continue;
+
+        let m;
+        while((m = moneyRe.exec(line)) !== null){
+          const n = parsePrice(m[1]);
+          if(n > 0){
+            hits.push({
+              line,
+              value:n,
+              isClient:low.includes("client"),
+              isHT:low.includes("ht")
+            });
+          }
+        }
+
+        moneyRe.lastIndex = 0;
+      }
+
+      if(hits.length){
+        const clientHits = hits.filter(h => h.isClient);
+        const htHits = hits.filter(h => h.isHT);
+
+        const selected =
+          clientHits.length ? clientHits :
+          htHits.length ? htHits :
+          hits;
+
+        const best = selected.reduce((a,b)=> b.value > a.value ? b : a, selected[0]);
+
+        found.push({
+          id:"recap",
+          text:best.line,
+          value:best.value
+        });
+      }
+    }
+  }
+
   return found;
 }
 
@@ -671,15 +725,108 @@ async function testConfiguratorRuntime(path){
     await wait(1000);
     genericFill(doc, path);
 
+    // Certains configurateurs chargent un CSV après sélection d'une famille.
+    // Exemple : Lettres boîtiers.
+    if(path.includes("lettre-boitier")){
+      await wait(1800);
+
+      setValue(doc, "hauteur", "300");
+      selectFirstValidOption(doc, "famille");
+
+      await wait(1800);
+
+      selectFirstValidOption(doc, "variant");
+      setValue(doc, "hauteur", "300");
+
+      await wait(1200);
+
+      selectFirstValidOption(doc, "variant");
+      setValue(doc, "hauteur", "300");
+    }
+
+    // Cas spécial : Supports Souples / Rigides / Adhésifs
+    // Le prix n'apparaît qu'après parcours des étapes.
+    if(path.includes("souples-rigides-adhesifs")){
+      try{
+        setChecked(doc, 'input[name="support"][value="rigide"]', true);
+        doc.getElementById("next1")?.click();
+        await wait(400);
+
+        setChecked(doc, 'input[name="impression"][value="avec"]', true);
+        doc.getElementById("next2")?.click();
+        await wait(500);
+
+        const firstMatiere = doc.querySelector("#listeMatieres input");
+        if(firstMatiere){
+          firstMatiere.checked = true;
+          firstMatiere.dispatchEvent(new Event("change", { bubbles:true }));
+        }
+        doc.getElementById("next3")?.click();
+        await wait(500);
+
+        const firstVariante = doc.querySelector("#listeVariantes input");
+        if(firstVariante){
+          firstVariante.checked = true;
+          firstVariante.dispatchEvent(new Event("change", { bubbles:true }));
+        }
+        doc.getElementById("next4")?.click();
+        await wait(500);
+
+        const firstDecoupe = doc.querySelector("#decoupeContainer input");
+        if(firstDecoupe){
+          firstDecoupe.checked = true;
+          firstDecoupe.dispatchEvent(new Event("change", { bubbles:true }));
+        }
+        doc.getElementById("next5")?.click();
+        await wait(500);
+
+        const firstLamination = doc.querySelector("#laminationContainer input");
+        if(firstLamination){
+          firstLamination.checked = true;
+          firstLamination.dispatchEvent(new Event("change", { bubbles:true }));
+        }
+        doc.getElementById("next6")?.click();
+        await wait(500);
+
+        const firstBlanc = doc.querySelector("#blancContainer input");
+        if(firstBlanc){
+          firstBlanc.checked = true;
+          firstBlanc.dispatchEvent(new Event("change", { bubbles:true }));
+        }
+        doc.getElementById("next7")?.click();
+        await wait(500);
+
+        // Si l'étape œillets existe, on passe à la suite.
+        doc.getElementById("next8")?.click();
+        await wait(500);
+
+        setValue(doc, "largeur", "1000");
+        setValue(doc, "hauteur", "500");
+        setValue(doc, "quantite", "1");
+
+        doc.getElementById("next9")?.click();
+        await wait(1200);
+
+      }catch(e){
+        console.warn("Diagnostic SR non bloquant :", e);
+      }
+    }
+
     await wait(2200);
 
     genericFill(doc, path);
-    await wait(800);
+    await wait(1200);
+
+    if(path.includes("lettre-boitier")){
+      selectFirstValidOption(doc, "variant");
+      setValue(doc, "hauteur", "300");
+      await wait(1200);
+    }
 
     const prices = findPrice(doc);
 
     if(!prices.length){
-      addResult("warn", `Prix visible — ${path}`, "Aucun champ prix connu trouvé : prixHT, prixTTC, prixUHT, totalHT...");
+      addResult("warn", `Prix visible — ${path}`, "Aucun champ prix connu trouvé : prixHT, prixTTC, prixUHT, totalHT, recap...");
       return;
     }
 
