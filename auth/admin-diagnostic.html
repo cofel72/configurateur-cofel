@@ -511,8 +511,29 @@ function setChecked(doc, selector, checked){
   return true;
 }
 
+function selectFirstValidOption(doc, id){
+  const el = doc.getElementById(id);
+  if(!el || el.tagName !== "SELECT") return false;
+
+  for(let i = 0; i < el.options.length; i++){
+    const opt = el.options[i];
+    const value = String(opt.value || "").trim();
+    const text = String(opt.textContent || "").trim();
+
+    if(value && !/^[-—( ]*(choisir|sélectionnez|selectionnez|aucun|aucune)/i.test(text)){
+      el.selectedIndex = i;
+      el.dispatchEvent(new Event("input", { bubbles:true }));
+      el.dispatchEvent(new Event("change", { bubbles:true }));
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function genericFill(doc, path){
   setValue(doc, "quantite", "1");
+
   setValue(doc, "largeur", "1000");
   setValue(doc, "hauteur", "500");
   setValue(doc, "longueur", "1000");
@@ -525,6 +546,16 @@ function genericFill(doc, path){
   setValue(doc, "hauteur_lettre", "300");
   setValue(doc, "largeurTotale", "1000");
   setValue(doc, "hauteurTotale", "500");
+
+  selectFirstValidOption(doc, "forme");
+  selectFirstValidOption(doc, "dimension");
+  selectFirstValidOption(doc, "famille");
+  selectFirstValidOption(doc, "variant");
+  selectFirstValidOption(doc, "epaisseur");
+  selectFirstValidOption(doc, "type");
+
+  selectFirstValidOption(doc, "hauteur");
+  selectFirstValidOption(doc, "largeur");
 
   setChecked(doc, 'input[name="fixation"][value="aucune"]', true);
   setChecked(doc, 'input[name="fixation"][value="directe"]', true);
@@ -549,6 +580,39 @@ function genericFill(doc, path){
   if(path.includes("rampe")){
     setValue(doc, "longueur", "1000");
     setChecked(doc, 'input[name="fixation"][value="directe"]', true);
+  }
+
+  if(path.includes("lettres-PVC")){
+    setValue(doc, "hauteur", "300");
+    const ep = doc.getElementById("epaisseur");
+    if(ep){
+      ep.value = "19";
+      ep.dispatchEvent(new Event("input", { bubbles:true }));
+      ep.dispatchEvent(new Event("change", { bubbles:true }));
+    }
+  }
+
+  if(path.includes("lettre-boitier")){
+    setValue(doc, "hauteur", "300");
+    selectFirstValidOption(doc, "famille");
+    selectFirstValidOption(doc, "variant");
+  }
+
+  if(path.includes("enseigne-drapeau")){
+    selectFirstValidOption(doc, "forme");
+    setTimeout(() => {
+      selectFirstValidOption(doc, "dimension");
+    }, 300);
+  }
+
+  if(path.includes("totems")){
+    selectFirstValidOption(doc, "type");
+    setTimeout(() => {
+      selectFirstValidOption(doc, "hauteur");
+      setTimeout(() => {
+        selectFirstValidOption(doc, "largeur");
+      }, 300);
+    }, 300);
   }
 }
 
