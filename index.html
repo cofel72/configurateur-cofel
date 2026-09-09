@@ -1463,7 +1463,6 @@ const rows = (d.lignes || []).map((l, idx) => {
   ];
 });
 
-      drawHeader();
       let cursorY = drawClientCard(margin + 90);
 
       doc.autoTable({
@@ -1490,9 +1489,14 @@ const rows = (d.lignes || []).map((l, idx) => {
 
         alternateRowStyles: { fillColor: BG_ALT },
 
-        margin: { left: margin, right: margin },
+        margin: {
+  top: 135,
+  bottom: 80,
+  left: margin,
+  right: margin
+},
         theme: "grid",
-        didDrawPage: () => drawHeader(),
+        willDrawPage: () => drawHeader(),
       });
 
       const TOTALS_BOX_H = 100;
