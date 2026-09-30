@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="../styles/cofel-components.css">
   <link rel="stylesheet" href="../styles/cofel-glass.css">
   <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
-<link rel="stylesheet" href="/styles/cofel-button-theme.css" />
+  <link rel="stylesheet" href="/styles/cofel-button-theme.css" />
 </head>
 
 <body>
@@ -19,7 +19,6 @@
     <a class="cofel-back" href="../index.html">⬅ Retour accueil (Devis)</a>
     <div class="cofel-brand">
       <img src="/assets/ESO-rect1.png" alt="ESO">
-
       <h1 class="cofel-title">Configurateur — Lettres PVC</h1>
     </div>
   </div>
@@ -27,7 +26,7 @@
 
 <div class="cofel-container">
 
-  <!-- === PARAMÈTRES === -->
+  <!-- PARAMÈTRES -->
   <fieldset>
     <legend>Paramètres</legend>
 
@@ -54,7 +53,7 @@
     </div>
   </fieldset>
 
-  <!-- === OPTIONS === -->
+  <!-- OPTIONS -->
   <fieldset>
     <legend>Options</legend>
 
@@ -62,11 +61,19 @@
       <label><input type="checkbox" id="optLaquage"> Laquage</label>
       <label><input type="checkbox" id="optFixation"> Fixation</label>
       <label><input type="checkbox" id="optRetro"> Rétroéclairage</label>
+      <label><input type="checkbox" id="optSemelle"> lettre PVC 19mm avec semelle PMMA diffusante de 16 mm</label>
       <label><input type="checkbox" id="optLisse"> Pose sur lisse</label>
     </div>
 
+    <div id="semelleNotice" class="notice-glass hidden">
+      PVC 19 mm avec PMMA 19 mm encastré de 3 mm :
+      16 mm de PMMA visibles, épaisseur totale 35 mm, sans débord.
+      Éclairage et fixations inclus.
+    </div>
+
     <div id="retroNotice" class="notice-glass hidden">
-      <b>Indisponible sur 10&nbsp;mm :</b> le rétroéclairage nécessite une épaisseur minimale de <b>19&nbsp;mm</b>.
+      <b>Indisponible sur 10&nbsp;mm :</b>
+      le rétroéclairage nécessite une épaisseur minimale de <b>19&nbsp;mm</b>.
     </div>
 
     <div class="hint" style="color:var(--txt-dim);margin-top:6px;font-size:13px;">
@@ -74,8 +81,7 @@
     </div>
   </fieldset>
 
-  <!-- === LONGUEUR LISSE === -->
-  <!-- ✅ MODIF : longueur + nombre de lisses -->
+  <!-- LONGUEUR ET NOMBRE DE LISSES -->
   <div id="blockLisse" class="notice-glass hidden" style="margin-top:10px;">
     <div class="grid">
       <div>
@@ -87,12 +93,9 @@
         <input type="number" id="lisseNb" min="1" value="1">
       </div>
     </div>
-    <div class="hint" style="color:var(--txt-dim);margin-top:6px;font-size:13px;">
-      
-    </div>
   </div>
 
-  <!-- === RÉSULTATS === -->
+  <!-- RÉSULTATS -->
   <div class="result">
     <p>Prix unitaire HT : <span id="prixUHT">0,00</span> €</p>
     <p>Total HT : <span id="prixHT">0,00</span> €</p>
@@ -109,16 +112,18 @@
   © Cofel — ZA du Perquoi, 72560 Changé — SIRET …
 </footer>
 
-<!-- ===================== MOTEUR DE DEVIS ===================== -->
 <script src="../js/devis-core.js"></script>
 
 <script>
 /* ================================
-   CONFIG
+   CONFIGURATION
 ================================ */
 const TVA = 0.20;
 const COEF_PUBLIC = 2;
-const LISSE_PRICE_ML = 25; // €/ml interne
+const COEF_SEMELLE_PMMA = 1.30;
+const NOM_SEMELLE_PMMA =
+  "lettre PVC 19mm avec semelle PMMA diffusante de 16 mm";
+const LISSE_PRICE_ML = 25;
 
 const CSV_URL =
   "https://raw.githubusercontent.com/stevens-cofel/configurateur-cofel/refs/heads/main/configurateurs/Lettre%20PVC.csv";
@@ -128,7 +133,7 @@ let BY_THICK = {};
 const $ = (id) => document.getElementById(id);
 
 /* ================================
-   UTILS
+   UTILITAIRES
 ================================ */
 function parseEuroFR(s) {
   if (s == null) return NaN;
@@ -153,7 +158,7 @@ function euro(n) {
 }
 
 /* ================================
-   CSV
+   CHARGEMENT DES TARIFS
 ================================ */
 async function loadCSV() {
   const r = await fetch(CSV_URL, { cache: "no-store" });
@@ -203,52 +208,93 @@ function findRowFor(h, e) {
 
   let chosen = pal[pal.length - 1];
   for (const v of pal) {
-    if (v >= h) { chosen = v; break; }
+    if (v >= h) {
+      chosen = v;
+      break;
+    }
   }
+
   return DATA.find((r) => r.epaisseur === e && r.hauteur === chosen);
 }
 
 /* ================================
-   REMISE CLIENT (auto)
+   REMISE CLIENT
 ================================ */
 function getRemiseClientFactor() {
   let remiseClient = 1;
+
   try {
     const p = JSON.parse(localStorage.getItem("cofel_client_profile"));
-    if (p && typeof p.discountRate === "number") remiseClient = 1 - p.discountRate;
+    if (p && typeof p.discountRate === "number") {
+      remiseClient = 1 - p.discountRate;
+    }
   } catch (e) {}
+
   return remiseClient;
 }
 
 /* ================================
-   REMISE SÉRIE (quantité)
-   ✅ s'applique uniquement sur les LETTRES (pas sur la lisse)
-   Ajuste les paliers ci-dessous selon ta politique commerciale.
+   REMISE DE SÉRIE
+   Appliquée aux lettres, hors lisses.
 ================================ */
-function getRemiseSerieFactor(q){
-  // facteur = 1 - remise
-  if (q >= 50) return 0.75; // -25%
-  if (q >= 20) return 0.80; // -20%
-  if (q >= 10) return 0.85; // -15%
-  if (q >= 6)  return 0.90; // -10%
-  if (q >= 3)  return 0.95; // -5%
-  return 1.00;             // 0%
+function getRemiseSerieFactor(q) {
+  if (q >= 50) return 0.75;
+  if (q >= 20) return 0.80;
+  if (q >= 10) return 0.85;
+  if (q >= 6) return 0.90;
+  if (q >= 3) return 0.95;
+  return 1.00;
 }
 
 /* ================================
-   UI RULES
+   OPTIONS DISPONIBLES
 ================================ */
+let optionsAvantSemelle = null;
+
+function isSemelleActive() {
+  return Number($("epaisseur").value) === 19 && $("optSemelle").checked;
+}
+
 function updateRetroUI() {
   const e = parseFloat($("epaisseur").value) || 0;
   const retro = $("optRetro");
   const msg = $("retroNotice");
+  const semelle = $("optSemelle");
+  const fixation = $("optFixation");
+
+  semelle.disabled = e !== 19;
+
+  if (e !== 19) {
+    semelle.checked = false;
+  }
+
+  const active = isSemelleActive();
+
+  if (active) {
+    if (optionsAvantSemelle === null) {
+      optionsAvantSemelle = {
+        retro: retro.checked,
+        fixation: fixation.checked
+      };
+    }
+
+    retro.checked = true;
+    fixation.checked = true;
+  } else if (optionsAvantSemelle !== null) {
+    retro.checked = optionsAvantSemelle.retro;
+    fixation.checked = optionsAvantSemelle.fixation;
+    optionsAvantSemelle = null;
+  }
+
+  fixation.disabled = active;
+  $("semelleNotice").classList.toggle("hidden", !active);
 
   if (e === 10) {
     retro.checked = false;
     retro.disabled = true;
     msg.classList.remove("hidden");
   } else {
-    retro.disabled = false;
+    retro.disabled = active;
     msg.classList.add("hidden");
   }
 }
@@ -256,57 +302,77 @@ function updateRetroUI() {
 function updateLisseUI() {
   const box = $("blockLisse");
   const chk = $("optLisse");
+
   if (!box || !chk) return;
+
   box.classList.toggle("hidden", !chk.checked);
 }
 
 /* ================================
-   CALCUL (PATCH)
-   ✅ lisse NON multipliée par quantité
-   ✅ ajout "nombre de lisses"
-   ✅ remise série par quantité sur les LETTRES uniquement
+   CALCUL DU PRIX
 ================================ */
 function calcTotalsNet(row, q) {
   const e = parseFloat($("epaisseur").value) || 0;
   const laq = $("optLaquage").checked;
-  const fix = $("optFixation").checked;
-  const retro = $("optRetro").checked;
+  const semelle = isSemelleActive();
+  const fix = semelle || $("optFixation").checked;
+  const retro = semelle || $("optRetro").checked;
   const useLisse = $("optLisse").checked;
 
-  // 1) Prix interne UNITAIRE de la lettre (sans lisse)
-  let unit_interne_lettre = (row.base || 0);
-  if (laq) unit_interne_lettre += (row.laquage || 0);
-  if (fix) unit_interne_lettre += (row.fixation || 0);
-  if (retro && e >= 19) unit_interne_lettre += (row.retro || 0);
+  // Lettre et options.
+  let unit_interne_lettre = row.base || 0;
 
-  // 2) Prix interne TOTAL lettres (avant remise série)
+  if (laq) {
+    unit_interne_lettre += row.laquage || 0;
+  }
+
+  if (fix) {
+    unit_interne_lettre += row.fixation || 0;
+  }
+
+  if (retro && e >= 19) {
+    unit_interne_lettre += row.retro || 0;
+  }
+
+  // Semelle PMMA : +30 % sur la lettre équipée.
+  // Appliqué une seule fois, avant remises et hors lisse.
+  if (semelle) {
+    unit_interne_lettre *= COEF_SEMELLE_PMMA;
+  }
+
   const total_interne_lettres = unit_interne_lettre * q;
-
-  // ✅ Remise série selon quantité (s'applique sur les lettres uniquement)
   const serieFactor = getRemiseSerieFactor(q);
-  const total_interne_lettres_serie = total_interne_lettres * serieFactor;
+  const total_interne_lettres_serie =
+    total_interne_lettres * serieFactor;
 
-  // 3) Lisse : 1 seule fois (interne), pas multipliée par q
-  // ✅ mais multipliée par le nombre de lisses
-  let lmm = 0, lmlUnit = 0, lmlTotal = 0, lisseNb = 1, lisse_interne = 0;
+  // Les lisses sont calculées séparément.
+  let lmm = 0;
+  let lmlUnit = 0;
+  let lmlTotal = 0;
+  let lisseNb = 1;
+  let lisse_interne = 0;
+
   if (useLisse) {
     lmm = Number($("lisseLongueur").value || 0);
-    lisseNb = Math.max(1, parseInt($("lisseNb")?.value || 1, 10));
+    lisseNb = Math.max(
+      1,
+      parseInt($("lisseNb")?.value || 1, 10)
+    );
+
     lmlUnit = lmm / 1000;
     lmlTotal = lmlUnit * lisseNb;
 
-    if (lmlTotal > 0) lisse_interne = LISSE_PRICE_ML * lmlTotal;
+    if (lmlTotal > 0) {
+      lisse_interne = LISSE_PRICE_ML * lmlTotal;
+    }
   }
 
-  // 4) Total interne global
-  const total_interne = total_interne_lettres_serie + lisse_interne;
+  const total_interne =
+    total_interne_lettres_serie + lisse_interne;
 
-  // 5) Public puis remise client
   const total_public = total_interne * COEF_PUBLIC;
   const total_net = total_public * getRemiseClientFactor();
-
-  // 6) PU net réparti (pour affichage + devis sur 1 ligne)
-  const unit_net = q > 0 ? (total_net / q) : 0;
+  const unit_net = q > 0 ? total_net / q : 0;
 
   return {
     unit_net,
@@ -317,7 +383,6 @@ function calcTotalsNet(row, q) {
     lisseNb,
     unit_interne_lettre,
     lisse_interne,
-    // infos utiles (debug/affichage éventuel)
     serieFactor,
     total_interne_lettres,
     total_interne_lettres_serie
@@ -325,7 +390,7 @@ function calcTotalsNet(row, q) {
 }
 
 /* ================================
-   COMPUTE
+   AFFICHAGE DU PRIX
 ================================ */
 function compute() {
   const h = parseFloat($("hauteur").value) || 0;
@@ -333,6 +398,7 @@ function compute() {
   const q = Math.max(1, parseInt($("quantite").value) || 1);
 
   const row = findRowFor(h, e);
+
   if (!row) {
     $("prixUHT").textContent = "0,00";
     $("prixHT").textContent = "0,00";
@@ -342,16 +408,13 @@ function compute() {
 
   const { unit_net, total_net } = calcTotalsNet(row, q);
 
-  const totalHT = total_net;
-  const totalTTC = totalHT * (1 + TVA);
-
   $("prixUHT").textContent = euro(unit_net);
-  $("prixHT").textContent  = euro(totalHT);
-  $("prixTTC").textContent = euro(totalTTC);
+  $("prixHT").textContent = euro(total_net);
+  $("prixTTC").textContent = euro(total_net * (1 + TVA));
 }
 
 /* ================================
-   EVENTS
+   ÉVÉNEMENTS
 ================================ */
 function bindEvents() {
   ["input", "change"].forEach((evt) => {
@@ -362,12 +425,14 @@ function bindEvents() {
       "optLaquage",
       "optFixation",
       "optRetro",
+      "optSemelle",
       "optLisse",
       "lisseLongueur",
-      "lisseNb", // ✅ AJOUT
+      "lisseNb"
     ].forEach((id) => {
       const el = $(id);
       if (!el) return;
+
       el.addEventListener(evt, () => {
         updateRetroUI();
         updateLisseUI();
@@ -378,7 +443,7 @@ function bindEvents() {
 }
 
 /* ================================
-   INIT
+   INITIALISATION
 ================================ */
 loadCSV()
   .then(() => {
@@ -394,33 +459,61 @@ loadCSV()
 
 /* ================================
    AJOUT AU DEVIS
-   ✅ même calcul que l'affichage (PU réparti)
 ================================ */
 $("btnAddDevis").addEventListener("click", () => {
   try {
-    if (!window.Devis) throw new Error("Module devis introuvable.");
+    if (!window.Devis) {
+      throw new Error("Module devis introuvable.");
+    }
 
     const h = parseFloat($("hauteur").value) || 0;
     const e = parseFloat($("epaisseur").value) || 0;
     const q = Math.max(1, parseInt($("quantite").value) || 1);
 
     const row = findRowFor(h, e);
+
     if (!row) {
       alert("Aucune donnée trouvée pour cette configuration.");
       return;
     }
 
+    updateRetroUI();
+
+    const semelle = isSemelleActive();
     const laq = $("optLaquage").checked;
     const fix = $("optFixation").checked;
     const retro = $("optRetro").checked;
 
-    const { unit_net, total_net, lmm, lmlTotal, lisseNb } = calcTotalsNet(row, q);
+    const {
+      unit_net,
+      total_net,
+      lmm,
+      lmlTotal,
+      lisseNb
+    } = calcTotalsNet(row, q);
 
-    let designation = `Lettre PVC ${h} mm (ép. ${e} mm)`;
-    if (laq) designation += " — Laquage";
-    if (fix) designation += " — Fixation";
-    if (retro && e >= 19) designation += " — Rétroéclairage";
-    if (lmm > 0) designation += ` — Pose sur lisse — ${lisseNb} × ${lmm} mm (${lmlTotal.toFixed(2)} ml)`;
+    let designation = semelle
+      ? `${NOM_SEMELLE_PMMA} — hauteur ${h} mm — épaisseur totale 35 mm`
+      : `Lettre PVC ${h} mm (ép. ${e} mm)`;
+
+    if (laq) {
+      designation += " — Laquage";
+    }
+
+    if (fix) {
+      designation += " — Fixation";
+    }
+
+    if (semelle) {
+      designation += " — Éclairage inclus";
+    } else if (retro && e >= 19) {
+      designation += " — Rétroéclairage";
+    }
+
+    if (lmm > 0) {
+      designation +=
+        ` — Pose sur lisse — ${lisseNb} × ${lmm} mm (${lmlTotal.toFixed(2)} ml)`;
+    }
 
     Devis.addLine({
       type: "Lettre PVC",
@@ -428,7 +521,7 @@ $("btnAddDevis").addEventListener("click", () => {
       quantite: q,
       pu_public_ht: Number(unit_net.toFixed(2)),
       pu_net_ht: Number(unit_net.toFixed(2)),
-      total_ligne_ht: Number(total_net.toFixed(2)),
+      total_ligne_ht: Number(total_net.toFixed(2))
     });
 
     alert(
@@ -440,7 +533,8 @@ $("btnAddDevis").addEventListener("click", () => {
   }
 });
 </script>
+
 <script src="/js/cofel-tracking.js"></script>
+
 </body>
 </html>
-
