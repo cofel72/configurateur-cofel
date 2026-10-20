@@ -191,7 +191,7 @@ const MATERIAL_RULES = {
       variants: null,
       blanc: [],
       decoupe: ["Format", "Complexe"],
-      lamination: ["Mate", "Brillante", "Velleda"]
+      lamination: ["Sans", "Mate", "Brillante", "Velleda"]
     }
   }
 
