@@ -47,6 +47,8 @@ const PRIX_OEILLET_UNITE           = 1;   // € / pièce
 
 // Coefficient prix public & minimum par article
 const COEF_PUBLIC                  = 3.5;
+// Hausse générale des prix de vente, appliquée une seule fois par poste.
+const COEF_HAUSSE_TARIFS_SR         = 1.05;
 const MIN_PAR_ARTICLE              = 5;   // € HT (par unité)
 
 
@@ -196,6 +198,7 @@ async function computePrixSouplesRigidesImpression(state) {
 
   const detail = {};
   detail.coef_public = COEF_PUBLIC;
+  detail.coef_hausse_tarifs = COEF_HAUSSE_TARIFS_SR;
 
   // =========================
   // A) MATIÈRE SUPPORT (REMISÉE)
@@ -206,7 +209,7 @@ async function computePrixSouplesRigidesImpression(state) {
   const prixFournMat = matKey ? Number(tarifsMatieres[matKey] || 0) : 0;
 
   if (prixFournMat > 0 && m2 > 0) {
-    prixMatierePublic = prixFournMat * COEF_PUBLIC * m2;
+    prixMatierePublic = prixFournMat * COEF_PUBLIC * m2 * COEF_HAUSSE_TARIFS_SR;
   }
 
   detail.prix_fourn_matiere_m2 = round2(prixFournMat);
@@ -219,18 +222,18 @@ async function computePrixSouplesRigidesImpression(state) {
   // --- Impression ---
   let prixImpression = 0;
   if (state.impression === "avec" && PRIX_IMPRESSION_M2 > 0 && m2 > 0) {
-    prixImpression = PRIX_IMPRESSION_M2 * m2;
+    prixImpression = PRIX_IMPRESSION_M2 * m2 * COEF_HAUSSE_TARIFS_SR;
   }
   detail.prix_impression = round2(prixImpression);
 
   // --- Découpe ---
   let prixDecoupe = 0;
   if (state.decoupe === "Format") {
-    prixDecoupe = PRIX_DECOUPE_FORMAT_M2 * m2;
+    prixDecoupe = PRIX_DECOUPE_FORMAT_M2 * m2 * COEF_HAUSSE_TARIFS_SR;
   } else if (state.decoupe === "Complexe") {
     prixDecoupe = (state.support === "souple")
-      ? (PRIX_DECOUPE_COMPLEXE_Souple * m2)
-      : (PRIX_DECOUPE_COMPLEXE_Rigide * m2);
+      ? (PRIX_DECOUPE_COMPLEXE_Souple * m2 * COEF_HAUSSE_TARIFS_SR)
+      : (PRIX_DECOUPE_COMPLEXE_Rigide * m2 * COEF_HAUSSE_TARIFS_SR);
   }
   detail.prix_decoupe = round2(prixDecoupe);
 
@@ -238,7 +241,7 @@ async function computePrixSouplesRigidesImpression(state) {
   let prixBlanc = 0;
   if (state.blanc && state.blanc !== "Non disponible" && m2 > 0) {
     if (String(state.blanc).toLowerCase().includes("avec")) {
-      prixBlanc = PRIX_BLANC_M2 * m2;
+      prixBlanc = PRIX_BLANC_M2 * m2 * COEF_HAUSSE_TARIFS_SR;
     }
   }
   detail.prix_blanc = round2(prixBlanc);
@@ -247,7 +250,7 @@ async function computePrixSouplesRigidesImpression(state) {
   let prixOeillets = 0;
   const nbOeillets = Number(state.oeillets || 0);
   if (nbOeillets > 0) {
-    prixOeillets = nbOeillets * PRIX_OEILLET_UNITE;
+    prixOeillets = nbOeillets * PRIX_OEILLET_UNITE * COEF_HAUSSE_TARIFS_SR;
   }
   detail.prix_oeillets = round2(prixOeillets);
   detail.nb_oeillets   = nbOeillets;
@@ -274,11 +277,11 @@ async function computePrixSouplesRigidesImpression(state) {
   }
 
   // Film (matière) → public via coef
-  const lam_film_public_m2 = (prixFournLam > 0) ? (prixFournLam * COEF_PUBLIC) : 0;
+  const lam_film_public_m2 = (prixFournLam > 0) ? (prixFournLam * COEF_PUBLIC * COEF_HAUSSE_TARIFS_SR) : 0;
   const lam_film_public_total = (lam_film_public_m2 > 0 && m2 > 0) ? (lam_film_public_m2 * m2) : 0;
 
   // Application → public fixe (non remisée)
-  const lam_app_public_total = (prixFournLam > 0 && m2 > 0) ? (PRIX_APPLICATION_LAM_M2 * m2) : 0;
+  const lam_app_public_total = (prixFournLam > 0 && m2 > 0) ? (PRIX_APPLICATION_LAM_M2 * m2 * COEF_HAUSSE_TARIFS_SR) : 0;
 
   const prixLaminationPublic = lam_film_public_total + lam_app_public_total;
 
@@ -329,7 +332,7 @@ async function computePrixSouplesRigidesImpression(state) {
   // =========================
   // F) MINIMUM PAR ARTICLE (par unité)
   // =========================
-  const minTotal = MIN_PAR_ARTICLE * Q;
+  const minTotal = MIN_PAR_ARTICLE * Q * COEF_HAUSSE_TARIFS_SR;
 
   if (prixFinalHT > 0 && prixFinalHT < minTotal) {
     prixFinalHT = minTotal;
