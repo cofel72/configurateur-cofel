@@ -246,7 +246,7 @@
         <label>Matière de la tôle tablette</label>
         <div class="radio-row" id="matiereRow">
           <label><input type="radio" name="matiere" value="brut"> Alu 20/10 <b>brut</b></label>
-          <label><input type="radio" name="matiere" value="prelaque" checked> <b>Prélaqué</b></label>
+          <label><input type="radio" name="matiere" value="prelaque" checked> <b>Prélaqué 15/10e</b></label>
           <label><input type="radio" name="matiere" value="laque"> Alu 20/10 <b>laqué</b></label>
         </div>
       </div>
@@ -622,7 +622,7 @@ function updateRalBtn(){
   btn.disabled = !enabled;
   btn.title = enabled
     ? "Voir les RAL disponibles en tôle pré-laquée"
-    : "Disponible uniquement si la matière sélectionnée est : Prélaqué";
+    : "Disponible uniquement si la matière sélectionnée est : Prélaqué 15/10e";
 }
 
 function initRalModal(){
@@ -1021,7 +1021,7 @@ compute();
 
   const MAT_LABELS = {
     brut: "Tôle aluminium 20/10 brut",
-    prelaque: "Tôle aluminium 20/10 prélaquée",
+    prelaque: "Tôle aluminium 15/10e prélaquée",
     laque: "Tôle aluminium 20/10 laquée"
   };
 
