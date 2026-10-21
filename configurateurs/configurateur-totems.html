@@ -385,9 +385,9 @@
       <!-- ====== OPTIONS FIXES ====== -->
       <div class="opt-row" id="fixedOptions" style="display:flex;gap:20px;flex-wrap:wrap;align-items:center">
 
-        <!-- Pré-laquage (toujours inclus, donc décoché mais grisé) -->
-        <label style="display:flex;align-items:center;gap:6px;margin:0;opacity:.7">
-          <input type="checkbox" id="optPreLaque" checked disabled />
+        <!-- Pré-laquage : finition incluse, sélectionnable pour revenir sans laquage RAL -->
+        <label style="display:flex;align-items:center;gap:6px;margin:0">
+          <input type="checkbox" id="optPreLaque" checked />
           <span>Pré-laquage (inclus)</span>
         </label>
 
@@ -1209,6 +1209,7 @@ function updateRALState(){
   // --- Laquage RAL ---
   elOptRAL.disabled = !enabled;
   if(!enabled) elOptRAL.checked = false;
+  document.getElementById('optPreLaque').checked = !elOptRAL.checked;
 
   // --- Laquage pieds ---
   const elPieds = document.getElementById('optPieds');
@@ -1390,7 +1391,6 @@ async function loadAll(){
     });
 
     elQte.addEventListener('input', compute);
-    elOptRAL.addEventListener('change', compute);
     document.getElementById('optPieds').addEventListener('change', compute);
 
     // --- Ajourage events ---
@@ -1407,6 +1407,12 @@ async function loadAll(){
     });
 
     // --- Synchronisation Pré-laquage <-> RAL ---
+    document.getElementById('optPreLaque').addEventListener('change', function(){
+      elOptRAL.checked = false;
+      this.checked = true;
+      updateRalBtn();
+      compute();
+    });
     elOptRAL.addEventListener('change', function(){
       const pre = document.getElementById('optPreLaque');
       if (elOptRAL.checked) {
