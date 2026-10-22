@@ -498,7 +498,7 @@ function updateLisseUI(){
   block.classList.toggle("hidden", !elLisse.checked);
 }
 
-function updateTigeUI(){
+function updateTigeUI(changedOption){
   const catVal = $("categorie").value;
   const allowed = catVal === "alu30";
 
@@ -508,6 +508,10 @@ function updateTigeUI(){
 
   if(!allowed){
     elTige.checked = false;
+  } else if(elFix && elFix.checked && elTige.checked){
+    // Fixations incompatibles : conserver le dernier choix de l’utilisateur.
+    if(changedOption === elFix) elTige.checked = false;
+    else elFix.checked = false;
   }
 }
 
@@ -664,7 +668,7 @@ async function loadCSV(){
     if(!el) return;
     el.addEventListener(evt, ()=>{
       updateLisseUI();
-      updateTigeUI();
+      updateTigeUI(el);
       compute();
     });
   });
