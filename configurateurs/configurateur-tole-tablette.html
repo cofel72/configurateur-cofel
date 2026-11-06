@@ -269,6 +269,10 @@
     </label>
 
     <div id="blockAjour" class="hidden" style="margin-top:8px">
+      <p class="hint" id="ajourMatiereNote" role="note">
+        <strong>Ajourage avec PMMA : aluminium 20/10e laqué obligatoire.</strong><br>
+        Pour une incrustation de PMMA ou un collage de PMMA au dos, nous devons souder des goujons à l’arrière de la tôle. Cette opération ne peut pas être réalisée sur une tôle prélaquée : le laquage doit être effectué après la soudure des goujons.
+      </p>
       <div class="grid">
         <div>
           <label for="ajourLargeur">Ajourage – largeur (mm)</label>
@@ -1039,6 +1043,11 @@ compute();
       const mat = (document.querySelector('input[name="matiere"]:checked')||{}).value || 'prelaque';
 
       const ajour = document.getElementById('optAjour').checked;
+      if (ajour && mat !== 'laque'){
+        alert("Pour un ajourage avec PMMA, sélectionnez « Alu 20/10 laqué » dans le choix de matière. Les goujons doivent être soudés avant le laquage ; cette opération ne peut pas être réalisée sur une tôle prélaquée.");
+        document.querySelector('input[name="matiere"][value="laque"]')?.focus();
+        return;
+      }
       const pmmaSel = document.getElementById('pmmaSel');
       const pmmaLabel = pmmaSel && pmmaSel.value ? pmmaSel.value : '';
 
