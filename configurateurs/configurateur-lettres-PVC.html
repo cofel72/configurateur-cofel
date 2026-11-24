@@ -77,7 +77,7 @@
     </div>
 
     <div class="hint" style="color:var(--txt-dim);margin-top:6px;font-size:13px;">
-      Le rétroéclairage est disponible uniquement pour les chants 19 mm et 30 mm.
+      Le rétroéclairage est disponible uniquement pour les chants 19 mm et 30 mm. Fixations incluses dans le prix du rétroéclairage.
     </div>
   </fieldset>
 
@@ -279,14 +279,13 @@ function updateRetroUI() {
     }
 
     retro.checked = true;
-    fixation.checked = true;
+    fixation.checked = false;
   } else if (optionsAvantSemelle !== null) {
     retro.checked = optionsAvantSemelle.retro;
     fixation.checked = optionsAvantSemelle.fixation;
     optionsAvantSemelle = null;
   }
 
-  fixation.disabled = active;
   $("semelleNotice").classList.toggle("hidden", !active);
 
   if (e === 10) {
@@ -297,6 +296,10 @@ function updateRetroUI() {
     retro.disabled = active;
     msg.classList.add("hidden");
   }
+
+  // Les fixations sont incluses avec le rétroéclairage, sans supplément.
+  if (retro.checked) fixation.checked = false;
+  fixation.disabled = retro.checked;
 }
 
 function updateLisseUI() {
@@ -315,8 +318,8 @@ function calcTotalsNet(row, q) {
   const e = parseFloat($("epaisseur").value) || 0;
   const laq = $("optLaquage").checked;
   const semelle = isSemelleActive();
-  const fix = semelle || $("optFixation").checked;
-  const retro = semelle || $("optRetro").checked;
+  const retro = (semelle || $("optRetro").checked) && e >= 19;
+  const fix = !retro && $("optFixation").checked;
   const useLisse = $("optLisse").checked;
 
   // Lettre et options.
@@ -505,9 +508,9 @@ $("btnAddDevis").addEventListener("click", () => {
     }
 
     if (semelle) {
-      designation += " — Éclairage inclus";
+      designation += " — Éclairage et fixations inclus";
     } else if (retro && e >= 19) {
-      designation += " — Rétroéclairage";
+      designation += " — Rétroéclairage (fixations incluses)";
     }
 
     if (lmm > 0) {
