@@ -106,6 +106,7 @@
   <option value="50" selected>50 mm</option>
   <option value="80">80 mm</option>
   <option value="100">100 mm</option>
+  <option value="120">120 mm</option>
 </select>
 
 <div class="cselect" data-bind="relief">
@@ -200,7 +201,7 @@
       <p>Prix TTC : <b><span id="prixTTC">0,00</span> €</b></p>
       <div class="muted">TVA 20 % incluse dans le calcul.</div>
       <div class="muted">📐 Plan de pose inclus avec nos lettres boîtiers.</div>
-      <div class="muted">ℹ️ Relief des chants disponible en 50, 80 ou 100 mm.</div>
+      <div class="muted">ℹ️ Relief des chants disponible en 50, 80, 100 ou 120 mm.</div>
     </div>
 
     <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
@@ -235,11 +236,13 @@ const COEF_CORRECTION_CSV = 0.714285714;
    50 mm = tarif actuel
    80 mm = +2% sur le tarif 50 mm
    100 mm = +3% sur le tarif 50 mm
+   120 mm = +4% sur le tarif 50 mm (prolongement de +1 point par 20 mm)
 */
 const RELIEF_FACTORS = {
   "50": 1,
   "80": 1.02,
-  "100": 1.03
+  "100": 1.03,
+  "120": 1.04
 };
 
 /* Supplément lisse (INTERNE) — NON multiplié par quantité */
@@ -665,6 +668,7 @@ updateAdhesifDiffusantUI(H, Q, 0, 0);
   // ✅ Le relief 50 mm = tarif actuel
   // ✅ Relief 80 mm = tarif actuel +2%
   // ✅ Relief 100 mm = tarif actuel +3%
+  // ✅ Relief 120 mm = tarif actuel +4%
   const base_interne_raw = row ? numFR(row[MAP.baseKey]) : 0;
   const base_interne = base_interne_raw * COEF_CORRECTION_CSV * reliefFactor;
 
