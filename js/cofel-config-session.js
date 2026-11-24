@@ -223,7 +223,12 @@
     if (key === "configurateur-tole-tablette") {
       anchor = $("optAjour");
       const mat = document.querySelector('input[name="matiere"]:checked')?.value;
-      if (anchor?.checked && mat !== "laque") {
+      const existingNote = $("ajourMatiereNote");
+      if (existingNote) {
+        existingNote.classList.toggle("cofel-compatibility-notice", !!anchor?.checked && mat !== "laque");
+        existingNote.setAttribute("role", "status");
+        existingNote.setAttribute("aria-live", "polite");
+      } else if (anchor?.checked && mat !== "laque") {
         warnings.push("Ajourage : choisissez « Alu 20/10 laqué ». Les goujons sont soudés avant le laquage ; cette opération ne peut pas être réalisée sur une tôle prélaquée.");
       }
     }
