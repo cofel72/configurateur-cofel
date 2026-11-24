@@ -294,19 +294,7 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
       <input type="text" id="searchEmail" placeholder="Rechercher email client" />
       <input type="text" id="searchCompany" placeholder="Rechercher société" />
 
-      <select id="searchProduct">
-        <option value="">Tous les produits</option>
-        <option value="tole-tablette">Tôle tablette</option>
-        <option value="rampe-lumineuse">Rampe lumineuse (PLL)</option>
-        <option value="totem">Totems</option>
-        <option value="totems">Totems</option>
-        <option value="lettres-pvc">Lettres PVC</option>
-        <option value="lettre-alu-alupvc">Lettres Alu / Alu-PVC</option>
-        <option value="lettre-boitier">Lettres boîtiers</option>
-        <option value="tolerie-dibond">Tôlerie Alu / Dibond</option>
-        <option value="souples-rigides-adhesifs">Supports souples, rigides & adhésifs</option>
-        <option value="devis-index">Devis Index</option>
-      </select>
+      <input type="search" id="searchChantier" placeholder="Rechercher nom du chantier" aria-label="Rechercher par nom du chantier" />
 
       <!-- ✅ Presets période -->
       <select id="datePreset">
@@ -334,7 +322,7 @@ if (!FULL_ADMINS.includes(profile.email || "")) {
             <th>Email</th>
             <th>Société</th>
             <th>Contact</th>
-            <th>Produit</th>
+            <th>Chantier</th>
             <th>Total HT</th>
             <th>Actions</th>
           </tr>
