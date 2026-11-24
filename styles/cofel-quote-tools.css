@@ -1,0 +1,41 @@
+.cofel-has-summary { padding-bottom: 102px !important; }
+.cofel-quote-summary {
+  position: fixed; z-index: 900; bottom: 0; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px max(20px, calc((100vw - 1200px) / 2));
+  background: #20192c; color: #fff; border-top: 1px solid #77618f;
+  box-shadow: 0 -4px 24px rgba(0,0,0,.3); font: 14px/1.4 system-ui,sans-serif;
+}
+.cofel-quote-summary strong { margin-left: 18px; font-size: 18px; white-space: nowrap; }
+.cofel-quote-summary a, .cofel-edit-banner a {
+  color: #fff; text-decoration: none; padding: 8px 14px; border: 1px solid #a38aba;
+  border-radius: 10px; white-space: nowrap;
+}
+.cofel-quote-summary a:hover, .cofel-edit-banner a:hover { background: #4d3566; }
+.cofel-has-summary #btnAddDevis, .cofel-has-summary .cofel-fab { bottom: 92px !important; }
+.cofel-edit-banner { margin: 16px auto; max-width: 1160px; padding: 16px 20px; border: 1px solid #a38aba; border-radius: 14px; background:#2e213e; color:#fff; }
+.cofel-edit-banner p { margin: 0 0 14px; }
+.cofel-edit-banner a { display:inline-block; margin:0 10px 4px 0; }
+.cofel-compatibility-notice {
+  margin-top: 14px; padding: 12px 14px; border-left: 3px solid #dfb461;
+  background: rgba(223,180,97,.12); color: #ffe2ad; font-size: 14px; line-height:1.5;
+}
+.cofel-compatibility-notice[hidden] { display:none; }
+.cofel-quote-summary a:focus-visible, .cofel-edit-banner a:focus-visible { outline: 3px solid #dfb461; outline-offset: 3px; }
+.quote-filters { display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:12px; margin:18px 0; align-items:end; }
+.quote-filters label { display:block; font-size:12px; color:#ded1ed; margin-bottom:5px; }
+.quote-filters input, .quote-filters select { width:100%; box-sizing:border-box; padding:10px; border-radius:9px; border:1px solid #766580; background:#211b29; color:#fff; color-scheme:dark; }
+.quote-filter-count { margin-bottom:12px; color:#ded1ed; font-size:13px; }
+@media (max-width:800px) {
+  .quote-filters { grid-template-columns:1fr 1fr; }
+  .quote-filters > :first-child { grid-column:1 / -1; }
+}
+@media (max-width:600px) {
+  .cofel-quote-summary { padding:10px 12px; gap:8px; font-size:12px; }
+  .cofel-quote-summary strong { display:block; margin-left:0; font-size:17px; }
+  .cofel-quote-summary a { padding:8px 10px; }
+  .cofel-edit-banner { margin:12px; }
+  .quote-filters { grid-template-columns:1fr; }
+}
+@media print { .cofel-quote-summary, .cofel-edit-banner { display:none !important; } .cofel-has-summary { padding-bottom:0 !important; } }
+

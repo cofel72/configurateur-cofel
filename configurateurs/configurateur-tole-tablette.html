@@ -179,6 +179,8 @@
   }
 </style>
 
+<link rel="stylesheet" href="/styles/cofel-quote-tools.css?v=1">
+<script src="/js/cofel-config-session.js?v=1"></script>
 </head>
 <body>
 
@@ -763,6 +765,7 @@ async function loadCSV(){
     HEADS=rawHeads; ROWS=rows; MAP=buildMapping(HEADS);
     refreshPMMACatalog(ROWS);
     compute();
+    window.CofelConfig.markReady();
   }catch(e){
     console.error('Erreur CSV:', e?.message||e);
   }
@@ -1132,7 +1135,7 @@ compute();
         total_ligne_ht: Number(total_ht_public.toFixed(2))
       });
 
-      alert(`✅ Ligne ajoutée au devis !\n${designation}\nQté : ${qte}\nPU HT : ${pu_public_ht.toFixed(2)} €`);
+      alert(`✅ Ligne enregistrée dans le devis !\n${designation}\nQté : ${qte}\nPU HT : ${pu_public_ht.toFixed(2)} €`);
 
     }catch(err){
       console.error(err);

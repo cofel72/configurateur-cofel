@@ -188,6 +188,8 @@ html.ral-lock, body.ral-lock{ overflow:hidden; }
 }
 </style>
 
+<link rel="stylesheet" href="/styles/cofel-quote-tools.css?v=1">
+<script src="/js/cofel-config-session.js?v=1"></script>
 </head>
 
 <body>
@@ -726,6 +728,7 @@ document.addEventListener('change', (e)=>{
 compute();
 </script>
 
+<script>window.CofelConfig.markReady();</script>
 <script src="../js/devis-core.js"></script>
 
 <script>
@@ -741,7 +744,7 @@ $('btnAddDevis').addEventListener('click',()=>{
     pu_public_ht: Number(data.pu_public_ht)
   });
 
-  alert("✅ Ligne ajoutée au devis !");
+  alert("✅ Ligne enregistrée dans le devis !");
 });
 </script>
 <script src="/js/cofel-tracking.js"></script>

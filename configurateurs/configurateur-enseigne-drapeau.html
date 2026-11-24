@@ -177,6 +177,8 @@
   }
 </style>
 
+<link rel="stylesheet" href="/styles/cofel-quote-tools.css?v=1">
+<script src="/js/cofel-config-session.js?v=1"></script>
 </head>
 
 <body>
@@ -928,6 +930,7 @@ fetch(CSV_URL, {cache:"no-store"})
     populateFormes();
     populateDims();
     compute();
+    window.CofelConfig.markReady();
   })
   .catch(err=>{
     console.error(err);
@@ -969,7 +972,7 @@ $('btnAddDevis').onclick = ()=>{
     pu_public_ht: pu
   });
 
-  alert("✅ Ajouté au devis");
+  alert("✅ Enregistré dans le devis");
 };
 </script>
 <script src="/js/cofel-tracking.js"></script>

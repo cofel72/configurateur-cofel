@@ -11,6 +11,8 @@
 <link rel="stylesheet" href="../styles/cofel-config-steps.css">
 <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
 <link rel="stylesheet" href="/styles/cofel-button-theme.css" />
+<link rel="stylesheet" href="/styles/cofel-quote-tools.css?v=1">
+<script src="/js/cofel-config-session.js?v=1"></script>
 </head>
 
 <body>
@@ -390,8 +392,9 @@
   function addLineToIndexStore(line){
     const st = readStore();
     if(!Array.isArray(st.lignes)) st.lignes = [];
-    st.lignes.push(line);
+    const savedLine = window.CofelConfig.commitLine(line, st);
     writeStore(st);
+    window.CofelConfig.afterSave(savedLine);
   }
 
   document.addEventListener('DOMContentLoaded', function(){
@@ -405,7 +408,7 @@
           addLineToIndexStore(line);
 
           const msg =
-            "Ligne ajoutée au devis ✅\n\n" +
+            "Ligne enregistrée dans le devis ✅\n\n" +
             "PU HT (net) : " + line.pu_net_ht.toFixed(2).replace('.', ',') + " €\n" +
             "Total HT : " + line.total_ligne_ht.toFixed(2).replace('.', ',') + " €\n\n" +
             "Revenir au devis maintenant ?";

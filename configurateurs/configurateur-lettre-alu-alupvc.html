@@ -166,6 +166,8 @@
 </style>
 <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
  <link rel="stylesheet" href="/styles/cofel-button-theme.css" /> 
+<link rel="stylesheet" href="/styles/cofel-quote-tools.css?v=1">
+<script src="/js/cofel-config-session.js?v=1"></script>
 </head>
 
 <body>
@@ -653,6 +655,7 @@ async function loadCSV(){
     updateLisseUI();
     updateTigeUI();
     compute();
+    window.CofelConfig.markReady();
   }catch(e){
     console.error(e);
     alert("Erreur lors du chargement des données. Réessayez plus tard.");
@@ -761,7 +764,7 @@ $("btnAddDevis").addEventListener("click", ()=>{
       total_ligne_ht: Number(total_ht.toFixed(2))
     });
 
-    alert(`✅ Ligne ajoutée au devis !\n${designation}\nQté : ${qte}\nPU HT : ${pu_public_ht.toFixed(2)} €`);
+    alert(`✅ Ligne enregistrée dans le devis !\n${designation}\nQté : ${qte}\nPU HT : ${pu_public_ht.toFixed(2)} €`);
   }catch(err){
     console.error(err);
     alert('Erreur lors de l’ajout au devis : ' + err.message);

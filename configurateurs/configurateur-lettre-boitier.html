@@ -59,6 +59,8 @@
 </style>
 <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
 <link rel="stylesheet" href="/styles/cofel-button-theme.css" />
+<link rel="stylesheet" href="/styles/cofel-quote-tools.css?v=1">
+<script src="/js/cofel-config-session.js?v=1"></script>
 </head>
 
 <body>
@@ -774,7 +776,7 @@ function bind(){
 
     CURRENT = FAMILLES[i];
     try {
-      await loadFamily(CURRENT);
+      await window.CofelConfig.track(loadFamily(CURRENT));
     } catch(e){
       console.error(e);
       alert("Erreur chargement CSV.");
@@ -830,6 +832,7 @@ updateAdhesifDiffusantUI(0, 1, 0, 0);
   bind();
   updateLisseUI();
   compute();
+  window.CofelConfig.markReady();
 })();
 </script>
 
@@ -921,7 +924,7 @@ if (variant) {
       total_ligne_ht: Number(p.total_net_ht.toFixed(2))
     });
 
-    alert("✅ Ligne ajoutée au devis !");
+    alert("✅ Ligne enregistrée dans le devis !");
   } catch (err) {
     console.error(err);
     alert("Erreur lors de l’ajout au devis : " + err.message);

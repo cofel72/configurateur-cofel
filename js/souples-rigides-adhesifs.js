@@ -556,4 +556,37 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   }
 
+  window.CofelConfig?.register({
+    capture: () => ({...state}),
+    async restore(saved) {
+      Object.assign(state, saved);
+      if (!getRule()) throw new Error("Cette matière n’est plus disponible. Le devis d’origine reste intact.");
+      function select(name, value, optional = false) {
+        const radio = Array.from(document.getElementsByName(name)).find(el => el.value === value);
+        if (!radio) { if (optional) return; throw new Error("Une option enregistrée n’est plus disponible : " + name); }
+        radio.checked = true;
+        radio.dispatchEvent(new Event("change", {bubbles:true}));
+      }
+      select("support", saved.support);
+      select("impression", saved.impression);
+      populateMaterials(); select("material", saved.materialKey);
+      if (isVariantStepRequired()) {
+        populateVariants();
+        state.oeillets = saved.oeillets;
+        select("variant", saved.variantKey);
+        if (id("oeilletsInlineCount")) id("oeilletsInlineCount").value = saved.oeillets || 0;
+      }
+      populateDecoupe(); select("decoupe", saved.decoupe);
+      populateLamination(); select("lamination", saved.lamination, saved.lamination === "Non disponible" || !saved.lamination);
+      populateBlanc(); select("blanc", saved.blanc, saved.blanc === "Non disponible" || !saved.blanc);
+      if (shouldShowOeilletsStep()) { populateOeillets(); id("oeilletsCount").value = saved.oeillets || 0; }
+      for (const field of ["largeur","hauteur","quantite"]) id(field).value = saved[field];
+      Object.assign(state, saved);
+      const pricing = await computePrixSouplesRigidesImpression(state);
+      renderRecap(pricing); goTo(10);
+    },
+    async refresh() { await id("next9").onclick(); }
+  });
+  window.CofelConfig?.markReady();
+
 });

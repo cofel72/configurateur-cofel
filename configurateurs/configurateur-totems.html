@@ -276,6 +276,8 @@
   }
 </style>
 
+<link rel="stylesheet" href="/styles/cofel-quote-tools.css?v=1">
+<script src="/js/cofel-config-session.js?v=1"></script>
 </head>
 <body>
 <header class="cofel-header">
@@ -1458,8 +1460,8 @@ async function loadAll(){
 
 initRalModal();
 toggleAjourTotem();
-loadTTPricesForAjour(); // PMMA + LED depuis Tôle Tablette
-loadAll();
+window.CofelConfig.track(loadTTPricesForAjour()); // PMMA + LED depuis Tôle Tablette
+loadAll().then(() => window.CofelConfig.markReady());
 
 /* ====== TESTS LÉGERS (console) ====== */
 (function runParseTests(){
@@ -1535,7 +1537,7 @@ loadAll();
 
       Devis.addLine({ type: 'Totem', designation: designation, quantite: qte, pu_public_ht: pu_public_ht });
 
-      alert('✅ Ligne ajoutée au devis !\n' + designation + '\nQté : ' + qte + '\nPU HT : ' + pu_public_ht.toFixed(2) + ' €');
+      alert('✅ Ligne enregistrée dans le devis !\n' + designation + '\nQté : ' + qte + '\nPU HT : ' + pu_public_ht.toFixed(2) + ' €');
     }catch(err){
       console.error(err);
       alert('Erreur lors de l’ajout au devis : ' + err.message);

@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="../styles/cofel-glass.css">
   <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
   <link rel="stylesheet" href="/styles/cofel-button-theme.css" />
+<link rel="stylesheet" href="/styles/cofel-quote-tools.css?v=1">
+<script src="/js/cofel-config-session.js?v=1"></script>
 </head>
 
 <body>
@@ -454,6 +456,7 @@ loadCSV()
     updateRetroUI();
     updateLisseUI();
     compute();
+    window.CofelConfig.markReady();
   })
   .catch((e) => {
     console.error(e);
@@ -528,7 +531,7 @@ $("btnAddDevis").addEventListener("click", () => {
     });
 
     alert(
-      `✅ Ligne ajoutée au devis !\n${designation}\nQté : ${q}\nPU HT : ${unit_net.toFixed(2)} €`
+      `✅ Ligne enregistrée dans le devis !\n${designation}\nQté : ${q}\nPU HT : ${unit_net.toFixed(2)} €`
     );
   } catch (err) {
     console.error(err);

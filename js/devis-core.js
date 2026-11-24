@@ -22,6 +22,7 @@
 
   function writeStore(obj) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+    global.dispatchEvent?.(new Event("cofel:quote-changed"));
   }
 
   function ensureState() {
@@ -48,6 +49,7 @@
       const pu_old = Number(l.pu_net_ht || 0);
 
       return {
+        ...l, // Conserver les paramètres des configurations.
         id: l.id,
         type: l.type || "",
         designation: l.designation || "Ligne",
@@ -98,7 +100,7 @@
 const pu_public = Number(line.pu_public_ht !== undefined ? line.pu_public_ht : pu);
 const pu_remise = Number(line.pu_remise_ht !== undefined ? line.pu_remise_ht : pu);
 
-st.lignes.push({
+const nextLine = {
   id,
   type: line.type || "",
   designation: line.designation || "Ligne",
@@ -113,11 +115,15 @@ st.lignes.push({
   pu_remise_ht: pu_remise,
   total_public_ht: +(q * pu_public).toFixed(2),
   total_remise_ht: +(q * pu_remise).toFixed(2)
-});
+};
+const savedLine = global.CofelConfig
+  ? global.CofelConfig.commitLine(nextLine, st)
+  : (st.lignes.push(nextLine), nextLine);
 
 
     writeStore(st);
-    return id;
+    global.CofelConfig?.afterSave(savedLine);
+    return savedLine.id;
   }
 
   function removeLine(id) {

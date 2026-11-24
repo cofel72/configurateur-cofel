@@ -160,6 +160,8 @@
       color:#ffe3e3;
     }
   </style>
+<link rel="stylesheet" href="/styles/cofel-quote-tools.css?v=1">
+<script src="/js/cofel-config-session.js?v=1"></script>
 </head>
 
 <body>
@@ -178,6 +180,14 @@
         L’ancien PDF reste archivé ; un nouvel export créera un nouveau devis.
       </p>
 
+      <div class="quote-filters" role="search" aria-label="Rechercher un devis">
+        <div><label for="quoteSearch">Rechercher</label><input id="quoteSearch" type="search" placeholder="Chantier, société, contact, produit ou numéro…"></div>
+        <div><label for="quoteFrom">Du</label><input id="quoteFrom" type="date"></div>
+        <div><label for="quoteTo">Au</label><input id="quoteTo" type="date"></div>
+        <div><label for="quoteSort">Trier par</label><select id="quoteSort"><option value="recent">Plus récents</option><option value="oldest">Plus anciens</option><option value="amount">Montant décroissant</option><option value="chantier">Chantier A → Z</option></select></div>
+        <button id="quoteReset" class="btn-link" type="button">Réinitialiser</button>
+      </div>
+      <div id="quoteFilterCount" class="quote-filter-count" role="status"></div>
       <div class="table-wrap">
         <table>
           <thead>
@@ -185,6 +195,7 @@
               <th>Date</th>
               <th>Société</th>
               <th>Contact</th>
+              <th>Chantier</th>
               <th>Produit</th>
               <th>Total HT</th>
               <th>Actions</th>
@@ -192,7 +203,7 @@
           </thead>
           <tbody id="quotesBody">
             <tr>
-              <td colspan="6" class="empty">Chargement des devis…</td>
+              <td colspan="7" class="empty">Chargement des devis…</td>
             </tr>
           </tbody>
         </table>
@@ -226,7 +237,7 @@
       const sessionToken = String(profile.sessionToken || "").trim();
 
       if(!email || !sessionToken){
-        tbody.innerHTML = `<tr><td colspan="6" class="empty">Session expirée. Merci de vous reconnecter.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="empty">Session expirée. Merci de vous reconnecter.</td></tr>`;
         return;
       }
 
@@ -248,42 +259,63 @@
 
       }catch(err){
         console.error(err);
-        tbody.innerHTML = `<tr><td colspan="6" class="empty">Erreur de chargement des devis.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="empty">Erreur de chargement des devis.</td></tr>`;
         msg.textContent = "Impossible de charger vos devis. Merci de vous reconnecter si le problème persiste.";
       }
     }
 
+    function chantierOf(q){
+      const extra = parseQuoteExtra(q);
+      return extra?.chantier || extra?.client?.chantier || extra?.infos?.chantier || "";
+    }
+    function searchKey(value){
+      return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+    }
+    function localDay(iso){
+      const d = new Date(iso);
+      if(!Number.isFinite(d.getTime())) return "";
+      return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+    }
+    function filteredQuotes(){
+      const search = searchKey(document.getElementById("quoteSearch").value).trim().split(/\s+/).filter(Boolean);
+      const from = document.getElementById("quoteFrom").value;
+      const to = document.getElementById("quoteTo").value;
+      const sort = document.getElementById("quoteSort").value;
+      const filtered = allQuotes.filter(q => {
+        const bag = searchKey([q.id, chantierOf(q), q.client_company, q.client_name, humanProduct(q.product_type)].join(" "));
+        const day = localDay(q.created_at);
+        return search.every(term => bag.includes(term)) && (!from || day >= from) && (!to || (day && day <= to));
+      });
+      return filtered.sort((a,b) => sort === "amount" ? toNumber(b.total_ht)-toNumber(a.total_ht) :
+        sort === "chantier" ? chantierOf(a).localeCompare(chantierOf(b),"fr") :
+        sort === "oldest" ? (Date.parse(a.created_at)||0)-(Date.parse(b.created_at)||0) :
+        (Date.parse(b.created_at)||0)-(Date.parse(a.created_at)||0));
+    }
     function renderQuotes(){
-      if(!allQuotes.length){
-        tbody.innerHTML = `<tr><td colspan="6" class="empty">Aucun devis enregistré pour ce compte.</td></tr>`;
+      const quotes = filteredQuotes();
+      document.getElementById("quoteFilterCount").textContent = quotes.length + " devis affiché(s) sur " + allQuotes.length;
+      if(!quotes.length){
+        tbody.innerHTML = '<tr><td colspan="7" class="empty">' +
+          (allQuotes.length ? "Aucun devis ne correspond à ces critères." : "Aucun devis enregistré pour ce compte.") + '</td></tr>';
         return;
       }
-
-      tbody.innerHTML = allQuotes.map(q => {
+      tbody.innerHTML = quotes.map(q => {
         const editable = quoteHasEditableData(q);
-
-        return `
-          <tr>
-            <td>${formatDate(q.created_at)}</td>
-            <td>${escapeHtml(q.client_company || "-")}</td>
-            <td>${escapeHtml(q.client_name || "-")}</td>
-            <td>${escapeHtml(humanProduct(q.product_type))}</td>
-            <td>${formatEuros(q.total_ht)}</td>
-            <td>
-              <div class="actions-cell">
-                <button class="btn-view" onclick="viewQuote(${Number(q.id)})">Voir PDF</button>
-                <button
-                  class="btn-reopen"
-                  onclick="reopenQuote(${Number(q.id)})"
-                  ${editable ? "" : "disabled"}
-                  title="${editable ? "Reprendre ce devis" : "Ancien devis sans données modifiables"}"
-                >
-                  ↩ Modifier
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
+        return [
+          '<tr><td>' + formatDate(q.created_at) + '<br><small>Devis n° ' + Number(q.id) + '</small></td>',
+          '<td>' + escapeHtml(q.client_company || "-") + '</td>',
+          '<td>' + escapeHtml(q.client_name || "-") + '</td>',
+          '<td>' + escapeHtml(chantierOf(q) || "-") + '</td>',
+          '<td>' + escapeHtml(humanProduct(q.product_type)) + '</td>',
+          '<td>' + formatEuros(q.total_ht) + '</td>',
+          '<td><div class="actions-cell">',
+          '<button class="btn-view" onclick="viewQuote(' + Number(q.id) + ')">Voir PDF</button>',
+          '<button class="btn-reopen" onclick="reopenQuote(' + Number(q.id) + ')" ' + (editable ? "" : "disabled") +
+            ' title="Reprendre ce devis dans le devis en cours">↩ Reprendre</button>',
+          '<button class="btn-reopen" onclick="reopenQuote(' + Number(q.id) + ', true)" ' + (editable ? "" : "disabled") +
+            ' title="Créer une copie sans modifier le devis archivé">⧉ Dupliquer</button>',
+          '</div></td></tr>'
+        ].join("");
       }).join("");
     }
 
@@ -297,7 +329,7 @@
       return Array.isArray(lignes) && lignes.length > 0;
     }
 
-    function reopenQuote(id){
+    function reopenQuote(id, duplicate = false){
       const q = allQuotes.find(item => Number(item.id) === Number(id));
 
       if(!q){
@@ -314,20 +346,22 @@
       }
 
       const ok = confirm(
-        "Ce devis va être repris dans la page d'accueil du configurateur.\\n\\n" +
-        "Le devis actuellement présent sera remplacé.\\n\\n" +
+        (duplicate ? "Une copie de ce devis va être créée.\n\n" : "Ce devis va être repris dans le configurateur.\n\n") +
+        "Le devis actuellement présent sera remplacé.\n\n" +
         "Continuer ?"
       );
 
       if(!ok) return;
 
-      const lignes = normalizeQuoteLines(lignesSource);
+      const lignes = normalizeQuoteLines(lignesSource).map(l => duplicate ? {...l, id:generateLineId()} : l);
 
-      const chantier =
+      let chantier =
         extra?.chantier ||
         extra?.client?.chantier ||
         extra?.infos?.chantier ||
         "";
+
+      if(duplicate) chantier = chantier ? chantier + " — copie" : "Copie du devis " + q.id;
 
       const date =
         extra?.date ||
@@ -374,6 +408,10 @@
         }
       };
 
+      if(duplicate) {
+        state.copied_from_quote = state.reopened_from_quote;
+        delete state.reopened_from_quote;
+      }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 
       sessionStorage.setItem("cofel_reopened_quote", JSON.stringify({
@@ -553,6 +591,15 @@
         .replaceAll("'","&#039;");
     }
 
+    ["quoteSearch","quoteFrom","quoteTo","quoteSort"].forEach(id => {
+      document.getElementById(id).addEventListener("input", renderQuotes);
+      document.getElementById(id).addEventListener("change", renderQuotes);
+    });
+    document.getElementById("quoteReset").addEventListener("click", () => {
+      ["quoteSearch","quoteFrom","quoteTo"].forEach(id => document.getElementById(id).value = "");
+      document.getElementById("quoteSort").value = "recent";
+      renderQuotes();
+    });
     loadMyQuotes();
   </script>
 </body>

@@ -199,6 +199,8 @@
 }
 
   </style>
+<link rel="stylesheet" href="/styles/cofel-quote-tools.css?v=1">
+<script src="/js/cofel-config-session.js?v=1"></script>
 </head>
 
 <body>
@@ -553,6 +555,7 @@
 
     try{
       localStorage.setItem("cofel_transport_add", JSON.stringify(payload));
+      window.dispatchEvent(new Event("cofel:quote-changed"));
       toast.classList.add("show");
       setTimeout(() => toast.classList.remove("show"), 2500);
     }catch(e){

@@ -275,6 +275,8 @@ tr.quote-group-row td{
     .toast.show{ display:block; }
   </style>
   <link rel="stylesheet" href="/styles/cofel-theme-apple-dark.css">
+<link rel="stylesheet" href="/styles/cofel-quote-tools.css?v=1">
+<script src="/js/cofel-config-session.js?v=1"></script>
 </head>
 <body>
 
@@ -384,7 +386,7 @@ tr.quote-group-row td{
     </section>
 
     <!-- ===================== RÉCAP + CLIENT ===================== -->
-    <section class="panel" aria-label="Récapitulatif du devis">
+    <section id="recapDevis" class="panel" aria-label="Récapitulatif du devis">
       <h2>🧾 Récapitulatif du devis</h2>
 
       <div class="client-card">
@@ -536,7 +538,7 @@ try {
   const TVA_RATE = 0.20;
 
   function readStore(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }catch{ return {}; } }
-  function writeStore(obj){ localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); }
+  function writeStore(obj){ localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); window.dispatchEvent(new Event("cofel:quote-changed")); }
 
   function genId(){
     try{
@@ -820,6 +822,7 @@ const noteInfo   = document.getElementById('noteInfo');
             >▼</button>
 
             <button class="btn btn-ghost btn-qty" style="margin-right:6px;">📝 Qté</button>
+            ${window.CofelConfig?.validConfiguration(l.configuration) ? '<button class="btn btn-ghost btn-config" style="margin-right:6px;" title="Rouvrir les dimensions et options dans le configurateur">⚙️ Configurer</button>' : '<span style="font-size:11px;opacity:.65;margin-right:6px;" title="Les paramètres détaillés ne sont pas disponibles pour cette ligne">Configuration non enregistrée</span>'}
 
             ${canEditQuote ? `
               <button class="btn btn-ghost btn-edit" style="margin-right:6px;">✏️ Modifier</button>
@@ -929,6 +932,11 @@ btnAddGroup?.addEventListener("click", () => {
     if(e.target.classList.contains('btn-down')){
       moveQuoteLine(id, 1);
       render();
+      return;
+    }
+
+    if (e.target.classList.contains('btn-config')) {
+      window.CofelConfig?.openLine(id);
       return;
     }
 
