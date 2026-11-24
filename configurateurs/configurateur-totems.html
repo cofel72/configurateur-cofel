@@ -419,7 +419,7 @@
       <input type="number" id="quantite" value="1" min="1"/>
     </fieldset>
 
-    <!-- ===== AJOURAGE / REMPLISSAGE (comme Tôle Tablette, x2 faces) ===== -->
+    <!-- ===== AJOURAGE / REMPLISSAGE (recto ou recto verso) ===== -->
     <fieldset>
       <legend>Ajourage / Remplissage</legend>
 
@@ -428,6 +428,11 @@
       </label>
 
       <div id="blockAjourTotem" class="hidden" style="margin-top:8px">
+        <label for="ajourFacesTotem">Faces ajourées</label>
+        <select id="ajourFacesTotem">
+          <option value="2" selected>Recto verso — 2 faces</option>
+          <option value="1">Recto uniquement — 1 face</option>
+        </select>
         <div class="grid">
           <div>
             <label for="ajourLargeurTotem">Ajourage – largeur (mm)</label>
@@ -440,7 +445,7 @@
             <input id="pmmaSurfaceTotem" disabled value="0.000 m²" />
 
             <div class="hint">
-              Surface ajourée = (largeur × hauteur) / 1 000 000 • Facturation <b>2 faces</b> • <b>min 1 m²</b> (puis au m²)
+              Surface ajourée = (largeur × hauteur) / 1 000 000 • Facturation selon le nombre de faces choisi • <b>min 1 m² par face</b> (puis au m²)
             </div>
           </div>
 
@@ -453,7 +458,7 @@
             </label>
 
             <div class="muted" style="margin-top:6px;opacity:.85">
-              (Tarifs PMMA/LED identiques à Tôle Tablette, appliqués sur <b>2 faces</b>)
+              (Tarifs PMMA/LED identiques à Tôle Tablette, appliqués aux faces ajourées choisies)
             </div>
           </div>
         </div>
@@ -541,8 +546,10 @@ const URL_OPTIONS = "https://raw.githubusercontent.com/stevens-cofel/configurate
 const TVA = 0.20;
 const RAL_PRICE_PUBLIC_M2 = 112; // ✅ déjà prix PUBLIC (x2 inclus)
 
-/* ===== AJOURAGE (mêmes prix que Tôle Tablette, x2 faces) ===== */
-const TOTEM_FACES = 2;
+/* ===== AJOURAGE (mêmes prix que Tôle Tablette, par face) ===== */
+function getAjourTotemFaces(){
+  return document.getElementById('ajourFacesTotem')?.value === '1' ? 1 : 2;
+}
 const AJOURAGE_PRICE_M2 = 99.0; // interne, identique Tôle Tablette
 
 // ⚠️ IMPORTANT : garde ton URL telle quelle si elle fonctionne déjà chez toi.
@@ -1256,23 +1263,24 @@ function compute(){
   let ajourage_interne = 0, pmma_interne = 0, led_interne = 0;
 
   if(elOptAjourTotem && elOptAjourTotem.checked){
+    const faces = getAjourTotemFaces();
     const sPerFace = areaM2FromMM(elAjourLT?.value, elAjourHT?.value);
     if(elPMMASurfaceTotem) elPMMASurfaceTotem.value = (sPerFace.toFixed(3) + ' m²');
 
-    // ✅ Ajourage : minimum facturé = 1 m² (comme Tôle Tablette), puis x2 faces
+    // Ajourage : minimum 1 m² par face, selon le nombre de faces choisi
     const factureM2 = Math.max(1, sPerFace);
-    ajourage_interne = AJOURAGE_PRICE_M2 * factureM2 * TOTEM_FACES;
+    ajourage_interne = AJOURAGE_PRICE_M2 * factureM2 * faces;
 
-    // PMMA : surface réelle x2 faces
+    // PMMA : surface réelle des faces ajourées
     const sel = elPMMASelTotem?.options?.[elPMMASelTotem.selectedIndex];
     const pmmaM2 = sel && sel.dataset.price ? Number(sel.dataset.price) : NaN;
     if(isFinite(pmmaM2) && sPerFace > 0){
-      pmma_interne = pmmaM2 * sPerFace * TOTEM_FACES;
+      pmma_interne = pmmaM2 * sPerFace * faces;
     }
 
-    // LED : surface réelle x2 faces
+    // LED : surface réelle des faces ajourées
     if(elLEDTotem && elLEDTotem.checked && isFinite(LED_PRICE_M2_TOTEM) && sPerFace > 0){
-      led_interne = LED_PRICE_M2_TOTEM * sPerFace * TOTEM_FACES;
+      led_interne = LED_PRICE_M2_TOTEM * sPerFace * faces;
     }
   } else {
     if(elPMMASurfaceTotem) elPMMASurfaceTotem.value = "0.000 m²";
@@ -1400,7 +1408,7 @@ async function loadAll(){
         compute();
       });
     }
-    [elAjourLT, elAjourHT, elPMMASelTotem, elLEDTotem].forEach(function(el){
+    [document.getElementById('ajourFacesTotem'), elAjourLT, elAjourHT, elPMMASelTotem, elLEDTotem].forEach(function(el){
       if(!el) return;
       el.addEventListener('input', function(){ compute(); });
       el.addEventListener('change', function(){ compute(); });
@@ -1511,7 +1519,8 @@ loadAll();
         const ajH = Number(document.getElementById('ajourHauteurTotem')?.value || 0);
         const s = (ajL>0 && ajH>0) ? ((ajL*ajH)/1000000) : 0;
 
-        let label = `Ajourage des faces du Totem (${s.toFixed(3)} m²/face, min 1 m²)`;
+        const facesLabel = getAjourTotemFaces() === 1 ? 'recto uniquement' : 'recto verso';
+        let label = `Ajourage du Totem ${facesLabel} (${s.toFixed(3)} m²/face, min 1 m²/face)`;
 
         const pmma = document.getElementById('pmmaSelTotem')?.value || '';
         if(pmma) label += ` + PMMA (${pmma})`;
