@@ -204,14 +204,14 @@
     root.querySelector("[data-total]").textContent = money(total) + " HT";
   }
   function createSummary() {
-    if ($("cofelQuoteSummary")) return;
+    const currentIsHome = ["", "/index", "/index.html"].includes(location.pathname.replace(/\/+$/, ""));
+    if (currentIsHome || $("cofelQuoteSummary")) return;
     const root = document.createElement("aside");
     root.id = "cofelQuoteSummary";
     root.className = "cofel-quote-summary";
     root.setAttribute("aria-label", "Résumé du devis en cours");
-    const currentIsHome = ["", "/", "/index.html"].includes(location.pathname);
     root.innerHTML = '<div><span>Devis en cours · </span><span data-count></span><strong data-total></strong></div>' +
-      '<a href="' + (currentIsHome ? "#recapDevis" : "/index.html#recapDevis") + '">Voir mon devis →</a>';
+      '<a href="/index.html#recapDevis">Voir mon devis →</a>';
     document.body.append(root);
     document.body.classList.add("cofel-has-summary");
     renderSummary();
