@@ -1,6 +1,6 @@
 // ============================================================================
 // Admin – Liste des devis Cofel (admin-quotes.html)
-// + filtres (email, société, produit, période, montants)
+// + filtres (email, société, chantier, période, montants)
 // + presets période (mois en cours, 3 mois glissants...)
 // + export Excel (XLSX) des devis filtrés
 // + bouton "Voir PDF"
@@ -14,7 +14,7 @@ const STORAGE_KEY = "devisCourant_v1";
 const tbody         = document.querySelector("#tableQuotes tbody");
 const fEmail        = document.getElementById("searchEmail");
 const fCompany      = document.getElementById("searchCompany");
-const fProduct      = document.getElementById("searchProduct");
+const fChantier     = document.getElementById("searchChantier");
 
 const fPreset       = document.getElementById("datePreset");
 const fDateFrom     = document.getElementById("dateFrom");
@@ -57,11 +57,21 @@ async function loadQuotes() {
   }
 }
 
+// Le chantier est conservé dans les données du devis, y compris sur les anciens formats.
+function getQuoteChantier(q) {
+  const extra = parseQuoteExtra(q);
+  return String(q?.chantier || extra?.chantier || extra?.client?.chantier || extra?.infos?.chantier || "").trim();
+}
+function normalizeSearch(value) {
+  return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().replace(/\s+/g, " ").trim();
+}
+
 // ======================= FILTRES =======================
 function getFilteredQuotes() {
   const emailVal = (fEmail?.value || "").toLowerCase().trim();
   const compVal  = (fCompany?.value || "").toLowerCase().trim();
-  const prodVal  = fProduct?.value || "";
+  const chantierVal = normalizeSearch(fChantier?.value);
 
   const minRaw = (fMinAmount?.value ?? "").toString().replace(",", ".");
   const maxRaw = (fMaxAmount?.value ?? "").toString().replace(",", ".");
@@ -82,7 +92,7 @@ function getFilteredQuotes() {
 
     if (emailVal && !mail.includes(emailVal)) return false;
     if (compVal && !company.includes(compVal)) return false;
-    if (prodVal && q.product_type !== prodVal) return false;
+    if (chantierVal && !normalizeSearch(getQuoteChantier(q)).includes(chantierVal)) return false;
 
     if (fromDt || toDt) {
       const created = parseQuoteDate(q.created_at);
@@ -122,7 +132,7 @@ function renderQuotes() {
           <td>${escapeHtml(q.client_email || "-")}</td>
           <td>${escapeHtml(q.client_company || "-")}</td>
           <td>${escapeHtml(q.client_name || "-")}</td>
-          <td>${escapeHtml(humanProduct(q.product_type))}</td>
+          <td>${escapeHtml(getQuoteChantier(q) || "-")}</td>
           <td>${formatEuros(q.total_ht)}</td>
           <td>
             <div class="actions-cell">
@@ -184,11 +194,7 @@ function reopenQuote(id) {
 
   const lignes = normalizeQuoteLines(lignesSource);
 
-  const chantier =
-    extra?.chantier ||
-    extra?.client?.chantier ||
-    extra?.infos?.chantier ||
-    "";
+  const chantier = getQuoteChantier(q);
 
   const date =
     extra?.date ||
@@ -428,7 +434,7 @@ function exportExcel() {
       "Email",
       "Société",
       "Contact",
-      "Produit",
+      "Chantier",
       "Total HT",
       "Total TTC",
       "Modifiable",
@@ -440,7 +446,7 @@ function exportExcel() {
       q.client_email || "",
       q.client_company || "",
       q.client_name || "",
-      humanProduct(q.product_type),
+      getQuoteChantier(q),
       toNumber(q.total_ht),
       toNumber(q.total_ttc),
       quoteHasEditableData(q) ? "Oui" : "Non",
@@ -582,7 +588,7 @@ function fileStamp() {
 }
 
 // ======================= ÉVÉNEMENTS =======================
-[fEmail, fCompany, fProduct, fMinAmount, fMaxAmount].forEach((el) => {
+[fEmail, fCompany, fChantier, fMinAmount, fMaxAmount].forEach((el) => {
   if (!el) return;
 
   const eventName = el.tagName === "SELECT" ? "change" : "input";
