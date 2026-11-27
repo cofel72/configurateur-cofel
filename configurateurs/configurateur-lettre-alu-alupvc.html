@@ -250,6 +250,10 @@
               <input type="checkbox" id="optTige" />
               <span>Tige 6 mm aluminium soudée à sceller</span>
             </label>
+            <label class="option-item hidden" id="tigeFileteeOption">
+              <input type="checkbox" id="optTigeFiletee" />
+              <span>Tige filetée longueur 20 mm ou 30 mm</span>
+            </label>
 
             <label class="option-item">
               <input type="checkbox" id="optLisse" />
@@ -312,6 +316,8 @@ const elQ = $("quantite");
 const elFix = $("optFixation");
 const elTige = $("optTige");
 const elTigeOption = $("tigeOption");
+const elTigeFiletee = $("optTigeFiletee");
+const elTigeFileteeOption = $("tigeFileteeOption");
 const elFBrut = $("finitionBrut");
 const elFLaque = $("finitionLaque");
 const elPrixHT = $("prixHT");
@@ -501,19 +507,19 @@ function updateLisseUI(){
 }
 
 function updateTigeUI(changedOption){
-  const catVal = $("categorie").value;
-  const allowed = catVal === "alu30";
-
-  if(!elTigeOption || !elTige) return;
-
+  const allowed = $("categorie").value === "alu30";
   elTigeOption.classList.toggle("hidden", !allowed);
-
+  elTigeFileteeOption.classList.toggle("hidden", !allowed);
   if(!allowed){
     elTige.checked = false;
-  } else if(elFix && elFix.checked && elTige.checked){
-    // Fixations incompatibles : conserver le dernier choix de l’utilisateur.
-    if(changedOption === elFix) elTige.checked = false;
-    else elFix.checked = false;
+    elTigeFiletee.checked = false;
+  }
+  // Un seul type de fixation : conserver le dernier choix.
+  const options = [elFix, elTige, elTigeFiletee].filter(Boolean);
+  const selected = options.filter(el => el.checked);
+  if(selected.length > 1){
+    const keep = selected.includes(changedOption) ? changedOption : selected[selected.length - 1];
+    options.forEach(el => { el.checked = el === keep; });
   }
 }
 
@@ -593,7 +599,7 @@ function compute(){
     unit_interne_lettre += fx;
   }
 
-  if (fx && catVal === "alu30" && elTige && elTige.checked){
+  if (fx && catVal === "alu30" && (elTige.checked || elTigeFiletee.checked)){
     unit_interne_lettre += fx;
   }
 
@@ -634,6 +640,7 @@ function compute(){
     fin: elFLaque.checked ? 'laqué' : 'brut',
     hasFixTaquet: !!(elFix && elFix.checked),
     hasFixTige: !!(catVal === "alu30" && elTige && elTige.checked),
+    hasFixTigeFiletee: !!(catVal === "alu30" && elTigeFiletee.checked),
     lmm,
     lmlUnit,
     lmlTotal,
@@ -665,7 +672,7 @@ async function loadCSV(){
 ["input","change"].forEach(evt=>{
   [
     elH, elQ, $("categorie"),
-    elFix, elTige, elFBrut, elFLaque,
+    elFix, elTige, elTigeFiletee, elFBrut, elFLaque,
     elLisse, elLisseLongueur, elLisseNb // ✅ AJOUT
   ].forEach(el=>{
     if(!el) return;
@@ -681,6 +688,7 @@ $("btnReset").addEventListener("click", ()=>{
   elH.value=''; elQ.value=1;
   if (elFix) elFix.checked=false;
   if (elTige) elTige.checked=false;
+  elTigeFiletee.checked=false;
   elFBrut.checked=true; elFLaque.checked=false;
 
   if (elLisse) elLisse.checked = false;
@@ -731,6 +739,7 @@ $("btnAddDevis").addEventListener("click", ()=>{
     // Sécurité : la tige n’est jamais prise en compte hors alu 30/10
     if (catVal !== "alu30" && elTige) {
       elTige.checked = false;
+      elTigeFiletee.checked = false;
     }
 
     const fin = $("finitionLaque").checked ? 'laqué' : 'brut';
@@ -738,7 +747,9 @@ $("btnAddDevis").addEventListener("click", ()=>{
     const supFixTaquet = $("optFixation").checked ? ' + fixation entretoise à clipser (taquet)' : '';
     const supFixTige = (catVal === "alu30" && elTige && elTige.checked)
       ? ' + tige 6 mm aluminium soudée à sceller'
-      : '';
+      : (catVal === 'alu30' && elTigeFiletee.checked)
+        ? ' + tige filetée longueur 20 mm ou 30 mm'
+        : '';
 
     const optLisse = $("optLisse");
     const lisseMM = Number($("lisseLongueur")?.value || 0);
